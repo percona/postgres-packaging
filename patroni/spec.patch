@@ -1,0 +1,113 @@
+--- patroni.spec        2019-07-29 16:50:38.911384876 -0700
++++ patroni.spec    2019-07-29 16:51:14.657231343 -0700
+@@ -1,19 +1,24 @@
++%global        _enable_debug_package 0
++%global        __os_install_post /usr/lib/rpm/brp-compress %{nil}
++%global        debug_package %{nil}
++%define        _build_id_links none
+ %define        ENVNAME  patroni
+-%define        INSTALLPATH /opt/app/patroni
+-%define debug_package %{nil}
+-Name:          patroni
++%define        INSTALLPATH /opt/
++%define        debug_package %{nil}
++Name:          percona-patroni
+ Version:       1.6.0
+-Release:       1.rhel7
++Release:       1%{dist}
++Epoch:         1
+ License:       MIT
+ Summary:       PostgreSQL high-availability manager
+-Source:        patroni-1.6.0.tar.gz
++Source:        percona-patroni-1.6.0.tar.gz
+ Source1:       patroni-customizations.tar.gz
+ Patch0:        service-info-only-in-pretty-format.patch
+ Patch1:        patronictl-reinit-wait-rebased-1.6.0.patch
+ Patch2:        add-sample-config.patch
+ Patch3:        better-startup-script.patch
+ BuildRoot:     %{_tmppath}/%{buildprefix}-buildroot
+-Requires:      /usr/bin/python2.7, postgresql-server, libyaml
++Requires:      /usr/bin/python2.7, percona-postgresql11-server, libyaml
+ BuildRequires: prelink libyaml-devel gcc
+ Requires(post): %{_sbindir}/update-alternatives
+ Requires(postun):       %{_sbindir}/update-alternatives
+@@ -39,7 +44,7 @@
+ %install
+ rm -rf $RPM_BUILD_ROOT
+ mkdir -p $RPM_BUILD_ROOT%{INSTALLPATH}
+-virtualenv --distribute $RPM_BUILD_ROOT%{INSTALLPATH}
++virtualenv -v --distribute $RPM_BUILD_ROOT%{INSTALLPATH}
+ grep -v psycopg2 requirements.txt | sed 's/kubernetes=.*/kubernetes/' > requirements-venv.txt
+ $RPM_BUILD_ROOT%{INSTALLPATH}/bin/pip install -U setuptools psycopg2-binary
+ $RPM_BUILD_ROOT%{INSTALLPATH}/bin/pip install -r requirements-venv.txt
+@@ -65,18 +70,21 @@
+ 
+ # undo prelinking
+ find $RPM_BUILD_ROOT%{INSTALLPATH}/bin/ -type f -perm /u+x,g+x -exec /usr/sbin/prelink -u {} \;
+-# Remove debug info containing BUILDROOT. Hopefully nobody needs to debug or profile the python modules
+-find $RPM_BUILD_ROOT%{INSTALLPATH}/lib/ -type f -name '*.so' -exec /usr/bin/strip -g {} \;
+-
++ls $RPM_BUILD_ROOT%{INSTALLPATH} > patroni.txt
++mkdir $RPM_BUILD_ROOT%{INSTALLPATH}/patroni
++find $RPM_BUILD_ROOT/ -type d -name ".build-id" -exec rm -rf {} \;
++for file in $(cat patroni.txt); do
++  mv $RPM_BUILD_ROOT%{INSTALLPATH}/$file $RPM_BUILD_ROOT%{INSTALLPATH}/patroni
++done
+ 
+ %post
+ %{_sbindir}/update-alternatives --install %{_bindir}/patroni \
+-  patroni %{INSTALLPATH}/bin/patroni 10 \
+-  --slave %{_bindir}/patronictl patroni-patronictl %{INSTALLPATH}/bin/patronictl
++  patroni %{INSTALLPATH}patroni/bin/patroni 100 \
++  --slave %{_bindir}/patronictl patroni-patronictl %{INSTALLPATH}patroni/bin/patronictl
+ 
+ %postun
+ if [ $1 -eq 0 ] ; then
+-  %{_sbindir}/update-alternatives --remove patroni %{INSTALLPATH}/bin/patroni
++  %{_sbindir}/update-alternatives --remove patroni %{INSTALLPATH}patroni/bin/patroni
+ fi
+ 
+ %clean
+@@ -84,38 +92,11 @@
+ 
+ %files
+ %defattr(-,root,root)
+-/opt/app/patroni
+-%attr(-, postgres, postgres) /opt/app/patroni/etc
++/opt/patroni
++%attr(-, postgres, postgres) /opt/patroni/etc
+ %attr(664, root, root) /lib/systemd/system/patroni.service
+ %attr(664, root, root) /lib/systemd/system/patroni-watchdog.service
+ 
+ %changelog
+-* Mon Apr 8 2019 Julian Markwort 1.6.0-1.rhel7
+-- Update to 1.6.0
+-
+-* Mon Apr 8 2019 Ants Aasma 1.5.6-1.rhel7
+-- Update to 1.5.6
+-
+-* Mon Apr 1 2019 Anton Patsev 1.5.5-1.rhel7
+-- Update to 1.5.5
+-
+-* Fri Sep 21 2018 Ants Aasma 1.5.0-1.rhel7
+-- Update to 1.5.0
+-
+-* Wed May 23 2018 Ants Aasma 1.4.4-1.rhel7
+-- Update to 1.4.4
+-- Add patronictl reinit --wait feature
+-
+-* Thu May 10 2018 Ants Aasma 1.4.3-2.rhel7
+-- Only display service info output in pretty format.
+-
+-* Tue May 8 2018 Ants Aasma  1.4.3-1.rhel7
+-- Update to 1.4.3
+-
+-* Fri Dec 8 2017 Ants Aasma  1.3.6-1.rhel7
+-- Update to 1.3.6
+-
+-* Sat Sep 30 2017 Ants Aasma  1.3.4-2.rhel7
+-- Add warning for cluster being in paused mode
+-- Pull in master changes up to cfdda23e
+-
++* Mon Jul 29 2019 Evgeniy Patlan <evgeniy.patlan@percona.com>  1.5.6-1
++- Initial build

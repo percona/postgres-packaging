@@ -1,0 +1,20 @@
+--- supported-versions	2019-07-20 13:43:18.000000000 +0000
++++ supported-versions	2019-07-22 13:20:02.799751987 +0000
+@@ -83,7 +83,7 @@
+         14.04) /bin/echo -e "9.3" ;;
+         16.04|16.10) /bin/echo -e "9.5" ;;
+         17.04|17.10) /bin/echo -e "9.6" ;;
+-        18.04|18.10) /bin/echo -e "10" ;;
++        18.04|18.10) /bin/echo -e "11" ;;
+         19.04|19.10) /bin/echo -e "11" ;;
+         *)
+             echo "supported-versions: WARNING: Unknown Ubuntu release: $1" >&2
+@@ -97,7 +97,7 @@
+         6.0*)  /bin/echo -e "8.4" ;; # Squeeze
+         7|7.*) /bin/echo -e "9.1" ;; # Wheezy
+         8|8.*) /bin/echo -e "9.4" ;; # Jessie
+-        9|9.*) /bin/echo -e "9.6" ;; # Stretch
++        9|9.*) /bin/echo -e "11" ;; # Stretch
+         10|10.*) /bin/echo -e "11" ;; # Buster
+         testing | unstable)
+             /bin/echo -e "$DEFAULT" ;;

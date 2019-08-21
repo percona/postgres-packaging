@@ -1,0 +1,37 @@
+--- percona-postgresql-11.spec	2019-08-08 09:38:25.000000000 +0000
++++ percona-postgresql-11.spec	2019-08-08 09:26:27.131411924 +0000
+@@ -87,14 +88,14 @@
+ %endif
+ 
+ Summary:	PostgreSQL client programs and libraries
+-Name:		%{sname}%{pgmajorversion}
++Name:		percona-postgresql%{pgmajorversion}
+ Version:	11.5
+-Release:	1PGDG%{?dist}
++Release:	1%{?dist}
+ License:	PostgreSQL
+ Group:		Applications/Databases
+ Url:		https://www.postgresql.org/
+ 
+-Source0:	https://download.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2
++Source0:	percona-postgresql-%{version}.tar.gz
+ Source4:	%{sname}-%{pgmajorversion}-Makefile.regress
+ Source5:	%{sname}-%{pgmajorversion}-pg_config.h
+ %if %{systemd_enabled}
+@@ -550,7 +551,7 @@
+ %global __perl_requires %{SOURCE16}
+ 
+ %prep
+-%setup -q -n %{sname}-%{version}
++%setup -q -n percona-postgresql-%{version}
+ %patch1 -p0
+ %patch3 -p0
+ %patch5 -p0
+@@ -856,6 +857,7 @@
+ 	%{__make} all
+ 	popd
+ %endif
++pushd doc/src; make all; popd
+ 
+ %install
+ %{__rm} -rf %{buildroot}

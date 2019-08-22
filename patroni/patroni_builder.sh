@@ -153,6 +153,7 @@ get_sources(){
     mv all_packaging/RPM/* rpm/
     cd rpm
     wget https://raw.githubusercontent.com/percona/postgres-packaging/master/patroni/spec.patch
+    sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
     patch -p0 < spec.patch
     sed -i 's:python-psycopg2 >= 2.7.0:python-psycopg2:' patroni.spec

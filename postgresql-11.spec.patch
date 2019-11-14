@@ -1,16 +1,47 @@
---- percona-postgresql-11.spec	2019-08-08 09:38:25.000000000 +0000
-+++ percona-postgresql-11.spec	2019-08-08 09:26:27.131411924 +0000
-@@ -87,14 +88,14 @@
+--- percona-postgresql-11.spec	2019-10-01 12:57:48.541643894 +0000
++++ percona-postgresql-11.spec	2019-10-01 12:25:56.566442453 +0000
+@@ -2,6 +2,7 @@
+ %global packageversion 110
+ %global prevmajorversion 10
+ %global sname postgresql
++%global vname postgresql11
+ %global	pgbaseinstdir	/usr/pgsql-%{pgmajorversion}
+ 
+ %global beta 0
+@@ -24,8 +25,8 @@
+ %{!?pam:%global pam 1}
+ %{!?plpython2:%global plpython2 1}
+ 
+-%if 0%{?rhel} && 0%{?rhel} < 7
+-# RHEL 6 does not have Python 3
++%if 0%{?rhel} && 0%{?rhel} <= 7
++# RHEL 6 and 7 does not have Python 3
+ %{!?plpython3:%global plpython3 0}
+ %endif
+ 
+@@ -36,9 +37,8 @@
+ %global python3_build_list hstore_plpython jsonb_plpython ltree_plpython
+ %endif
+ 
+-%if 0%{?rhel} >= 7
+-# Support Python3 on RHEL/CentOS 7 as of 7.7+.
+-# RHEL 8 uses Python3
++%if 0%{?rhel} && 0%{?rhel} >= 8
++# RHEL 8 now uses Python3
+ %{!?plpython3:%global plpython3 1}
+ # This is the list of contrib modules that will be compiled with PY3 as well:
+ %global python3_build_list hstore_plpython jsonb_plpython ltree_plpython
+@@ -88,13 +88,14 @@
  %endif
  
  Summary:	PostgreSQL client programs and libraries
 -Name:		%{sname}%{pgmajorversion}
 +Name:		percona-postgresql%{pgmajorversion}
  Version:	11.5
--Release:	1PGDG%{?dist}
-+Release:	1%{?dist}
+-Release:	2PGDG%{?dist}
++Release:	2%{?dist}
  License:	PostgreSQL
- Group:		Applications/Databases
++Group:		Applications/Databases
  Url:		https://www.postgresql.org/
  
 -Source0:	https://download.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2
@@ -18,7 +49,205 @@
  Source4:	%{sname}-%{pgmajorversion}-Makefile.regress
  Source5:	%{sname}-%{pgmajorversion}-pg_config.h
  %if %{systemd_enabled}
-@@ -550,7 +551,7 @@
+@@ -198,14 +199,7 @@
+ %endif
+ 
+ %if %plpython3
+-%if 0%{?rhel} == 7
+-# This is supported as of RHEL/CentOS 7.7
+-BuildRequires:	python3-devel
+-Requires:	python3-libs
+-%else
+ BuildRequires:	python3-devel
+-Requires:	python3-libs
+-%endif
+ %endif
+ 
+ %if %pltcl
+@@ -279,8 +273,11 @@
+ Requires(post):	%{_sbindir}/update-alternatives
+ Requires(postun):	%{_sbindir}/update-alternatives
+ 
++BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+ Provides:	%{sname}
+-
++Provides:	%{vname}
++Conflicts:	%{sname}
++Conflicts:	%{vname}
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+ Requires:	advance-toolchain-%{atstring}-runtime
+@@ -301,8 +298,11 @@
+ 
+ %package libs
+ Summary:	The shared libraries required for any PostgreSQL clients
++Group:		Applications/Databases
+ Provides:	postgresql-libs = %{pgmajorversion}
+-Requires:	openssl-libs >= 1.0.2k
++Provides:	%{vname}-libs = %{pgmajorversion}
++Conflicts:	postgresql-libs = %{pgmajorversion}
++Conflicts:	%{vname}-libs = %{pgmajorversion}
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -317,6 +317,7 @@
+ 
+ %package server
+ Summary:	The programs needed to create and run a PostgreSQL server
++Group:		Applications/Databases
+ Requires:	%{name}%{?_isa} = %{version}-%{release}
+ Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+ Requires(pre):	/usr/sbin/useradd /usr/sbin/groupadd
+@@ -339,6 +340,9 @@
+ Requires:	/usr/sbin/useradd, /sbin/chkconfig
+ %endif
+ Provides:	postgresql-server
++Provides:	%{vname}-server
++Conflicts:	postgresql-server
++Conflicts:	%{vname}-server
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -353,7 +357,11 @@
+ 
+ %package docs
+ Summary:	Extra documentation for PostgreSQL
++Group:		Applications/Databases
+ Provides:	postgresql-docs
++Provides:	%{vname}-docs
++Conflicts:	postgresql-docs
++Conflicts:	%{vname}-docs
+ 
+ %description docs
+ The postgresql%{pgmajorversion}-docs package includes the SGML source for the documentation
+@@ -364,9 +372,13 @@
+ 
+ %package contrib
+ Summary:	Contributed source and binaries distributed with PostgreSQL
++Group:		Applications/Databases
+ Requires:	%{name}%{?_isa} = %{version}-%{release}
+ Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+ Provides:	postgresql-contrib
++Provides:	%{vname}-contrib
++Conflicts:	postgresql-contrib
++Conflicts:	%{vname}-contrib
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -379,6 +391,7 @@
+ 
+ %package devel
+ Summary:	PostgreSQL development header files and libraries
++Group:		Development/Libraries
+ Requires:	%{name}%{?_isa} = %{version}-%{release}
+ Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+ %if %icu
+@@ -401,6 +414,8 @@
+ %endif
+ 
+ Provides:	postgresql-devel
++Provides:	%{vname}-devel
++Conflicts:	%{vname}-devel
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -417,6 +432,7 @@
+ %if %llvm
+ %package llvmjit
+ Summary:	Just-in-time compilation support for PostgreSQL
++Group:		Applications/Databases
+ Requires:	%{name}-server%{?_isa} = %{version}-%{release}
+ %if 0%{?rhel} && 0%{?rhel} == 7
+ Requires:	llvm5.0 >= 5.0
+@@ -428,6 +444,9 @@
+ %endif
+ %endif
+ Provides:	postgresql-llvmjit
++Provides:	%{vname}-llvmjit
++Conflicts:	postgresql-llvmjit
++Conflicts:	%{vname}-llvmjit
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -444,6 +463,7 @@
+ %if %plperl
+ %package plperl
+ Summary:	The Perl procedural language for PostgreSQL
++Group:		Applications/Databases
+ Requires:	%{name}-server%{?_isa} = %{version}-%{release}
+ Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+ %ifarch ppc ppc64
+@@ -451,6 +471,9 @@
+ %endif
+ Obsoletes:	postgresql%{pgmajorversion}-pl
+ Provides:	postgresql-plperl
++Provides:	%{vname}-plperl
++Conflicts:	postgresql-plperl
++Conflicts:	%{vname}-plperl
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -467,11 +490,14 @@
+ %if %plpython2
+ %package plpython
+ Summary:	The Python procedural language for PostgreSQL
++Group:		Applications/Databases
+ Requires:	%{name}%{?_isa} = %{version}-%{release}
+ Requires:	%{name}-server%{?_isa} = %{version}-%{release}
+ Obsoletes:	%{name}-pl
+ Provides:	postgresql-plpython
++Conflicts:	postgresql-plpython
+ Provides:	%{name}-plpython2%{?_isa} = %{version}-%{release}
++Conflicts:	%{name}-plpython2%{?_isa} = %{version}-%{release}
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -488,10 +514,14 @@
+ %if %plpython3
+ %package plpython3
+ Summary:	The Python3 procedural language for PostgreSQL
++Group:		Applications/Databases
+ Requires:	%{name}%{?_isa} = %{version}-%{release}
+ Requires:	%{name}-server%{?_isa} = %{version}-%{release}
+ Obsoletes:	%{name}-pl
+ Provides:	postgresql-plpython3
++Provides:	%{vname}-plpython3
++Conflicts:	postgresql-plpython3
++Conflicts:	%{vname}-plpython3
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -508,11 +538,15 @@
+ %if %pltcl
+ %package pltcl
+ Summary:	The Tcl procedural language for PostgreSQL
++Group:		Applications/Databases
+ Requires:	%{name}%{?_isa} = %{version}-%{release}
+ Requires:	%{name}-server%{?_isa} = %{version}-%{release}
+ Requires:	tcl
+ Obsoletes:	%{name}-pl
+ Provides:	postgresql-pltcl
++Provides:	%{vname}-pltcl
++Conflicts:	postgresql-pltcl
++Conflicts:	%{vname}-pltcl
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -528,9 +562,13 @@
+ %if %test
+ %package test
+ Summary:	The test suite distributed with PostgreSQL
++Group:		Applications/Databases
+ Requires:	%{name}-server%{?_isa} = %{version}-%{release}
+ Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+ Provides:	postgresql-test
++Provides:	%{vname}-test
++Conflicts:	postgresql-test
++Conflicts:	%{vname}-test
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+@@ -546,7 +584,7 @@
  %global __perl_requires %{SOURCE16}
  
  %prep
@@ -27,7 +256,7 @@
  %patch1 -p0
  %patch3 -p0
  %patch5 -p0
-@@ -856,6 +857,7 @@
+@@ -852,6 +890,7 @@
  	%{__make} all
  	popd
  %endif
@@ -35,3 +264,14 @@
  
  %install
  %{__rm} -rf %{buildroot}
+@@ -978,8 +1017,8 @@
+ %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7  %{buildroot}%{pgbaseinstdir}/share/man/
+ %{__rm} -rf %{buildroot}%{_docdir}/pgsql
+ 
+-# Quick hack for RHEL < 7 and not compiled with PL/Python3 support:
+-%if 0%{?rhel} < 7 && ! 0%{?plpython3}
++# Quick hack for RHEL <= 7 and not compiled with PL/Python3 support:
++%if 0%{?rhel} <= 7 && ! 0%{?plpython3}
+ %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/hstore_plpython3u*
+ %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/jsonb_plpython3u*
+ %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/ltree_plpython3u*

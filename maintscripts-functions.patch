@@ -14,7 +14,7 @@
  
  configure_contrib_version() {
 -    _link_manpages "$1" postmaster.1.gz "postgresql-$1" "postgresql-contrib-$1"
-+    _link_manpages "$1" postmaster.1.gz "ercona-postgresql-$1" "percona-postgresql-contrib-$1"
++    _link_manpages "$1" postmaster.1.gz "percona-postgresql-$1" "percona-postgresql-contrib-$1"
  }
  
  remove_contrib_version() {

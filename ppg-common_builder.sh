@@ -130,11 +130,11 @@ get_sources(){
         for file in $(ls | grep ^postgresql); do 
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/master/control_common.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/master/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/master/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/master/rules_common.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/master/supported_versions.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/control_common.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/rules_common.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/supported_versions.patch
         patch -p0 < control_common.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -143,22 +143,23 @@ get_sources(){
         rm -rf control_common.patch maintscripts-functions.patch percona-postgresql-common.templates.patch rules_common.patch supported_versions.patch
         sed -i 's:postgresql-common:percona-postgresql-common:' percona-postgresql-common.preinst
         sed -i 's:postgresql-common:percona-postgresql-common:' percona-postgresql-common.postrm
-	sed -i 's:db_get postgresql-common:db_get percona-postgresql-common:' percona-postgresql-common.postinst
-	sed -i 's: ucfr postgresql-common:ucfr percona-postgresql-common:' percona-postgresql-common.postinst
-	rm -rf changelog
+	    sed -i 's:db_get postgresql-common:db_get percona-postgresql-common:' percona-postgresql-common.postinst
+	    sed -i 's: ucfr postgresql-common:ucfr percona-postgresql-common:' percona-postgresql-common.postinst
+	    rm -rf changelog
         echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
         echo "  * Initial Release." >> changelog
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-        sed -i 's:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:' control
-        sed -i '5,8d;' control
+        sed -i 's:percona-postgresql-plpython-$v,::' rules
+        sed -i 's:"10":"11":' supported-versions
     cd ../
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/master/percona-postgresql-common.spec.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/percona-postgresql-common.spec.patch
         patch -p0 < percona-postgresql-common.spec.patch
         rm -rf percona-postgresql-common.spec.patch
+	sed -i 's:1%:2%:' percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -447,12 +448,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="204"
+BRANCH="210"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='204'
+VERSION='210'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

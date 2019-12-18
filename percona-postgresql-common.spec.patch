@@ -1,13 +1,15 @@
---- percona-postgresql-common.spec	2019-07-04 13:01:55.921670000 +0000
-+++ percona-postgresql-common.spec	2019-07-04 13:02:02.017670000 +0000
-@@ -1,23 +1,22 @@
+--- percona-postgresql-common.spec	2019-12-18 10:55:33.206011531 +0200
++++ percona-postgresql-common.spec	2019-12-18 13:19:34.229607372 +0200
+@@ -1,23 +1,24 @@
 -Name:           postgresql-common
 +Name:           percona-postgresql-common
  Version:        %{version}
- Release:        1%{?dist}
+-Release:        1%{?dist}
++Release:        2%{?dist}
  BuildArch:      noarch
  Summary:        PostgreSQL database-cluster manager
 -Packager:       Debian PostgreSQL Maintainers <pkg-postgresql-public@lists.alioth.debian.org>
++Provides:      postgresql-common
  
  License:        GPLv2+
  URL:            https://packages.debian.org/sid/%{name}
@@ -26,16 +28,18 @@
 +%package -n percona-postgresql-client-common
  Summary: manager for multiple PostgreSQL client versions
 -%description -n postgresql-client-common
++Provides: postgresql-client-common
 +%description -n percona-postgresql-client-common
  The postgresql-client-common package provides a structure under which
  multiple versions of PostgreSQL client programs may be installed at
  the same time. It provides a wrapper which selects the right version
-@@ -25,10 +24,10 @@
+@@ -25,10 +26,11 @@
  option, an environment variable, /etc/postgresql-common/user_clusters,
  or ~/.postgresqlrc).
  
 -%package -n postgresql-server-dev-all
 +%package -n percona-postgresql-server-dev-all
++Provides: postgresql-server-dev-all
  Summary: extension build tool for multiple PostgreSQL versions
 -%description -n postgresql-server-dev-all
 -The postgresql-server-dev-all package provides the pg_buildext script for
@@ -44,7 +48,7 @@
  simplifying packaging of a PostgreSQL extension supporting multiple major
  versions of the product.
  
-@@ -36,7 +35,7 @@
+@@ -36,7 +38,7 @@
  # unpack tarball, ignoring the name of the top level directory inside
  %setup -c
  mv */* .
@@ -53,7 +57,7 @@
  echo "#!/bin/sh" > %{_builddir}/find-requires
  echo "/usr/lib/rpm/find-requires | sed -e 's/perl(Test::More)//'" >> %{_builddir}/find-requires
  chmod +x %{_builddir}/find-requires
-@@ -75,9 +74,9 @@
+@@ -75,9 +77,9 @@
  # install pg_wrapper symlinks by augmenting the existing pgdg.rpm alternatives
  while read dest link; do
      name="pgsql-$(basename $link)"
@@ -66,7 +70,7 @@
  # activate rpm-specific tweaks
  sed -i -e 's/#redhat# //' \
      %{buildroot}/usr/bin/pg_config \
-@@ -86,12 +85,11 @@
+@@ -86,12 +88,11 @@
      %{buildroot}/usr/share/postgresql-common/init.d-functions
  # install init script
  mkdir -p %{buildroot}/etc/init.d %{buildroot}/etc/logrotate.d
@@ -81,7 +85,7 @@
  
  %if 0%{?rhel} >= 7
  # Prepare systemd unit files, but only for RHEL/CentOS 7 and above...
-@@ -101,9 +99,8 @@
+@@ -101,9 +102,9 @@
  popd
  %endif
  
@@ -89,10 +93,11 @@
 +%files -n percona-postgresql-common -f files-percona-postgresql-common
  %attr(0755, root, root) %config /etc/init.d/postgresql
 -#%attr(0755, root, root) /usr/share/postgresql-common/postgresql-common.postinst
++#%attr(0755, root, root) /usr/share/postgresql-common/peprcona-postgresql-common.postinst
  /usr/share/postgresql-common/init-functions-compat
  %config /etc/postgresql-common/createcluster.conf
  %config /etc/logrotate.d/postgresql-common
-@@ -114,9 +111,9 @@
+@@ -114,9 +115,9 @@
  %config /lib/systemd/system-generators/postgresql-generator
  %endif
  
@@ -104,7 +109,7 @@
  
  %post
  # create postgres user
-@@ -136,10 +133,10 @@
+@@ -136,10 +137,10 @@
      sed -i -e '/ su /d' /etc/logrotate.d/postgresql-common || :
  fi
  

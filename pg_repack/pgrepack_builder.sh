@@ -80,8 +80,11 @@ add_percona_yum_repo(){
       mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    percona-release disable all
-    percona-release enable ppg-11 experimental
+    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
+    chmod +x percona-release.sh
+    mv percona-release.sh percona-release
+    ./percona-release disable all
+    ./percona-release enable ppg-11.6 experimental
     return
 }
 
@@ -98,7 +101,11 @@ EOL
     dpkg -i percona-release_latest.generic_all.deb
     percona-release disable all
     rm -f percona-release_latest.generic_all.deb
-    percona-release enable ppg-11 experimental
+    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
+    chmod +x percona-release.sh
+    mv percona-release.sh percona-release   
+    ./percona-release disable all
+    ./percona-release enable ppg-11.6 experimental
     return
 }
 
@@ -135,26 +142,26 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pg_repack.properties
     rm -fr debian rpm
     git clone https://salsa.debian.org/postgresql/pg-repack.git deb_packaging
+    git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     mv deb_packaging/debian ./
-    wget wget https://raw.githubusercontent.com/percona/postgres-packaging/master/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pg_repack/rules.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pg_repack/control.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pg_repack/control.in.patch
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
-    sed -i "s:postgresql-%v:percona-postgresql-%v:" debian/rules
-    sed -i "s:debian/postgresql:debian/percona-postgresql:g" debian/rules
-    sed -i "s:postgresql-:percona-postgresql-:g" debian/control
-    sed -i "s:postgresql-:percona-postgresql-:g" debian/control.in
-    sed -i "s|Source: pg-repack|Source: percona-pg-repack|" debian/control.in
-    sed -i "s|Source: pg-repack|Source: percona-pg-repack|" debian/control
-    sed -i 's:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:' debian/control
-    sed -i '5,6d;' debian/control
-    sed -i 's:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:' debian/control.in
-    sed -i '5,6d;' debian/control.in
+    cd debian
+    patch -p0 < ../rules.patch
+    patch -p0 < ../control.patch
+    patch -p0 < ../control.in.patch
+    cd ../
+    rm -f control.in.patch control.patch rules.patch
     echo 11 > debian/pgversions
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/master/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/master/pg_repack/pg_repack-pg11-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pg_repack/pg_repack.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pg_repack/pg_repack-pg11-makefile-pgxs.patch
     cd ${WORKDIR}
     #
     source pg_repack.properties
@@ -225,15 +232,10 @@ install_deps() {
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
       add_percona_apt_repo
-      LLVM_EXISTS=$(grep -c "apt.llvm.org" /etc/apt/sources.list)
-      if [ ${LLVM_EXISTS} = 0 ]; then
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-          echo "deb http://apt.llvm.org/${DEBIAN}/ llvm-toolchain-${DEBIAN}-7 main" >> /etc/apt/sources.list
-          echo "deb-src http://apt.llvm.org/${DEBIAN}/ llvm-toolchain-${DEBIAN}-7 main" >> /etc/apt/sources.list
-          apt-get --allow-unauthenticated update
-      fi
+      percona-release enable tools experimental
       apt-get update || true
-      INSTALL_LIST="build-essential percona-postgresql-11 debconf debhelper clang-7 devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+      #INSTALL_LIST="build-essential percona-postgresql-11 debconf debhelper clang-7 devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+      INSTALL_LIST="dpkg-dev build-essential percona-postgresql-11 debconf debhelper devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;
@@ -468,12 +470,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="ver_1.4.4"
+BRANCH="ver_1.4.5"
 REPO="https://github.com/reorg/pg_repack.git"
 PRODUCT=percona-pg_repack
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.4.4'
+VERSION='1.4.5'
 RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

@@ -15,9 +15,9 @@ Patch0:         pg_repack-pg%{pgmajorversion}-makefile-pgxs.patch
 URL:            https://pgxn.org/dist/pg_repack/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
 
-BuildRequires:  percona-postgresql%{pgmajorversion}-devel, percona-postgresql%{pgmajorversion}
-Requires:       percona-postgresql%{pgmajorversion}
-
+BuildRequires:  percona-postgresql%{pgmajorversion}-devel = 11.6 , percona-postgresql%{pgmajorversion} = 11.6
+Requires:       percona-postgresql%{pgmajorversion} = 11.6
+Provides: pg_repack
 
 %description
 pg_repack can re-organize tables on a postgres database without any locks so that
@@ -30,7 +30,6 @@ The module is developed to be a better alternative of CLUSTER and VACUUM FULL.
 
 %build
 USE_PGXS=1 make %{?_smp_mflags}
-
 
 %install
 %{__rm} -rf %{buildroot}

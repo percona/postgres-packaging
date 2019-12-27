@@ -81,7 +81,11 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11 experimental
+    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
+    chmod +x percona-release.sh
+    mv percona-release.sh percona-release
+    ./percona-release disable all
+    ./percona-release enable ppg-11.6 experimental
     return
 }
 
@@ -98,7 +102,11 @@ EOL
     dpkg -i percona-release_latest.generic_all.deb
     percona-release disable all
     rm -f percona-release_latest.generic_all.deb
-    percona-release enable ppg-11 experimental
+    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
+    chmod +x percona-release.sh
+    mv percona-release.sh percona-release
+    ./percona-release disable all
+    ./percona-release enable ppg-11.6 experimental
     return
 }
 
@@ -142,20 +150,23 @@ get_sources(){
     cd ../
     mv all_packaging/DEB/debian ./
     cd debian
-    sed -i 's|Source: patroni|Source: percona-patroni|' control
-    sed -i 's|Package: patroni|Package: percona-patroni|' control
-    sed -i 's|Maintainer: Ants Aasma <ants@cybertec.at>|Maintainer: Percona Development Team <info@percona.com>|' control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/master/patroni/rules.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/patroni/rules.patch
+    rm -f control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/patroni/control
     patch -p0 < rules.patch
     rm -rf rules.patch
+    sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
+    sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     cd ../
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/master/patroni/spec.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/patroni/spec.patch
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
     patch -p0 < spec.patch
+    sed -i 's:%patch0 -p1:#%patch0 -p1:' patroni.spec
+    sed -i 's:%patch1 -p1:#%patch1 -p1:' patroni.spec
     sed -i 's:python-psycopg2 >= 2.7.0:python-psycopg2:' patroni.spec
     rm -rf spec.patch
     cd ../
@@ -211,34 +222,27 @@ install_deps() {
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} = 7 ]; then
-          INSTALL_LIST="git wget rpm-build python-virtualenv prelink libyaml-devel gcc"
+          INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc"
           yum -y install ${INSTALL_LIST}
       else
           dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          wget https://rpmfind.net/linux/centos/7.6.1810/os/x86_64/Packages/prelink-0.5.0-9.el7.x86_64.rpm
-          INSTALL_LIST="git wget rpm-build python2-virtualenv libyaml-devel gcc"
+          wget https://rpmfind.net/linux/centos/7/os/x86_64/Packages/prelink-0.5.0-9.el7.x86_64.rpm
+          INSTALL_LIST="git wget rpm-build python3-virtualenv libyaml-devel gcc"
           yum -y install ${INSTALL_LIST}
           yum -y install prelink-0.5.0-9.el7.x86_64.rpm
-	  ln -s /usr/bin/virtualenv-2 /usr/bin/virtualenv
+	      #ln -s /usr/bin/virtualenv-2 /usr/bin/virtualenv
       fi
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
       add_percona_apt_repo
+      percona-release enable tools experimental
       apt-get update || true
-      LLVM_EXISTS=$(grep -c "apt.llvm.org" /etc/apt/sources.list)
-      if [ ${LLVM_EXISTS} = 0 ]; then
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-          echo "deb http://apt.llvm.org/${DEBIAN}/ llvm-toolchain-${DEBIAN}-7 main" >> /etc/apt/sources.list
-          echo "deb-src http://apt.llvm.org/${DEBIAN}/ llvm-toolchain-${DEBIAN}-7 main" >> /etc/apt/sources.list
-          apt-get --allow-unauthenticated update
-      fi
-
-      INSTALL_LIST="build-essential debconf debhelper clang-7 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang"
+      INSTALL_LIST="build-essential debconf debhelper clang-9 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click"
       DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
     fi
     return;
@@ -445,6 +449,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-${VERSION}
+    sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/opt/patroni/bin/patroni /etc/patroni/patroni.yml' extras/startup-scripts/patroni.service
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -471,12 +476,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v1.6.0"
+BRANCH="v1.6.3"
 REPO="https://github.com/zalando/patroni.git"
 PRODUCT=percona-patroni
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.6.0'
+VERSION='1.6.3'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

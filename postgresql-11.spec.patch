@@ -29,7 +29,7 @@
  Requires:	openssl-libs >= 1.0.2k
  %endif
  %endif
-+Provides:	%{vname}-libs = %{pgmajorversion}
++Provides:	%{vname}-libs = %{pgmajorversion} postrgesql-libs
 +Conflicts:	postgresql-libs = %{pgmajorversion}
 +Conflicts:	%{vname}-libs = %{pgmajorversion}
  

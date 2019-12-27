@@ -80,26 +80,33 @@ add_percona_yum_repo(){
       mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    percona-release disable all
-    percona-release enable ppg-11 experimental
+    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
+    chmod +x percona-release.sh
+    mv percona-release.sh percona-release
+    ./percona-release disable all
+    ./percona-release enable ppg-11.6 experimental
     return
 }
 
 add_percona_apt_repo(){
-  if [ ! -f /etc/apt/sources.list.d/percona-dev.list ]; then
-    cat >/etc/apt/sources.list.d/percona-dev.list <<EOL
+    if [ ! -f /etc/apt/sources.list.d/percona-dev.list ]; then
+        cat >/etc/apt/sources.list.d/percona-dev.list <<EOL
 deb http://jenkins.percona.com/apt-repo/ @@DIST@@ main
 deb-src http://jenkins.percona.com/apt-repo/ @@DIST@@ main
 EOL
-    sed -i "s:@@DIST@@:$OS_NAME:g" /etc/apt/sources.list.d/percona-dev.list
-  fi
-  wget -qO - http://jenkins.percona.com/apt-repo/8507EFA5.pub | apt-key add -
-  wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-  dpkg -i percona-release_latest.generic_all.deb
-  percona-release disable all
-  rm -f percona-release_latest.generic_all.deb
-  percona-release enable ppg-11 experimental
-  return
+        sed -i "s:@@DIST@@:$OS_NAME:g" /etc/apt/sources.list.d/percona-dev.list
+    fi
+    wget -qO - http://jenkins.percona.com/apt-repo/8507EFA5.pub | apt-key add -
+    wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+    dpkg -i percona-release_latest.generic_all.deb
+    percona-release disable all
+    rm -f percona-release_latest.generic_all.deb
+    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
+    chmod +x percona-release.sh
+    mv percona-release.sh percona-release
+    ./percona-release disable all
+    ./percona-release enable ppg-11.6 experimental
+    return
 }
 
 get_sources(){
@@ -141,19 +148,17 @@ get_sources(){
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
+    wget     wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgbackrest/control.patch
+    patch -p0 < control.patch
+    rm -f control.patch
     cd ../
-    sed -i "s:postgresql-common:percona-postgresql-common:" debian/control
-    sed -i "s|Source: pgbackrest|Source: percona-pgbackrest|" debian/control
-    sed -i "s|Package: pgbackrest|Package: percona-pgbackrest|g" debian/control
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
-    sed -i 's:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:' debian/control
-    sed -i '5d;' debian/control
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/master/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/master/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -294,7 +299,7 @@ build_srpm(){
     cp -av rpm/pgbackrest.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-11" --define "dist .generic" \
         --define "version ${VERSION}" rpmbuild/SPECS/pgbackrest.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -345,7 +350,7 @@ build_rpm(){
     fi
     export LIBPQ_DIR=/usr/pgsql-11/
     export LIBRARY_PATH=/usr/pgsql-11/lib/:/usr/pgsql-11/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-11" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -461,12 +466,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.16"
+BRANCH="release/2.20"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.16'
+VERSION='2.20'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

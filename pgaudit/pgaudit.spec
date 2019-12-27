@@ -1,7 +1,7 @@
 %define pginstdir /usr/pgsql-11/
 
 Name:           percona-pgaudit
-Version:        1.3.0
+Version:        1.4.0
 Release:        2%{?dist}
 Summary:        PostgreSQL Audit Extension
 
@@ -9,14 +9,18 @@ License:        PostgreSQL
 URL:            http://pgaudit.org
 Epoch:          1
 Source0:        %{name}-%{version}.tar.gz
+Patch0:		all.patch
 
 BuildRequires:  gcc
 BuildRequires:  percona-postgresql11-server >= 11, percona-postgresql11-server < 12
 BuildRequires:  percona-postgresql11-devel >= 11, percona-postgresql11-devel < 12
 BuildRequires:  openssl-devel percona-postgresql-common
 
-Requires:       percona-postgresql11 percona-postgresql11-libs percona-postgresql11-server
+Requires:       percona-postgresql11
+Requires:       percona-postgresql11-libs
+Requires:       percona-postgresql11-server
 
+Provides:       pgaudit pgaudit13
 %description
 The PostgreSQL Audit extension (pgaudit) provides detailed session
 and/or object audit logging via the standard PostgreSQL logging
@@ -34,7 +38,7 @@ trail or audit log. The term audit log is used in this documentation.
 
 %prep
 %setup -q -n %{name}-%{version}
-
+%patch0
 
 %build
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-11/bin/pg_config:' Makefile
@@ -54,7 +58,7 @@ sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-11/bin/pg_config:' Makefi
 %defattr(-,root,root,-)
 %doc %{pginstdir}/doc/extension/README-pgaudit.md
 %{pginstdir}/lib/pgaudit.so
-%{pginstdir}/share/extension/pgaudit--1.3*.sql
+%{pginstdir}/share/extension/pgaudit--1.4*.sql
 %{pginstdir}/lib/bitcode/pgaudit*.bc
 %{pginstdir}/lib/bitcode/pgaudit/pgaudit*.bc
 %{pginstdir}/share/extension/pgaudit.control

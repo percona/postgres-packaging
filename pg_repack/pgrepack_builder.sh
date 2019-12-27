@@ -103,7 +103,7 @@ EOL
     rm -f percona-release_latest.generic_all.deb
     wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
     chmod +x percona-release.sh
-    mv percona-release.sh percona-release   
+    mv percona-release.sh percona-release
     ./percona-release disable all
     ./percona-release enable ppg-11.6 experimental
     return

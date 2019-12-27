@@ -1,0 +1,44 @@
+--- control	2019-12-26 10:46:11.825296546 +0200
++++ control	2019-12-26 10:46:00.113354204 +0200
+@@ -1,8 +1,7 @@
+-Source: pgbackrest
++Source: percona-pgbackrest
+ Section: database
+ Priority: optional
+-Maintainer: Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>
+-Uploaders: Adrian Vondendriesch <adrian.vondendriesch@credativ.de>
++Maintainer: Percona Development Team <info@percona.com>
+ Build-Depends: debhelper (>= 9),
+                libperl-dev,
+                libpq-dev,
+@@ -16,25 +15,27 @@
+ Vcs-Git: https://salsa.debian.org/postgresql/pgbackrest.git
+ Vcs-Browser: https://salsa.debian.org/postgresql/pgbackrest
+ 
+-Package: pgbackrest
++Package: percona-pgbackrest
+ Architecture: any
+ Depends: perl,
+-         postgresql-common,
++         percona-postgresql-common,
+          ${misc:Depends},
+          ${perl:Depends},
+          ${shlibs:Depends}
+ Suggests: pgbackrest-doc
++provides: pgbackrest
+ Description: Reliable PostgreSQL Backup & Restore
+  pgBackRest is a simple, reliable backup and restore system for PostgreSQL
+  that can seamlessly scale up to the largest databases and workloads.
+  .
+  This package contains all required binaries, scripts and libraries.
+ 
+-Package: pgbackrest-doc
++Package: percona-pgbackrest-doc
+ Architecture: all
+ Multi-Arch: foreign
+ Section: doc
+ Depends: ${misc:Depends}
++Provides: pgbackrest-doc
+ Description: Documentation package for pgbackrest
+  pgBackRest is a simple, reliable backup and restore system for PostgreSQL
+  that can seamlessly scale up to the largest databases and workloads.

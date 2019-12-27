@@ -11,19 +11,23 @@ Source:         %{name}-%{version}.tar.gz
 Source1:        pgbackrest.conf
 BuildRequires:  libxml2-devel
 BuildRequires:  openssl-devel
+BuildRequires: zlib-devel perl-ExtUtils-Embed
 BuildRequires:  perl
 BuildRequires:  perl-libxml-perl
 BuildRequires:  perl(DBD::Pg)
 BuildRequires:  perl(Digest::SHA)
 BuildRequires:  perl(IO::Socket::SSL)
 BuildRequires:  perl(JSON::PP)
+BuildRequires:	percona-postgresql11-devel
 Requires:       perl-libxml-perl
 Requires:       perl(DBD::Pg)
 Requires:       perl(Digest::SHA)
 Requires:       perl(IO::Socket::SSL)
 Requires:       perl(JSON::PP)
 Requires:	perl(Time::HiRes)
-Requires:	perl(Compress::Raw::Zlib)
+Requires:	perl(Compress::Raw::Zlib) zlib
+Requires:	postgresql-libs
+Epoch:		1
 
 %description
 pgBackRest aims to be a simple, reliable backup and restore system that can
@@ -41,7 +45,8 @@ are required to perform a backup which increases security.
 
 %build
 pushd src
-%configure
+export CPPFLAGS='-I %{pginstdir}/include'
+LDFLAGS='-L%{pginstdir}/lib' %configure
 %{__make}
 popd
 
@@ -73,3 +78,4 @@ popd
 %changelog
 * Tue Jul 16 2019  Evgeniy Patlan <evgeniy.patlan@percona.com> - 2.15.1
 - First build of pgbackrest for Percona.
+

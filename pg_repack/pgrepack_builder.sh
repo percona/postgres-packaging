@@ -84,7 +84,7 @@ add_percona_yum_repo(){
     chmod +x percona-release.sh
     mv percona-release.sh percona-release
     ./percona-release disable all
-    ./percona-release enable ppg-11.6 experimental
+    ./percona-release enable ppg-11.6 testing
     return
 }
 
@@ -105,7 +105,7 @@ EOL
     chmod +x percona-release.sh
     mv percona-release.sh percona-release
     ./percona-release disable all
-    ./percona-release enable ppg-11.6 experimental
+    ./percona-release enable ppg-11.6 testing
     return
 }
 

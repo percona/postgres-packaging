@@ -25,116 +25,312 @@
  Source4:	%{sname}-%{pgmajorversion}-Makefile.regress
  Source5:	%{sname}-%{pgmajorversion}-pg_config.h
  %if %{systemd_enabled}
-@@ -300,6 +301,9 @@
- Requires:	openssl-libs >= 1.0.2k
+@@ -263,12 +264,16 @@
+ Requires(postun):	initscripts
  %endif
- %endif
-+Provides:	%{vname}-libs = %{pgmajorversion} postrgesql-libs
-+Conflicts:	postgresql-libs = %{pgmajorversion}
-+Conflicts:	%{vname}-libs = %{pgmajorversion}
+ 
+-Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
++Requires:	%{name}-libs >= %{version}-%{release}
+ 
+ Requires(post):	%{_sbindir}/update-alternatives
+ Requires(postun):	%{_sbindir}/update-alternatives
++Epoch:		1
+ 
+-Provides:	%{sname} >= %{version}-%{release}
++Provides:	%{sname} = %{epoch}:%{version}-%{release}
++Provides:	%{vname} = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname} <= %{version}-%{release}
++Obsoletes:	%{vname} <= %{version}-%{release}
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -336,6 +340,9 @@
+@@ -290,7 +295,6 @@
+ 
+ %package libs
+ Summary:	The shared libraries required for any PostgreSQL clients
+-Provides:	postgresql-libs = %{pgmajorversion}
+ %if 0%{?rhel} && 0%{?rhel} <= 6
+ Requires:	openssl
+ %else
+@@ -300,11 +304,17 @@
+ Requires:	openssl-libs >= 1.0.2k
+ %endif
+ %endif
++Provides:	%{sname}-libs = %{epoch}:%{version}-%{release}
++Provides:	%{vname}-libs = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-libs <= %{version}-%{release}
++Obsoletes:	%{vname}-libs <= %{version}-%{release}
++Conflicts:	postgresql-libs	%{vname}-libs
+ 
+ %ifarch ppc64 ppc64le
+ AutoReq:	0
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description libs
+ The postgresql%{pgmajorversion}-libs package provides the essential shared libraries for any
+@@ -314,8 +324,8 @@
+ 
+ %package server
+ Summary:	The programs needed to create and run a PostgreSQL server
+-Requires:	%{name}%{?_isa} = %{version}-%{release}
+-Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
++Requires:	%{name}%{?_isa} >= %{version}-%{release}
++Requires:	%{name}-libs%{?_isa} >= %{version}-%{release}
+ Requires(pre):	/usr/sbin/useradd /usr/sbin/groupadd
+ # for /sbin/ldconfig
+ Requires(post):		glibc
+@@ -336,11 +346,18 @@
  Requires:	/usr/sbin/useradd, /sbin/chkconfig
  %endif
  Provides:	postgresql-server >= %{version}-%{release}
-+Provides:	%{vname}-server
++Provides:	%{vname}-server = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-server = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-server <= %{version}-%{release}
++Obsoletes:	%{vname}-server <= %{version}-%{release}
 +Conflicts:	postgresql-server
 +Conflicts:	%{vname}-server
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -351,6 +358,9 @@
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description server
+ PostgreSQL is an advanced Object-Relational database management system (DBMS).
+@@ -351,6 +368,13 @@
  %package docs
  Summary:	Extra documentation for PostgreSQL
  Provides:	postgresql-docs >= %{version}-%{release}
-+Provides:	%{vname}-docs
++Provides:	%{vname}-docs = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-docs = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-docs <= %{version}-%{release}
++Obsoletes:	%{vname}-docs <= %{version}-%{release}
 +Conflicts:	postgresql-docs
 +Conflicts:	%{vname}-docs
++Epoch:		1
  
  %description docs
  The postgresql%{pgmajorversion}-docs package includes the SGML source for the documentation
-@@ -364,6 +374,9 @@
- Requires:	%{name}%{?_isa} = %{version}-%{release}
- Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+@@ -361,14 +385,22 @@
+ 
+ %package contrib
+ Summary:	Contributed source and binaries distributed with PostgreSQL
+-Requires:	%{name}%{?_isa} = %{version}-%{release}
+-Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
++Requires:	%{name}%{?_isa} >= %{version}-%{release}
++Requires:	%{name}-libs >= %{version}-%{release}
  Provides:	postgresql-contrib >= %{version}-%{release}
-+Provides:	%{vname}-contrib
++Provides:	%{vname}-contrib = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-contrib = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-contrib <= %{version}-%{release}
++Obsoletes:	%{vname}-contrib <= %{version}-%{release}
 +Conflicts:	postgresql-contrib
 +Conflicts:	%{vname}-contrib
++#Epoch:		1
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -398,6 +411,8 @@
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description contrib
+ The postgresql%{pgmajorversion}-contrib package contains various extension modules that are
+@@ -376,8 +408,8 @@
+ 
+ %package devel
+ Summary:	PostgreSQL development header files and libraries
+-Requires:	%{name}%{?_isa} = %{version}-%{release}
+-Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
++Requires:	%{name}%{?_isa} >= %{version}-%{release}
++Requires:	%{name}-libs% >= %{version}-%{release}
+ %if %icu
+ Requires:	libicu-devel
+ %endif
+@@ -398,11 +430,17 @@
  %endif
  
  Provides:	postgresql-devel >= %{version}-%{release}
-+Provides:	%{vname}-devel
++Provides:	%{vname}-devel = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-devel = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-devel <= %{version}-%{release}
++Obsoletes:	%{vname}-devel <= %{version}-%{release}
 +Conflicts:	%{vname}-devel
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -425,6 +440,9 @@
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description devel
+ The postgresql%{pgmajorversion}-devel package contains the header files and libraries
+@@ -414,7 +452,7 @@
+ %if %llvm
+ %package llvmjit
+ Summary:	Just-in-time compilation support for PostgreSQL
+-Requires:	%{name}-server%{?_isa} = %{version}-%{release}
++Requires:	%{name}-server%{?_isa} >= %{version}-%{release}
+ %if 0%{?rhel} && 0%{?rhel} == 7
+ Requires:	llvm5.0 >= 5.0
+ %else
+@@ -425,11 +463,18 @@
  %endif
  %endif
  Provides:	postgresql-llvmjit >= %{version}-%{release}
-+Provides:	%{vname}-llvmjit
++Provides:	%{vname}-llvmjit = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-llvmjit = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-llvmjit <= %{version}-%{release}
++Obsoletes:	%{vname}-llvmjit <= %{version}-%{release}
 +Conflicts:	postgresql-llvmjit
 +Conflicts:	%{vname}-llvmjit
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -448,6 +466,9 @@
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description llvmjit
+ The postgresql%{pgmajorversion}-llvmjit package contains support for
+@@ -441,18 +486,25 @@
+ %if %plperl
+ %package plperl
+ Summary:	The Perl procedural language for PostgreSQL
+-Requires:	%{name}-server%{?_isa} = %{version}-%{release}
++Requires:	%{name}-server%{?_isa} >= %{version}-%{release}
+ Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+ %ifarch ppc ppc64
+ BuildRequires:	perl-devel
  %endif
  Obsoletes:	postgresql%{pgmajorversion}-pl <= %{version}-%{release}
  Provides:	postgresql-plperl >= %{version}-%{release}
-+Provides:	%{vname}-plperl
++Provides:	%{vname}-plperl = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-plperl = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-plperl <= %{version}-%{release}
++Obsoletes:	%{vname}-plperl <= %{version}-%{release}
 +Conflicts:	postgresql-plperl
 +Conflicts:	%{vname}-plperl
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -474,6 +495,9 @@
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description plperl
+ The postgresql%{pgmajorversion}-plperl package contains the PL/Perl procedural language,
+@@ -464,8 +516,8 @@
+ %if %plpython2
+ %package plpython
+ Summary:	The Python procedural language for PostgreSQL
+-Requires:	%{name}%{?_isa} = %{version}-%{release}
+-Requires:	%{name}-server%{?_isa} = %{version}-%{release}
++Requires:	%{name}%{?_isa} >= %{version}-%{release}
++Requires:	%{name}-server%{?_isa} >= %{version}-%{release}
+ Obsoletes:	%{name}-pl <= %{version}-%{release}
+ Provides:	postgresql-plpython >= %{version}-%{release}
+ Provides:	%{name}-plpython2%{?_isa} = %{version}-%{release}
+@@ -474,11 +526,19 @@
  %else
  Requires:	python2-libs
  %endif
 +Conflicts:	postgresql-plpython
 +Provides:	%{name}-plpython2%{?_isa} = %{version}-%{release}
++Provides:	%{sname}-plpython2%{?_isa} = %{epoch}:%{version}-%{release}
++Provides:	%{vname}-plpython2%{?_isa} = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-plpython2 <= %{version}-%{release}
++Obsoletes:	%{vname}-plpython2 <= %{version}-%{release}
 +Conflicts:	%{name}-plpython2%{?_isa} = %{version}-%{release}
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -495,6 +519,9 @@
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description plpython
+ The postgresql%{pgmajorversion}-plpython package contains the PL/Python procedural language,
+@@ -490,16 +550,23 @@
+ %if %plpython3
+ %package plpython3
+ Summary:	The Python3 procedural language for PostgreSQL
+-Requires:	%{name}%{?_isa} = %{version}-%{release}
+-Requires:	%{name}-server%{?_isa} = %{version}-%{release}
++Requires:	%{name}%{?_isa} >= %{version}-%{release}
++Requires:	%{name}-server%{?_isa} >= %{version}-%{release}
  Obsoletes:	%{name}-pl <= %{version}-%{release}
  Provides:	postgresql-plpython3 >= %{version}-%{release}
  Requires:	python3-libs
-+Provides:	%{vname}-plpython3
++Provides:	%{vname}-plpython3 = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-plpython3 = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-plpython3 <= %{version}-%{release}
++Obsoletes:	%{vname}-plpython3 <= %{version}-%{release}
 +Conflicts:	postgresql-plpython3
 +Conflicts:	%{vname}-plpython3
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -516,6 +543,9 @@
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description plpython3
+ The postgresql%{pgmajorversion}-plpython3 package contains the PL/Python3 procedural language,
+@@ -511,16 +578,23 @@
+ %if %pltcl
+ %package pltcl
+ Summary:	The Tcl procedural language for PostgreSQL
+-Requires:	%{name}%{?_isa} = %{version}-%{release}
+-Requires:	%{name}-server%{?_isa} = %{version}-%{release}
++Requires:	%{name}%{?_isa} >= %{version}-%{release}
++Requires:	%{name}-server%{?_isa} >= %{version}-%{release}
  Requires:	tcl
  Obsoletes:	%{name}-pl <= %{version}-%{release}
  Provides:	postgresql-pltcl >= %{version}-%{release}
-+Provides:	%{vname}-pltcl
++Provides:	%{vname}-pltcl = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-pltcl = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-pltcl <= %{version}-%{release}
++Obsoletes:	%{vname}-pltcl <= %{version}-%{release}
 +Conflicts:	postgresql-pltcl
 +Conflicts:	%{vname}-pltcl
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -534,6 +564,9 @@
- Requires:	%{name}-server%{?_isa} = %{version}-%{release}
- Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description pltcl
+ PostgreSQL is an advanced Object-Relational database management
+@@ -531,14 +605,21 @@
+ %if %test
+ %package test
+ Summary:	The test suite distributed with PostgreSQL
+-Requires:	%{name}-server%{?_isa} = %{version}-%{release}
+-Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
++Requires:	%{name}-server%{?_isa} >= %{version}-%{release}
++Requires:	%{name}-devel%{?_isa} >= %{version}-%{release}
  Provides:	postgresql-test >= %{version}-%{release}
-+Provides:	%{vname}-test
++Provides:	%{vname}-test = %{epoch}:%{version}-%{release}
++Provides:	%{sname}-test = %{epoch}:%{version}-%{release}
++Obsoletes:	%{sname}-test <= %{version}-%{release}
++Obsoletes:	%{vname}-test <= %{version}-%{release}
 +Conflicts:	postgresql-test
 +Conflicts:	%{vname}-test
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
-@@ -549,7 +582,7 @@
+ Requires:	advance-toolchain-%{atstring}-runtime
+ %endif
++Epoch:		1
+ 
+ %description test
+ The postgresql%{pgmajorversion}-test package contains files needed for various tests for the
+@@ -549,7 +630,7 @@
  %global __perl_requires %{SOURCE16}
  
  %prep
@@ -143,7 +339,7 @@
  %patch1 -p0
  %patch3 -p0
  %patch5 -p0
-@@ -855,6 +888,7 @@
+@@ -855,6 +936,7 @@
  	%{__make} all
  	popd
  %endif

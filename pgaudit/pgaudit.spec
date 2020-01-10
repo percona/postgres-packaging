@@ -12,8 +12,8 @@ Source0:        %{name}-%{version}.tar.gz
 Patch0:		all.patch
 
 BuildRequires:  gcc
-BuildRequires:  percona-postgresql11-server >= 11, percona-postgresql11-server < 12
-BuildRequires:  percona-postgresql11-devel >= 11, percona-postgresql11-devel < 12
+BuildRequires:  percona-postgresql11-server
+BuildRequires:  percona-postgresql11-devel
 BuildRequires:  openssl-devel percona-postgresql-common
 
 Requires:       percona-postgresql11

@@ -14,7 +14,7 @@ Homepage: http://pgaudit.org/
 
 Package: percona-postgresql-PGVERSION-pgaudit
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, percona-postgresql-PGVERSION (= 11.6)
+Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-PGVERSION | percona-postgresql-PGVERSION
 Provides: pgaudit, postgresql-PGVERSION-pgaudit
 Description: PostgreSQL Audit Extension
  The pgAudit extension provides detailed session and/or object audit logging

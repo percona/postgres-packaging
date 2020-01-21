@@ -76,7 +76,7 @@
  Depends:
   libpq5 (>= ${source:Upstream-Version}),
 - postgresql-client-common (>= 182~),
-+ percona-postgresql-client-common (>= 182~),
++ percona-postgresql-client-common,
   sensible-utils,
   ${misc:Depends},
   ${shlibs:Depends}

@@ -20,7 +20,7 @@
 +Package: percona-postgresql-11-repack
  Architecture: any
 -Depends: postgresql-12, ${shlibs:Depends}, ${misc:Depends}
-+Depends: percona-postgresql-11, ${shlibs:Depends}, ${misc:Depends}
++Depends: postgresql-11 | percona-postgresql-11, ${shlibs:Depends}, ${misc:Depends}
 +Provides: pg-repack, postgresql-11-repack
  Description: reorganize tables in PostgreSQL databases with minimal locks
   pg_repack is a PostgreSQL extension which lets you remove bloat from tables

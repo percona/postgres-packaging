@@ -24,7 +24,7 @@
  Architecture: any
 -Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-PGVERSION
 -Suggests:
-+Depends: ${misc:Depends}, ${shlibs:Depends}, percona-postgresql-PGVERSION
++Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-PGVERSION | percona-postgresql-PGVERSION
 +Provides: pgaudit, postgresql-PGVERSION-pgaudit
  Description: PostgreSQL Audit Extension
   The pgAudit extension provides detailed session and/or object audit logging

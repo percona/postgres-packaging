@@ -5,10 +5,10 @@
  
  %:
 -	dh $@ --no-test --use-system-packages --buildsystem=dh_virtualenv
-+	dh $@ --no-test --use-system-packages --buildsystem=dh_virtualenv
++	dh $@ --with python-virtualenv --python=python3
 +
 +override_dh_virtualenv:
-+	dh_virtualenv --install-suffix=patroni --use-system-packages --no-test
++	dh_virtualenv --python=python3 --install-suffix=patroni --use-system-packages --no-test
 +
 +override_dh_strip:
  

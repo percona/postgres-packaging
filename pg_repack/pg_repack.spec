@@ -16,7 +16,7 @@ URL:            https://pgxn.org/dist/pg_repack/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
 
 BuildRequires:  percona-postgresql%{pgmajorversion}-devel, percona-postgresql%{pgmajorversion}
-Requires:       percona-postgresql%{pgmajorversion}
+Requires:       postgresql%{pgmajorversion}
 Provides: pg_repack
 
 %description

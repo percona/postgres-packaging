@@ -20,7 +20,7 @@
  Architecture: any
  Depends: perl,
 -         postgresql-common,
-+         percona-postgresql-common,
++         postgresql-common | percona-postgresql-common,
           ${misc:Depends},
           ${perl:Depends},
           ${shlibs:Depends}

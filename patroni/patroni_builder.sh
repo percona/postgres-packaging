@@ -81,32 +81,16 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
-    chmod +x percona-release.sh
-    mv percona-release.sh percona-release
-    ./percona-release disable all
-    ./percona-release enable ppg-11.6 testing
+    percona-release enable ppg-11.6 testing
     return
 }
 
 add_percona_apt_repo(){
-    if [ ! -f /etc/apt/sources.list.d/percona-dev.list ]; then
-        cat >/etc/apt/sources.list.d/percona-dev.list <<EOL
-    deb http://jenkins.percona.com/apt-repo/ @@DIST@@ main
-    deb-src http://jenkins.percona.com/apt-repo/ @@DIST@@ main
-EOL
-        sed -i "s:@@DIST@@:$OS_NAME:g" /etc/apt/sources.list.d/percona-dev.list
-    fi
-    wget -qO - http://jenkins.percona.com/apt-repo/8507EFA5.pub | apt-key add -
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
-    percona-release disable all
     rm -f percona-release_latest.generic_all.deb
-    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
-    chmod +x percona-release.sh
-    mv percona-release.sh percona-release
-    ./percona-release disable all
-    ./percona-release enable ppg-11.6 testing
+    percona-release disable all
+    percona-release enable ppg-11.6 testing
     return
 }
 
@@ -242,8 +226,21 @@ install_deps() {
       add_percona_apt_repo
       percona-release enable tools experimental
       apt-get update || true
-      INSTALL_LIST="build-essential debconf debhelper clang-9 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click"
+      if [ "x${DEBIAN}" != "xfocal" ]; then
+        INSTALL_LIST="build-essential debconf debhelper clang-9 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click"
+      else
+        INSTALL_LIST="build-essential debconf debhelper clang-9 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click"
+      fi
       DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
+      if [ "x${DEBIAN}" = "xfocal" ]; then
+        wget https://bootstrap.pypa.io/get-pip.py
+        python2.7 get-pip.py
+        rm -rf /usr/bin/python2
+        ln -s /usr/bin/python2.7 /usr/bin/python2
+        wget https://jenkins.percona.com/downloads/dh-virtualenv_1.0-1_all.deb
+        apt-get -y install ./dh-virtualenv_1.0-1_all.deb
+        rm -f dh-virtualenv_1.0-1_all.deb
+      fi
     fi
     return;
 }
@@ -449,7 +446,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-${VERSION}
-    sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/opt/patroni/bin/patroni /etc/patroni/patroni.yml' extras/startup-scripts/patroni.service
+    sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/opt/patroni/bin/patroni /etc/patroni/patroni.yml:' extras/startup-scripts/patroni.service
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b

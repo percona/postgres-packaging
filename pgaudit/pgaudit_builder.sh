@@ -81,34 +81,16 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11 testing
-    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
-    chmod +x percona-release.sh
-    mv percona-release.sh percona-release
-    ./percona-release disable all
-    ./percona-release enable ppg-11.6 testing 
+    percona-release enable ppg-11.6 testing 
     return
 }
 
 add_percona_apt_repo(){
-    if [ ! -f /etc/apt/sources.list.d/percona-dev.list ]; then
-        cat >/etc/apt/sources.list.d/percona-dev.list <<EOL
-    deb http://jenkins.percona.com/apt-repo/ @@DIST@@ main
-    deb-src http://jenkins.percona.com/apt-repo/ @@DIST@@ main
-EOL
-        sed -i "s:@@DIST@@:$OS_NAME:g" /etc/apt/sources.list.d/percona-dev.list
-    fi
-    wget -qO - http://jenkins.percona.com/apt-repo/8507EFA5.pub | apt-key add -
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
-    percona-release disable all
     rm -f percona-release_latest.generic_all.deb
-    percona-release enable ppg-11 testing 
-    wget https://raw.githubusercontent.com/percona/percona-repositories/master/scripts/percona-release.sh
-    chmod +x percona-release.sh
-    mv percona-release.sh percona-release
-    ./percona-release disable all
-    ./percona-release enable ppg-11.6 testing
+    percona-release disable all
+    percona-release enable ppg-11.6 testing
     return
 }
 

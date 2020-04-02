@@ -118,11 +118,11 @@ get_sources(){
         for file in $(ls | grep ^postgresql); do 
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/control_common.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/rules_common.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/supported_versions.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/control_common.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/rules_common.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/supported_versions.patch
         patch -p0 < control_common.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -144,7 +144,7 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/percona-postgresql-common.spec.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/percona-postgresql-common.spec.patch
         patch -p0 < percona-postgresql-common.spec.patch
         rm -rf percona-postgresql-common.spec.patch
 	sed -i 's:1%:2%:' percona-postgresql-common.spec
@@ -435,12 +435,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="210"
+BRANCH="214"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='210'
+VERSION='214'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

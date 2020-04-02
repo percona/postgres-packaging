@@ -1,5 +1,5 @@
---- control	2019-12-18 13:39:17.437338227 +0200
-+++ control	2019-12-18 13:39:29.197294953 +0200
+--- control.orig	2020-04-02 19:34:32.081450822 +0000
++++ control	2020-04-02 19:38:30.847553623 +0000
 @@ -1,20 +1,13 @@
 -Source: postgresql-common
 +Source: percona-postgresql-common
@@ -30,10 +30,10 @@
   perl (>= 5.14),
 - postgresql-client-common (= ${source:Version}),
 + percona-postgresql-client-common (= ${source:Version}),
-  procps,
   ssl-cert (>= 1.0.11),
   ucf,
-@@ -37,8 +30,12 @@
+  ${misc:Depends},
+@@ -36,8 +29,12 @@
   systemd (<< 204),
  # pg_buildext moved pg-s-d-all in 204
   postgresql-server-dev-all (<< 204),
@@ -46,7 +46,7 @@
  Description: PostgreSQL database-cluster manager
   The postgresql-common package provides a structure under which
   multiple versions of PostgreSQL may be installed and/or multiple
-@@ -55,7 +52,7 @@
+@@ -54,7 +51,7 @@
   outer joins, multiversion concurrency control, and user-defined types
   and functions.
  
@@ -55,7 +55,7 @@
  Architecture: all
  Multi-Arch: foreign
  Depends:
-@@ -63,7 +60,10 @@
+@@ -62,7 +59,10 @@
   ${misc:Depends},
   ${pgdg:Depends},
  Recommends:
@@ -66,7 +66,7 @@
  Description: manager for multiple PostgreSQL client versions
   The postgresql-client-common package provides a structure under which
   multiple versions of PostgreSQL client programs may be installed at
-@@ -79,13 +79,15 @@
+@@ -78,13 +78,15 @@
   outer joins, multiversion concurrency control, and user-defined types
   and functions.
  
@@ -84,7 +84,7 @@
  Description: extension build tool for multiple PostgreSQL versions
   The postgresql-server-dev-all package provides the pg_buildext script for
   simplifying packaging of a PostgreSQL extension supporting multiple major
-@@ -99,13 +101,15 @@
+@@ -98,13 +100,15 @@
   outer joins, multiversion concurrency control, and user-defined types
   and functions.
  
@@ -103,7 +103,7 @@
  Description: object-relational SQL database (supported version)
   This metapackage always depends on the currently supported PostgreSQL
   database server version.
-@@ -118,12 +122,14 @@
+@@ -117,12 +121,14 @@
   concurrency control.  Graphical user interfaces and bindings for many
   programming languages are available as well.
  
@@ -120,7 +120,7 @@
  Description: front-end programs for PostgreSQL (supported version)
   This metapackage always depends on the currently supported database
   client package for PostgreSQL.
-@@ -136,13 +142,15 @@
+@@ -135,13 +141,15 @@
   concurrency control.  Graphical user interfaces and bindings for many
   programming languages are available as well.
  
@@ -138,7 +138,7 @@
  Description: documentation for the PostgreSQL database management system
   This metapackage always depends on the currently supported PostgreSQL
   database documentation package.
-@@ -155,11 +163,13 @@
+@@ -154,11 +162,13 @@
   concurrency control.  Graphical user interfaces and bindings for many
   programming languages are available as well.
  
@@ -154,7 +154,7 @@
  Description: additional facilities for PostgreSQL (supported version)
   This metapackage always depends on the currently supported PostgreSQL
   database contrib package.
-@@ -172,14 +182,16 @@
+@@ -171,14 +181,16 @@
   concurrency control.  Graphical user interfaces and bindings for many
   programming languages are available as well.
  

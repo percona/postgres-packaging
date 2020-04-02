@@ -129,6 +129,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/control.patch
         wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/rules.patch
         patch -p0 < control.patch
+        sed -i 213d control
         patch -p0 < rules.patch
         sed -i 's/postgresql-11/percona-postgresql-11/' percona-postgresql-11.templates
         rm -rf control.patch rules.patch

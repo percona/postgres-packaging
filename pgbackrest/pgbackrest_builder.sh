@@ -80,8 +80,12 @@ add_percona_yum_repo(){
       mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
+    mv percona-release.sh /usr/bin/percona-release
+    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.6 testing
+    percona-release enable ppg-11.7 testing
+    percona-release enable tools testing
     return
 }
 
@@ -89,8 +93,12 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
+    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
+    mv percona-release.sh /usr/bin/percona-release
+    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.6 testing
+    percona-release enable ppg-11.7 testing
+    percona-release enable tools testing
     return
 }
 
@@ -133,7 +141,7 @@ get_sources(){
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
-    wget     wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgbackrest/control.patch
+    wget     wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgbackrest/control.patch
     patch -p0 < control.patch
     rm -f control.patch
     cd ../
@@ -142,8 +150,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -200,10 +208,20 @@ install_deps() {
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          yum -y install perl 
+          yum -y install perl lz4-libs
+      else
+        until yum -y install centos-release-scl; do
+            echo "waiting"
+            sleep 1
+        done
+        yum -y install epel-release
+        yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
       fi
       INSTALL_LIST="percona-postgresql-common percona-postgresql11-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel openssl-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
       yum -y install ${INSTALL_LIST}
+      yum -y install lz4 || true
 
     else
       export DEBIAN=$(lsb_release -sc)
@@ -211,7 +229,7 @@ install_deps() {
       apt-get -y install gnupg2
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev"
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
@@ -451,12 +469,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.20"
+BRANCH="release/2.25"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.20'
+VERSION='2.25'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

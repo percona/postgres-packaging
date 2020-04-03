@@ -9,6 +9,12 @@ Group:          Applications/Databases
 URL:            http://www.pgbackrest.org
 Source:         %{name}-%{version}.tar.gz
 Source1:        pgbackrest.conf
+%if 0%{?rhel} >= 8
+Requires:	lz4-libs
+%endif
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:	lz4
+%endif
 BuildRequires:  libxml2-devel
 BuildRequires:  openssl-devel
 BuildRequires: zlib-devel perl-ExtUtils-Embed
@@ -46,6 +52,7 @@ are required to perform a backup which increases security.
 %build
 pushd src
 export CPPFLAGS='-I %{pginstdir}/include'
+export PATH=%{pginstdir}/bin/:$PATH
 LDFLAGS='-L%{pginstdir}/lib' %configure
 %{__make}
 popd

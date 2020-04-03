@@ -140,9 +140,9 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/control.in
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgaudit/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgaudit/control.in
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgaudit/all.patch
     mv all.patch debian/patches/
     echo "all.patch" > debian/patches/series
     echo "alternative_regression_outputs.patch" >> debian/patches/series
@@ -156,7 +156,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties

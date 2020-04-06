@@ -136,7 +136,7 @@ get_sources(){
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/master/postgresql-11/master/* rpm/
+    mv pgrpms/rpm/redhat/11/postgresql/master/* rpm/
     rm -rf pgrpms
     cd rpm
         mv postgresql-11.spec percona-postgresql-11.spec

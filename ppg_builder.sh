@@ -143,6 +143,8 @@ get_sources(){
         wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/postgresql-11.spec.patch
         patch -p0 < postgresql-11.spec.patch
         rm -rf postgresql-11.spec.patch
+        sed -i '416s/llvm-toolset-7-clang >= 4.0.1//' percona-postgresql-11.spec
+        sed -i '420s/clang-devel >= 6.0.0//' percona-postgresql-11.spec
     cd ../
     cd ${WORKDIR}
     #

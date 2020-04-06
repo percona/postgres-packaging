@@ -1,5 +1,5 @@
---- percona-postgresql-11.spec	2019-12-13 13:06:53.448962404 +0200
-+++ percona-postgresql-11.spec	2019-12-13 13:06:13.889127417 +0200
+--- percona-postgresql-11.spec	2020-04-02 07:54:25.330521471 -0400
++++ percona-postgresql-11.spec	2020-04-02 08:15:17.806521471 -0400
 @@ -2,6 +2,7 @@
  %global packageversion 110
  %global prevmajorversion 10
@@ -14,8 +14,8 @@
  Summary:	PostgreSQL client programs and libraries
 -Name:		%{sname}%{pgmajorversion}
 +Name:		percona-postgresql%{pgmajorversion}
- Version:	11.6
--Release:	2PGDG%{?dist}
+ Version:	11.7
+-Release:	1PGDG%{?dist}
 +Release:	2%{?dist}
  License:	PostgreSQL
  Url:		https://www.postgresql.org/
@@ -147,10 +147,26 @@
 -Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 +Requires:	%{name}%{?_isa} >= %{version}-%{release}
 +Requires:	%{name}-libs >= %{version}-%{release}
+ %if %llvm
+ %if 0%{?rhel} && 0%{?rhel} == 7
+ # Packages come from EPEL and SCL:
+@@ -387,15 +419,6 @@
+ # Packages come from EPEL and SCL:
+ Requires:	llvm-devel >= 6.0.0 clang-devel >= 6.0.0
+ %endif
+-%if 0%{?fedora}
+-Requires:	llvm-devel >= 5.0 clang-devel >= 5.0
+-%endif
+-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+-Requires:	llvm6-devel clang6-devel
+-%endif
+-%if 0%{?suse_version} >= 1500
+-Requires:	llvm5-devel clang5-devel gcc-c++
+-%endif
+ %endif
  %if %icu
  Requires:	libicu-devel
- %endif
-@@ -398,11 +430,17 @@
+@@ -417,11 +440,17 @@
  %endif
  
  Provides:	postgresql-devel >= %{version}-%{release}
@@ -168,7 +184,7 @@
  
  %description devel
  The postgresql%{pgmajorversion}-devel package contains the header files and libraries
-@@ -414,7 +452,7 @@
+@@ -433,7 +462,7 @@
  %if %llvm
  %package llvmjit
  Summary:	Just-in-time compilation support for PostgreSQL
@@ -177,7 +193,7 @@
  %if 0%{?rhel} && 0%{?rhel} == 7
  Requires:	llvm5.0 >= 5.0
  %else
-@@ -425,11 +463,18 @@
+@@ -444,11 +473,18 @@
  %endif
  %endif
  Provides:	postgresql-llvmjit >= %{version}-%{release}
@@ -196,7 +212,7 @@
  
  %description llvmjit
  The postgresql%{pgmajorversion}-llvmjit package contains support for
-@@ -441,18 +486,25 @@
+@@ -460,18 +496,25 @@
  %if %plperl
  %package plperl
  Summary:	The Perl procedural language for PostgreSQL
@@ -223,7 +239,7 @@
  
  %description plperl
  The postgresql%{pgmajorversion}-plperl package contains the PL/Perl procedural language,
-@@ -464,8 +516,8 @@
+@@ -483,8 +526,8 @@
  %if %plpython2
  %package plpython
  Summary:	The Python procedural language for PostgreSQL
@@ -234,7 +250,7 @@
  Obsoletes:	%{name}-pl <= %{version}-%{release}
  Provides:	postgresql-plpython >= %{version}-%{release}
  Provides:	%{name}-plpython2%{?_isa} = %{version}-%{release}
-@@ -474,11 +526,19 @@
+@@ -493,11 +536,19 @@
  %else
  Requires:	python2-libs
  %endif
@@ -254,7 +270,7 @@
  
  %description plpython
  The postgresql%{pgmajorversion}-plpython package contains the PL/Python procedural language,
-@@ -490,16 +550,23 @@
+@@ -509,16 +560,23 @@
  %if %plpython3
  %package plpython3
  Summary:	The Python3 procedural language for PostgreSQL
@@ -280,7 +296,7 @@
  
  %description plpython3
  The postgresql%{pgmajorversion}-plpython3 package contains the PL/Python3 procedural language,
-@@ -511,16 +578,23 @@
+@@ -530,16 +588,23 @@
  %if %pltcl
  %package pltcl
  Summary:	The Tcl procedural language for PostgreSQL
@@ -306,7 +322,7 @@
  
  %description pltcl
  PostgreSQL is an advanced Object-Relational database management
-@@ -531,14 +605,21 @@
+@@ -550,14 +615,21 @@
  %if %test
  %package test
  Summary:	The test suite distributed with PostgreSQL
@@ -330,7 +346,7 @@
  
  %description test
  The postgresql%{pgmajorversion}-test package contains files needed for various tests for the
-@@ -549,7 +630,7 @@
+@@ -568,7 +640,7 @@
  %global __perl_requires %{SOURCE16}
  
  %prep
@@ -339,7 +355,7 @@
  %patch1 -p0
  %patch3 -p0
  %patch5 -p0
-@@ -855,6 +936,7 @@
+@@ -874,6 +946,7 @@
  	%{__make} all
  	popd
  %endif

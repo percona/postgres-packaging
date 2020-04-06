@@ -80,8 +80,12 @@ add_percona_yum_repo(){
         mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
+    mv percona-release.sh /usr/bin/percona-release
+    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.6 testing 
+    percona-release enable ppg-11.7 testing
+    percona-release enable tools testing
     return
 }
 
@@ -89,8 +93,12 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
+    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
+    mv percona-release.sh /usr/bin/percona-release
+    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.6 testing
+    percona-release enable ppg-11.7 testing
+    percona-release enable tools testing
     return
 }
 
@@ -132,9 +140,9 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/control.in
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgaudit/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgaudit/control.in
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgaudit/all.patch
     mv all.patch debian/patches/
     echo "all.patch" > debian/patches/series
     echo "alternative_regression_outputs.patch" >> debian/patches/series
@@ -148,7 +156,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -219,9 +227,9 @@ install_deps() {
         export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
         apt-get -y install gnupg2
         add_percona_apt_repo
-        percona-release enable tools experimental
+        percona-release enable tools testing
         apt-get update || true
-        INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-9 devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+        INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;

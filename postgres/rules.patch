@@ -1,28 +1,8 @@
---- rules	2019-12-17 23:50:08.861785127 +0200
-+++ rules	2019-12-17 23:52:55.076814052 +0200
-@@ -157,20 +157,20 @@
+--- rules	2019-12-21 18:24:58.000000000 +0200
++++ rules	2019-12-21 18:25:05.000000000 +0200
+@@ -126,8 +126,8 @@
  	$(MAKE) -C build/config install DESTDIR=$(CURDIR)/debian/tmp
  	$(MAKE) -C build/contrib install DESTDIR=$(CURDIR)/debian/tmp
- ifeq ($(HAVE_PYTHON2),yes)
--	$(MAKE) -C build-py2/src/pl/plpython install DESTDIR=$(CURDIR)/debian/postgresql-plpython-$(MAJOR_VER)
--	$(MAKE) -C build-py2/contrib/hstore_plpython install DESTDIR=$(CURDIR)/debian/postgresql-plpython-$(MAJOR_VER)
--	$(MAKE) -C build-py2/contrib/jsonb_plpython install DESTDIR=$(CURDIR)/debian/postgresql-plpython-$(MAJOR_VER)
--	$(MAKE) -C build-py2/contrib/ltree_plpython install DESTDIR=$(CURDIR)/debian/postgresql-plpython-$(MAJOR_VER)
-+	$(MAKE) -C build-py2/src/pl/plpython install DESTDIR=$(CURDIR)/debian/percona-postgresql-plpython-$(MAJOR_VER)
-+	$(MAKE) -C build-py2/contrib/hstore_plpython install DESTDIR=$(CURDIR)/debian/percona-postgresql-plpython-$(MAJOR_VER)
-+	$(MAKE) -C build-py2/contrib/jsonb_plpython install DESTDIR=$(CURDIR)/debian/percona-postgresql-plpython-$(MAJOR_VER)
-+	$(MAKE) -C build-py2/contrib/ltree_plpython install DESTDIR=$(CURDIR)/debian/percona-postgresql-plpython-$(MAJOR_VER)
- 	# remove files duplicated from postgresql and -server-dev
--	rm -rf debian/postgresql-plpython-$(MAJOR_VER)/usr/include
--	rm -rf debian/postgresql-plpython-$(MAJOR_VER)/usr/share/locale
--	rm debian/postgresql-plpython-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/lib/pgxs/src/pl/plpython/regress-python3-mangle.mk
-+	rm -rf debian/percona-postgresql-plpython-$(MAJOR_VER)/usr/include
-+	rm -rf debian/percona-postgresql-plpython-$(MAJOR_VER)/usr/share/locale
-+	rm debian/percona-postgresql-plpython-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/lib/pgxs/src/pl/plpython/regress-python3-mangle.mk
- 	# remove files from the "wrong" python package
--	rm -v debian/postgresql-plpython-$(MAJOR_VER)/usr/share/postgresql/$(MAJOR_VER)/extension/*plpython3*
-+	rm -v debian/percona-postgresql-plpython-$(MAJOR_VER)/usr/share/postgresql/$(MAJOR_VER)/extension/*plpython3*
- endif
  	# move SPI examples into server package (they wouldn't be in the doc package in an -A build)
 -	mkdir -p debian/postgresql-$(MAJOR_VER)/usr/share/doc/postgresql-$(MAJOR_VER)
 -	mv debian/tmp/usr/share/doc/postgresql-doc-$(MAJOR_VER)/extension debian/postgresql-$(MAJOR_VER)/usr/share/doc/postgresql-$(MAJOR_VER)/examples
@@ -31,7 +11,7 @@
  
  override_dh_auto_install-indep:
  	$(MAKE) -C build/doc install DESTDIR=$(CURDIR)/debian/tmp
-@@ -193,35 +193,35 @@
+@@ -150,35 +150,35 @@
  	dh_install --fail-missing
  
  	# link README.Debian.gz to postgresql-common
@@ -60,7 +40,7 @@
  	# these are shipped in the pl packages
 -	bash -c "rm -v debian/postgresql-$(MAJOR_VER)/usr/share/postgresql/$(MAJOR_VER)/extension/{plperl,plpython,pltcl,*_pl}*"
 -	bash -c "rm -v debian/postgresql-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/lib/{plperl,plpython,pltcl,*_pl}*"
--	rm -rfv debian/postgresql-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/lib/bitcode/*plpython3*
+-	bash -c "rm -rfv debian/postgresql-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/lib/bitcode/*{plperl,plpython,pltcl}*"
 +	bash -c "rm debian/percona-postgresql-$(MAJOR_VER)/usr/share/postgresql/$(MAJOR_VER)/extension/{plperl,plpython,pltcl,*_pl}*"
 +	bash -c "rm debian/percona-postgresql-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/lib/{plperl,plpython,pltcl,*_pl}*"
 +	rm -rfv debian/percona-postgresql-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/lib/bitcode/*plpython3*
@@ -81,7 +61,7 @@
  	fi
  
  override_dh_auto_test-indep:
-@@ -252,7 +252,7 @@
+@@ -209,7 +209,7 @@
  override_dh_installdeb-arch:
  	dh_installdeb
  	# record catversion in preinst

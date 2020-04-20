@@ -1,0 +1,182 @@
+--- control	2020-04-20 12:56:06.173278783 +0000
++++ control	2020-04-20 13:13:05.044983555 +0000
+@@ -1,11 +1,7 @@
+-Source: postgresql-12
++Source: percona-postgresql-12
+ Section: database
+ Priority: optional
+-Maintainer: Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>
+-Uploaders:
+- Martin Pitt <mpitt@debian.org>,
+- Peter Eisentraut <petere@debian.org>,
+- Christoph Berg <myon@debian.org>
++Maintainer: Percona Development Team <info@percona.com>
+ Standards-Version: 4.5.0
+ Build-Depends:
+  bison,
+@@ -40,8 +36,6 @@
+  xsltproc,
+  zlib1g-dev | libz-dev
+ Homepage: http://www.postgresql.org/
+-Vcs-Browser: https://salsa.debian.org/postgresql/postgresql
+-Vcs-Git: https://salsa.debian.org/postgresql/postgresql.git -b 12
+ 
+ Package: libpq-dev
+ Architecture: any
+@@ -50,7 +44,7 @@
+  libpq5 (= ${binary:Version}),
+  ${misc:Depends},
+  ${shlibs:Depends}
+-Suggests: postgresql-doc-12
++Suggests: percona-postgresql-doc-12
+ Description: header files for libpq5 (PostgreSQL library)
+  Header files and static library for compiling C programs to link
+  with the libpq library in order to communicate with a PostgreSQL
+@@ -131,17 +125,17 @@
+  .
+  PostgreSQL is an object-relational SQL database management system.
+ 
+-Package: postgresql-12
++Package: percona-postgresql-12
+ Architecture: any
+ Depends:
+  locales | locales-all,
+- postgresql-client-12,
+- postgresql-common (>= 182~),
++ percona-postgresql-client-12,
++ percona-postgresql-common (>= 182~),
+  ssl-cert,
+  tzdata,
+  ${misc:Depends},
+  ${shlibs:Depends}
+-Provides: postgresql-contrib-12
++Provides: percona-postgresql-contrib-12, postgresql-contrib-12, postgresql-12
+ Recommends: sysstat
+ Description: object-relational SQL database, version 12 server
+  PostgreSQL is a powerful, open source object-relational database
+@@ -157,27 +151,27 @@
+  This package provides the database server for PostgreSQL 12.
+ XB-Postgresql-Catversion: ${postgresql:Catversion}
+ 
+-#dbg#Package: postgresql-12-dbg
++#dbg#Package: percona-postgresql-12-dbg
+ #dbg#Section: debug
+ #dbg#Priority: optional
+ #dbg#Architecture: any
+-#dbg#Depends: postgresql-12 (= ${binary:Version}), ${misc:Depends}
++#dbg#Depends: percona-postgresql-12 (= ${binary:Version}), ${misc:Depends}
+ #dbg#Description: debug symbols for postgresql-12
+ #dbg# This package provides detached debugging symbols for PostgreSQL 12.
+ #dbg# .
+ #dbg# PostgreSQL is an object-relational SQL database management system.
+ 
+-Package: postgresql-client-12
++Package: percona-postgresql-client-12
+ Architecture: any
+ Multi-Arch: foreign
+ Depends:
+  libpq5 (>= ${source:Upstream-Version}),
+- postgresql-client-common (>= 182~),
++ percona-postgresql-client-common (>= 182~),
+  sensible-utils,
+  ${misc:Depends},
+  ${shlibs:Depends}
+-Suggests: postgresql-12, postgresql-doc-12
+-Provides: postgresql-client
++Suggests: percona-postgresql-12, percona-postgresql-doc-12
++Provides: percona-postgresql-client, postgresql-client, postgresql-client-12
+ Conflicts: postgresql-server-dev-12 (<< 12.1-2~)
+ Replaces: postgresql-server-dev-12 (<< 12.1-2~)
+ Description: front-end programs for PostgreSQL 12
+@@ -193,19 +187,19 @@
+  .
+  PostgreSQL is an object-relational SQL database management system.
+ 
+-Package: postgresql-server-dev-12
++Package: percona-postgresql-server-dev-12
+ Architecture: any
+ Section: libdevel
+ Depends:
+  clang-10 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
+  libpq-dev (>= 12~~),
+  llvm-10-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
+- postgresql-client-12 (>= 12.1-2~),
+- postgresql-common (>= 142~),
++ percona-postgresql-client-12, percona-postgresql-common (>= 142~),
+  ${misc:Depends},
+  ${shlibs:Depends}
+ Breaks:
+  postgresql-server-dev-all (<< 181~)
++Provides: postgresql-server-dev-all, postgresql-server-dev-all-12
+ Description: development files for PostgreSQL 12 server-side programming
+  Header files for compiling SSI code to link into PostgreSQL's backend; for
+  example, for C functions to be called from SQL.
+@@ -216,7 +210,7 @@
+  .
+  PostgreSQL is an object-relational SQL database management system.
+ 
+-Package: postgresql-doc-12
++Package: percona-postgresql-doc-12
+ Architecture: all
+ Multi-Arch: foreign
+ Section: doc
+@@ -228,16 +222,16 @@
+  .
+  PostgreSQL is an object-relational SQL database management system.
+ 
+-Package: postgresql-plperl-12
++Package: percona-postgresql-plperl-12
+ Architecture: any
+ Depends:
+  perl,
+- postgresql-12 (= ${binary:Version}),
++ percona-postgresql-12 (= ${binary:Version}),
+  ${misc:Depends},
+  ${shlibs:Depends}
+-Breaks: postgresql-12 (<< 12~beta4)
+-Replaces: postgresql-12 (<< 12~beta4)
+-Provides: postgresql-plperl
++Breaks: percona-postgresql-12 (<< 12~beta4)
++Replaces: percona-postgresql-12 (<< 12~beta4)
++Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-12
+ Description: PL/Perl procedural language for PostgreSQL 12
+  PL/Perl enables an SQL developer to write procedural language functions
+  for PostgreSQL 12 in Perl.  You need this package if you have any
+@@ -245,15 +239,15 @@
+  .
+  PostgreSQL is an object-relational SQL database management system.
+ 
+-Package: postgresql-plpython3-12
++Package: percona-postgresql-plpython3-12
+ Architecture: any
+ Depends:
+- postgresql-12 (= ${binary:Version}),
++ percona-postgresql-12 (= ${binary:Version}),
+  ${misc:Depends},
+  ${shlibs:Depends}
+-Breaks: postgresql-12 (<< 12~beta4)
+-Replaces: postgresql-12 (<< 12~beta4)
+-Provides: postgresql-plpython3
++Breaks: percona-postgresql-12 (<< 12~beta4)
++Replaces: percona-postgresql-12 (<< 12~beta4)
++Provides: postgresql-plpython3,postgresql-plpython3-12, percona-postgresql-plpython3
+ Description: PL/Python 3 procedural language for PostgreSQL 12
+  PL/Python 3 enables an SQL developer to write procedural language functions
+  for PostgreSQL 12 in Python 3.  You need this package if you have any
+@@ -261,13 +255,13 @@
+  .
+  PostgreSQL is an object-relational SQL database management system.
+ 
+-Package: postgresql-pltcl-12
++Package: percona-postgresql-pltcl-12
+ Architecture: any
+ Depends:
+- postgresql-12 (= ${binary:Version}),
++ percona-postgresql-12 (= ${binary:Version}),
+  ${misc:Depends},
+  ${shlibs:Depends}
+-Provides: postgresql-pltcl
++Provides: percona-postgresql-pltcl, postgresql-pltcl, postgresql-12-pltcl
+ Description: PL/Tcl procedural language for PostgreSQL 12
+  PL/Tcl enables an SQL developer to write procedural language functions
+  for PostgreSQL 12 in Tcl.  You need this package if you have any

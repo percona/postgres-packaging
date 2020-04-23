@@ -1,0 +1,44 @@
+--- supported-versions	2019-12-18 10:55:33.202011549 +0200
++++ supported-versions	2019-12-18 11:25:46.394063621 +0200
+@@ -49,7 +49,7 @@
+     . /usr/share/postgresql-common/pgcommon.sh
+ fi
+ 
+-DEFAULT="12"
++DEFAULT="11"
+ 
+ # functions
+ 
+@@ -83,9 +83,9 @@
+         14.04) /bin/echo -e "9.3" ;;
+         16.04|16.10) /bin/echo -e "9.5" ;;
+         17.04|17.10) /bin/echo -e "9.6" ;;
+-        18.04|18.10) /bin/echo -e "10" ;;
++        18.04|18.10) /bin/echo -e "12" ;;
+         19.04|19.10) /bin/echo -e "11" ;;
+-        20.04|20.10) /bin/echo -e "12" ;;
++        20.04|20.10) /bin/echo -e "12" ;;
+         *)
+             echo "supported-versions: WARNING: Unknown Ubuntu release: $1" >&2
+             /bin/echo -e "$DEFAULT" ;;
+@@ -98,9 +98,9 @@
+         6.0*)  /bin/echo -e "8.4" ;; # Squeeze
+         7|7.*) /bin/echo -e "9.1" ;; # Wheezy
+         8|8.*) /bin/echo -e "9.4" ;; # Jessie
+-        9|9.*) /bin/echo -e "9.6" ;; # Stretch
++        9|9.*) /bin/echo -e "12" ;; # Stretch
+         10|10.*) /bin/echo -e "11" ;; # Buster
+-        11|11.*) /bin/echo -e "12" ;; # Bullseye
++        11|11.*) /bin/echo -e "12" ;; # Bullseye
+         testing | unstable)
+             /bin/echo -e "$DEFAULT" ;;
+         *)
+@@ -117,7 +117,7 @@
+         8|8.*) /bin/echo -e "9.4\n9.6" ;; # Jessie
+         9|9.*) /bin/echo -e "9.6" ;; # Stretch
+         10|10.*) /bin/echo -e "11" ;; # Buster
+-        11|11.*) /bin/echo -e "12" ;; # Bullseye
++        11|11.*) /bin/echo -e "12" ;; # Bullseye
+         testing | unstable)
+             /bin/echo -e "$DEFAULT" ;;
+         *)

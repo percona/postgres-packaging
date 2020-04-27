@@ -139,6 +139,7 @@ get_sources(){
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
         sed -i 's:percona-postgresql-plpython-$v,::' rules
         sed -i 's:"10":"12":' supported-versions
+        sed -i 's:"11":"12":' supported-versions
     cd ../
     cd rpm
         for file in $(ls | grep postgresql); do

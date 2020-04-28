@@ -126,8 +126,8 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.2/postgres/rules.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.2/postgres/control.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/rules.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/control.patch
         patch -p0 < control.patch
         patch -p0 < rules.patch
         sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
@@ -139,7 +139,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         mv postgresql-12.spec percona-postgresql-12.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.2/postgres/postgresql-12.spec.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/postgresql-12.spec.patch
         patch -p0 < postgresql-12.spec.patch
         sed -i '91s/Source0:.*/Source0: percona-postgresql-12.2.tar.gz/' percona-postgresql-12.spec
         sed -i '411s/=/>=/' percona-postgresql-12.spec

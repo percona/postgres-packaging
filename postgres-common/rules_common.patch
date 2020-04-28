@@ -5,9 +5,9 @@
  	FLAVOR := default
  endif
 -SUPPORTED_VERSIONS := $(shell PG_SUPPORTED_VERSIONS="$(FLAVOR)" debian/supported-versions)
-+SUPPORTED_VERSIONS := 11
++SUPPORTED_VERSIONS := 12
  DEFAULT_VER := $(lastword $(SUPPORTED_VERSIONS))
-+DEFAULT_VER := 11
++DEFAULT_VER := 12
  LIBREADLINE := $(shell dpkg-query -W --showformat '$${Status} $${Package}\n' 'libreadline[0-9]'| sed -n '/ installed / {s/^.* //; p}'|sort -ru | head -n1)
  
 -#py2#PYTHON2_PACKAGE=postgresql-plpython-$v

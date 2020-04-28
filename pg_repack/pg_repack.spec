@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 %global sname   percona-pg_repack
-%global pgmajorversion 11
-%global pginstdir /usr/pgsql-11
+%global pgmajorversion 12
+%global pginstdir /usr/pgsql-12
 
 Summary:        Reorganize tables in PostgreSQL databases without any locks
 Name:           %{sname}%{pgmajorversion}

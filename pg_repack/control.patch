@@ -17,11 +17,11 @@
  Vcs-Git: https://salsa.debian.org/postgresql/pg-repack.git
  
 -Package: postgresql-12-repack
-+Package: percona-postgresql-11-repack
++Package: percona-postgresql-12-repack
  Architecture: any
 -Depends: postgresql-12, ${shlibs:Depends}, ${misc:Depends}
-+Depends: postgresql-11 | percona-postgresql-11, ${shlibs:Depends}, ${misc:Depends}
-+Provides: pg-repack, postgresql-11-repack
++Depends: postgresql-12 | percona-postgresql-12, ${shlibs:Depends}, ${misc:Depends}
++Provides: pg-repack, postgresql-12-repack
  Description: reorganize tables in PostgreSQL databases with minimal locks
   pg_repack is a PostgreSQL extension which lets you remove bloat from tables
   and indexes, and optionally restore the physical order of clustered indexes.
@@ -30,4 +30,4 @@
   .
   This package contains the pg_repack program and the server extension for
 - PostgreSQL 12.
-+ PostgreSQL 11.
++ PostgreSQL 12.

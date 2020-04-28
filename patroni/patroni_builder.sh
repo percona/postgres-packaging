@@ -84,7 +84,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.7 testing
+    percona-release enable ppg-12.2 testing
     percona-release enable tools testing
     return
 }
@@ -97,7 +97,7 @@ add_percona_apt_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.7 testing
+    percona-release enable ppg-12.2 testing
     percona-release enable tools testing
     return
 }
@@ -142,9 +142,9 @@ get_sources(){
     cd ../
     mv all_packaging/DEB/debian ./
     cd debian
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/patroni/rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/rules.patch
     rm -f control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/patroni/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/control
     patch -p0 < rules.patch
     rm -rf rules.patch
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
@@ -153,7 +153,7 @@ get_sources(){
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/patroni/spec.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/spec.patch
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
     patch -p0 < spec.patch
@@ -213,6 +213,9 @@ install_deps() {
       mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
+      if [ ${RHEL} = 8 ]; then
+          yum config-manager --set-enabled PowerTools
+      fi
       if [ ${RHEL} = 7 ]; then
           INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc"
           yum -y install ${INSTALL_LIST}
@@ -482,12 +485,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v1.6.4"
+BRANCH="v1.6.5"
 REPO="https://github.com/zalando/patroni.git"
 PRODUCT=percona-patroni
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.6.4'
+VERSION='1.6.5'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

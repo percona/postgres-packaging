@@ -89,12 +89,12 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-postgresql-common
+    PRODUCT=percona-postgresql
     echo "PRODUCT=${PRODUCT}" > percona-postgresql.properties
 
-    PRODUCT_FULL=${PRODUCT}-${VERSION}
+    PRODUCT_FULL=${PRODUCT}-${VERSION}.${RELEASE}
     echo "PRODUCT_FULL=${PRODUCT_FULL}" >> percona-postgresql.properties
-    echo "VERSION=${VERSION}" >> percona-postgresql.properties
+    echo "VERSION=${PSM_VER}" >> percona-postgresql.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgresql.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgresql.properties
     git clone "$REPO"
@@ -104,7 +104,7 @@ get_sources(){
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
-    mv postgresql-common ${PRODUCT_FULL}
+    mv postgresql ${PRODUCT_FULL}
     cd ${PRODUCT_FULL}
     if [ ! -z "$BRANCH" ]
     then
@@ -114,40 +114,39 @@ get_sources(){
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgresql.properties
-    cd debian
-        for file in $(ls | grep ^postgresql); do 
-            mv $file "percona-$file"
-        done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/control_common.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/rules_common.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/supported_versions.patch
-        patch -p0 < control_common.patch
-        patch -p0 < maintscripts-functions.patch
-        patch -p0 < percona-postgresql-common.templates.patch
-        patch -p0 < rules_common.patch
-        patch -p0 < supported_versions.patch
-        rm -rf control_common.patch maintscripts-functions.patch percona-postgresql-common.templates.patch rules_common.patch supported_versions.patch
-        sed -i 's:postgresql-common:percona-postgresql-common:' percona-postgresql-common.preinst
-        sed -i 's:postgresql-common:percona-postgresql-common:' percona-postgresql-common.postrm
-	    sed -i 's:db_get postgresql-common:db_get percona-postgresql-common:' percona-postgresql-common.postinst
-	    sed -i 's: ucfr postgresql-common:ucfr percona-postgresql-common:' percona-postgresql-common.postinst
-	    rm -rf changelog
-        echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
-        echo "  * Initial Release." >> changelog
-        echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-        sed -i 's:percona-postgresql-plpython-$v,::' rules
-        sed -i 's:"10":"11":' supported-versions
+    rm -fr debian rpm
+
+    git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
+    cd deb_packaging
+        git checkout -b 12 remotes/origin/12
     cd ../
-    cd rpm
+    mv deb_packaging/debian ./
+    rm -rf deb_packaging
+    cd debian
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/percona-postgresql-common.spec.patch
-        patch -p0 < percona-postgresql-common.spec.patch
-        rm -rf percona-postgresql-common.spec.patch
-	sed -i 's:1%:2%:' percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/rules.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/control.patch
+        patch -p0 < control.patch
+        patch -p0 < rules.patch
+        sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
+        rm -rf control.patch rules.patch
+    cd ../
+    git clone https://git.postgresql.org/git/pgrpms.git
+    mkdir rpm
+    mv pgrpms/rpm/redhat/12/postgresql/master/* rpm/
+    rm -rf pgrpms
+    cd rpm
+        mv postgresql-12.spec percona-postgresql-12.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/postgresql-12.spec.patch
+        patch -p0 < postgresql-12.spec.patch
+        sed -i '91s/Source0:.*/Source0: percona-postgresql-12.2.tar.gz/' percona-postgresql-12.spec
+        sed -i '411s/=/>=/' percona-postgresql-12.spec
+        sed -i '412s/=/>=/' percona-postgresql-12.spec
+        sed -i '85s/Name:.*/Name: percona-postgresql%{pgmajorversion}/' percona-postgresql-12.spec
+        sed -i 's:%{?_isa}::g' percona-postgresql-12.spec
+        rm -rf postgresql-12.spec.patch
     cd ../
     cd ${WORKDIR}
     #
@@ -155,7 +154,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-11/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-12/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -199,16 +198,42 @@ install_deps() {
       mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
-      yum -y install epel-release
-      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmbuild rpmdevtools wget perl-podlators"
-      yum -y install ${INSTALL_LIST}
+      if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
+        until yum -y install centos-release-scl; do
+            echo "waiting"
+            sleep 1
+        done
+        yum -y install epel-release
+        INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-toolset-7-clang llvm5.0-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmbuild rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel python3-devel"
+        yum -y install ${INSTALL_LIST}
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
+      else
+        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel"
+        yum -y install ${INSTALL_LIST}
+        yum -y install binutils gcc gcc-c++
+      fi
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
       apt-get update || true
-      INSTALL_LIST="git wget debhelper libreadline-dev lsb-release rename devscripts"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}; do
+      ENV export DEBIAN_FRONTEND=noninteractive
+      DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
+      ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+      dpkg-reconfigure --frontend noninteractive tzdata
+      wget https://repo.percona.com/apt/percona-release_1.0-17.generic_all.deb
+      dpkg -i percona-release_1.0-17.generic_all.deb
+      percona-release disable all
+      percona-release enable tools testing
+      apt-get update
+      if [ "x${DEBIAN}" != "xfocal" ]; then
+        INSTALL_LIST="bison build-essential ccache clang-9 cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-10-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-10"
+      else
+        INSTALL_LIST="bison build-essential ccache clang-9 cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-10-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-10"
+      fi
+ 
+       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
       done
@@ -218,10 +243,10 @@ install_deps() {
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-postgresql*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-postgresql*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -238,10 +263,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-postgresql*$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-postgresql*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-postgresql*$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "percona-postgresql*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -278,12 +303,18 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
+    wget https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
     cd ../../
-    cp -av rpmbuild/SOURCES/*.spec rpmbuild/SPECS
+    cp -av rpmbuild/SOURCES/percona-postgresql-12.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" --define "version ${VERSION}"\
-        rpmbuild/SPECS/percona-postgresql-common.spec
+    if [ -f /opt/rh/devtoolset-7/enable ]; then
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
+    fi
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
+        --define "pgmajorversion 12" --define "pginstdir /usr/pgsql-12"  --define "pgpackageversion 12" \
+        rpmbuild/SPECS/percona-postgresql-12.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -302,10 +333,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-postgresql-common*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-postgresql*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-postgresql-common*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-postgresql*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -327,7 +358,11 @@ build_rpm(){
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "version ${VERSION}" --define "dist .$OS_NAME" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    if [ -f /opt/rh/devtoolset-7/enable ]; then
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
+    fi
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion 12" --define "pginstdir /usr/pgsql-12" --define "pgpackageversion 12" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -350,30 +385,38 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-postgresql-common*
-    rm -f *.dsc *.orig.tar.gz *.tar.* *.changes
+    rm -rf percona-postgresql*
     get_tar "source_tarball"
+    rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'percona-postgresql*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
-    dch -D unstable --force-distribution -v "${VERSION}" "Update to new Percona Platform for PostgreSQL version ${VERSION}"
+    cd debian
+    rm -rf changelog
+    echo "percona-postgresql-12 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "  * Initial Release." >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+
+    cd ../
+    
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
     mkdir -p $CURDIR/source_deb
-    cp *.tar.* $WORKDIR/source_deb
+    cp *.debian.tar.* $WORKDIR/source_deb
     cp *_source.changes $WORKDIR/source_deb
     cp *.dsc $WORKDIR/source_deb
     cp *.orig.tar.gz $WORKDIR/source_deb
-    cp *.tar.* $CURDIR/source_deb
+    cp *.debian.tar.* $CURDIR/source_deb
     cp *_source.changes $CURDIR/source_deb
     cp *.dsc $CURDIR/source_deb
     cp *.orig.tar.gz $CURDIR/source_deb
@@ -390,7 +433,7 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    for file in 'dsc' 'orig.tar.gz' 'changes' 'common*.tar.*'
+    for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
     do
         get_deb_sources $file
     done
@@ -408,8 +451,8 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-common-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${PRODUCT}-${VERSION}-${VERSION}
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}-${RELEASE}.${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -432,17 +475,17 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="214"
-REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
+BRANCH="REL_12_2"
+REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='214'
-RELEASE='1'
-PRODUCT_FULL=${PRODUCT}-${VERSION}
+VERSION='12'
+RELEASE='2'
+PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir
 get_system

@@ -14,10 +14,10 @@
          16.04|16.10) /bin/echo -e "9.5" ;;
          17.04|17.10) /bin/echo -e "9.6" ;;
 -        18.04|18.10) /bin/echo -e "10" ;;
-+        18.04|18.10) /bin/echo -e "11" ;;
++        18.04|18.10) /bin/echo -e "12" ;;
          19.04|19.10) /bin/echo -e "11" ;;
 -        20.04|20.10) /bin/echo -e "12" ;;
-+        20.04|20.10) /bin/echo -e "11" ;;
++        20.04|20.10) /bin/echo -e "12" ;;
          *)
              echo "supported-versions: WARNING: Unknown Ubuntu release: $1" >&2
              /bin/echo -e "$DEFAULT" ;;
@@ -26,10 +26,10 @@
          7|7.*) /bin/echo -e "9.1" ;; # Wheezy
          8|8.*) /bin/echo -e "9.4" ;; # Jessie
 -        9|9.*) /bin/echo -e "9.6" ;; # Stretch
-+        9|9.*) /bin/echo -e "11" ;; # Stretch
++        9|9.*) /bin/echo -e "12" ;; # Stretch
          10|10.*) /bin/echo -e "11" ;; # Buster
 -        11|11.*) /bin/echo -e "12" ;; # Bullseye
-+        11|11.*) /bin/echo -e "11" ;; # Bullseye
++        11|11.*) /bin/echo -e "12" ;; # Bullseye
          testing | unstable)
              /bin/echo -e "$DEFAULT" ;;
          *)
@@ -38,7 +38,7 @@
          9|9.*) /bin/echo -e "9.6" ;; # Stretch
          10|10.*) /bin/echo -e "11" ;; # Buster
 -        11|11.*) /bin/echo -e "12" ;; # Bullseye
-+        11|11.*) /bin/echo -e "11" ;; # Bullseye
++        11|11.*) /bin/echo -e "12" ;; # Bullseye
          testing | unstable)
              /bin/echo -e "$DEFAULT" ;;
          *)

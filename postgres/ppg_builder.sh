@@ -141,11 +141,6 @@ get_sources(){
         mv postgresql-12.spec percona-postgresql-12.spec
         wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/postgresql-12.spec.patch
         patch -p0 < postgresql-12.spec.patch
-        sed -i '91s/Source0:.*/Source0: percona-postgresql-12.2.tar.gz/' percona-postgresql-12.spec
-        sed -i '411s/=/>=/' percona-postgresql-12.spec
-        sed -i '412s/=/>=/' percona-postgresql-12.spec
-        sed -i '85s/Name:.*/Name: percona-postgresql%{pgmajorversion}/' percona-postgresql-12.spec
-        sed -i 's:%{?_isa}::g' percona-postgresql-12.spec
         rm -rf postgresql-12.spec.patch
     cd ../
     cd ${WORKDIR}
@@ -475,8 +470,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=4
+DEB_RELEASE=4
 REVISION=0
 BRANCH="REL_12_2"
 REPO="git://git.postgresql.org/git/postgresql.git"

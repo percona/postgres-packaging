@@ -142,9 +142,9 @@ get_sources(){
     cd ../
     mv all_packaging/DEB/debian ./
     cd debian
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.2/patroni/rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/rules.patch
     rm -f control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.2/patroni/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/control
     patch -p0 < rules.patch
     rm -rf rules.patch
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
@@ -153,7 +153,7 @@ get_sources(){
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.2/patroni/spec.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/spec.patch
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
     patch -p0 < spec.patch

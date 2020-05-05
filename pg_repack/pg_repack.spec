@@ -1,3 +1,4 @@
+%global _default_patch_fuzz 2
 %global debug_package %{nil}
 %global sname   percona-pg_repack
 %global pgmajorversion 12
@@ -56,5 +57,5 @@ update-alternatives --remove pg_repack %{pginstdir}/bin/pg_repack
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Tue Aug 30 2019 Evgeniy Patlan <evgeniy.patlan@percona.com> - 1.4.4-2
+* Tue May  5 2020 Evgeniy Patlan <evgeniy.patlan@percona.com> - 1.4.5-2
 - Initial build

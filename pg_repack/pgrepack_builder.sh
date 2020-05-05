@@ -154,6 +154,10 @@ get_sources(){
     cd rpm
     wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/pg_repack.spec
     wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/pg_repack-pg12-makefile-pgxs.patch
+    cd ../
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/make.patch
+    patch -p0 < make.patch
+    rm -f make.patch
     cd ${WORKDIR}
     #
     source pg_repack.properties

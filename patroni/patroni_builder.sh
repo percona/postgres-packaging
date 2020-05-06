@@ -142,13 +142,17 @@ get_sources(){
     cd ../
     mv all_packaging/DEB/debian ./
     cd debian
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/rules.patch
+    rm -f rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/rules
     rm -f control
+    rm -f postinst
     wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/patroni/control
-    patch -p0 < rules.patch
-    rm -rf rules.patch
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
+    mv install percona-patroni.install
+    echo "debian/tmp/usr/lib" >> percona-patroni.install
+    echo "debian/tmp/usr/bin" >> percona-patroni.install
+    echo "docs/README.rst" >> percona-patroni-doc.install
     cd ../
     mkdir rpm
     mv all_packaging/RPM/* rpm/
@@ -238,11 +242,12 @@ install_deps() {
       percona-release enable tools experimental
       apt-get update || true
       if [ "x${DEBIAN}" != "xfocal" ]; then
-        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click"
+        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc"
       else
-        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click"
+        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc"
       fi
-      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
+      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST} 
+      DEBIAN_FRONTEND=noninteractive apt-get -y install python3-consul python3-kubernetes python3-cdiff || true
       if [ "x${DEBIAN}" = "xfocal" ]; then
         wget https://bootstrap.pypa.io/get-pip.py
         python2.7 get-pip.py

@@ -126,8 +126,8 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/control.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/rules.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.7/control.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.7/rules.patch
         patch -p0 < control.patch
         sed -i 213d control
         patch -p0 < rules.patch
@@ -139,12 +139,14 @@ get_sources(){
     mv pgrpms/rpm/redhat/11/postgresql/master/* rpm/
     rm -rf pgrpms
     cd rpm
-        mv postgresql-11.spec percona-postgresql-11.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/postgresql-11.spec.patch
-        patch -p0 < postgresql-11.spec.patch
-        rm -rf postgresql-11.spec.patch
-        sed -i '416s/llvm-toolset-7-clang >= 4.0.1//' percona-postgresql-11.spec
-        sed -i '420s/clang-devel >= 6.0.0//' percona-postgresql-11.spec
+#        mv postgresql-11.spec percona-postgresql-11.spec
+        rm postgresql-11.spec
+        #wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.7/postgresql-11.spec.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.7/percona-postgresql-11.spec
+        #patch -p0 < postgresql-11.spec.patch
+        #rm -rf postgresql-11.spec.patch
+        #sed -i '416s/llvm-toolset-7-clang >= 4.0.1//' percona-postgresql-11.spec
+        #sed -i '420s/clang-devel >= 6.0.0//' percona-postgresql-11.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -473,8 +475,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=4
+DEB_RELEASE=4
 REVISION=0
 BRANCH="REL_11_STABLE"
 REPO="git://git.postgresql.org/git/postgresql.git"

@@ -60,7 +60,7 @@
 +Provides:	%{vname}-libs = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-libs <= %{version}-%{release}
 +Obsoletes:	%{vname}-libs <= %{version}-%{release}
-+Conflicts:	postgresql-libs	%{vname}-libs
++#Conflicts:	postgresql-libs	%{vname}-libs
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
@@ -89,8 +89,8 @@
 +Provides:	%{sname}-server = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-server <= %{version}-%{release}
 +Obsoletes:	%{vname}-server <= %{version}-%{release}
-+Conflicts:	postgresql-server
-+Conflicts:	%{vname}-server
++#Conflicts:	postgresql-server
++#Conflicts:	%{vname}-server
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
@@ -108,8 +108,8 @@
 +Provides:	%{sname}-docs = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-docs <= %{version}-%{release}
 +Obsoletes:	%{vname}-docs <= %{version}-%{release}
-+Conflicts:	postgresql-docs
-+Conflicts:	%{vname}-docs
++#Conflicts:	postgresql-docs
++#Conflicts:	%{vname}-docs
 +Epoch:		1
  
  %description docs
@@ -127,8 +127,8 @@
 +Provides:	%{sname}-contrib = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-contrib <= %{version}-%{release}
 +Obsoletes:	%{vname}-contrib <= %{version}-%{release}
-+Conflicts:	postgresql-contrib
-+Conflicts:	%{vname}-contrib
++#Conflicts:	postgresql-contrib
++#Conflicts:	%{vname}-contrib
 +#Epoch:		1
  
  %ifarch ppc64 ppc64le
@@ -174,7 +174,7 @@
 +Provides:	%{sname}-devel = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-devel <= %{version}-%{release}
 +Obsoletes:	%{vname}-devel <= %{version}-%{release}
-+Conflicts:	%{vname}-devel
++#Conflicts:	%{vname}-devel
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
@@ -201,8 +201,8 @@
 +Provides:	%{sname}-llvmjit = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-llvmjit <= %{version}-%{release}
 +Obsoletes:	%{vname}-llvmjit <= %{version}-%{release}
-+Conflicts:	postgresql-llvmjit
-+Conflicts:	%{vname}-llvmjit
++#Conflicts:	postgresql-llvmjit
++#Conflicts:	%{vname}-llvmjit
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
@@ -228,8 +228,8 @@
 +Provides:	%{sname}-plperl = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-plperl <= %{version}-%{release}
 +Obsoletes:	%{vname}-plperl <= %{version}-%{release}
-+Conflicts:	postgresql-plperl
-+Conflicts:	%{vname}-plperl
++#Conflicts:	postgresql-plperl
++#Conflicts:	%{vname}-plperl
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
@@ -254,13 +254,13 @@
  %else
  Requires:	python2-libs
  %endif
-+Conflicts:	postgresql-plpython
++#Conflicts:	postgresql-plpython
 +Provides:	%{name}-plpython2%{?_isa} = %{version}-%{release}
 +Provides:	%{sname}-plpython2%{?_isa} = %{epoch}:%{version}-%{release}
 +Provides:	%{vname}-plpython2%{?_isa} = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-plpython2 <= %{version}-%{release}
 +Obsoletes:	%{vname}-plpython2 <= %{version}-%{release}
-+Conflicts:	%{name}-plpython2%{?_isa} = %{version}-%{release}
++#Conflicts:	%{name}-plpython2%{?_isa} = %{version}-%{release}
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
@@ -285,8 +285,8 @@
 +Provides:	%{sname}-plpython3 = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-plpython3 <= %{version}-%{release}
 +Obsoletes:	%{vname}-plpython3 <= %{version}-%{release}
-+Conflicts:	postgresql-plpython3
-+Conflicts:	%{vname}-plpython3
++#Conflicts:	postgresql-plpython3
++#Conflicts:	%{vname}-plpython3
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
@@ -311,8 +311,8 @@
 +Provides:	%{sname}-pltcl = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-pltcl <= %{version}-%{release}
 +Obsoletes:	%{vname}-pltcl <= %{version}-%{release}
-+Conflicts:	postgresql-pltcl
-+Conflicts:	%{vname}-pltcl
++#Conflicts:	postgresql-pltcl
++#Conflicts:	%{vname}-pltcl
  
  %ifarch ppc64 ppc64le
  AutoReq:	0
@@ -335,8 +335,8 @@
 +Provides:	%{sname}-test = %{epoch}:%{version}-%{release}
 +Obsoletes:	%{sname}-test <= %{version}-%{release}
 +Obsoletes:	%{vname}-test <= %{version}-%{release}
-+Conflicts:	postgresql-test
-+Conflicts:	%{vname}-test
++#Conflicts:	postgresql-test
++#Conflicts:	%{vname}-test
  
  %ifarch ppc64 ppc64le
  AutoReq:	0

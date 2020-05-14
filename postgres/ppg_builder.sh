@@ -140,7 +140,7 @@ get_sources(){
     cd rpm
         #mv postgresql-12.spec percona-postgresql-12.spec
 	rm postgresql-12.spec
-        #wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.2/postgres/postgresql-12.spec.patch
+        #wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/postgresql-12.spec.patch
         wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/postgres/percona-postgresql-12.spec
         #patch -p0 < postgresql-12.spec.patch
         #rm -rf postgresql-12.spec.patch

@@ -271,7 +271,7 @@ Requires(post):	%{_sbindir}/update-alternatives
 Requires(postun):	%{_sbindir}/update-alternatives
 Epoch:		1
 
-Obsoletes:	%{sname} = %{epoch}:%{version}-%{release}
+Provides:	%{sname} = %{epoch}:%{version}-%{release}
 Provides:	%{vname} = %{epoch}:%{version}-%{release}
 Obsoletes:	%{sname} <= %{version}-%{release}
 Obsoletes:	%{vname} <= %{version}-%{release}
@@ -305,8 +305,8 @@ Requires:	libopenssl1_0_0
 Requires:	openssl-libs >= 1.0.2k
 %endif
 %endif
-Obsoletes:	postgresql-libs >= %{version}-%{release}
-Obsoletes:	%{sname}-libs = %{epoch}:%{version}-%{release}
+Provides:	postgresql-libs >= %{version}-%{release}
+Provides:	%{sname}-libs = %{epoch}:%{version}-%{release}
 Provides:	%{vname}-libs = %{epoch}:%{version}-%{release}
 Obsoletes:	%{sname}-libs <= %{version}-%{release}
 Obsoletes:	%{vname}-libs <= %{version}-%{release}
@@ -346,9 +346,9 @@ Requires(postun):	systemd
 %else
 Requires:	/usr/sbin/useradd, /sbin/chkconfig
 %endif
-Obsoletes:	postgresql-server >= %{version}-%{release}
+Provides:	postgresql-server >= %{version}-%{release}
 Provides:	%{vname}-server = %{epoch}:%{version}-%{release}
-Obsoletes:	%{sname}-server = %{epoch}:%{version}-%{release}
+Provides:	%{sname}-server = %{epoch}:%{version}-%{release}
 Obsoletes:	%{sname}-server <= %{version}-%{release}
 Obsoletes:	%{vname}-server <= %{version}-%{release}
 
@@ -384,9 +384,9 @@ includes HTML version of the documentation.
 Summary:	Contributed source and binaries distributed with PostgreSQL
 Requires:	%{name} >= %{version}-%{release}
 Requires:	%{name}-libs >= %{version}-%{release}
-Obsoletes:	postgresql-contrib >= %{version}-%{release}
+Provides:	postgresql-contrib >= %{version}-%{release}
 Provides:	%{vname}-contrib = %{epoch}:%{version}-%{release}
-Obsoletes:	%{sname}-contrib = %{epoch}:%{version}-%{release}
+Provides:	%{sname}-contrib = %{epoch}:%{version}-%{release}
 Obsoletes:	%{sname}-contrib <= %{version}-%{release}
 Obsoletes:	%{vname}-contrib <= %{version}-%{release}
 
@@ -492,7 +492,7 @@ Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 %ifarch ppc ppc64
 BuildRequires:	perl-devel
 %endif
-Obsoletes:	postgresql%{pgmajorversion}-pl <= %{version}-%{release}
+Provides:	postgresql%{pgmajorversion}-pl <= %{version}-%{release}
 Provides:	postgresql-plperl >= %{version}-%{release}
 Provides:	%{vname}-plperl = %{epoch}:%{version}-%{release}
 Provides:	%{sname}-plperl = %{epoch}:%{version}-%{release}

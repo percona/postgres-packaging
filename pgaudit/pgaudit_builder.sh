@@ -84,8 +84,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-12.2 testing
-    percona-release enable tools testing
+    percona-release enable ppg-12.2 experimental
     return
 }
 
@@ -97,8 +96,7 @@ add_percona_apt_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-12.2 testing
-    percona-release enable tools testing
+    percona-release enable ppg-12.2 experimental
     return
 }
 
@@ -297,7 +295,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/build_scripts/master/pg_patches/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pgaudit/all.patch
     mv all.patch rpmbuild/SOURCES
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES

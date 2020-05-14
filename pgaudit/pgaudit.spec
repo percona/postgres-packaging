@@ -1,6 +1,7 @@
 %define pginstdir /usr/pgsql-12/
+%global sname	percona-pgaudit
 
-Name:           percona-pgaudit
+Name:           %{sname}14_12
 Version:        1.4.0
 Release:        2%{?dist}
 Summary:        PostgreSQL Audit Extension
@@ -8,8 +9,8 @@ Summary:        PostgreSQL Audit Extension
 License:        PostgreSQL
 URL:            http://pgaudit.org
 Epoch:          1
-Source0:        %{name}-%{version}.tar.gz
-Patch0:		all.patch
+Source0:        %{sname}-%{version}.tar.gz
+Patch0:         all.patch
 
 BuildRequires:  gcc
 BuildRequires:  percona-postgresql12-server
@@ -20,7 +21,8 @@ Requires:       postgresql12
 Requires:       postgresql12-libs
 Requires:       postgresql12-server
 
-Provides:       pgaudit pgaudit14
+Obsoletes:	pgaudit
+Obsoletes:	pgaudit14
 %description
 The PostgreSQL Audit extension (pgaudit) provides detailed session
 and/or object audit logging via the standard PostgreSQL logging
@@ -37,7 +39,7 @@ trail or audit log. The term audit log is used in this documentation.
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{sname}-%{version}
 %patch0
 
 %build

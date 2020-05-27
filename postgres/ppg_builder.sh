@@ -217,7 +217,11 @@ enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 EOL
         yum clean all
-	yum -y update llvm-devel clang-devel
+	    yum -y update llvm-devel clang-devel
+        if [ ! -f  /usr/bin/llvm-config ]; then
+            ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
+        fi
+    
       fi
     else
       export DEBIAN=$(lsb_release -sc)

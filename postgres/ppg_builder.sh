@@ -126,8 +126,8 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.3/postgres/rules.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.3/postgres/control.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/postgres/rules.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/postgres/control.patch
         patch -p0 < control.patch
         patch -p0 < rules.patch
         sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
@@ -139,7 +139,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         mv postgresql-12.spec percona-postgresql-12.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.3/postgres/postgresql-12.spec.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/postgres/postgresql-12.spec.patch
         patch -p0 < postgresql-12.spec.patch
         rm -rf postgresql-12.spec.patch
 	sed -i 's:9.0.1:9.0.0:g' percona-postgresql-12.spec
@@ -205,7 +205,7 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
-        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel clang-devel"
+        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
         cat >/etc/yum.repos.d/CENTOS8-stream-AppStream.repo <<EOL

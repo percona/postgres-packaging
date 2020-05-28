@@ -84,8 +84,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-12.2 testing
-    percona-release enable tools testing
+    percona-release enable ppg-12.3 testing
     return
 }
 
@@ -96,8 +95,7 @@ add_percona_apt_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-12.2 testing
-    percona-release enable tools testing
+    percona-release enable ppg-12.3 testing
     return
 }
 
@@ -136,10 +134,10 @@ get_sources(){
     git clone https://salsa.debian.org/postgresql/pg-repack.git deb_packaging
     git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/Makefile.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/rules.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/control.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/control.in.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/pg_repack/rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/pg_repack/control.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/pg_repack/control.in.patch
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian
@@ -152,10 +150,10 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/pg_repack-pg12-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/pg_repack/pg_repack.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/pg_repack/pg_repack-pg12-makefile-pgxs.patch
     cd ../
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.2/pg_repack/make.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/pg_repack/make.patch
     patch -p0 < make.patch
     rm -f make.patch
     cd ${WORKDIR}

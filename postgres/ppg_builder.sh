@@ -140,7 +140,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-11.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.8/postgres/percona-postgresql-11.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/postgres/percona-postgresql-11.spec
     cd ../
     cd ${WORKDIR}
     #

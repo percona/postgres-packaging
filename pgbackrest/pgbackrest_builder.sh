@@ -84,8 +84,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.7 testing
-    percona-release enable tools testing
+    percona-release enable ppg-11.8 testing
     return
 }
 
@@ -97,8 +96,7 @@ add_percona_apt_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.7 testing
-    percona-release enable tools testing
+    percona-release enable ppg-11.8 testing
     return
 }
 
@@ -141,7 +139,7 @@ get_sources(){
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
-    wget     wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgbackrest/control.patch
+    wget     wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.8/pgbackrest/control.patch
     patch -p0 < control.patch
     rm -f control.patch
     cd ../
@@ -150,8 +148,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.8/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.8/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -229,7 +227,7 @@ install_deps() {
       apt-get -y install gnupg2
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev"
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-11 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
@@ -469,12 +467,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.25"
+BRANCH="release/2.27"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.25'
+VERSION='2.27'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

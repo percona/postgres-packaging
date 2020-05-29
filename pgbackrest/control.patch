@@ -10,24 +10,21 @@
 +Maintainer: Percona Development Team <info@percona.com>
  Rules-Requires-Root: no
  Build-Depends: debhelper (>= 9),
-                perl,
-@@ -19,12 +18,13 @@
+                libbz2-dev,
+@@ -21,9 +20,10 @@
  Vcs-Git: https://salsa.debian.org/postgresql/pgbackrest.git
  Vcs-Browser: https://salsa.debian.org/postgresql/pgbackrest
  
 -Package: pgbackrest
 +Package: percona-pgbackrest
  Architecture: any
--Depends: postgresql-common,
-+Depends: postgresql-common | percona-postgresql-common,
-          ${misc:Depends},
-          ${perl:Depends},
-          ${shlibs:Depends}
+-Depends: postgresql-common, ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
++Depends: postgresql-common | percona-postgresql-common, ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
 +Provides: pgbackrest
  Suggests: pgbackrest-doc
  Description: Reliable PostgreSQL Backup & Restore
   pgBackRest is a simple, reliable backup and restore system for PostgreSQL
-@@ -32,11 +32,12 @@
+@@ -31,11 +31,12 @@
   .
   This package contains all required binaries, scripts and libraries.
  

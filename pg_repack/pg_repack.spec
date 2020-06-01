@@ -1,3 +1,4 @@
+%global _default_patch_fuzz 2
 %global debug_package %{nil}
 %global sname   percona-pg_repack
 %global pgmajorversion 11

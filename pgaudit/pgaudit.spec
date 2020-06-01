@@ -20,7 +20,7 @@ Requires:       postgresql11
 Requires:       postgresql11-libs
 Requires:       postgresql11-server
 
-Provides:       pgaudit pgaudit13
+Provides:       pgaudit pgaudit14
 %description
 The PostgreSQL Audit extension (pgaudit) provides detailed session
 and/or object audit logging via the standard PostgreSQL logging

@@ -84,8 +84,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.7 testing
-    percona-release enable tools testing
+    percona-release enable ppg-11.8 testing
     return
 }
 
@@ -97,8 +96,7 @@ add_percona_apt_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.7 testing
-    percona-release enable tools testing
+    percona-release enable ppg-11.8 testing
     return
 }
 
@@ -138,22 +136,26 @@ get_sources(){
     cd all_packaging
         git reset --hard
         git clean -xdf
-        git checkout "v1.6.4-2"
+        git checkout "v1.6.5-1"
     cd ../
     mv all_packaging/DEB/debian ./
     cd debian
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/patroni/rules.patch
+    rm -f rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/patroni/rules
     rm -f control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/patroni/control
-    patch -p0 < rules.patch
-    rm -rf rules.patch
+    rm -f postinst
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
+    mv install percona-patroni.install
+    echo "debian/tmp/usr/lib" >> percona-patroni.install
+    echo "debian/tmp/usr/bin" >> percona-patroni.install
+    echo "docs/README.rst" >> percona-patroni-doc.install
     cd ../
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/patroni/spec.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/patroni/spec.patch
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
     patch -p0 < spec.patch
@@ -213,6 +215,9 @@ install_deps() {
       mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
+      if [ ${RHEL} = 8 ]; then
+          yum config-manager --set-enabled PowerTools
+      fi
       if [ ${RHEL} = 7 ]; then
           INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc"
           yum -y install ${INSTALL_LIST}
@@ -232,14 +237,14 @@ install_deps() {
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
       add_percona_apt_repo
-      percona-release enable tools experimental
       apt-get update || true
       if [ "x${DEBIAN}" != "xfocal" ]; then
-        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click"
+        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
       else
-        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click"
+        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
       fi
-      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
+      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST} 
+      DEBIAN_FRONTEND=noninteractive apt-get -y install python3-consul python3-kubernetes python3-cdiff || true
       if [ "x${DEBIAN}" = "xfocal" ]; then
         wget https://bootstrap.pypa.io/get-pip.py
         python2.7 get-pip.py
@@ -479,16 +484,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="v1.6.4"
+BRANCH="v1.6.5"
 REPO="https://github.com/zalando/patroni.git"
 PRODUCT=percona-patroni
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.6.4'
-RELEASE='1'
+VERSION='1.6.5'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

@@ -1,0 +1,22 @@
+--- lib/Makefile	2020-05-04 18:23:16.849811888 +0000
++++ lib/Makefile	2020-05-04 18:23:48.901811888 +0000
+@@ -9,7 +9,7 @@
+ PG_CONFIG ?= pg_config
+ 
+ # version as a number, e.g. 9.1.4 -> 901
+-VERSION := $(shell $(PG_CONFIG) --version | sed 's/.* \([[:digit:].]\{1,\}\).*/\1/')
++VERSION := $(shell $(PG_CONFIG) --version | awk '{print $2}')
+ INTVERSION := $(shell echo $$(($$(echo $(VERSION).0 | sed 's/\([[:digit:]]\{1,\}\)\.\([[:digit:]]\{1,\}\).*/\1*100+\2/'))))
+ 
+ EXTENSION = pg_repack
+--- regress/Makefile	2020-05-04 18:24:36.337811888 +0000
++++ regress/Makefile	2020-05-04 18:24:59.005811888 +0000
+@@ -9,7 +9,7 @@
+ PG_CONFIG ?= pg_config
+ 
+ # version as a number, e.g. 9.1.4 -> 901
+-VERSION := $(shell $(PG_CONFIG) --version | sed 's/.* \([[:digit:].]\{1,\}\).*/\1/')
++VERSION := $(shell $(PG_CONFIG) --version | awk '{print $2}')
+ INTVERSION := $(shell echo $$(($$(echo $(VERSION).0 | sed 's/\([[:digit:]]\{1,\}\)\.\([[:digit:]]\{1,\}\).*/\1*100+\2/'))))
+ 
+ 

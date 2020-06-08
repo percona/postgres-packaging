@@ -112,9 +112,9 @@
 -Breaks:
 +#Breaks:
   postgresql-server-dev-all (<< 181~)
-+Provides: postgresql-server-dev-all (= 2:11.8-1~), postgresql-server-dev-all-11 (= 2:11.8-1~)
-+Replaces: postgresql-server-dev-all (<= 11.8-1~), postgresql-server-dev-all-11 (<= 11.8-1~)
-+Conflicts: postgresql-server-dev-all (<= 11.8-1~), postgresql-server-dev-all-11 (<= 11.8-1~)
++#Provides: postgresql-server-dev-all (= 2:11.8-1~), postgresql-server-dev-all-11 (= 2:11.8-1~)
++#Replaces: postgresql-server-dev-all (<= 11.8-1~), postgresql-server-dev-all-11 (<= 11.8-1~)
++#Conflicts: postgresql-server-dev-all (<= 11.8-1~), postgresql-server-dev-all-11 (<= 11.8-1~)
 +Breaks: postgresql-server-dev-all (<= 11.8-1~), postgresql-server-dev-all-11 (<= 11.8-1~), postgresql-server-dev-all (<< 181~)
  Description: development files for PostgreSQL 11 server-side programming
   Header files for compiling SSI code to link into PostgreSQL's backend; for

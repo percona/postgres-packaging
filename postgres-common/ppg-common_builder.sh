@@ -435,12 +435,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="215"
+BRANCH="216"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='215'
+VERSION='216'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

@@ -10,7 +10,7 @@
 - Martin Pitt <mpitt@debian.org>,
 - Peter Eisentraut <petere@debian.org>,
 - Christoph Berg <myon@debian.org>
--Standards-Version: 4.3.0
+-Standards-Version: 4.5.0
 +Maintainer: Percona Development Team <info@percona.com>
  Build-Depends:
   bison,
@@ -51,9 +51,9 @@
   ${misc:Depends},
   ${shlibs:Depends}
 -Provides: postgresql-contrib-11
-+Provides: percona-postgresql-contrib-11 (= 2:11.8-1~), postgresql-contrib-11(= 2:11.8-1~), postgresql-11(= 2:11.8-1~), postgresql (= 2:11.8-1~)
-+Replaces: postgresql-contrib-11 (<= 11.8-1~), postgresql-contrib-11 (<= 11.8-1~), postgresql-11 (<= 11.8-1~), postgresql (<= 11.8-1~)
-+Conflicts: postgresql-contrib-11 (<= 11.8-1~), postgresql-contrib-11 (<= 11.8-1~), postgresql-11 (<= 11.8-1~), postgresql (<= 11.8-1~)
++Provides: percona-postgresql-contrib-11 (= 2:11.9-2~), postgresql-contrib-11(= 2:11.9-2~), postgresql-11(= 2:11.9-2~), postgresql (= 2:11.9-2~)
++Replaces: postgresql-contrib-11 (<= 11.9-2~), postgresql-contrib-11 (<= 11.9-2~), postgresql-11 (<= 11.9-2~), postgresql (<= 11.9-2~)
++Conflicts: postgresql-contrib-11 (<= 11.9-2~), postgresql-contrib-11 (<= 11.9-2~), postgresql-11 (<= 11.9-2~), postgresql (<= 11.9-2~)
  Recommends: sysstat
  Breaks:
   postgresql-11-citus (<< 8.0.0.PGDG-2~),
@@ -61,7 +61,7 @@
   postgresql-11-plsh (<< 1.20171014-3~),
   postgresql-11-rum (<< 1.3.2-4~),
   postgresql-11-wal2json (<< 1.0-5~),
-+ postgresql-contrib-11 (<= 11.8-1~), postgresql-contrib-11 (<= 11.8-1~), postgresql-11 (<= 11.8-1~), postgresql (<= 11.8-1~)
++ postgresql-contrib-11 (<= 11.9-2~), postgresql-contrib-11 (<= 11.9-2~), postgresql-11 (<= 11.9-2~), postgresql (<= 11.9-2~)
  Description: object-relational SQL database, version 11 server
   PostgreSQL is a powerful, open source object-relational database
   system. It is fully ACID compliant, has full support for foreign
@@ -85,10 +85,10 @@
 -Conflicts: postgresql-server-dev-11 (<< 11.6-2~)
 -Replaces: postgresql-server-dev-11
 +Suggests: percona-postgresql-11, percona-postgresql-doc-11
-+Provides: percona-postgresql-client, postgresql-client (= 2:11.8-1~), postgresql-client-11 (= 2:11.8-1~)
-+Conflicts: postgresql-server-dev-11 (<< 11.8-1~)
-+Breaks: postgresql-server-dev-11 (<< 11.8-1~)
-+Replaces: postgresql-server-dev-11 (<= 11.8-1~), postgresql-client (<= 11.8-1~), postgresql-client-11 (<= 11.8-1~)
++Provides: percona-postgresql-client, postgresql-client (= 2:11.9-2~), postgresql-client-11 (= 2:11.9-2~)
++Conflicts: postgresql-server-dev-11 (<< 11.9-2~)
++Breaks: postgresql-server-dev-11 (<< 11.9-2~)
++Replaces: postgresql-server-dev-11 (<= 11.9-2~), postgresql-client (<= 11.9-2~), postgresql-client-11 (<= 11.9-2~)
  Description: front-end programs for PostgreSQL 11
   This package contains client and administrative programs for
   PostgreSQL: these are the interactive terminal client psql and
@@ -112,10 +112,10 @@
 -Breaks:
 +#Breaks:
   postgresql-server-dev-all (<< 181~)
-+#Provides: postgresql-server-dev-all (= 2:11.8-1~), postgresql-server-dev-all-11 (= 2:11.8-1~)
-+#Replaces: postgresql-server-dev-all (<= 11.8-1~), postgresql-server-dev-all-11 (<= 11.8-1~)
-+#Conflicts: postgresql-server-dev-all (<= 11.8-1~), postgresql-server-dev-all-11 (<= 11.8-1~)
-+Breaks: postgresql-server-dev-all (<= 11.8-1~), postgresql-server-dev-all-11 (<= 11.8-1~), postgresql-server-dev-all (<< 181~)
++#Provides: postgresql-server-dev-all (= 2:11.9-2~), postgresql-server-dev-all-11 (= 2:11.9-2~)
++#Replaces: postgresql-server-dev-all (<= 11.9-2~), postgresql-server-dev-all-11 (<= 11.9-2~)
++#Conflicts: postgresql-server-dev-all (<= 11.9-2~), postgresql-server-dev-all-11 (<= 11.9-2~)
++Breaks: postgresql-server-dev-all (<= 11.9-2~), postgresql-server-dev-all-11 (<= 11.9-2~), postgresql-server-dev-all (<< 181~)
  Description: development files for PostgreSQL 11 server-side programming
   Header files for compiling SSI code to link into PostgreSQL's backend; for
   example, for C functions to be called from SQL.
@@ -142,10 +142,10 @@
   ${misc:Depends},
   ${shlibs:Depends}
 -Provides: postgresql-plperl
-+Provides: percona-postgresql-plperl, postgresql-plperl (= 2:11.8-1~), postgresql-plperl-11 (= 2:11.8-1~)
-+Replaces: postgresql-plperl (<= 11.8-1~), postgresql-plperl-11 (<= 11.8-1~)
-+Conflicts: postgresql-plperl (<= 11.8-1~), postgresql-plperl-11 (<= 11.8-1~)
-+Breaks: postgresql-plperl (<= 11.8-1~), postgresql-plperl-11 (<= 11.8-1~)
++Provides: percona-postgresql-plperl, postgresql-plperl (= 2:11.9-2~), postgresql-plperl-11 (= 2:11.9-2~)
++Replaces: postgresql-plperl (<= 11.9-2~), postgresql-plperl-11 (<= 11.9-2~)
++Conflicts: postgresql-plperl (<= 11.9-2~), postgresql-plperl-11 (<= 11.9-2~)
++Breaks: postgresql-plperl (<= 11.9-2~), postgresql-plperl-11 (<= 11.9-2~)
  Description: PL/Perl procedural language for PostgreSQL 11
   PL/Perl enables an SQL developer to write procedural language functions
   for PostgreSQL 11 in Perl.  You need this package if you have any
@@ -162,9 +162,9 @@
   ${misc:Depends},
   ${shlibs:Depends}
 -Provides: postgresql-plpython3
-+Provides: percona-postgresql-plpython3, postgresql-plpython3 (= 2:11.8-1~), postgresql-11-plpython3 (= 2:11.8-1~)
-+Replaces: postgresql-plpython3 (<= 11.8-1~), postgresql-11-plpython3 (<= 11.8-1~)
-+Conflicts: postgresql-plpython3 (<= 11.8-1~), postgresql-11-plpython3 (<= 11.8-1~)
++Provides: percona-postgresql-plpython3, postgresql-plpython3 (= 2:11.9-2~), postgresql-11-plpython3 (= 2:11.9-2~)
++Replaces: postgresql-plpython3 (<= 11.9-2~), postgresql-11-plpython3 (<= 11.9-2~)
++Conflicts: postgresql-plpython3 (<= 11.9-2~), postgresql-11-plpython3 (<= 11.9-2~)
  Description: PL/Python 3 procedural language for PostgreSQL 11
   PL/Python 3 enables an SQL developer to write procedural language functions
   for PostgreSQL 11 in Python 3.  You need this package if you have any
@@ -181,10 +181,10 @@
   ${misc:Depends},
   ${shlibs:Depends}
 -Provides: postgresql-pltcl
-+Provides: percona-postgresql-pltcl, postgresql-pltcl (= 2:11.8-1~), postgresql-11-pltcl (= 2:11.8-1~)
-+Replaces: postgresql-pltcl (<= 11.8-1~), postgresql-11-pltcl (<= 11.8-1~)
-+Conflicts: postgresql-pltcl (<= 11.8-1~), postgresql-11-pltcl (<= 11.8-1~)
-+Breaks: postgresql-pltcl (<= 11.8-1~), postgresql-11-pltcl (<= 11.8-1~)
++Provides: percona-postgresql-pltcl, postgresql-pltcl (= 2:11.9-2~), postgresql-11-pltcl (= 2:11.9-2~)
++Replaces: postgresql-pltcl (<= 11.9-2~), postgresql-11-pltcl (<= 11.9-2~)
++Conflicts: postgresql-pltcl (<= 11.9-2~), postgresql-11-pltcl (<= 11.9-2~)
++Breaks: postgresql-pltcl (<= 11.9-2~), postgresql-11-pltcl (<= 11.9-2~)
  Description: PL/Tcl procedural language for PostgreSQL 11
   PL/Tcl enables an SQL developer to write procedural language functions
   for PostgreSQL 11 in Tcl.  You need this package if you have any

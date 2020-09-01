@@ -80,11 +80,8 @@ add_percona_yum_repo(){
       mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.8 testing
+    percona-release enable ppg-11.9 testing
     return
 }
 
@@ -92,11 +89,8 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
-    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.8 testing
+    percona-release enable ppg-11.9 testing
     return
 }
 
@@ -139,7 +133,7 @@ get_sources(){
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
-    wget     wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/pgbackrest/control.patch
+    wget     wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pgbackrest/control.patch
     patch -p0 < control.patch
     rm -f control.patch
     cd ../
@@ -148,8 +142,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/EVgeniyPatlan/postgres-packaging/11.9/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -467,12 +461,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.27"
+BRANCH="release/2.29"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.27'
+VERSION='2.29'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

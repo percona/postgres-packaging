@@ -80,11 +80,8 @@ add_percona_yum_repo(){
         mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.8 testing
+    percona-release enable ppg-11.9 testing
     return
 }
 
@@ -92,11 +89,8 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
-    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.8 testing
+    percona-release enable ppg-11.9 testing
     return
 }
 
@@ -138,9 +132,9 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pgaudit/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pgaudit/control.in
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pgaudit/all.patch
     mv all.patch debian/patches/
     echo "all.patch" > debian/patches/series
     echo "alternative_regression_outputs.patch" >> debian/patches/series
@@ -154,7 +148,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -295,7 +289,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.8/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pgaudit/all.patch
     mv all.patch rpmbuild/SOURCES
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES

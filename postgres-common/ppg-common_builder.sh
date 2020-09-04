@@ -118,11 +118,11 @@ get_sources(){
         for file in $(ls | grep ^postgresql); do 
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/postgres-common/control_common.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/postgres-common/rules_common.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/postgres-common/supported_versions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres-common/control_common.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres-common/rules_common.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres-common/supported_versions.patch
         patch -p0 < control_common.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -144,7 +144,7 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/postgres-common/percona-postgresql-common.spec.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres-common/percona-postgresql-common.spec.patch
         patch -p0 < percona-postgresql-common.spec.patch
         rm -rf percona-postgresql-common.spec.patch
 	sed -i 's:1%:2%:' percona-postgresql-common.spec

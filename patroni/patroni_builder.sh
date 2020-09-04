@@ -135,10 +135,10 @@ get_sources(){
     mv all_packaging/DEB/debian ./
     cd debian
     rm -f rules
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/patroni/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/patroni/rules
     rm -f control
     rm -f postinst
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/patroni/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     mv install percona-patroni.install
@@ -149,13 +149,14 @@ get_sources(){
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/patroni/spec.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/patroni/spec.patch
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
     patch -p0 < spec.patch
 #    sed -i 's:%patch0 -p1:#%patch0 -p1:' patroni.spec
 #    sed -i 's:%patch1 -p1:#%patch1 -p1:' patroni.spec
     sed -i 's:python-psycopg2 >= 2.7.0:python-psycopg2:' patroni.spec
+    sed -i 's:1.6.5:2.0.0:' patroni.spec
     rm -rf spec.patch
     cd ../
     rm -rf all_packaging
@@ -237,8 +238,14 @@ install_deps() {
       else
         INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
       fi
-      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST} 
-      DEBIAN_FRONTEND=noninteractive apt-get -y install python3-consul python3-kubernetes python3-cdiff || true
+      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
+      if [ "x${DEBIAN}" = "xstretch" ]; then
+        DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip
+	pip3 install python-consul
+	pip3 install python-kubernetes 
+      else 
+        DEBIAN_FRONTEND=noninteractive apt-get -y install python3-consul python3-kubernetes python3-cdiff || true
+      fi
       if [ "x${DEBIAN}" = "xfocal" ]; then
         wget https://bootstrap.pypa.io/get-pip.py
         python2.7 get-pip.py
@@ -478,16 +485,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="v1.6.5"
-REPO="https://github.com/zalando/patroni.git"
-PRODUCT=percona-patroni
-DEBUG=0
-parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.6.5'
-RELEASE='2'
+	BRANCH="v2.0.0"
+	REPO="https://github.com/zalando/patroni.git"
+	PRODUCT=percona-patroni
+	DEBUG=0
+	parse_arguments PICK-ARGS-FROM-ARGV "$@"
+	VERSION='2.0.0'
+	RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

@@ -126,8 +126,8 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/postgres/control.patch
-        wget https://raw.githubusercontent.com/EVgeniyPatlan/postgres-packaging/11.9/postgres/rules.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/control.patch
+        wget https://raw.githubusercontent.com/perconaa/postgres-packaging/11.9/postgres/rules.patch
         patch -p0 < control.patch
         sed -i 213d control
         sed -i 8d control
@@ -142,7 +142,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-11.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/postgres/percona-postgresql-11.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/percona-postgresql-11.spec
     cd ../
     cd ${WORKDIR}
     #

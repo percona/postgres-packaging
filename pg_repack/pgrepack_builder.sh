@@ -128,10 +128,10 @@ get_sources(){
     git clone https://salsa.debian.org/postgresql/pg-repack.git deb_packaging
     git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pg_repack/Makefile.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pg_repack/rules.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pg_repack/control.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pg_repack/control.in.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/control.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/control.in.patch
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian
@@ -144,10 +144,10 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pg_repack/pg_repack-pg11-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/pg_repack.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/pg_repack-pg11-makefile-pgxs.patch
     cd ../
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.9/pg_repack/make.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/make.patch
     patch -p0 < make.patch
     rm -f make.patch
     cd ${WORKDIR}

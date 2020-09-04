@@ -127,7 +127,7 @@ get_sources(){
             mv $file "percona-$file"
         done
         wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/control.patch
-        wget https://raw.githubusercontent.com/perconaa/postgres-packaging/11.9/postgres/rules.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/rules.patch
         patch -p0 < control.patch
         sed -i 213d control
         sed -i 8d control

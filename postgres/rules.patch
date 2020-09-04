@@ -1,5 +1,5 @@
---- rules	2019-12-17 23:50:08.861785127 +0200
-+++ rules	2019-12-17 23:52:55.076814052 +0200
+--- rules	2020-08-31 19:51:16.170379476 +0000
++++ rules	2020-08-31 19:54:35.166702132 +0000
 @@ -157,20 +157,20 @@
  	$(MAKE) -C build/config install DESTDIR=$(CURDIR)/debian/tmp
  	$(MAKE) -C build/contrib install DESTDIR=$(CURDIR)/debian/tmp
@@ -32,7 +32,7 @@
  override_dh_auto_install-indep:
  	$(MAKE) -C build/doc install DESTDIR=$(CURDIR)/debian/tmp
 @@ -193,35 +193,35 @@
- 	dh_install --fail-missing
+ 	dh_install -a
  
  	# link README.Debian.gz to postgresql-common
 -	mkdir -p debian/postgresql-$(MAJOR_VER)/usr/share/doc/postgresql-$(MAJOR_VER)
@@ -70,7 +70,7 @@
 +	echo $(CATVERSION) > debian/percona-postgresql-$(MAJOR_VER)/usr/share/postgresql/$(MAJOR_VER)/catalog_version
  
  override_dh_install-indep:
- 	dh_install --fail-missing
+ 	dh_install -i
  
 -	if [ -d debian/postgresql-doc-$(MAJOR_VER) ]; then set -e; \
 -		install -d debian/postgresql-doc-$(MAJOR_VER)/usr/share/doc/postgresql-doc-$(MAJOR_VER)/tutorial; \
@@ -81,7 +81,7 @@
  	fi
  
  override_dh_auto_test-indep:
-@@ -252,7 +252,7 @@
+@@ -256,7 +256,7 @@
  override_dh_installdeb-arch:
  	dh_installdeb
  	# record catversion in preinst

@@ -126,25 +126,23 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/control.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/rules.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/control.patch
+        wget https://raw.githubusercontent.com/perconaa/postgres-packaging/11.9/postgres/rules.patch
         patch -p0 < control.patch
         sed -i 213d control
+        sed -i 8d control
         patch -p0 < rules.patch
         sed -i 's/postgresql-11/percona-postgresql-11/' percona-postgresql-11.templates
         rm -rf control.patch rules.patch
+	echo 9 > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
     mv pgrpms/rpm/redhat/11/postgresql/master/* rpm/
     rm -rf pgrpms
     cd rpm
-        mv postgresql-11.spec percona-postgresql-11.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/postgresql-11.spec.patch
-        patch -p0 < postgresql-11.spec.patch
-        rm -rf postgresql-11.spec.patch
-        sed -i '416s/llvm-toolset-7-clang >= 4.0.1//' percona-postgresql-11.spec
-        sed -i '420s/clang-devel >= 6.0.0//' percona-postgresql-11.spec
+        rm postgresql-11.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/percona-postgresql-11.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -210,6 +208,7 @@ install_deps() {
         INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel"
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
+	yum -y install docbook-xsl libxslt-devel
       fi
     else
       export DEBIAN=$(lsb_release -sc)
@@ -473,8 +472,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
 BRANCH="REL_11_STABLE"
 REPO="git://git.postgresql.org/git/postgresql.git"
@@ -482,7 +481,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='11'
-RELEASE='7'
+RELEASE='9'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

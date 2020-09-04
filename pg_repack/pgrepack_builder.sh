@@ -80,24 +80,16 @@ add_percona_yum_repo(){
       mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.7 testing
-    percona-release enable tools testing
+    percona-release enable ppg-11.9 testing
     return
 }
 
 add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
-    wget https://raw.githubusercontent.com/percona/percona-repositories/1.0/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod +x /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-11.7 testing
-    percona-release enable tools testing
+    percona-release enable ppg-11.9 testing
     return
 }
 
@@ -136,10 +128,10 @@ get_sources(){
     git clone https://salsa.debian.org/postgresql/pg-repack.git deb_packaging
     git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pg_repack/Makefile.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pg_repack/rules.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pg_repack/control.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pg_repack/control.in.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/control.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/control.in.patch
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian
@@ -152,8 +144,12 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/master/pg_repack/pg_repack-pg11-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/pg_repack.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/pg_repack-pg11-makefile-pgxs.patch
+    cd ../
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/pg_repack/make.patch
+    patch -p0 < make.patch
+    rm -f make.patch
     cd ${WORKDIR}
     #
     source pg_repack.properties

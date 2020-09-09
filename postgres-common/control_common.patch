@@ -61,8 +61,8 @@
  Recommends:
 + lsb-release,
   ${readline:Recommends},
-+Replaces: percona-postgresql-client-common, postgrsql-client-common
-+Provides: postgresql-client-common
++#Replaces: percona-postgresql-client-common, postgrsql-client-common
++Provides: postgresql-client-common, percona-postgresql-client-common
  Description: manager for multiple PostgreSQL client versions
   The postgresql-client-common package provides a structure under which
   multiple versions of PostgreSQL client programs may be installed at

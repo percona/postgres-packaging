@@ -126,23 +126,22 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/postgres/rules.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/postgres/control.patch
+	rm -f rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/control.patch
         patch -p0 < control.patch
-        patch -p0 < rules.patch
+	sed -i 9d control
         sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
-        rm -rf control.patch rules.patch
+        rm -rf control.patch
+	echo "9" > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
     mv pgrpms/rpm/redhat/12/postgresql/master/* rpm/
     rm -rf pgrpms
     cd rpm
-        mv postgresql-12.spec percona-postgresql-12.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.3/postgres/postgresql-12.spec.patch
-        patch -p0 < postgresql-12.spec.patch
-        rm -rf postgresql-12.spec.patch
-	sed -i 's:9.0.1:9.0.0:g' percona-postgresql-12.spec
+        rm postgresql-12.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/percona-postgresql-12.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -217,12 +216,12 @@ enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 EOL
         yum clean all
-	    yum -y update llvm-devel clang-devel
         if [ ! -f  /usr/bin/llvm-config ]; then
             ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
         fi
     
       fi
+      yum -y install docbook-xsl libxslt-devel
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
@@ -485,16 +484,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="REL_12_3"
+BRANCH="REL_12.4"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='12'
-RELEASE='3'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

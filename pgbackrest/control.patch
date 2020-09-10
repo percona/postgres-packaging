@@ -19,7 +19,7 @@
 +Package: percona-pgbackrest
  Architecture: any
 -Depends: postgresql-common, ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
-+Depends: postgresql-common (>= 215~) | percona-postgresql-common (>= 215~), ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
++Depends: postgresql-common | percona-postgresql-common , ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
 +Provides: pgbackrest
  Suggests: pgbackrest-doc
  Description: Reliable PostgreSQL Backup & Restore

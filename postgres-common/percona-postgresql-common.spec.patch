@@ -5,7 +5,7 @@
 +Name:           percona-postgresql-common
  Version:        %{version}
 -Release:        1%{?dist}
-+Release:        1%{?dist}
++Release:        3%{?dist}
  BuildArch:      noarch
  Summary:        PostgreSQL database-cluster manager
 -Packager:       Debian PostgreSQL Maintainers <pkg-postgresql-public@lists.alioth.debian.org>

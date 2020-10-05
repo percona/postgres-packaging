@@ -1,9 +1,9 @@
 # These are macros to be used with find_lang and other stuff
-%global packageversion 120
-%global pgpackageversion 12
-%global prevmajorversion 11
+%global packageversion 130
+%global pgpackageversion 13
+%global prevmajorversion 12
 %global sname postgresql
-%global vname postgresql12
+%global vname postgresql13
 %global pgbaseinstdir	/usr/pgsql-%{pgmajorversion}
 
 %global beta 0
@@ -25,23 +25,10 @@
 %{!?nls:%global nls 1}
 %{!?pam:%global pam 1}
 
-%if 0%{?fedora} >= 33 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1500
-%{!?plpython2:%global plpython2 0}
-%else
-%{!?plpython2:%global plpython2 1}
-%endif
-
-%if 0%{?rhel} && 0%{?rhel} < 7
-# RHEL 6 does not have Python 3
-%{!?plpython3:%global plpython3 0}
-%else
 # All Fedora releases now use Python3
 # Support Python3 on RHEL 7.7+ natively
 # RHEL 8 uses Python3
 %{!?plpython3:%global plpython3 1}
-# This is the list of contrib modules that will be compiled with PY3 as well:
-%global python3_build_list hstore_plpython jsonb_plpython ltree_plpython
-%endif
 
 %if 0%{?suse_version}
 %if 0%{?suse_version} >= 1315
@@ -58,13 +45,6 @@
 %{!?uuid:%global uuid 1}
 %{!?xml:%global xml 1}
 
-%if 0%{?rhel} && 0%{?rhel} <= 6
-%{!?systemd_enabled:%global systemd_enabled 0}
-%{!?sdt:%global sdt 0}
-%{!?selinux:%global selinux 0}
-# LLVM version in RHEL 6 is not sufficient to build LLVM
-%{!?llvm:%global llvm 0}
-%else
 %{!?systemd_enabled:%global systemd_enabled 1}
 %ifarch ppc64 ppc64le s390 s390x armv7hl
 %{!?llvm:%global llvm 0}
@@ -74,33 +54,26 @@
  %{!?sdt:%global sdt 1}
 %endif
 %{!?selinux:%global selinux 1}
-%endif
 
-%if 0%{?fedora} > 23
+%if 0%{?fedora} > 30
 %global _hardened_build 1
 %endif
 
 %ifarch ppc64 ppc64le
-# Define the AT version and path.
-%global atstring	at10.0
-%global atpath		/opt/%{atstring}
+%pgdg_set_ppc64le_compiler_at10
 %endif
 
 Summary:	PostgreSQL client programs and libraries
-Name:          percona-postgresql%{pgmajorversion}
-Version:	12.4
-Release:	2%{?dist}
+Name:           percona-postgresql%{pgmajorversion}
+Version:	13.0
+Release:	1%{?dist}
 License:	PostgreSQL
 Url:		https://www.postgresql.org/
 
-Source0:       percona-postgresql-12.4.tar.gz
+Source0:        percona-postgresql-13.0.tar.gz
 Source4:	%{sname}-%{pgmajorversion}-Makefile.regress
 Source5:	%{sname}-%{pgmajorversion}-pg_config.h
-%if %{systemd_enabled}
 Source6:	%{sname}-%{pgmajorversion}-README-systemd.rpm-dist
-%else
-Source6:	%{sname}-%{pgmajorversion}-README-init.rpm-dist
-%endif
 Source7:	%{sname}-%{pgmajorversion}-ecpg_config.h
 Source9:	%{sname}-%{pgmajorversion}-libs.conf
 Source12:	https://www.postgresql.org/files/documentation/pdf/%{pgmajorversion}/%{sname}-%{pgmajorversion}-A4.pdf
@@ -116,7 +89,7 @@ Source3:	%{sname}-%{pgmajorversion}.init
 %endif
 
 Patch1:		%{sname}-%{pgmajorversion}-rpm-pgsql.patch
-Patch3:		%{sname}-%{pgmajorversion}-logging.patch
+Patch3:		%{sname}-%{pgmajorversion}-conf.patch
 Patch5:		%{sname}-%{pgmajorversion}-var-run-socket.patch
 Patch6:		%{sname}-%{pgmajorversion}-perl-rpath.patch
 
@@ -190,10 +163,6 @@ BuildRequires:	perl-ExtUtils-Embed
 %if 0%{?fedora} >= 22
 BuildRequires:	perl-ExtUtils-Embed
 %endif
-%endif
-
-%if %plpython2
-BuildRequires:	python2-devel
 %endif
 
 %if %plpython3
@@ -301,6 +270,8 @@ if you're installing the postgresql%{pgmajorversion}-server package.
 
 %package libs
 Summary:	The shared libraries required for any PostgreSQL clients
+Provides:	libpq5 >= 10.0
+
 %if 0%{?rhel} && 0%{?rhel} <= 6
 Requires:	openssl
 %else
@@ -446,6 +417,7 @@ BuildRequires:	perl-IPC-Run
 %endif
 
 Provides:	postgresql-devel >= %{version}-%{release}
+Obsoletes:	libpq-devel <= 42.0
 Provides:	%{vname}-devel = %{epoch}:%{version}-%{release}
 Provides:	%{sname}-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	%{sname}-devel <= %{version}-%{release}
@@ -509,7 +481,7 @@ Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 %ifarch ppc ppc64
 BuildRequires:	perl-devel
 %endif
-Provides:	postgresql%{pgmajorversion}-pl <= %{version}-%{release}
+Obsoletes:	postgresql%{pgmajorversion}-pl <= %{version}-%{release}
 Provides:	postgresql-plperl >= %{version}-%{release}
 Provides:	%{vname}-plperl = %{epoch}:%{version}-%{release}
 Provides:	%{sname}-plperl = %{epoch}:%{version}-%{release}
@@ -529,37 +501,6 @@ Install this if you want to write database functions in Perl.
 
 %endif
 
-%if %plpython2
-%package plpython
-Summary:	The Python procedural language for PostgreSQL
-Requires:	%{name} >= %{version}-%{release}
-Requires:	%{name}-server >= %{version}-%{release}
-Obsoletes:	%{name}-pl <= %{version}-%{release}
-Provides:	postgresql-plpython >= %{version}-%{release}
-Provides:	%{name}-plpython2 = %{version}-%{release}
-%if 0%{?rhel} < 7
-Requires:	python-libs
-%endif
-%if 0%{?rhel} == 7 || 0%{?rhel} == 8
-Requires:	python2-libs
-%endif
-%if 0%{?fedora} && 0%{?fedora} <= 31
-Requires:	python2-libs
-%endif
-Provides:	%{name}-plpython2 = %{version}-%{release}
-Provides:	%{sname}-plpython2 = %{epoch}:%{version}-%{release}
-Provides:	%{vname}-plpython2 = %{epoch}:%{version}-%{release}
-Obsoletes:	%{sname}-plpython2 <= %{version}-%{release}
-Obsoletes:	%{vname}-plpython2 <= %{version}-%{release}
-Epoch:		1
-
-%description plpython
-The postgresql%{pgmajorversion}-plpython package contains the PL/Python procedural language,
-which is an extension to the PostgreSQL database server.
-Install this if you want to write database functions in Python.
-
-%endif
-
 %if %plpython3
 %package plpython3
 Summary:	The Python3 procedural language for PostgreSQL
@@ -571,11 +512,7 @@ Provides:	postgresql-plpython3 >= %{version}-%{release}
 # We support Python3 natively on RHEL/CentOS 7 as of 7.7+,
 Requires:	python3-libs
 %else
-%if 0%{?suse_version} >= 1500
-Requires:	libpython3_6m1_0
-%else
 Requires:	python3-libs
-%endif
 %endif
 Provides:	%{vname}-plpython3 = %{epoch}:%{version}-%{release}
 Provides:	%{sname}-plpython3 = %{epoch}:%{version}-%{release}
@@ -682,19 +619,6 @@ CFLAGS="${CFLAGS:-%optflags}"
 
 export CFLAGS
 
-%if %icu
-# Export ICU flags on RHEL 6:
-%if 0%{?rhel} && 0%{?rhel} <= 6
-	ICU_CFLAGS='-I%{_includedir}'; export ICU_CFLAGS
-	ICU_LIBS='-L%{_libdir} -licui18n -licuuc -licudata'; export ICU_LIBS
-%endif
-%endif
-
-# plpython requires separate configure/build runs to build against python 2
-# versus python 3. Our strategy is to do the python 3 run first, then make
-# distclean and do it again for the "normal" build. Note that the installed
-# Makefile.global will reflect the python 2 build, which seems appropriate
-# since that's still considered the default plpython version.
 %if %plpython3
 
 export PYTHON=/usr/bin/python3
@@ -709,6 +633,7 @@ export PYTHON=/usr/bin/python3
 %if 0%{?rhel} && 0%{?rhel} == 8
 	export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %endif
+
 # These configure options must match main build
 ./configure --enable-rpath \
 	--prefix=%{pgbaseinstdir} \
@@ -783,168 +708,24 @@ export PYTHON=/usr/bin/python3
 	--sysconfdir=/etc/sysconfig/pgsql \
 	--docdir=%{pgbaseinstdir}/doc \
 	--htmldir=%{pgbaseinstdir}/doc/html
-# We need to build PL/Python and a few extensions:
-# Build PL/Python
+
+%endif
+
 cd src/backend
 MAKELEVEL=0 %{__make} submake-generated-headers
 cd ../..
-cd src/pl/plpython
-%{__make} all
-cd ..
-# save built form in a directory that "make distclean" won't touch
-%{__cp} -a plpython plpython3
-cd ../..
-# Build some of the extensions with PY3 support
-for p3bl in %{python3_build_list} ; do
-	p3blpy3dir="$p3bl"3
-	pushd contrib/$p3bl
-	MAKELEVEL=0 %{__make} %{?_smp_mflags} all
-	cd ..
-	# save built form in a directory that "make distclean" won't touch
-	%{__cp} -a $p3bl $p3blpy3dir
-	popd
-done
-# must also save this version of Makefile.global for later
-%{__cp} src/Makefile.global src/Makefile.global.python3
-
-%if %plpython2
-# Clean up the tree.
-%{__make} distclean
-%endif
-
-%endif
-# NOTE: PL/Python3 (END)
-
-# NOTE: PL/Python 2
-%if %{?plpython2}
-
-unset PYTHON
-# Explicitly run Python2 here -- in future releases,
-# Python3 will be the default.
-export PYTHON=/usr/bin/python2
-
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch aarch64
-	export CLANG=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang LLVM_CONFIG=/opt/rh/llvm-toolset-7.0/root/usr/bin/llvm-config
-%else
-	export CLANG=/opt/rh/llvm-toolset-7/root/usr/bin/clang LLVM_CONFIG=%{_libdir}/llvm5.0/bin/llvm-config
-%endif
-%endif
-%if 0%{?rhel} && 0%{?rhel} == 8
-	export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config-64
-%endif
-
-# Normal (not python3) build begins here
-./configure --enable-rpath \
-	--prefix=%{pgbaseinstdir} \
-	--includedir=%{pgbaseinstdir}/include \
-	--libdir=%{pgbaseinstdir}/lib \
-	--mandir=%{pgbaseinstdir}/share/man \
-	--datadir=%{pgbaseinstdir}/share \
-%if %beta
-	--enable-debug \
-	--enable-cassert \
-%endif
-%if %enabletaptests
-	--enable-tap-tests \
-%endif
-%if %icu
-	--with-icu \
-%endif
-%if %llvm
-	--with-llvm \
-%endif
-%if %plperl
-	--with-perl \
-%endif
-%if %plpython2
-	--with-python \
-%endif
-%if %pltcl
-	--with-tcl \
-	--with-tclconfig=%{_libdir} \
-%endif
-%if %ssl
-	--with-openssl \
-%endif
-%if %pam
-	--with-pam \
-%endif
-%if %kerberos
-	--with-gssapi \
-	--with-includes=%{kerbdir}/include \
-	--with-libraries=%{kerbdir}/%{_lib} \
-%endif
-%if %nls
-	--enable-nls \
-%endif
-%if %sdt
-	--enable-dtrace \
-%endif
-%if %disablepgfts
-	--disable-thread-safety \
-%endif
-%if %uuid
-	--with-uuid=e2fs \
-%endif
-%if %xml
-	--with-libxml \
-	--with-libxslt \
-%endif
-%if %ldap
-	--with-ldap \
-%endif
-%if %selinux
-	--with-selinux \
-%endif
-%if %{systemd_enabled}
-	--with-systemd \
-%endif
-%ifarch ppc64 ppc64le
-	--with-includes=%{atpath}/include \
-	--with-libraries=%{atpath}/lib64 \
-%endif
-	--with-system-tzdata=%{_datadir}/zoneinfo \
-	--sysconfdir=/etc/sysconfig/pgsql \
-	--docdir=%{pgbaseinstdir}/doc \
-	--htmldir=%{pgbaseinstdir}/doc/html
-
-# We need to build PL/Python 2 and a few extensions:
-# Build PL/Python 2
-cd src/backend
-MAKELEVEL=0 %{__make} submake-generated-headers
-cd ../..
-cd src/pl/plpython
-%{__make} all
-cd ..
-# save built form in a directory that "make distclean" won't touch
-%{__cp} -a plpython plpython2
-cd ../..
-# Build some of the extensions with PY2 support as well.
-for p2bl in %{python3_build_list} ; do
-	p2blpy2dir="$p2bl"2
-	pushd contrib/$p2bl
-	MAKELEVEL=0 %{__make} %{?_smp_mflags} all
-	# save built form in a directory that "make distclean" won't touch
-	cd ..
-	%{__cp} -a $p2bl $p2blpy2dir
-	popd
-done
-%endif
-# NOTE: PL/Python 2 (END)
-
-
-MAKELEVEL=0 %{__make} %{?_smp_mflags} all
-%{__make} %{?_smp_mflags} -C contrib all
-%if %uuid
-%{__make} %{?_smp_mflags} -C contrib/uuid-ossp all
-%endif
 
 # Have to hack makefile to put correct path into tutorial scripts
 sed "s|C=\`pwd\`;|C=%{pgbaseinstdir}/lib/tutorial;|" < src/tutorial/Makefile > src/tutorial/GNUmakefile
 %{__make} %{?_smp_mflags} -C src/tutorial NO_PGXS=1 all
 %{__rm} -f src/tutorial/GNUmakefile
 
+%{__mkdir} -p %{buildroot}%{pgbaseinstdir}/share/extensions/
+MAKELEVEL=0 %{__make} %{?_smp_mflags} all
+%{__make} %{?_smp_mflags} -C contrib all
+%if %uuid
+%{__make} %{?_smp_mflags} -C contrib/uuid-ossp all
+%endif
 
 
 # run_testsuite WHERE
@@ -974,22 +755,7 @@ run_testsuite()
 	%{__make} clean -C "src/test/regress"
 	run_testsuite "src/pl"
 %if %plpython3
-	# must install Makefile.global that selects python3
-	%{__mv} src/Makefile.global src/Makefile.global.save
-	%{__cp} src/Makefile.global.python3 src/Makefile.global
-	touch -r src/Makefile.global.save src/Makefile.global
-	# because "make check" does "make install" on the whole tree,
-	# we must temporarily install plpython3 as src/pl/plpython,
-	# since that is the subdirectory src/pl/Makefile knows about
-	%{__mv} src/pl/plpython src/pl/plpython2
-	%{__mv} src/pl/plpython3 src/pl/plpython
-
 	run_testsuite "src/pl/plpython"
-
-	# and clean up our mess
-	%{__mv} src/pl/plpython src/pl/plpython3
-	%{__mv} src/pl/plpython2 src/pl/plpython
-	%{__mv} -f src/Makefile.global.save src/Makefile.global
 %endif
 	run_testsuite "contrib"
 %endif
@@ -1007,21 +773,11 @@ pushd doc/src; make all; popd
 %{__make} DESTDIR=%{buildroot} install
 
 %if %plpython3
-	%{__mv} src/Makefile.global src/Makefile.global.save
-	%{__cp} src/Makefile.global.python3 src/Makefile.global
-	touch -r src/Makefile.global.save src/Makefile.global
 	# Install PL/Python3
-	pushd src/pl/plpython3
+	pushd src/pl/plpython
 	%{__make} DESTDIR=%{buildroot} install
 	popd
-	for p3bl in %{python3_build_list} ; do
-		p3blpy3dir="$p3bl"3
-		# Install jsonb_plpython3
-		pushd contrib/$p3blpy3dir
-		%{__make} DESTDIR=%{buildroot} install
-		popd
-	done
-	%{__mv} -f src/Makefile.global.save src/Makefile.global
+
 %endif
 
 %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/share/extensions/
@@ -1053,6 +809,9 @@ sed -e 's|^PGVERSION=.*$|PGVERSION=%{pgmajorversion}|' \
 	-e 's|^PREVMAJORVERSION=.*$|PREVMAJORVERSION=%{prevmajorversion}|' \
 	<%{SOURCE17} >postgresql-%{pgmajorversion}-setup
 %{__install} -m 755 postgresql-%{pgmajorversion}-setup %{buildroot}%{pgbaseinstdir}/bin/postgresql-%{pgmajorversion}-setup
+# Create a symlink of the setup script under $PATH
+%{__mkdir} -p %{buildroot}%{_bindir}
+%{__ln_s} %{pgbaseinstdir}/bin/postgresql-%{pgmajorversion}-setup %{buildroot}%{_bindir}/%{sname}-%{pgmajorversion}-setup
 
 # prep the startup check script, including insertion of some values it needs
 sed -e 's|^PGVERSION=.*$|PGVERSION=%{pgmajorversion}|' \
@@ -1114,13 +873,10 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 	chmod 0644 %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
 %endif
 
-%if ! %plpython2
-# Quick hack for beta1
-%{__rm} -f %{buildroot}/%{pginstdir}/share/extension/*plpython2u*
-%{__rm} -f %{buildroot}/%{pginstdir}/share/extension/*plpythonu-*
-%{__rm} -f %{buildroot}/%{pginstdir}/share/extension/*_plpythonu.control
-%endif
-
+# Quick hack:
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpython2u*
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpythonu-*
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*_plpythonu.control
 
 # Fix some more documentation
 # gzip doc/internals.ps
@@ -1130,13 +886,6 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/share/man/
 %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7 %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/pgsql
-
-# Quick hack for RHEL < 7 and not compiled with PL/Python3 support:
-%if 0%{?rhel} < 7 && ! 0%{?plpython3}
-%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/hstore_plpython3u*
-%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/jsonb_plpython3u*
-%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/ltree_plpython3u*
-%endif
 
 # initialize file lists
 %{__cp} /dev/null main.lst
@@ -1166,6 +915,7 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %find_lang pg_test_fsync-%{pgmajorversion}
 %find_lang pg_test_timing-%{pgmajorversion}
 %find_lang pg_upgrade-%{pgmajorversion}
+%find_lang pg_verifybackup-%{pgmajorversion}
 %find_lang pg_waldump-%{pgmajorversion}
 %find_lang pgscripts-%{pgmajorversion}
 %if %plperl
@@ -1173,10 +923,6 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 cat plperl-%{pgmajorversion}.lang > pg_plperl.lst
 %endif
 %find_lang plpgsql-%{pgmajorversion}
-%if %plpython2
-%find_lang plpython-%{pgmajorversion}
-cat plpython-%{pgmajorversion}.lang > pg_plpython.lst
-%endif
 %if %plpython3
 # plpython3 shares message files with plpython
 %find_lang plpython-%{pgmajorversion}
@@ -1192,8 +938,8 @@ cat pltcl-%{pgmajorversion}.lang > pg_pltcl.lst
 
 cat libpq5-%{pgmajorversion}.lang > pg_libpq5.lst
 cat pg_config-%{pgmajorversion}.lang ecpg-%{pgmajorversion}.lang ecpglib6-%{pgmajorversion}.lang > pg_devel.lst
-cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pg_rewind-%{pgmajorversion}.lang pg_upgrade-%{pgmajorversion}.lang pg_test_timing-%{pgmajorversion}.lang pg_test_fsync-%{pgmajorversion}.lang pg_archivecleanup-%{pgmajorversion}.lang pg_waldump-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
-cat postgres-%{pgmajorversion}.lang pg_resetwal-%{pgmajorversion}.lang pg_checksums-%{pgmajorversion}.lang pg_controldata-%{pgmajorversion}.lang plpgsql-%{pgmajorversion}.lang > pg_server.lst
+cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
+cat postgres-%{pgmajorversion}.lang pg_resetwal-%{pgmajorversion}.lang pg_checksums-%{pgmajorversion}.lang pg_verifybackup-%{pgmajorversion}.lang pg_controldata-%{pgmajorversion}.lang plpgsql-%{pgmajorversion}.lang pg_test_timing-%{pgmajorversion}.lang pg_test_fsync-%{pgmajorversion}.lang pg_archivecleanup-%{pgmajorversion}.lang pg_waldump-%{pgmajorversion}.lang pg_rewind-%{pgmajorversion}.lang pg_upgrade-%{pgmajorversion}.lang > pg_server.lst
 %endif
 
 %pre server
@@ -1350,19 +1096,12 @@ fi
 %{pgbaseinstdir}/bin/dropdb
 %{pgbaseinstdir}/bin/dropuser
 %{pgbaseinstdir}/bin/pgbench
-%{pgbaseinstdir}/bin/pg_archivecleanup
 %{pgbaseinstdir}/bin/pg_basebackup
 %{pgbaseinstdir}/bin/pg_config
 %{pgbaseinstdir}/bin/pg_dump
 %{pgbaseinstdir}/bin/pg_dumpall
 %{pgbaseinstdir}/bin/pg_isready
 %{pgbaseinstdir}/bin/pg_restore
-%{pgbaseinstdir}/bin/pg_rewind
-%{pgbaseinstdir}/bin/pg_test_fsync
-%{pgbaseinstdir}/bin/pg_test_timing
-%{pgbaseinstdir}/bin/pg_receivewal
-%{pgbaseinstdir}/bin/pg_upgrade
-%{pgbaseinstdir}/bin/pg_waldump
 %{pgbaseinstdir}/bin/psql
 %{pgbaseinstdir}/bin/reindexdb
 %{pgbaseinstdir}/bin/vacuumdb
@@ -1373,19 +1112,12 @@ fi
 %{pgbaseinstdir}/share/man/man1/dropdb.*
 %{pgbaseinstdir}/share/man/man1/dropuser.*
 %{pgbaseinstdir}/share/man/man1/pgbench.1
-%{pgbaseinstdir}/share/man/man1/pg_archivecleanup.1
 %{pgbaseinstdir}/share/man/man1/pg_basebackup.*
 %{pgbaseinstdir}/share/man/man1/pg_config.*
 %{pgbaseinstdir}/share/man/man1/pg_dump.*
 %{pgbaseinstdir}/share/man/man1/pg_dumpall.*
 %{pgbaseinstdir}/share/man/man1/pg_isready.*
-%{pgbaseinstdir}/share/man/man1/pg_receivewal.*
 %{pgbaseinstdir}/share/man/man1/pg_restore.*
-%{pgbaseinstdir}/share/man/man1/pg_rewind.1
-%{pgbaseinstdir}/share/man/man1/pg_test_fsync.1
-%{pgbaseinstdir}/share/man/man1/pg_test_timing.1
-%{pgbaseinstdir}/share/man/man1/pg_upgrade.1
-%{pgbaseinstdir}/share/man/man1/pg_waldump.1
 %{pgbaseinstdir}/share/man/man1/psql.*
 %{pgbaseinstdir}/share/man/man1/reindexdb.*
 %{pgbaseinstdir}/share/man/man1/vacuumdb.*
@@ -1537,6 +1269,7 @@ fi
 %defattr(-,root,root)
 %if %{systemd_enabled}
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-setup
+%{_bindir}/%{sname}-%{pgmajorversion}-setup
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-check-db-dir
 %{_tmpfilesdir}/%{sname}-%{pgmajorversion}.conf
 %{_unitdir}/%{sname}-%{pgmajorversion}.service
@@ -1548,22 +1281,36 @@ fi
 %endif
 %attr (755,root,root) %dir /etc/sysconfig/pgsql
 %{pgbaseinstdir}/bin/initdb
+%{pgbaseinstdir}/bin/pg_archivecleanup
+%{pgbaseinstdir}/bin/pg_checksums
 %{pgbaseinstdir}/bin/pg_controldata
 %{pgbaseinstdir}/bin/pg_ctl
-%{pgbaseinstdir}/bin/pg_checksums
+%{pgbaseinstdir}/bin/pg_receivewal
 %{pgbaseinstdir}/bin/pg_resetwal
+%{pgbaseinstdir}/bin/pg_rewind
+%{pgbaseinstdir}/bin/pg_test_fsync
+%{pgbaseinstdir}/bin/pg_test_timing
+%{pgbaseinstdir}/bin/pg_upgrade
+%{pgbaseinstdir}/bin/pg_verifybackup
+%{pgbaseinstdir}/bin/pg_waldump
 %{pgbaseinstdir}/bin/postgres
 %{pgbaseinstdir}/bin/postmaster
 %{pgbaseinstdir}/share/man/man1/initdb.*
+%{pgbaseinstdir}/share/man/man1/pg_archivecleanup.1
+%{pgbaseinstdir}/share/man/man1/pg_checksums.*
 %{pgbaseinstdir}/share/man/man1/pg_controldata.*
 %{pgbaseinstdir}/share/man/man1/pg_ctl.*
 %{pgbaseinstdir}/share/man/man1/pg_resetwal.*
-%{pgbaseinstdir}/share/man/man1/pg_checksums.*
+%{pgbaseinstdir}/share/man/man1/pg_receivewal.*
+%{pgbaseinstdir}/share/man/man1/pg_rewind.1
+%{pgbaseinstdir}/share/man/man1/pg_test_fsync.1
+%{pgbaseinstdir}/share/man/man1/pg_test_timing.1
+%{pgbaseinstdir}/share/man/man1/pg_upgrade.1
+%{pgbaseinstdir}/share/man/man1/pg_verifybackup.*
+%{pgbaseinstdir}/share/man/man1/pg_waldump.1
 %{pgbaseinstdir}/share/man/man1/postgres.*
 %{pgbaseinstdir}/share/man/man1/postmaster.*
 %{pgbaseinstdir}/share/postgres.bki
-%{pgbaseinstdir}/share/postgres.description
-%{pgbaseinstdir}/share/postgres.shdescription
 %{pgbaseinstdir}/share/system_views.sql
 %{pgbaseinstdir}/share/*.sample
 %{pgbaseinstdir}/share/timezonesets/*
@@ -1630,8 +1377,10 @@ fi
 %if %plperl
 %files plperl -f pg_plperl.lst
 %defattr(-,root,root)
+%{pgbaseinstdir}/lib/bool_plperl.so
 %{pgbaseinstdir}/lib/plperl.so
 %{pgbaseinstdir}/share/extension/plperl*
+%{pgbaseinstdir}/share/extension/bool_plperl*
 %endif
 
 %if %pltcl
@@ -1639,19 +1388,6 @@ fi
 %defattr(-,root,root)
 %{pgbaseinstdir}/lib/pltcl.so
 %{pgbaseinstdir}/share/extension/pltcl*
-%endif
-
-%if %plpython2
-%files plpython -f pg_plpython.lst
-%defattr(-,root,root)
-%{pgbaseinstdir}/lib/plpython2.so
-%{pgbaseinstdir}/share/extension/plpython2u*
-%{pgbaseinstdir}/share/extension/plpythonu*
-%{pgbaseinstdir}/lib/hstore_plpython2.so
-%{pgbaseinstdir}/lib/jsonb_plpython2.so
-%{pgbaseinstdir}/lib/ltree_plpython2.so
-%{pgbaseinstdir}/share/extension/*_plpythonu*
-%{pgbaseinstdir}/share/extension/*_plpython2u*
 %endif
 
 %if %plpython3
@@ -1672,7 +1408,14 @@ fi
 %endif
 
 %changelog
-* Tue Aug 25 2020 Devrim Gündüz <devrim@gunduz.org> - 12.4-2PGDG
+* Tue Sep 22 2020 Devrim Gündüz <devrim@gunduz.org> - 13.0-1PGDG
+- Update to 13.0!
+- Add setup script under $PATH
+
+* Tue Sep 15 2020 Devrim Gündüz <devrim@gunduz.org> - 13rc1-1
+- Update to v13 rc1
+
+* Tue Aug 25 2020 Devrim Gündüz <devrim@gunduz.org> - 13beta3_3
 - Use correct dependencies to enable LLVM build on RHEL 7 and aarch64
 
 * Wed Aug 12 2020 Devrim Gündüz <devrim@gunduz.org> - 12.4-1PGDG

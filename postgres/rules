@@ -4,8 +4,10 @@ include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 include /usr/share/dpkg/vendor.mk
 
-MAJOR_VER := 12
+MAJOR_VER := 13
 #CASSERT_FLAGS := --enable-cassert
+
+#xenial#export SKIP_READLINE_TESTS=yes
 
 CATVERSION = $(shell awk '/CATALOG_VERSION_NO/ { print $$3 }' src/include/catalog/catversion.h)
 
@@ -83,10 +85,7 @@ COMMON_CONFIGURE_FLAGS= \
 ifeq ($(DEB_STAGE),stage1)
 BOOTSTRAP_FLAGS=
 else
-BOOTSTRAP_FLAGS= --with-gssapi --with-ldap \
-		 --with-includes=/usr/include/mit-krb5 \
-		 --with-libs=/usr/lib/mit-krb5 \
-		 --with-libs=/usr/lib/$(DEB_HOST_MULTIARCH)/mit-krb5
+BOOTSTRAP_FLAGS= --with-gssapi --with-ldap
 endif
 
 %:
@@ -191,14 +190,20 @@ ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 	# temp-install wants to be invoked from a top-level make, unset MAKELEVEL here
 	# hurd doesn't implement semaphores shared between processes yet; succeed anyway so they at least have libpq5
 	# plperl currently fails on kfreebsd-*
-	unset LANG LC_CTYPE MAKELEVEL; \
+	unset LANG LC_CTYPE MAKELEVEL; ulimit -c unlimited; \
 	if ! make -C build check-world \
 	  EXTRA_REGRESS_OPTS='--port=$(shell perl -le 'print 1024 + int(rand(64000))')' \
+	  TEMP_CONFIG=$(CURDIR)/debian/tests/postgresql.conf \
+	  PG_TEST_EXTRA='ssl' \
 	  PROVE_FLAGS="--verbose"; \
 	then \
-	    for l in `find build \( -name regression.diffs -o -name install.log -o -name initdb.log -o -name postmaster.log \) | perl -we 'print map { "$$_\n"; } sort { (stat $$a)[9] <=> (stat $$b)[9] } map { chomp; $$_; } <>' | tail -3`; do \
+	    for l in `find build -name 'regress*' -o -name '*.log' | perl -we 'print map { "$$_\n"; } sort { (stat $$a)[9] <=> (stat $$b)[9] } map { chomp; $$_; } <>' | tail -n 10`; do \
 		echo "******** $$l ********"; \
 		cat $$l; \
+	    done; \
+	    for c in `find build -name 'core*'`; do \
+	        echo "******** $$c ********"; \
+	        gdb -batch -ex 'bt full' build/tmp_install/usr/lib/postgresql/$(MAJOR_VER)/bin/postgres $$c || :; \
 	    done; \
 	    case $(DEB_HOST_ARCH) in \
 	        hurd-*|kfreebsd-*) exit 0 ;; \

@@ -118,7 +118,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 12 remotes/origin/12
+        git checkout -b 13 remotes/origin/13
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -126,22 +126,19 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-	rm -f rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/control.patch
-        patch -p0 < control.patch
-	sed -i 9d control
-        sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
-        rm -rf control.patch
+	rm -f rules control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/postgres/control
+        sed -i 's/postgresql-13/percona-postgresql-13/' percona-postgresql-13.templates
 	echo "9" > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/12/postgresql/master/* rpm/
+    mv pgrpms/rpm/redhat/13/postgresql/master/* rpm/
     rm -rf pgrpms
     cd rpm
-        rm postgresql-12.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/percona-postgresql-12.spec
+        rm postgresql-13.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/postgres/percona-postgresql-13.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -149,7 +146,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-12/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-13/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -312,9 +309,9 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
+    wget https://www.postgresql.org/files/documentation/pdf/13/postgresql-13-A4.pdf
     cd ../../
-    cp -av rpmbuild/SOURCES/percona-postgresql-12.spec rpmbuild/SPECS
+    cp -av rpmbuild/SOURCES/percona-postgresql-13.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     if [ -f /opt/rh/devtoolset-7/enable ]; then
@@ -322,8 +319,8 @@ build_srpm(){
         source /opt/rh/llvm-toolset-7/enable
     fi
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "pgmajorversion 12" --define "pginstdir /usr/pgsql-12"  --define "pgpackageversion 12" \
-        rpmbuild/SPECS/percona-postgresql-12.spec
+        --define "pgmajorversion 13" --define "pginstdir /usr/pgsql-13"  --define "pgpackageversion 13" \
+        rpmbuild/SPECS/percona-postgresql-13.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -371,7 +368,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion 12" --define "pginstdir /usr/pgsql-12" --define "pgpackageversion 12" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion 13" --define "pginstdir /usr/pgsql-13" --define "pgpackageversion 13" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -410,7 +407,7 @@ build_source_deb(){
 
     cd debian
     rm -rf changelog
-    echo "percona-postgresql-12 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgresql-13 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
@@ -484,16 +481,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_12.4"
+BRANCH="REL_13.0"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='12'
-RELEASE='4'
+VERSION='13'
+RELEASE='0'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

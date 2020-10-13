@@ -130,10 +130,10 @@ get_sources(){
       git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.0/pg_repack/Makefile.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.0/pg_repack/rules
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.0/pg_repack/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.0/pg_repack/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pg_repack/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pg_repack/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pg_repack/control.in
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian

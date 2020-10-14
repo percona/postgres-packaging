@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-12.4 testing
+    percona-release enable ppg-13.0 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-12.4 testing
+    percona-release enable ppg-13.0 testing
     return
 }
 
@@ -132,9 +132,9 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pgaudit/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pgaudit/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pgaudit/all.patch
     mv all.patch debian/patches/
     echo "all.patch" > debian/patches/series
     echo "alternative_regression_outputs.patch" >> debian/patches/series
@@ -144,11 +144,12 @@ get_sources(){
     mv control* debian/
     sed -i "s:postgresql-%v:percona-postgresql-%v:" debian/rules
     sed -i "s|Upstream-Name: pgaudit|Upstream-Name: percona-pgaudit|" debian/copyright
-    echo 12 > debian/pgversions
+    echo 13 > debian/pgversions
+    echo 9 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -205,12 +206,12 @@ install_deps() {
                 sleep 1
             done
             yum -y install epel-release
-            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql12-devel percona-postgresql12-server percona-postgresql-common percona-postgresql-server-dev-all rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel"
+            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql13-devel percona-postgresql13-server percona-postgresql-common percona-postgresql-server-dev-all rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel"
             yum -y install ${INSTALL_LIST}
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
         else
-            INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel percona-postgresql12-devel percona-postgresql12-server percona-postgresql-common percona-postgresql-server-dev-all rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
+            INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel percona-postgresql13-devel percona-postgresql13-server percona-postgresql-common percona-postgresql-server-dev-all rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
             yum -y install ${INSTALL_LIST}
             yum -y install binutils gcc gcc-c++
         fi
@@ -289,7 +290,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.0/pgaudit/all.patch
     mv all.patch rpmbuild/SOURCES
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
@@ -455,17 +456,17 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
 BRANCH="master"
-BRANCH="1.4.0"
+BRANCH="1.5.0"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.4.0'
-RELEASE='3'
+VERSION='1.5.0'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

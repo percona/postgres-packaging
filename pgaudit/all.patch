@@ -39,18 +39,6 @@
                  case T_SelectStmt:
                  case T_PrepareStmt:
                  case T_PlannedStmt:
-@@ -1007,7 +1021,11 @@
-         relOid = rte->relid;
-         rel = relation_open(relOid, NoLock);
- 
-+#if PG_VERSION_NUM >= 120000
-         if (!auditLogCatalog && IsCatalogNamespace(RelationGetNamespace(rel)))
-+#else
-+        if (!auditLogCatalog && IsSystemNamespace(RelationGetNamespace(rel)))
-+#endif
-         {
-             relation_close(rel, NoLock);
-             continue;
 @@ -1219,7 +1237,11 @@
       * Logging execution of all pg_catalog functions would make the log
       * unusably noisy.
@@ -74,7 +62,7 @@
 @@ -1362,6 +1385,15 @@
                              QueryEnvironment *queryEnv,
                              DestReceiver *dest,
-                             char *completionTag)
+                             QueryCompletion *qc)
 +#else
 +static void
 +pgaudit_ProcessUtility_hook(Node *parsetree,
@@ -82,7 +70,7 @@
 +                             ProcessUtilityContext context,
 +                             ParamListInfo params,
 +                             DestReceiver *dest,
-+                             char *completionTag)
++                             QueryCompletion *qc)
 +#endif
  {
      AuditEventStackItem *stackItem = NULL;
@@ -110,17 +98,17 @@
 +#if PG_VERSION_NUM >= 100000
      if (next_ProcessUtility_hook)
          (*next_ProcessUtility_hook) (pstmt, queryString, context, params,
-                                      queryEnv, dest, completionTag);
+                                      queryEnv, dest, qc);
      else
          standard_ProcessUtility(pstmt, queryString, context, params,
-                                 queryEnv, dest, completionTag);
+                                 queryEnv, dest, qc);
 +#else
 +    if (next_ProcessUtility_hook)
 +        (*next_ProcessUtility_hook) (parsetree, queryString, context,
-+                                     params, dest, completionTag);
++                                     params, dest, qc);
 +    else
 +        standard_ProcessUtility(parsetree, queryString, context,
-+                                params, dest, completionTag);
++                                params, dest, qc);
 +#endif
  
      /*

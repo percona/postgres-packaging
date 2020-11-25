@@ -21,3 +21,4 @@ Description: reorganize tables in PostgreSQL databases with minimal locks
  .
  This package contains the pg_repack program and the server extension for
  PostgreSQL 13.
+

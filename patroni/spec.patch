@@ -23,7 +23,7 @@
 +%define        debug_package %{nil}
 +Name:          percona-patroni
 +Version:       2.0.1
-+Release:       1%{dist}
++Release:       2%{dist}
 +Epoch:         1
  License:       MIT
  Summary:       PostgreSQL high-availability manager

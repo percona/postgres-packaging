@@ -35,7 +35,7 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL=4
 
 # if LLVM is installed, use it
 ifneq ($(wildcard /usr/bin/llvm-config*),)
-LLVM_FLAGS = --with-llvm LLVM_CONFIG=/usr/bin/llvm-config-10 CLANG=/usr/bin/clang-10
+LLVM_FLAGS = --with-llvm LLVM_CONFIG=/usr/bin/llvm-config-11 CLANG=/usr/bin/clang-11
 endif
 
 # PostgreSQL 9.5+ does not have native spinlock support on alpha
@@ -81,7 +81,7 @@ COMMON_CONFIGURE_FLAGS= \
   CFLAGS='$(CFLAGS)' \
   LDFLAGS='$(LDFLAGS)'
 
-# allow missing krb5 and ldap during bootstrapping
+# allow missing gssapi and ldap during bootstrapping
 ifeq ($(DEB_STAGE),stage1)
 BOOTSTRAP_FLAGS=
 else
@@ -197,7 +197,7 @@ ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 	  PG_TEST_EXTRA='ssl' \
 	  PROVE_FLAGS="--verbose"; \
 	then \
-	    for l in `find build -name 'regress*' -o -name '*.log' | perl -we 'print map { "$$_\n"; } sort { (stat $$a)[9] <=> (stat $$b)[9] } map { chomp; $$_; } <>' | tail -n 10`; do \
+	    for l in `find build -name 'regression.*' -o -name '*.log' -o -name '*_log_*' | perl -we 'print map { "$$_\n"; } sort { (stat $$a)[9] <=> (stat $$b)[9] } map { chomp; $$_; } <>' | tail -n 10`; do \
 		echo "******** $$l ********"; \
 		cat $$l; \
 	    done; \

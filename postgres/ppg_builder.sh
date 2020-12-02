@@ -126,13 +126,10 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-	rm -f rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/control.patch
-        patch -p0 < control.patch
-	sed -i 9d control
+	rm -f rules control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/postgres/control
         sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
-        rm -rf control.patch
 	echo "9" > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
@@ -141,7 +138,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-12.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.4/postgres/percona-postgresql-12.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/postgres/percona-postgresql-12.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -461,7 +458,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-${VERSION}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}-${RELEASE}.${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -487,13 +484,13 @@ INSTALL=0
 RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
-BRANCH="REL_12.4"
+BRANCH="REL_12.5"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='12'
-RELEASE='4'
+RELEASE='5'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

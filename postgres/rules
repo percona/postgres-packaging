@@ -186,7 +186,7 @@ override_dh_auto_test-indep:
 
 override_dh_auto_test-arch:
 ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
-	# when tests fail, print newest 3 log files
+	# when tests fail, print newest log files
 	# initdb doesn't like LANG and LC_ALL to contradict, unset LANG and LC_CTYPE here
 	# temp-install wants to be invoked from a top-level make, unset MAKELEVEL here
 	# hurd doesn't implement semaphores shared between processes yet; succeed anyway so they at least have libpq5
@@ -196,7 +196,7 @@ ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 	  EXTRA_REGRESS_OPTS='--port=$(shell perl -le 'print 1024 + int(rand(64000))')' \
 	  PROVE_FLAGS="--verbose"; \
 	then \
-	    for l in `find build \( -name regression.diffs -o -name install.log -o -name initdb.log -o -name postmaster.log \) | perl -we 'print map { "$$_\n"; } sort { (stat $$a)[9] <=> (stat $$b)[9] } map { chomp; $$_; } <>' | tail -3`; do \
+	    for l in `find build -name 'regression.*' -o -name '*.log' -o -name '*_log_*' | perl -we 'print map { "$$_\n"; } sort { (stat $$a)[9] <=> (stat $$b)[9] } map { chomp; $$_; } <>' | tail -n 10`; do \
 		echo "******** $$l ********"; \
 		cat $$l; \
 	    done; \

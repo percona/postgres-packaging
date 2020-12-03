@@ -39,18 +39,6 @@
                  case T_SelectStmt:
                  case T_PrepareStmt:
                  case T_PlannedStmt:
-@@ -1007,7 +1021,11 @@
-         relOid = rte->relid;
-         rel = relation_open(relOid, NoLock);
- 
-+#if PG_VERSION_NUM >= 120000
-         if (!auditLogCatalog && IsCatalogNamespace(RelationGetNamespace(rel)))
-+#else
-+        if (!auditLogCatalog && IsSystemNamespace(RelationGetNamespace(rel)))
-+#endif
-         {
-             relation_close(rel, NoLock);
-             continue;
 @@ -1219,7 +1237,11 @@
       * Logging execution of all pg_catalog functions would make the log
       * unusably noisy.

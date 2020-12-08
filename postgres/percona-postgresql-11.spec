@@ -82,7 +82,7 @@
 
 Summary:	PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:	11.9
+Version:	11.10
 Release:	2%{?dist}
 License:	PostgreSQL
 Url:		https://www.postgresql.org/
@@ -1055,6 +1055,9 @@ sed -e 's|^PGVERSION=.*$|PGVERSION=%{pgmajorversion}|' \
         -e 's|^PREVMAJORVERSION=.*$|PREVMAJORVERSION=%{prevmajorversion}|' \
         <%{SOURCE17} >postgresql-%{pgmajorversion}-setup
 %{__install} -m 755 postgresql-%{pgmajorversion}-setup %{buildroot}%{pgbaseinstdir}/bin/postgresql-%{pgmajorversion}-setup
+# Create a symlink of the setup script under $PATH
+%{__mkdir} -p %{buildroot}%{_bindir}
+%{__ln_s} %{pgbaseinstdir}/bin/postgresql-%{pgmajorversion}-setup %{buildroot}%{_bindir}/%{sname}-%{pgmajorversion}-setup
 
 # prep the startup check script, including insertion of some values it needs
 sed -e 's|^PGVERSION=.*$|PGVERSION=%{pgmajorversion}|' \
@@ -1538,6 +1541,7 @@ fi
 %defattr(-,root,root)
 %if %{systemd_enabled}
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-setup
+%{_bindir}/%{sname}-%{pgmajorversion}-setup
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-check-db-dir
 %{_tmpfilesdir}/%{sname}-%{pgmajorversion}.conf
 %{_unitdir}/%{sname}-%{pgmajorversion}.service

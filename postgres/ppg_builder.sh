@@ -126,14 +126,10 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/control.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/rules.patch
-        patch -p0 < control.patch
-        sed -i 213d control
-        sed -i 8d control
-        patch -p0 < rules.patch
+	rm -f control rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/postgres/rules
         sed -i 's/postgresql-11/percona-postgresql-11/' percona-postgresql-11.templates
-        rm -rf control.patch rules.patch
 	echo 9 > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
@@ -142,7 +138,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-11.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.9/postgres/percona-postgresql-11.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/postgres/percona-postgresql-11.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -219,8 +215,8 @@ install_deps() {
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      wget https://repo.percona.com/apt/percona-release_1.0-13.generic_all.deb
-      dpkg -i percona-release_1.0-13.generic_all.deb
+      wget https://repo.percona.com/apt/percona-release_1.0-25.generic_all.deb
+      dpkg -i percona-release_1.0-25.generic_all.deb
       percona-release disable all
       percona-release enable tools testing
       apt-get update
@@ -449,7 +445,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-${VERSION}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}-${RELEASE}.${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -472,8 +468,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
 BRANCH="REL_11_STABLE"
 REPO="git://git.postgresql.org/git/postgresql.git"
@@ -481,7 +477,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='11'
-RELEASE='9'
+RELEASE='10'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

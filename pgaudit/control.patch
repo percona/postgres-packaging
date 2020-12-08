@@ -1,0 +1,36 @@
+--- debian/control	2019-12-20 22:49:43.000000000 +0200
++++ debian/control	2019-12-21 00:12:04.000000000 +0200
+@@ -1,22 +1,21 @@
+-Source: pgaudit
++Source: percona-pgaudit
+ Section: database
+ Priority: optional
+-Maintainer: Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>
+-Uploaders: Michael Banck <michael.banck@credativ.de>
++Maintainer: Percona Development Team <info@percona.com>
+ Build-Depends:
+  debhelper (>= 9),
+  libkrb5-dev,
+  libssl-dev,
+- postgresql-server-dev-all (>= 153~),
++ percona-postgresql-server-dev-all (>= 153~),
+ Standards-Version: 3.9.8
+ Vcs-Browser: https://salsa.debian.org/postgresql/pgaudit
+ Vcs-Git: https://salsa.debian.org/postgresql/pgaudit.git
+ Homepage: http://pgaudit.org/
+ 
+-Package: postgresql-12-pgaudit
++Package: percona-postgresql-11-pgaudit
+ Architecture: any
+-Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-12
+-Suggests:
++Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-11 | percona-postgresql-11
++Provides: pgaudit, postgresql-11-pgaudit
+ Description: PostgreSQL Audit Extension
+  The pgAudit extension provides detailed session and/or object audit logging
+  via the standard PostgreSQL logging facility.
+@@ -28,3 +27,4 @@
+  An audit is an official inspection of an individual's or organization's
+  accounts, typically by an independent body. The information gathered by
+  pgAudit is properly called an audit trail or audit log.
++

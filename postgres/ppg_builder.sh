@@ -127,18 +127,18 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.1/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.1/postgres/control
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.2/postgres/rules
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.2/postgres/control
         sed -i 's/postgresql-13/percona-postgresql-13/' percona-postgresql-13.templates
 	echo "9" > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/13/postgresql/master/* rpm/
+    mv pgrpms/rpm/redhat/master/non-common/postgresql-13/master/* rpm/
     rm -rf pgrpms
     cd rpm
         rm postgresql-13.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.1/postgres/percona-postgresql-13.spec
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.2/postgres/percona-postgresql-13.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -481,16 +481,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="REL_13.1"
+BRANCH="REL_13.2"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='13'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

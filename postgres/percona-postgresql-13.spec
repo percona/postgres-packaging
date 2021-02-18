@@ -46,31 +46,43 @@
 %{!?xml:%global xml 1}
 
 %{!?systemd_enabled:%global systemd_enabled 1}
+
 %ifarch ppc64 ppc64le s390 s390x armv7hl
-%{!?llvm:%global llvm 0}
 %{!?sdt:%global sdt 0}
 %else
-%{!?llvm:%global llvm 1}
  %{!?sdt:%global sdt 1}
 %endif
+
+%ifarch ppc64 ppc64le s390 s390x armv7hl
+%if 0%{?rhel} && 0%{?rhel} == 7
+%{!?llvm:%global llvm 0}
+%else
+%{!?llvm:%global llvm 1}
+%endif
+%else
+%{!?llvm:%global llvm 1}
+%endif
+
 %{!?selinux:%global selinux 1}
 
 %if 0%{?fedora} > 30
 %global _hardened_build 1
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
 %pgdg_set_ppc64le_compiler_at10
+%endif
 %endif
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        13.1
-Release:        1%{?dist}
+Version:        13.2
+Release:        2%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 
-Source0:        percona-postgresql-13.1.tar.gz
+Source0:        percona-postgresql-13.2.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -604,11 +616,13 @@ benchmarks.
 %endif
 
 CFLAGS="${CFLAGS:-%optflags}"
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
         CFLAGS="${CFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
         CXXFLAGS="${CXXFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
         LDFLAGS="-L%{atpath}/%{_lib}"
         CC=%{atpath}/bin/gcc; export CC
+%endif
 %else
         # Strip out -ffast-math from CFLAGS....
         CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
@@ -700,9 +714,11 @@ export PYTHON=/usr/bin/python3
 %if %{systemd_enabled}
         --with-systemd \
 %endif
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
         --with-includes=%{atpath}/include \
         --with-libraries=%{atpath}/lib64 \
+%endif
 %endif
         --with-system-tzdata=%{_datadir}/zoneinfo \
         --sysconfdir=/etc/sysconfig/pgsql \
@@ -858,13 +874,13 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 
 %if %test
         # tests. There are many files included here that are unnecessary,
-        # but include them anyway for completeness. We replace the original
+        # but include them anyway for completeness.  We replace the original
         # Makefiles, however.
         %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/lib/test
         %{__cp} -a src/test/regress %{buildroot}%{pgbaseinstdir}/lib/test
         %{__install} -m 0755 contrib/spi/refint.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
         %{__install} -m 0755 contrib/spi/autoinc.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
-        pushd %{buildroot}%{pgbaseinstdir}/lib/test/regress
+        pushd  %{buildroot}%{pgbaseinstdir}/lib/test/regress
         strip *.so
         %{__rm} -f GNUmakefile Makefile *.o
         chmod 0755 pg_regress regress.so
@@ -1101,7 +1117,9 @@ fi
 %{pgbaseinstdir}/bin/pg_dump
 %{pgbaseinstdir}/bin/pg_dumpall
 %{pgbaseinstdir}/bin/pg_isready
+%{pgbaseinstdir}/bin/pg_receivewal
 %{pgbaseinstdir}/bin/pg_restore
+%{pgbaseinstdir}/bin/pg_waldump
 %{pgbaseinstdir}/bin/psql
 %{pgbaseinstdir}/bin/reindexdb
 %{pgbaseinstdir}/bin/vacuumdb
@@ -1285,14 +1303,12 @@ fi
 %{pgbaseinstdir}/bin/pg_checksums
 %{pgbaseinstdir}/bin/pg_controldata
 %{pgbaseinstdir}/bin/pg_ctl
-%{pgbaseinstdir}/bin/pg_receivewal
 %{pgbaseinstdir}/bin/pg_resetwal
 %{pgbaseinstdir}/bin/pg_rewind
 %{pgbaseinstdir}/bin/pg_test_fsync
 %{pgbaseinstdir}/bin/pg_test_timing
 %{pgbaseinstdir}/bin/pg_upgrade
 %{pgbaseinstdir}/bin/pg_verifybackup
-%{pgbaseinstdir}/bin/pg_waldump
 %{pgbaseinstdir}/bin/postgres
 %{pgbaseinstdir}/bin/postmaster
 %{pgbaseinstdir}/share/man/man1/initdb.*
@@ -1408,7 +1424,23 @@ fi
 %endif
 
 %changelog
-* Tue Sep 22 2020 Devrim Gündüz <devrim@gunduz.org> - 13.0-1PGDG
+* Tue Feb 9 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.2-1PGDG
+- Update to 13.2
+
+* Wed Dec 16 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.1-3PGDG
+- Drop Advance Toolchain on RHEL 8 - ppc64le.
+- Enable LLVM support on RHEL 8 - ppc64le
+
+* Tue Dec 8 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.1-2PGDG
+- Move pg_receivewal and pg_waldump to client package. Fixes #6060.
+
+* Mon Nov 9 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.1-1PGDG
+- Update to 13.1
+
+* Wed Nov 4 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.0-2PGDG
+- Rebuild against new CLANG and LLVM on RHEL 8.3
+
+* Tue Sep 22 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.0-1PGDG
 - Update to 13.0!
 - Add setup script under $PATH
 

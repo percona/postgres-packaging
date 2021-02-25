@@ -149,15 +149,10 @@ get_sources(){
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.2/patroni/spec.patch
+    rm -f patroni.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.2/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
-    patch -p0 < spec.patch
-#    sed -i 's:%patch0 -p1:#%patch0 -p1:' patroni.spec
-#    sed -i 's:%patch1 -p1:#%patch1 -p1:' patroni.spec
-    sed -i 's:python-psycopg2 >= 2.7.0:python-psycopg2:' patroni.spec
-    sed -i 's:1.6.5:2.0.0:' patroni.spec
-    rm -rf spec.patch
     cd ../
     rm -rf all_packaging
     cd ${WORKDIR}

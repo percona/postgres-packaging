@@ -18,9 +18,9 @@ Patch0:        add-sample-config.patch
 Patch1:        better-startup-script.patch
 BuildRoot:     %{_tmppath}/%{buildprefix}-buildroot
 %if 0%{?rhel} > 7
-Requires:      python3-pyyaml, python3-urllib3, python3-prettytable, python3-six
+Requires:      python3-pyyaml, python3-urllib3, python3-prettytable, python3-six python3-dateutil
 %else
-Requires:      python36-six python2-pyyaml python36-urllib3 python36-prettytable
+Requires:      python36-six python2-pyyaml python36-urllib3 python36-prettytable python36-dateutil
 %endif
 Requires:      python3, python3-psycopg2 >= 2.5.4, libffi, postgresql-server, libyaml
 Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresql13-server

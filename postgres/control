@@ -232,8 +232,8 @@ Depends:
  percona-postgresql-13 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Breaks: percona-postgresql-13
-Replaces: percona-postgresql-13
+Breaks: percona-postgresql-13 (<< 13~beta4)
+Replaces: percona-postgresql-13 (<< 13~beta4)
 Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-13
 Description: PL/Perl procedural language for PostgreSQL 13
  PL/Perl enables an SQL developer to write procedural language functions

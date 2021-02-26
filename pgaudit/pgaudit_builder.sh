@@ -132,10 +132,10 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/pgaudit/all.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/pgaudit/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/pgaudit/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/pgaudit/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/pgaudit/rules
     mv all.patch debian/patches/
     rm -rf debian/control*
     echo "all.patch" > debian/patches/series
@@ -147,7 +147,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -456,8 +456,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=3
+DEB_RELEASE=3
 REVISION=0
 BRANCH="master"
 BRANCH="1.4.1"
@@ -466,7 +466,7 @@ PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.4.1'
-RELEASE='2'
+RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

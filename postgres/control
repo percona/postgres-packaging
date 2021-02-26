@@ -6,7 +6,8 @@ Standards-Version: 4.5.0
 Rules-Requires-Root: no
 Build-Depends:
  bison,
- clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
+ clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ debhelper,
  dh-exec (>= 0.13~),
  docbook-xml,
  docbook-xsl (>= 1.77),
@@ -141,16 +142,14 @@ Depends:
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-13, postgresql-contrib-13, postgresql-13
 Recommends: sysstat
-Description: object-relational SQL database, version 13 server
- PostgreSQL is a powerful, open source object-relational database
- system. It is fully ACID compliant, has full support for foreign
- keys, joins, views, triggers, and stored procedures (in multiple
- languages). It includes most SQL:2008 data types, including INTEGER,
- NUMERIC, BOOLEAN, CHAR, VARCHAR, DATE, INTERVAL, and TIMESTAMP. It
- also supports storage of binary large objects, including pictures,
- sounds, or video. It has native programming interfaces for C/C++,
- Java, .Net, Perl, Python, Ruby, Tcl, ODBC, among others, and
- exceptional documentation.
+Description: The World's Most Advanced Open Source Relational Database
+ PostgreSQL, also known as Postgres, is a free and open-source relational
+ database management system (RDBMS) emphasizing extensibility and SQL
+ compliance. It features transactions with Atomicity, Consistency, Isolation,
+ Durability (ACID) properties, automatically updatable views, materialized
+ views, triggers, foreign keys, and stored procedures. It is designed to handle
+ a range of workloads, from single machines to data warehouses or Web services
+ with many concurrent users.
  .
  This package provides the database server for PostgreSQL 13.
 XB-Postgresql-Catversion: ${postgresql:Catversion}
@@ -176,8 +175,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-13, percona-postgresql-doc-13
 Provides: percona-postgresql-client, postgresql-client, postgresql-client-13
-Conflicts: postgresql-server-dev-13 (<< 13.1-2~)
-Replaces: postgresql-server-dev-13 (<< 13.1-2~)
+Conflicts: postgresql-server-dev-13 (<< 13.2-2~)
+Replaces: postgresql-server-dev-13 (<< 13.2-2~)
 Description: front-end programs for PostgreSQL 13
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and
@@ -233,8 +232,8 @@ Depends:
  percona-postgresql-13 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Breaks: percona-postgresql-13 (<< 13~beta4)
-Replaces: percona-postgresql-13 (<< 13~beta4)
+Breaks: percona-postgresql-13
+Replaces: percona-postgresql-13
 Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-13
 Description: PL/Perl procedural language for PostgreSQL 13
  PL/Perl enables an SQL developer to write procedural language functions
@@ -272,4 +271,3 @@ Description: PL/Tcl procedural language for PostgreSQL 13
  PostgreSQL 13 functions that use the languages pltcl or pltclu.
  .
  PostgreSQL is an object-relational SQL database management system.
-

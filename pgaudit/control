@@ -27,4 +27,3 @@ Description: PostgreSQL Audit Extension
  An audit is an official inspection of an individual's or organization's
  accounts, typically by an independent body. The information gathered by
  pgAudit is properly called an audit trail or audit log.
-

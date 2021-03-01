@@ -34,7 +34,7 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL=4
 
 # if LLVM is installed, use it
 ifneq ($(wildcard /usr/bin/llvm-config*),)
-LLVM_FLAGS = --with-llvm LLVM_CONFIG=/usr/bin/llvm-config-10 CLANG=/usr/bin/clang-10
+LLVM_FLAGS = --with-llvm LLVM_CONFIG=/usr/bin/llvm-config-11 CLANG=/usr/bin/clang-11
 endif
 
 # PostgreSQL 9.5+ does not have native spinlock support on alpha
@@ -60,7 +60,6 @@ COMMON_CONFIGURE_FLAGS= \
   --includedir=/usr/include/postgresql/ \
   --with-extra-version=" ($(DEB_VENDOR) $(DEB_VERSION))" \
   --enable-nls \
-  --enable-integer-datetimes \
   --enable-thread-safety \
   --enable-tap-tests \
   --enable-debug \

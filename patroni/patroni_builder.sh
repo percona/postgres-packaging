@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.10 testing
+    percona-release enable ppg-11.11 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.10 testing
+    percona-release enable ppg-11.11 testing
     return
 }
 
@@ -135,10 +135,10 @@ get_sources(){
     mv all_packaging/DEB/debian ./
     cd debian
     rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/patroni/rules
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/patroni/rules
     rm -f control
     rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/patroni/control
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     mv install percona-patroni.install
@@ -149,15 +149,10 @@ get_sources(){
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/patroni/spec.patch
+    rm -f patroni.spec
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
-    patch -p0 < spec.patch
-#    sed -i 's:%patch0 -p1:#%patch0 -p1:' patroni.spec
-#    sed -i 's:%patch1 -p1:#%patch1 -p1:' patroni.spec
-    sed -i 's:python-psycopg2 >= 2.7.0:python-psycopg2:' patroni.spec
-    sed -i 's:1.6.5:2.0.0:' patroni.spec
-    rm -rf spec.patch
     cd ../
     rm -rf all_packaging
     cd ${WORKDIR}
@@ -211,7 +206,7 @@ install_deps() {
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} = 8 ]; then
-          yum config-manager --set-enabled PowerTools
+          yum config-manager --set-enabled PowerTools || yum config-manager --set-enabled powertools
       fi
       if [ ${RHEL} = 7 ]; then
           INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc"
@@ -234,9 +229,9 @@ install_deps() {
       add_percona_apt_repo
       apt-get update || true
       if [ "x${DEBIAN}" != "xfocal" ]; then
-        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
+        INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
       else
-        INSTALL_LIST="build-essential debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
+        INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
       fi
       DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
       if [ "x${DEBIAN}" = "xstretch" ]; then

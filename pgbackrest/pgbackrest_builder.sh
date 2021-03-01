@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.10 testing
+    percona-release enable ppg-11.11 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.10 testing
+    percona-release enable ppg-11.11 testing
     return
 }
 
@@ -133,7 +133,7 @@ get_sources(){
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
-    wget     wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/pgbackrest/control.patch
+    wget     wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgbackrest/control.patch
     patch -p0 < control.patch
     rm -f control.patch
     cd ../
@@ -142,8 +142,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -461,12 +461,12 @@ INSTALL=0
 RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
-BRANCH="release/2.30"
+BRANCH="release/2.32"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.30'
+VERSION='2.32'
 RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

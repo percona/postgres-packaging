@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.10 testing
+    percona-release enable ppg-11.11 testing
     percona-release enable tools testing
     return
 }
@@ -91,7 +91,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.10 testing
+    percona-release enable ppg-11.11 testing
     percona-release enable tools testing
     return
 }
@@ -128,7 +128,7 @@ get_sources(){
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgaudit.properties
     rm -fr debian rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgaudit/all.patch
     patch -p1 < all.patch
     rm -f all.patch
     git clone https://salsa.debian.org/postgresql/pgaudit.git deb_packaging
@@ -136,9 +136,9 @@ get_sources(){
     git checkout debian/1.3.0-2
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/pgaudit/rules
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgaudit/control
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgaudit/control.in
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgaudit/rules
     echo "9" > debian/compat
     echo "alternative_regression_outputs.patch" > debian/patches/series
     mv control* debian/
@@ -149,7 +149,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.10/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -222,7 +222,7 @@ install_deps() {
         add_percona_apt_repo
         percona-release enable tools testing
         apt-get update || true
-        INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-10 devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-11"
+        INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-11 devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-11"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;

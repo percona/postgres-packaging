@@ -54,20 +54,38 @@
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
 %{!?systemd_enabled:%global systemd_enabled 0}
-%{!?sdt:%global sdt 0}
-%{!?selinux:%global selinux 0}
-# LLVM version in RHEL 6 is not sufficient to build LLVM
-%{!?llvm:%global llvm 0}
 %else
 %{!?systemd_enabled:%global systemd_enabled 1}
-%ifarch ppc64 ppc64le s390 s390x armv7hl
-%{!?llvm:%global llvm 0}
-%{!?sdt:%global sdt 0}
-%else
-%{!?llvm:%global llvm 1}
- %{!?sdt:%global sdt 1}
 %endif
-%{!?selinux:%global selinux 1}
+
+%ifarch ppc64 ppc64le s390 s390x armv7hl
+ %{!?sdt:%global sdt 0}
+ %else
+ %if 0%{?rhel} && 0%{?rhel} <= 6
+   %{!?sdt:%global sdt 0}
+  %else
+  %{!?sdt:%global sdt 1}
+ %endif
+%endif
+
+%ifarch ppc64 ppc64le s390 s390x armv7hl
+ %if 0%{?rhel} && 0%{?rhel} == 7
+  %{!?llvm:%global llvm 0}
+ %else
+ %{!?llvm:%global llvm 1}
+ %endif
+%else
+ %if 0%{?rhel} && 0%{?rhel} <= 6
+  %{!?llvm:%global llvm 0}
+ %else
+  %{!?llvm:%global llvm 1}
+ %endif
+%endif
+
+%if 0%{?rhel} && 0%{?rhel} <= 6
+%{!?selinux:%global selinux 0}
+%else
+ %{!?selinux:%global selinux 1}
 %endif
 
 %if 0%{?fedora} > 23
@@ -82,7 +100,7 @@
 
 Summary:	PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:	11.10
+Version:	11.11
 Release:	2%{?dist}
 License:	PostgreSQL
 Url:		https://www.postgresql.org/
@@ -704,7 +722,7 @@ export PYTHON=/usr/bin/python3
         export CLANG=/opt/rh/llvm-toolset-7/root/usr/bin/clang LLVM_CONFIG=%{_libdir}/llvm5.0/bin/llvm-config
 %endif
 %if 0%{?rhel} && 0%{?rhel} == 8
-        export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
+        export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config-64
 %endif
 
 # These configure options must match main build
@@ -832,9 +850,9 @@ export PYTHON=/usr/bin/python2
 ./configure --enable-rpath \
         --prefix=%{pgbaseinstdir} \
         --includedir=%{pgbaseinstdir}/include \
+        --libdir=%{pgbaseinstdir}/lib \
         --mandir=%{pgbaseinstdir}/share/man \
         --datadir=%{pgbaseinstdir}/share \
-        --libdir=%{pgbaseinstdir}/lib \
 %if %beta
         --enable-debug \
         --enable-cassert \
@@ -948,7 +966,7 @@ sed "s|C=\`pwd\`;|C=%{pgbaseinstdir}/lib/tutorial;|" < src/tutorial/Makefile > s
 
 # run_testsuite WHERE
 # -------------------
-# Run 'make check' in WHERE path.  When that command fails, return the logs
+# Run 'make check' in WHERE path. When that command fails, return the logs
 # given by PostgreSQL build system and set 'test_failure=1'.
 
 run_testsuite()
@@ -1676,6 +1694,28 @@ fi
 %endif
 
 %changelog
+* Thu Feb 11 2021 Devrim Gündüz <devrim@gunduz.org> - 11.11-2PGDG
+- A few fixes around llvm, sdt and selinux macros, so that they
+  work on RHEL 6 as well.
+
+* Tue Feb 9 2021 Devrim Gündüz <devrim@gunduz.org> - 11.11-1PGDG
+- Update to 11.11, per changes described at
+  https://www.postgresql.org/docs/release/11.11/
+
+* Wed Jan 6 2021 Devrim Gündüz <devrim@gunduz.org> - 11.10-2PGDG
+- Drop Advance Toolchain on RHEL 8 - ppc64le.
+- Enable LLVM support on RHEL 8 - ppc64le
+
+* Mon Nov 9 2020 Devrim Gündüz <devrim@gunduz.org> - 11.10-1PGDG
+- Update to 11.10, per changes described at
+  https://www.postgresql.org/docs/release/11.10/
+
+* Wed Nov 4 2020 Devrim Gündüz <devrim@gunduz.org> - 11.9-4PGDG
+- Rebuild against new CLANG and LLVM on RHEL 8.3
+
+* Wed Sep 23 2020 Devrim Gündüz <devrim@gunduz.org> - 11.9-3PGDG
+- Add setup script under $PATH
+
 * Tue Aug 25 2020 Devrim Gündüz <devrim@gunduz.org> - 11.9-2PGDG
 - Use correct dependencies to enable LLVM build on RHEL 7 and aarch64
 

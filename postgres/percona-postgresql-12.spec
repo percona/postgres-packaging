@@ -39,8 +39,6 @@
 # Support Python3 on RHEL 7.7+ natively
 # RHEL 8 uses Python3
 %{!?plpython3:%global plpython3 1}
-# This is the list of contrib modules that will be compiled with PY3 as well:
-%global python3_build_list hstore_plpython jsonb_plpython ltree_plpython
 %endif
 
 %if 0%{?suse_version}
@@ -49,6 +47,9 @@
 %{!?plpython3:%global plpython3 0}
 %endif
 %endif
+
+# This is the list of contrib modules that will be compiled with PY3 as well:
+%global python3_build_list hstore_plpython jsonb_plpython ltree_plpython
 
 %{!?pltcl:%global pltcl 1}
 %{!?plperl:%global plperl 1}
@@ -60,40 +61,58 @@
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
 %{!?systemd_enabled:%global systemd_enabled 0}
-%{!?sdt:%global sdt 0}
-%{!?selinux:%global selinux 0}
-# LLVM version in RHEL 6 is not sufficient to build LLVM
-%{!?llvm:%global llvm 0}
 %else
 %{!?systemd_enabled:%global systemd_enabled 1}
-%ifarch ppc64 ppc64le s390 s390x armv7hl
-%{!?llvm:%global llvm 0}
-%{!?sdt:%global sdt 0}
-%else
-%{!?llvm:%global llvm 1}
- %{!?sdt:%global sdt 1}
 %endif
-%{!?selinux:%global selinux 1}
+
+%ifarch ppc64 ppc64le s390 s390x armv7hl
+ %{!?sdt:%global sdt 0}
+ %else
+ %if 0%{?rhel} && 0%{?rhel} <= 6
+   %{!?sdt:%global sdt 0}
+  %else
+  %{!?sdt:%global sdt 1}
+ %endif
+%endif
+
+%ifarch ppc64 ppc64le s390 s390x armv7hl
+ %if 0%{?rhel} && 0%{?rhel} == 7
+  %{!?llvm:%global llvm 0}
+ %else
+ %{!?llvm:%global llvm 1}
+ %endif
+%else
+ %if 0%{?rhel} && 0%{?rhel} <= 6
+  %{!?llvm:%global llvm 0}
+ %else
+  %{!?llvm:%global llvm 1}
+ %endif
+%endif
+
+%if 0%{?rhel} && 0%{?rhel} <= 6
+%{!?selinux:%global selinux 0}
+%else
+ %{!?selinux:%global selinux 1}
 %endif
 
 %if 0%{?fedora} > 23
 %global _hardened_build 1
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-# Define the AT version and path.
-%global atstring        at10.0
-%global atpath          /opt/%{atstring}
+%pgdg_set_ppc64le_compiler_at10
+%endif
 %endif
 
 Summary:        PostgreSQL client programs and libraries
-Name:          percona-postgresql%{pgmajorversion}
-Version:        12.5
-Release:        1%{?dist}
+Name:		percona-postgresql%{pgmajorversion}
+Version:        12.6
+Release:        2%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 
-Source0:       percona-postgresql-12.5.tar.gz
+Source0:       percona-postgresql-12.6.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 %if %{systemd_enabled}
@@ -129,8 +148,10 @@ BuildRequires:  readline-devel zlib-devel >= 1.0.4
 BuildRequires:  perl-generators
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-BuildRequires:  advance-toolchain-%{atstring}-devel
+BuildRequires:	advance-toolchain-%{atstring}-devel
+%endif
 %endif
 
 Requires:       /sbin/ldconfig
@@ -143,7 +164,11 @@ Requires:       libicu
 %if %llvm
 %if 0%{?rhel} && 0%{?rhel} == 7
 # Packages come from EPEL and SCL:
-BuildRequires:  llvm5.0-devel >= 5.0 llvm-toolset-7-clang >= 4.0.1
+%ifarch aarch64
+BuildRequires:	llvm-toolset-7.0-llvm-devel >= 7.0.1 llvm-toolset-7.0-clang >= 7.0.1
+%else
+BuildRequires:	llvm5.0-devel >= 5.0 llvm-toolset-7-clang >= 4.0.1
+%endif
 %endif
 %if 0%{?rhel} && 0%{?rhel} >= 8
 # Packages come from Appstream:
@@ -281,8 +306,10 @@ Provides:       %{vname} = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname} <= %{version}-%{release}
 Obsoletes:      %{vname} <= %{version}-%{release}
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
 %pgdg_set_ppc64le_min_requires
+%endif
 %endif
 
 %description
@@ -666,11 +693,13 @@ benchmarks.
 %endif
 
 CFLAGS="${CFLAGS:-%optflags}"
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
         CFLAGS="${CFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
         CXXFLAGS="${CXXFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
         LDFLAGS="-L%{atpath}/%{_lib}"
         CC=%{atpath}/bin/gcc; export CC
+%endif
 %else
         # Strip out -ffast-math from CFLAGS....
         CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
@@ -777,14 +806,16 @@ export PYTHON=/usr/bin/python3
 %if %{systemd_enabled}
         --with-systemd \
 %endif
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-        --with-includes=%{atpath}/include \
-        --with-libraries=%{atpath}/lib64 \
+	--with-includes=%{atpath}/include \
+	--with-libraries=%{atpath}/lib64 \
 %endif
-        --with-system-tzdata=%{_datadir}/zoneinfo \
-        --sysconfdir=/etc/sysconfig/pgsql \
-        --docdir=%{pgbaseinstdir}/doc \
-        --htmldir=%{pgbaseinstdir}/doc/html
+%endif
+	--with-system-tzdata=%{_datadir}/zoneinfo \
+	--sysconfdir=/etc/sysconfig/pgsql \
+	--docdir=%{pgbaseinstdir}/doc \
+	--htmldir=%{pgbaseinstdir}/doc/html
 # We need to build PL/Python 3 and a few extensions:
 # Build PL/Python 3
 cd src/backend
@@ -798,13 +829,13 @@ cd ..
 cd ../..
 # Build some of the extensions with PY3 support
 for p3bl in %{python3_build_list} ; do
-        p3blpy3dir="$p3bl"3
-        pushd contrib/$p3bl
-        MAKELEVEL=0 %{__make} %{?_smp_mflags} all
-        cd ..
-        # save built form in a directory that "make distclean" won't touch
-        %{__cp} -a $p3bl $p3blpy3dir
-        popd
+	p3blpy3dir="$p3bl"3
+	pushd contrib/$p3bl
+	MAKELEVEL=0 %{__make} %{?_smp_mflags} all
+	cd ..
+	# save built form in a directory that "make distclean" won't touch
+	%{__cp} -a $p3bl $p3blpy3dir
+	popd
 done
 # must also save this version of Makefile.global for later
 # on platforms where Python 2 is still available:
@@ -903,14 +934,16 @@ export PYTHON=/usr/bin/python2
 %if %{systemd_enabled}
         --with-systemd \
 %endif
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-        --with-includes=%{atpath}/include \
-        --with-libraries=%{atpath}/lib64 \
+	--with-includes=%{atpath}/include \
+	--with-libraries=%{atpath}/lib64 \
 %endif
-        --with-system-tzdata=%{_datadir}/zoneinfo \
-        --sysconfdir=/etc/sysconfig/pgsql \
-        --docdir=%{pgbaseinstdir}/doc \
-        --htmldir=%{pgbaseinstdir}/doc/html
+%endif
+	--with-system-tzdata=%{_datadir}/zoneinfo \
+	--sysconfdir=/etc/sysconfig/pgsql \
+	--docdir=%{pgbaseinstdir}/doc \
+	--htmldir=%{pgbaseinstdir}/doc/html
 
 # We need to build PL/Python 2 and a few extensions:
 # Build PL/Python 2
@@ -1679,6 +1712,18 @@ fi
 %endif
 
 %changelog
+* Thu Feb 11 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 12.6-2PGDG
+- A few fixes around llvm, sdt and selinux macros, so that they
+  work on RHEL 6 as well.
+
+* Tue Feb 9 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 12.6-1PGDG
+- Update to 12.6, per changes described at
+  https://www.postgresql.org/docs/release/12.6/
+
+* Wed Jan 6 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.5-2PGDG
+- Drop Advance Toolchain on RHEL 8 - ppc64le.
+- Enable LLVM support on RHEL 8 - ppc64le
+
 * Mon Nov 9 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 12.5-1PGDG
 - Update to 12.5, per changes described at
   https://www.postgresql.org/docs/release/12.5/

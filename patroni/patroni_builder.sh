@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-12.5 testing
+    percona-release enable ppg-12.6 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-12.5 testing
+    percona-release enable ppg-12.6 testing
     return
 }
 
@@ -135,10 +135,10 @@ get_sources(){
     mv all_packaging/DEB/debian ./
     cd debian
     rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/patroni/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/patroni/rules
     rm -f control
     rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/patroni/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     mv install percona-patroni.install
@@ -149,15 +149,10 @@ get_sources(){
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.5/patroni/spec.patch
+    rm -f patroni.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
-    patch -p0 < spec.patch
-#    sed -i 's:%patch0 -p1:#%patch0 -p1:' patroni.spec
-#    sed -i 's:%patch1 -p1:#%patch1 -p1:' patroni.spec
-    sed -i 's:python-psycopg2 >= 2.7.0:python-psycopg2:' patroni.spec
-    sed -i 's:1.6.5:2.0.0:' patroni.spec
-    rm -rf spec.patch
     cd ../
     rm -rf all_packaging
     cd ${WORKDIR}
@@ -230,7 +225,10 @@ install_deps() {
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
+      until apt-get -y install gnupg2; do
+          sleep 3
+	  echo "WAITING"
+      done
       add_percona_apt_repo
       apt-get update || true
       if [ "x${DEBIAN}" != "xfocal" ]; then
@@ -485,8 +483,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=3
+DEB_RELEASE=3
 REVISION=0
 BRANCH="v2.0.1"
 REPO="https://github.com/zalando/patroni.git"
@@ -494,7 +492,7 @@ PRODUCT=percona-patroni
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.0.1'
-RELEASE='2'
+RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

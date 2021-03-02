@@ -6,7 +6,7 @@ Standards-Version: 4.5.0
 Rules-Requires-Root: no
 Build-Depends:
  bison,
- clang-10 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
+ clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
  dh-exec (>= 0.13~),
  docbook-xml,
  docbook-xsl (>= 1.77),
@@ -26,7 +26,7 @@ Build-Depends:
  libxml2-dev,
  libxml2-utils,
  libxslt1-dev,
- llvm-10-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
+ llvm-11-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
  perl (>= 5.8),
  pkg-config,
  python3-dev,
@@ -137,16 +137,14 @@ Depends:
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-12, postgresql-contrib-12, postgresql-12
 Recommends: sysstat
-Description: object-relational SQL database, version 12 server
- PostgreSQL is a powerful, open source object-relational database
- system. It is fully ACID compliant, has full support for foreign
- keys, joins, views, triggers, and stored procedures (in multiple
- languages). It includes most SQL:2008 data types, including INTEGER,
- NUMERIC, BOOLEAN, CHAR, VARCHAR, DATE, INTERVAL, and TIMESTAMP. It
- also supports storage of binary large objects, including pictures,
- sounds, or video. It has native programming interfaces for C/C++,
- Java, .Net, Perl, Python, Ruby, Tcl, ODBC, among others, and
- exceptional documentation.
+Description: The World's Most Advanced Open Source Relational Database
+ PostgreSQL, also known as Postgres, is a free and open-source relational
+ database management system (RDBMS) emphasizing extensibility and SQL
+ compliance. It features transactions with Atomicity, Consistency, Isolation,
+ Durability (ACID) properties, automatically updatable views, materialized
+ views, triggers, foreign keys, and stored procedures. It is designed to handle
+ a range of workloads, from single machines to data warehouses or Web services
+ with many concurrent users.
  .
  This package provides the database server for PostgreSQL 12.
 XB-Postgresql-Catversion: ${postgresql:Catversion}
@@ -268,4 +266,3 @@ Description: PL/Tcl procedural language for PostgreSQL 12
  PostgreSQL 12 functions that use the languages pltcl or pltclu.
  .
  PostgreSQL is an object-relational SQL database management system.
-

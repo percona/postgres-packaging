@@ -133,7 +133,7 @@ get_sources(){
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
-    wget     wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgbackrest/control.patch
+    wget     wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/pgbackrest/control.patch
     patch -p0 < control.patch
     rm -f control.patch
     cd ../
@@ -142,8 +142,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties

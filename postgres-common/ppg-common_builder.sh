@@ -119,11 +119,11 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -rf rules control
-    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/postgres-common/control
-    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/postgres-common/maintscripts-functions.patch
-    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/postgres-common/percona-postgresql-common.templates.patch
-    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/postgres-common/rules
-    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/postgres-common/supported_versions.patch
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/control
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/maintscripts-functions.patch
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/percona-postgresql-common.templates.patch
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/rules
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/supported_versions.patch
     patch -p0 < maintscripts-functions.patch
     patch -p0 < percona-postgresql-common.templates.patch
     patch -p0 < supported_versions.patch
@@ -143,8 +143,8 @@ get_sources(){
     for file in $(ls | grep postgresql); do
         mv $file "percona-$file"
     done
-	rm -rf percona-postgresql-common.spec
-    wget https://raw.githubusercontent.com/Sudokamikaze/postgres-packaging/11.11/postgres-common/percona-postgresql-common.spec
+	rm -f percona-postgresql-common.spec
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #

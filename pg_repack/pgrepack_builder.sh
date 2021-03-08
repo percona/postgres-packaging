@@ -453,8 +453,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=4
+DEB_RELEASE=4
 REVISION=0
 BRANCH="ver_1.4.6"
 REPO="https://github.com/reorg/pg_repack.git"
@@ -462,7 +462,7 @@ PRODUCT=percona-pg_repack
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.4.6'
-RELEASE='3'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

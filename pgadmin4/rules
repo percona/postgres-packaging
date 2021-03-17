@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+override_dh_auto_clean:
+
+override_dh_auto_test:
+
+override_dh_auto_build:
+	pkg/debian/build.sh
+
+override_dh_auto_install:
+	dh_auto_install
+	cp -arv debian-build/desktop/* debian/percona-pgadmin4-desktop/ 
+	cp -arv debian-build/web/* debian/percona-pgadmin4-web/ 
+	cp -arv debian-build/server/* debian/percona-pgadmin4-server/ 
+	mkdir -p debian/percona-pgadmin4-server/etc/apache2/conf-available/
+	cp -arv pkg/debian/pgadmin4.conf debian/percona-pgadmin4-server/etc/apache2/conf-available/
+
+override_dh_shlibdeps:
+
+override_dh_strip:
+
+
+%:
+	dh $@

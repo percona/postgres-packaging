@@ -101,14 +101,14 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-pgbadger
-    echo "PRODUCT=${PRODUCT}" > pgbadger.properties
+    PRODUCT=percona-pgadmin4
+    echo "PRODUCT=${PRODUCT}" > pgadmin4.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pgbadger.properties
-    echo "VERSION=${PSM_VER}" >> pgbadger.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgbadger.properties
-    echo "BUILD_ID=${BUILD_ID}" >> pgbadger.properties
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pgadmin4.properties
+    echo "VERSION=${PSM_VER}" >> pgadmin4.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgadmin4.properties
+    echo "BUILD_ID=${BUILD_ID}" >> pgadmin4.properties
     git clone "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
@@ -122,39 +122,46 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
-        git submodule update --init
     fi
+    sed -i '34,$d' pkg/redhat/build.sh
+    sed -i '25,$d' pkg/debian/build.sh
+    sed -i '174i pip3 install sphinx' pkg/linux/build-functions.sh
+    sed -i 's:pgsql-12:pgsql-13:' pkg/redhat/build.sh
+    sed -i 's:pgsql-12:pgsql-13:' docs/en_US/container_deployment.rst
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/pgbadger.properties
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/pgadmin4.properties
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgbadger/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgbadger/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/rules
     chmod +x rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgbadger/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/copyright
     echo 9 > compat
-    echo "percona-pgbadger (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-pgadmin4 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgbadger/percona-pgbadger.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/percona-pgadmin4.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/pgadmin4-sphinx-theme.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/pgadmin4-python3-mod_wsgi.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/pgadmin4-python3-mod_wsgi-exports.patch
     cd ${WORKDIR}
     #
-    source pgbadger.properties
+    source pgadmin4.properties
     #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> pgbadger.properties
+    tar --owner=0 --group=0 -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> pgadmin4.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-pgbadger*
+    rm -rf percona-pgadmin4*
     return
 }
 
@@ -186,56 +193,62 @@ install_deps() {
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
-      yum -y install wget
-      add_percona_yum_repo
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
-      yum clean all
-      RHEL=$(rpm --eval %rhel)
-      if [ ${RHEL} = 8 ]; then
-          dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
-          dnf clean all
-          rm -r /var/cache/dnf
-          dnf -y upgrade
-          yum -y install perl lz4-libs c-ares-devel
-	  yum -y install rpmbuild
-      else
-        until yum -y install centos-release-scl; do
-            echo "waiting"
-            sleep 1
-        done
-        yum -y install epel-release
-        yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
-        source /opt/rh/devtoolset-7/enable
-        source /opt/rh/llvm-toolset-7/enable
-      fi
-      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql-common percona-postgresql13-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
-      yum -y install ${INSTALL_LIST}
-      yum -y install lz4 || true
-
+        yum -y install wget
+        add_percona_yum_repo
+        yum clean all
+        yum install -y epel-release
+        yum -y install centos-release-scl
+        yum -y install curl
+        RHEL=$(rpm --eval %rhel)
+        if [ ${RHEL} = 8 ]; then
+            yum config-manager --enable PowerTools AppStream BaseOS *epel
+            dnf -qy module disable postgresql
+            dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+            dnf clean all
+            rm -r /var/cache/dnf
+            dnf -y upgrade
+            yum -y install rpmbuild
+        fi
+        curl -sL https://rpm.nodesource.com/setup_12.x | bash -
+        curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
+        yum groupinstall -y "Development Tools"
+        if [ ${RHEL} = 7 ]; then
+            yum install -y expect fakeroot httpd-devel percona-postgresql13-devel percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql13-devel python3-devel nodejs yarn rpm-build rpm-sign yum-utils krb5-devel pip3 install sphinx python3-sphinx
+        else
+            yum install -y expect fakeroot percona-postgresql13-devel percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql13-devel python3-devel nodejs yarn rpm-build rpm-sign yum-utils krb5-devel
+            pip3 install sphinx
+        fi
     else
-      export DEBIAN=$(lsb_release -sc)
-      export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
-      add_percona_apt_repo
-      apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-13 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config libjson-xs-perl"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
+        export DEBIAN=$(lsb_release -sc)
+        export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
+        until apt-get update; do
+            sleep 1
+            echo "waiting"
+        done
+        DEBIAN_FRONTEND=noninteractive apt install -y curl apt-transport-https ca-certificates gnupg
+        apt-get -y install gnupg2
+        add_percona_apt_repo
+        apt-get update || true
+        dpkg -r yarn
+        curl -sL https://deb.nodesource.com/setup_12.x | bash -
+        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+        echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+        apt-get update
+        INSTALL_LIST="build-essential python3-dev python3-venv python3-sphinx python3-wheel libpq-dev libffi-dev nodejs yarn libkrb5-dev debhelper dpkg-dev git"
+        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
+            sleep 1
+            echo "waiting"
+        done
     fi
     return;
 }
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-pgbadger*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-pgadmin4*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-pgbadger*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-pgadmin4*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -252,10 +265,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgbadger*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgadmin4*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-pgbadger*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "percona-pgadmin4*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -284,18 +297,19 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-pgbadger*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name 'percona-pgadmin4*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/percona-pgbadger.spec rpmbuild/SPECS
+    cp -av rpm/percona-pgadmin4.spec rpmbuild/SPECS
     #
+    curl -o ${WORKDIR}/rpmbuild/SOURCES/mod_wsgi-4.7.1.tar.gz https://codeload.github.com/GrahamDumpleton/mod_wsgi/tar.gz/4.7.1
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/percona-pgbadger.spec
+        --define "version ${VERSION}" rpmbuild/SPECS/percona-pgadmin4.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -314,10 +328,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-pgbadger*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-pgadmin4*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-pgbadger*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-pgadmin4*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -368,11 +382,11 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-pgbadger*
+    rm -rf percona-pgadmin4*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-pgbadger*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'percona-pgadmin4*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
@@ -381,7 +395,7 @@ build_source_deb(){
     
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}    
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgbadger version ${VERSION}"
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgadmin4 version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -418,8 +432,8 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> pgbadger.properties
-    echo "ARCH=${ARCH}" >> pgbadger.properties
+    echo "DEBIAN=${DEBIAN}" >> pgadmin4.properties
+    echo "ARCH=${ARCH}" >> pgadmin4.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
@@ -438,7 +452,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/pgbadger.properties
+VERSION_FILE=$CURDIR/pgadmin4.properties
 args=
 WORKDIR=
 SRPM=0
@@ -453,12 +467,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v11.5"
-REPO="https://github.com/darold/pgbadger.git"
-PRODUCT=percona-pgbadger
+BRANCH="REL-5_0"
+REPO="https://github.com/postgres/pgadmin4.git"
+PRODUCT=percona-pgadmin4
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='11.5'
+VERSION='5.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

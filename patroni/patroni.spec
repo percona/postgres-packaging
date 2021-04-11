@@ -2,17 +2,17 @@
 %global        __os_install_post /usr/lib/rpm/brp-compress %{nil}
 %global        debug_package %{nil}
 %define        _build_id_links none
-%define        VERSION        2.0.1
+%define        VERSION        2.0.2
 %define        ENVNAME  patroni
 %define        INSTALLPATH /opt/
 %define        debug_package %{nil}
 Name:          percona-patroni
-Version:       2.0.1
+Version:       2.0.2
 Release:       3%{dist}
 Epoch:         1
 License:       MIT
 Summary:       PostgreSQL high-availability manager
-Source:        percona-patroni-2.0.1.tar.gz
+Source:        percona-patroni-2.0.2.tar.gz
 Source1:       patroni-customizations.tar.gz
 Patch0:        add-sample-config.patch
 Patch1:        better-startup-script.patch

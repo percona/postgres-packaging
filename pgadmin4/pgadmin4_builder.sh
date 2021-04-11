@@ -101,14 +101,14 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-patroni
-    echo "PRODUCT=${PRODUCT}" > patroni.properties
+    PRODUCT=percona-pgadmin4
+    echo "PRODUCT=${PRODUCT}" > pgadmin4.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> patroni.properties
-    echo "VERSION=${PSM_VER}" >> patroni.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> patroni.properties
-    echo "BUILD_ID=${BUILD_ID}" >> patroni.properties
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pgadmin4.properties
+    echo "VERSION=${PSM_VER}" >> pgadmin4.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgadmin4.properties
+    echo "BUILD_ID=${BUILD_ID}" >> pgadmin4.properties
     git clone "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
@@ -123,51 +123,43 @@ get_sources(){
         git clean -xdf
         git checkout "$BRANCH"
     fi
+    sed -i '34,$d' pkg/redhat/build.sh
+    sed -i '25,$d' pkg/debian/build.sh
+    sed -i '174i pip3 install sphinx' pkg/linux/build-functions.sh
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/patroni.properties
-    rm -fr debian rpm
-    git clone https://github.com/cybertec-postgresql/patroni-packaging.git all_packaging
-    cd all_packaging
-        git reset --hard
-        git clean -xdf
-        git checkout "v1.6.5-1"
-    cd ../
-    mv all_packaging/DEB/debian ./
-    cd debian
-    rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/patroni/rules
-    rm -f control
-    rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/patroni/control
-    sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
-    sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
-    mv install percona-patroni.install
-    echo "debian/tmp/usr/lib" >> percona-patroni.install
-    echo "debian/tmp/usr/bin" >> percona-patroni.install
-    echo "docs/README.rst" >> percona-patroni-doc.install
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/pgadmin4.properties
+    
+    mkdir debian
+    cd debian/
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgadmin4/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgadmin4/rules
+    chmod +x rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgadmin4/copyright
+    echo 9 > compat
+    echo "percona-pgadmin4 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "  * Initial Release." >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+
     cd ../
     mkdir rpm
-    mv all_packaging/RPM/* rpm/
     cd rpm
-    rm -f patroni.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/patroni/patroni.spec
-    sed -i 's:/opt/app:/opt:g' patroni.2.service
-    tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
-    cd ../
-    rm -rf all_packaging
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgadmin4/percona-pgadmin4.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgadmin4/pgadmin4-sphinx-theme.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgadmin4/pgadmin4-python3-mod_wsgi.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgadmin4/pgadmin4-python3-mod_wsgi-exports.patch
     cd ${WORKDIR}
     #
-    source patroni.properties
+    source pgadmin4.properties
     #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> patroni.properties
+    tar --owner=0 --group=0 -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> pgadmin4.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-patroni*
+    rm -rf percona-pgadmin4*
     return
 }
 
@@ -199,67 +191,62 @@ install_deps() {
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
-      yum -y install wget
-      add_percona_yum_repo
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
-      yum clean all
-      RHEL=$(rpm --eval %rhel)
-      if [ ${RHEL} = 8 ]; then
-          yum config-manager --set-enabled PowerTools || yum config-manager --set-enabled powertools
-      fi
-      if [ ${RHEL} = 7 ]; then
-          INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc"
-          yum -y install ${INSTALL_LIST}
-      else
-          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
-          dnf clean all
-          rm -r /var/cache/dnf
-          dnf -y upgrade
-          wget https://rpmfind.net/linux/centos/7/os/x86_64/Packages/prelink-0.5.0-9.el7.x86_64.rpm
-          INSTALL_LIST="git wget rpm-build python3-virtualenv libyaml-devel gcc"
-          yum -y install ${INSTALL_LIST}
-          yum -y install prelink-0.5.0-9.el7.x86_64.rpm
-	      #ln -s /usr/bin/virtualenv-2 /usr/bin/virtualenv
-      fi
+        yum -y install wget
+        add_percona_yum_repo
+        yum clean all
+        yum install -y epel-release
+        yum -y install centos-release-scl
+        yum -y install curl
+        RHEL=$(rpm --eval %rhel)
+        if [ ${RHEL} = 8 ]; then
+            yum config-manager --enable PowerTools AppStream BaseOS *epel
+            dnf -qy module disable postgresql
+            dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+            dnf clean all
+            rm -r /var/cache/dnf
+            dnf -y upgrade
+            yum -y install rpmbuild
+        fi
+        curl -sL https://rpm.nodesource.com/setup_12.x | bash -
+        curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
+        yum groupinstall -y "Development Tools"
+        if [ ${RHEL} = 7 ]; then
+            yum install -y expect fakeroot httpd-devel percona-postgresql11-devel percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql11-devel python3-devel nodejs yarn rpm-build rpm-sign yum-utils krb5-devel pip3 install sphinx python3-sphinx
+        else
+            yum install -y expect fakeroot percona-postgresql11-devel percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql11-devel python3-devel nodejs yarn rpm-build rpm-sign yum-utils krb5-devel
+            pip3 install sphinx
+        fi
     else
-      export DEBIAN=$(lsb_release -sc)
-      export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
-      add_percona_apt_repo
-      apt-get update || true
-      if [ "x${DEBIAN}" != "xfocal" ]; then
-        INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
-      else
-        INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
-      fi
-      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
-      if [ "x${DEBIAN}" = "xstretch" ]; then
-        DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip
-	pip3 install python-consul
-	pip3 install python-kubernetes 
-      else 
-        DEBIAN_FRONTEND=noninteractive apt-get -y install python3-consul python3-kubernetes python3-cdiff || true
-      fi
-      if [ "x${DEBIAN}" = "xfocal" ]; then
-        wget https://bootstrap.pypa.io/get-pip.py
-        python2.7 get-pip.py
-        rm -rf /usr/bin/python2
-        ln -s /usr/bin/python2.7 /usr/bin/python2
-        wget https://jenkins.percona.com/downloads/dh-virtualenv_1.0-1_all.deb
-        DEBIAN_FRONTEND=noninteractive apt-get -y install ./dh-virtualenv_1.0-1_all.deb
-        rm -f dh-virtualenv_1.0-1_all.deb
-      fi
+        export DEBIAN=$(lsb_release -sc)
+        export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
+        until apt-get update; do
+            sleep 1
+            echo "waiting"
+        done
+        DEBIAN_FRONTEND=noninteractive apt install -y curl apt-transport-https ca-certificates gnupg
+        apt-get -y install gnupg2
+        add_percona_apt_repo
+        apt-get update || true
+        dpkg -r yarn
+        curl -sL https://deb.nodesource.com/setup_12.x | bash -
+        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+        echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+        apt-get update
+        INSTALL_LIST="build-essential python3-dev python3-venv python3-sphinx python3-wheel libpq-dev libffi-dev nodejs yarn libkrb5-dev debhelper dpkg-dev git"
+        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
+            sleep 1
+            echo "waiting"
+        done
     fi
     return;
 }
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-patroni*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-pgadmin4*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-patroni*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-pgadmin4*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -276,10 +263,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-patroni*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgadmin4*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-patroni*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "percona-pgadmin4*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -308,20 +295,19 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-patroni*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name 'percona-pgadmin4*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/patroni.spec rpmbuild/SPECS
-    cp -av rpm/patches/* rpmbuild/SOURCES
+    cp -av rpm/percona-pgadmin4.spec rpmbuild/SPECS
     #
+    curl -o ${WORKDIR}/rpmbuild/SOURCES/mod_wsgi-4.7.1.tar.gz https://codeload.github.com/GrahamDumpleton/mod_wsgi/tar.gz/4.7.1
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    sed -i 's:.rhel7:%{dist}:' ${WORKDIR}/rpmbuild/SPECS/patroni.spec
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/patroni.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-11" --define "dist .generic" \
+        --define "version ${VERSION}" rpmbuild/SPECS/percona-pgadmin4.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -340,10 +326,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-patroni*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-pgadmin4*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-patroni*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-pgadmin4*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -356,16 +342,22 @@ build_rpm(){
         cp $WORKDIR/srpm/$SRC_RPM $WORKDIR
     fi
     cd $WORKDIR
-    rm -fr rb
-    mkdir -vp rb/{SOURCES,SPECS,BUILD,SRPMS,RPMS,BUILDROOT}
-    cp $SRC_RPM rb/SRPMS/
+    rm -fr rpmbuild
+    mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
+    cp $SRC_RPM rpmbuild/SRPMS/
 
-    cd rb/SRPMS/
+    cd rpmbuild/SRPMS/
     #
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    rpmbuild --define "_topdir ${WORKDIR}/rb" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rb/SRPMS/$SRC_RPM
+    if [ -f /opt/rh/devtoolset-7/enable ]; then
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
+    fi
+    export LIBPQ_DIR=/usr/pgsql-11/
+    export LIBRARY_PATH=/usr/pgsql-11/lib/:/usr/pgsql-11/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-11" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -373,8 +365,8 @@ build_rpm(){
     fi
     mkdir -p ${WORKDIR}/rpm
     mkdir -p ${CURDIR}/rpm
-    cp rb/RPMS/*/*.rpm ${WORKDIR}/rpm
-    cp rb/RPMS/*/*.rpm ${CURDIR}/rpm
+    cp rpmbuild/RPMS/*/*.rpm ${WORKDIR}/rpm
+    cp rpmbuild/RPMS/*/*.rpm ${CURDIR}/rpm
 }
 
 build_source_deb(){
@@ -388,11 +380,11 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-patroni*
+    rm -rf percona-pgadmin4*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-patroni*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'percona-pgadmin4*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
@@ -400,26 +392,17 @@ build_source_deb(){
     #
     
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
-    cd ${BUILDDIR}
-
-    cd debian
-    rm -rf changelog
-    echo "percona-patroni (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
-    echo "  * Initial Release." >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-
-    cd ../
-    
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new patroni version ${VERSION}"
+    cd ${BUILDDIR}    
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgadmin4 version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
     mkdir -p $CURDIR/source_deb
-    cp *.debian.tar.* $WORKDIR/source_deb
+    cp *.diff.gz $WORKDIR/source_deb
     cp *_source.changes $WORKDIR/source_deb
     cp *.dsc $WORKDIR/source_deb
     cp *.orig.tar.gz $WORKDIR/source_deb
-    cp *.debian.tar.* $CURDIR/source_deb
+    cp *.diff.gz $CURDIR/source_deb
     cp *_source.changes $CURDIR/source_deb
     cp *.dsc $CURDIR/source_deb
     cp *.orig.tar.gz $CURDIR/source_deb
@@ -436,7 +419,8 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
+    #for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
+    for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'
     do
         get_deb_sources $file
     done
@@ -446,8 +430,8 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> patroni.properties
-    echo "ARCH=${ARCH}" >> patroni.properties
+    echo "DEBIAN=${DEBIAN}" >> pgadmin4.properties
+    echo "ARCH=${ARCH}" >> pgadmin4.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
@@ -455,8 +439,6 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-${VERSION}
-    cp debian/patches/add-sample-config.patch ./patroni.yml.sample
-    sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/opt/patroni/bin/patroni /etc/patroni/patroni.yml:' extras/startup-scripts/patroni.service
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -468,7 +450,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/patroni.properties
+VERSION_FILE=$CURDIR/pgadmin4.properties
 args=
 WORKDIR=
 SRPM=0
@@ -480,16 +462,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="v2.0.2"
-REPO="https://github.com/zalando/patroni.git"
-PRODUCT=percona-patroni
+BRANCH="REL-5_0"
+REPO="https://github.com/postgres/pgadmin4.git"
+PRODUCT=percona-pgadmin4
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.0.2'
-RELEASE='2'
+VERSION='5.0'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

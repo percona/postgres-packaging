@@ -1,0 +1,11 @@
+--- docs/en_US/conf.py	2016-11-15 09:56:52.286434350 +0300
++++ docs/en_US/conf.py	2016-11-15 09:57:02.294352958 +0300
+@@ -103,7 +103,7 @@
+ 
+ # The theme to use for HTML and HTML Help pages.  See the documentation for
+ # a list of builtin themes.
+-html_theme = 'pgadmin4'
++html_theme = 'default'
+ 
+ # Add any paths that contain custom themes here, relative to this directory.
+ html_theme_path = ['./theme']   # make sphinx search for themes in current dir

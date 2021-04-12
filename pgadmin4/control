@@ -1,0 +1,25 @@
+Source: percona-pgadmin4
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+
+Package: percona-pgadmin4
+Architecture: any
+Depends: percona-pgadmin4-server (= 5.0), percona-pgadmin4-desktop (= 5.0), perconapgadmin4-web (= 5.0)
+Description: Installs all required components to run pgAdmin in desktop and web modes. pgAdmin is the most popular and feature rich Open Source administration and development platform for PostgreSQL, the most advanced Open Source database in the world.
+
+Package: percona-pgadmin4-web
+Architecture: any
+Depends: percona-pgadmin4-server (= 5.0), apache2, libapache2-mod-wsgi-py3
+Description: The web interface for pgAdmin, hosted under Apache HTTPD. pgAdmin is the most popular and feature rich Open Source administration and development platform for PostgreSQL, the most advanced Open Source database in the world.
+
+Package: percona-pgadmin4-desktop
+Architecture: any
+Depends: percona-pgadmin4-server (= 5.0), libatomic1
+Description: The desktop user interface for pgAdmin. pgAdmin is the most popular and feature rich Open Source administration and development platform for PostgreSQL, the most advanced Open Source database in the world.
+
+Package: percona-pgadmin4-server
+Architecture: any
+Depends: python3, libpq5 (>= 11.0), libgssapi-krb5-2
+Recommends: postgresql-client | postgresql-client-11 
+Description: The core server package for pgAdmin. pgAdmin is the most popular and feature rich Open Source administration and development platform for PostgreSQL, the most advanced Open Source database in the world.

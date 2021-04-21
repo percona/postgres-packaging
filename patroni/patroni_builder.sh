@@ -152,7 +152,8 @@ get_sources(){
     rm -f patroni.spec
     wget https://raw.githubusercontent.com/percona/postgres-packaging/11/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
-    tar -czf patroni-customizations.tar.gz patroni.2.service patroni-watchdog.service postgres-telia.yml
+    mv patroni.2.service patroni.service
+    tar -czf patroni-customizations.tar.gz patroni.service patroni-watchdog.service postgres-telia.yml
     cd ../
     rm -rf all_packaging
     cd ${WORKDIR}
@@ -209,7 +210,7 @@ install_deps() {
           yum config-manager --set-enabled PowerTools || yum config-manager --set-enabled powertools
       fi
       if [ ${RHEL} = 7 ]; then
-          INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc"
+          INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc python36-psycopg2 python36-six"
           yum -y install ${INSTALL_LIST}
       else
           dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
@@ -217,7 +218,7 @@ install_deps() {
           rm -r /var/cache/dnf
           dnf -y upgrade
           wget https://rpmfind.net/linux/centos/7/os/x86_64/Packages/prelink-0.5.0-9.el7.x86_64.rpm
-          INSTALL_LIST="git wget rpm-build python3-virtualenv libyaml-devel gcc"
+          INSTALL_LIST="git wget rpm-build python3-virtualenv libyaml-devel gcc python3-psycopg2"
           yum -y install ${INSTALL_LIST}
           yum -y install prelink-0.5.0-9.el7.x86_64.rpm
 	      #ln -s /usr/bin/virtualenv-2 /usr/bin/virtualenv
@@ -225,7 +226,10 @@ install_deps() {
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
+      until apt-get -y install gnupg2; do
+          sleep 3
+	  echo "WAITING"
+      done
       add_percona_apt_repo
       apt-get update || true
       if [ "x${DEBIAN}" != "xfocal" ]; then

@@ -1,109 +1,117 @@
-%global        _enable_debug_package 0
-%global        __os_install_post /usr/lib/rpm/brp-compress %{nil}
-%global        debug_package %{nil}
-%define        _build_id_links none
-%define        VERSION        2.0.2
-%define        ENVNAME  patroni
-%define        INSTALLPATH /opt/
-%define        debug_package %{nil}
-Name:          percona-patroni
-Version:       2.0.2
-Release:       3%{dist}
-Epoch:         1
-License:       MIT
-Summary:       PostgreSQL high-availability manager
-Source:        percona-patroni-2.0.2.tar.gz
-Source1:       patroni-customizations.tar.gz
-Patch0:        add-sample-config.patch
-Patch1:        better-startup-script.patch
-BuildRoot:     %{_tmppath}/%{buildprefix}-buildroot
-%if 0%{?rhel} > 7
-Requires:      python3-pyyaml, python3-urllib3, python3-prettytable, python3-six python3-dateutil
+%global         debug_package %{nil}
+
+%{expand: %%global py3ver %(python3 -c 'import sys;print(sys.version[0:3])')}
+%global __ospython %{_bindir}/python3
+%global python3_sitelib %(%{__ospython} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+
+%global sname patroni
+
+Summary:        A Template for PostgreSQL HA with ZooKeeper, etcd or Consul
+Name:           percona-patroni
+Version:        2.0.2
+Release:        2%{?dist}
+License:        MIT
+Source0:        %{name}-%{version}.tar.gz
+Source1:        %{sname}.service
+URL:            https://github.com/zalando/%{sname}
+
+BuildRequires:  python3-setuptools python3-psycopg2 >= 2.5.4
+
+Requires:       python3-psutil >= 2.0.0
+Requires:       python3-psycopg2 >= 2.5.4
+Requires:       python3-psutil >= 2.0.0 python3-psycopg2 >= 2.5.4
+Requires:       python3-ydiff >= 1.2
+
+%if 0%{?rhel} == 7
+Requires:       python36-click >= 4.1 python36-six >= 1.7
+Requires:       python36-dateutil python36-prettytable >= 0.7
+Requires:       python36-PyYAML
 %else
-Requires:      python36-six python2-pyyaml python36-urllib3 python36-prettytable python36-dateutil
+Requires:       python3-click >= 4.1 python3-six >= 1.7
+Requires:       python3-dateutil python3-prettytable >= 0.7
+Requires:       python3-pyyaml
 %endif
-Requires:      python3, python3-psycopg2 >= 2.5.4, libffi, postgresql-server, libyaml
+
+%if 0%{?rhel} > 7
+Requires:      python3-pyyaml, python3-urllib3, python3-prettytable, python3-six python3-dateutil python3-click python3-psutil python3-PyYAML python3-psycopg2
+%else
+Requires:      python36-six python2-pyyaml python36-urllib3 python36-prettytable python36-dateutil python36-click python36-psutil python36-PyYAML python36-psycopg2
+%endif
+Requires:      python3, libffi, postgresql-server, libyaml, python3-ydiff, ydiff
 Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresql12-server
 BuildRequires: prelink libyaml-devel gcc
-Requires(post): %{_sbindir}/update-alternatives
-Requires(postun):       %{_sbindir}/update-alternatives
 Provides:      patroni
-AutoReqProv: no
-
-%global __requires_exclude_from ^%{INSTALLPATH}/lib/python3.6/site-packages/(psycopg2/|_cffi_backend.so|_cffi_backend.cpython-36m-x86_64-linux-gnu.so|.libs_cffi_backend/libffi-.*.so.6.0.4)
-%global __provides_exclude_from ^%{INSTALLPATH}/lib/python3.6/
-
-%global __python %{__python3.6}
+Epoch:         1
 
 %description
-Packaged version of Patroni HA manager.
+Patroni is a template for you to create your own customized,
+high-availability solution using Python and - for maximum accessibility - a
+distributed configuration store like ZooKeeper, etcd, Consul or Kubernetes.
+Database engineers, DBAs, DevOps engineers, and SREs who are looking to
+quickly deploy HA PostgreSQL in the datacenter-or anywhere else-will
+hopefully find it useful.
+
+We call Patroni a "template" because it is far from being a
+one-size-fits-all or plug-and-play replication system. It will have its own
+caveats. Use wisely.
 
 %prep
-%setup
-%setup -D -T -a 1
-%patch0 -p1
-%patch1 -p1
-
+%setup -q
 %build
-# remove some things
-#rm -f $RPM_BUILD_ROOT/%{prefix}/*.spec
+%{__ospython} setup.py build
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{INSTALLPATH}
-virtualenv-3.6 --distribute --system-site-packages $RPM_BUILD_ROOT%{INSTALLPATH}
-grep -v psycopg2 requirements.txt | sed 's/kubernetes=.*/kubernetes/' > requirements-venv.txt
-$RPM_BUILD_ROOT%{INSTALLPATH}/bin/pip3.6 install -U setuptools psycopg2-binary
-$RPM_BUILD_ROOT%{INSTALLPATH}/bin/pip3.6 install -r requirements-venv.txt
-$RPM_BUILD_ROOT%{INSTALLPATH}/bin/pip3.6 install --no-deps .
-rm $RPM_BUILD_ROOT%{INSTALLPATH}/lib/python3.6/site-packages/consul/aio.py
+%{__rm} -rf %{buildroot}
+%{__ospython} setup.py install --root %{buildroot} -O1 --skip-build
 
-rm -rf $RPM_BUILD_ROOT/usr/
+# Install sample yml files:
+%{__mkdir} -p %{buildroot}%{docdir}/%{sname}
+%{__cp} postgres0.yml postgres1.yml %{buildroot}%{docdir}/%{sname}
 
-virtualenv-3.6 --relocatable $RPM_BUILD_ROOT%{INSTALLPATH}
-sed -i "s#$RPM_BUILD_ROOT##" $RPM_BUILD_ROOT%{INSTALLPATH}/bin/activate*
 
-#find $(VENV_PATH) -name \*py[co] -exec rm {} \;
-#find $(VENV_PATH) -name no-global-site-packages.txt -exec rm {} \;
-cp -r extras/ $RPM_BUILD_ROOT%{INSTALLPATH}
+# Install unit file:
+%{__install} -d %{buildroot}%{_unitdir}
+%{__install} -m 644 %{SOURCE1} %{buildroot}%{_unitdir}/%{sname}.service
 
-mkdir -p $RPM_BUILD_ROOT/lib/systemd/system/
-cp patroni.2.service $RPM_BUILD_ROOT/lib/systemd/system/patroni.service
-cp patroni-watchdog.service $RPM_BUILD_ROOT/lib/systemd/system/patroni-watchdog.service
-
-mkdir -p $RPM_BUILD_ROOT%{INSTALLPATH}/etc/
-cp postgres-telia.yml $RPM_BUILD_ROOT%{INSTALLPATH}/etc/postgresql.yml.sample
-chmod 0600 $RPM_BUILD_ROOT%{INSTALLPATH}/etc/postgresql.yml.sample
-
-# undo prelinking
-find $RPM_BUILD_ROOT%{INSTALLPATH}/bin/ -type f -perm /u+x,g+x -exec /usr/sbin/prelink -u {} \;
-ls $RPM_BUILD_ROOT%{INSTALLPATH} > patroni.txt
-mkdir $RPM_BUILD_ROOT%{INSTALLPATH}/patroni
-find $RPM_BUILD_ROOT/ -type d -name ".build-id" -exec rm -rf {} \;
-for file in $(cat patroni.txt); do
-  mv $RPM_BUILD_ROOT%{INSTALLPATH}/$file $RPM_BUILD_ROOT%{INSTALLPATH}/patroni
-done
+# We don't need to ship this file, per upstream:
+%{__rm} -f %{buildroot}%{_bindir}/patroni_wale_restore
 
 %post
-%{_sbindir}/update-alternatives --install %{_bindir}/patroni \
-  patroni %{INSTALLPATH}patroni/bin/patroni 100 \
-  --slave %{_bindir}/patronictl patroni-patronictl %{INSTALLPATH}patroni/bin/patronictl
+if [ $1 -eq 1 ] ; then
+   /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+
+%preun
+if [ $1 -eq 0 ] ; then
+        # Package removal, not upgrade
+        /bin/systemctl --no-reload disable %{sname}.service >/dev/null 2>&1 || :
+        /bin/systemctl stop %{sname}.service >/dev/null 2>&1 || :
+fi
 
 %postun
-if [ $1 -eq 0 ] ; then
-  %{_sbindir}/update-alternatives --remove patroni %{INSTALLPATH}patroni/bin/patroni
+ /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+        # Package upgrade, not uninstall
+        /bin/systemctl try-restart %{sname}.service >/dev/null 2>&1 || :
 fi
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+%{__rm} -rf %{buildroot}
 
 %files
-%defattr(-,root,root)
-/opt/patroni
-%attr(-, postgres, postgres) /opt/patroni/etc
-%attr(664, root, root) /lib/systemd/system/patroni.service
-%attr(664, root, root) /lib/systemd/system/patroni-watchdog.service
+%defattr(644,root,root,755)
+%license LICENSE
+%doc docs README.rst postgres0.yml postgres1.yml
+%attr (755,root,root) %{_bindir}/patroni
+%attr (755,root,root) %{_bindir}/patronictl
+%attr (755,root,root) %{_bindir}/patroni_raft_controller
+%attr (755,root,root) %{_bindir}/patroni_aws
+%{_unitdir}/%{sname}.service
+%{python3_sitelib}/%{sname}*.egg-info
+%dir %{python3_sitelib}/%{sname}/
+%{python3_sitelib}/%{sname}/*
+
 
 %changelog
-* Fri Dec 27 2019 Evgeniy Patlan <evgeniy.patlan@percona.com>  1.6.3-1
+* Fri Apr 16 2021 Evgeniy Patlan <evgeniy.patlan@percona.com> - 2.0.2-2
 - Initial build

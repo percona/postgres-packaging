@@ -226,6 +226,10 @@ install_deps() {
         sleep 1
         echo "waiting"
       done
+      if [ "x${DEBIAN}" = "xstretch" ]; then
+          wget http://ftp.us.debian.org/debian/pool/main/liby/libyaml-libyaml-perl/libyaml-libyaml-perl_0.76+repack-1~bpo9+1_amd64.deb
+          dpkg -i ./libyaml-libyaml-perl_0.76+repack-1~bpo9+1_amd64.deb
+      fi
     fi
     return;
 }
@@ -458,16 +462,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="release/2.32"
+BRANCH="release/2.33"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.32'
-RELEASE='1'
+VERSION='2.33'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

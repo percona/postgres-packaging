@@ -132,10 +132,10 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.3/pgaudit/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.3/pgaudit/control.in
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.3/pgaudit/all.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.3/pgaudit/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/pgaudit/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/pgaudit/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/pgaudit/rules
     mv all.patch debian/patches/
     rm -rf debian/control*
     echo "all.patch" > debian/patches/series
@@ -147,7 +147,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.3/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties

@@ -175,8 +175,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-13, percona-postgresql-doc-13
 Provides: percona-postgresql-client, postgresql-client, postgresql-client-13
-Conflicts: postgresql-server-dev-13 (<< 13.2-2~)
-Replaces: postgresql-server-dev-13 (<< 13.2-2~)
+Conflicts: postgresql-server-dev-13 (<< 13.3-2~)
+Replaces: postgresql-server-dev-13 (<< 13.3-2~)
 Description: front-end programs for PostgreSQL 13
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and

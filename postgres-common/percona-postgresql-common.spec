@@ -9,6 +9,7 @@ License:        GPLv2+
 URL:            https://packages.debian.org/sid/%{name}
 Source0:        %{name}/%{name}-%{version}.tar.gz
 Requires:       percona-postgresql-client-common
+Requires:       perl-JSON
 
 %description
 The postgresql-common package provides a structure under which
@@ -105,8 +106,8 @@ popd
 %config /etc/logrotate.d/postgresql-common
 
 %if 0%{?rhel} >= 7
-%config /lib/systemd/system/postgresql.service
-%config /lib/systemd/system/postgresql@.service
+%config /lib/systemd/system/*.service
+%config /lib/systemd/system/*.timer
 %config /lib/systemd/system-generators/postgresql-generator
 %endif
 

@@ -119,11 +119,11 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -rf rules control
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/control
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/maintscripts-functions.patch
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/percona-postgresql-common.templates.patch
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/rules
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/supported_versions.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.12/postgres-common/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.12/postgres-common/maintscripts-functions.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.12/postgres-common/percona-postgresql-common.templates.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.12/postgres-common/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.12/postgres-common/supported_versions.patch
     patch -p0 < maintscripts-functions.patch
     patch -p0 < percona-postgresql-common.templates.patch
     patch -p0 < supported_versions.patch
@@ -144,7 +144,7 @@ get_sources(){
         mv $file "percona-$file"
     done
 	rm -f percona-postgresql-common.spec
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/postgres-common/percona-postgresql-common.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.12/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -431,12 +431,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="225"
+BRANCH="226"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='225'
+VERSION='226'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

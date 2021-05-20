@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.11 testing
+    percona-release enable ppg-11.12 testing
     percona-release enable tools testing
     return
 }
@@ -91,7 +91,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.11 testing
+    percona-release enable ppg-11.12 testing
     percona-release enable tools testing
     return
 }
@@ -128,7 +128,7 @@ get_sources(){
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgaudit.properties
     rm -fr debian rpm
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgaudit/all.patch
     patch -p1 < all.patch
     rm -f all.patch
     git clone https://salsa.debian.org/postgresql/pgaudit.git deb_packaging
@@ -136,9 +136,9 @@ get_sources(){
     git checkout debian/1.3.0-2
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/pgaudit/control
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/pgaudit/control.in
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/pgaudit/rules
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgaudit/control
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgaudit/control.in
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgaudit/rules
     echo "9" > debian/compat
     echo "alternative_regression_outputs.patch" > debian/patches/series
     mv control* debian/
@@ -149,7 +149,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.11/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -456,8 +456,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=4
+DEB_RELEASE=4
 REVISION=0
 BRANCH="REL_11_STABLE"
 BRANCH="1.3.2"
@@ -466,7 +466,7 @@ PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.3.2'
-RELEASE='3'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

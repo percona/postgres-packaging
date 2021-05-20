@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.11 testing
+    percona-release enable ppg-11.12 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.11 testing
+    percona-release enable ppg-11.12 testing
     return
 }
 
@@ -135,10 +135,10 @@ get_sources(){
     mv all_packaging/DEB/debian ./
     cd debian
     rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/patroni/rules
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/patroni/rules
     rm -f control
     rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/patroni/control
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     mv install percona-patroni.install
@@ -150,7 +150,7 @@ get_sources(){
     mv all_packaging/RPM/* rpm/
     cd rpm
     rm -f patroni.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/patroni/patroni.spec
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     mv patroni.2.service patroni.service
     tar -czf patroni-customizations.tar.gz patroni.service patroni-watchdog.service postgres-telia.yml

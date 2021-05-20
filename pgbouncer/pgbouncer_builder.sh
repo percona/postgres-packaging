@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.11 testing
+    percona-release enable ppg-11.12 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.11 testing
+    percona-release enable ppg-11.12 testing
     return
 }
 
@@ -135,21 +135,21 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/rules
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/control
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/rules
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/percona-pgbouncer.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/pgbouncer-ini.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/pgbouncer.logrotate
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/pgbouncer-mkauth-py3.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/pgbouncer.service
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/pgbouncer.service.rhel7
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/pgbouncer.sysconfig
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/pgbouncer/pgbouncer.init
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/percona-pgbouncer.spec
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/pgbouncer-ini.patch
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/pgbouncer.logrotate
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/pgbouncer-mkauth-py3.patch
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/pgbouncer.service
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/pgbouncer.service.rhel7
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/pgbouncer.sysconfig
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbouncer/pgbouncer.init
     cd ${WORKDIR}
     #
     source pgbouncer.properties

@@ -100,7 +100,7 @@
 
 Summary:	PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:	11.11
+Version:	11.12
 Release:	2%{?dist}
 License:	PostgreSQL
 Url:		https://www.postgresql.org/
@@ -1694,7 +1694,14 @@ fi
 %endif
 
 %changelog
-* Thu Feb 11 2021 Devrim Gündüz <devrim@gunduz.org> - 11.11-2PGDG
+* Tue May 18 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 11.12-2PGDG
+- Rebuild against new CLANG and LLVM on RHEL 8.4
+
+* Thu May 13 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 11.12-1PGDG
+- Update to 11.12, per changes described at
+  https://www.postgresql.org/docs/release/11.12/
+
+* Thu Feb 11 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 11.11-2PGDG
 - A few fixes around llvm, sdt and selinux macros, so that they
   work on RHEL 6 as well.
 

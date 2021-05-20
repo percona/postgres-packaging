@@ -139,17 +139,17 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/wal2json/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/wal2json/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/wal2json/rules
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/wal2json/control
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/wal2json/control.in
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/wal2json/rules
     echo 11 > pgversions
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/wal2json/percona-wal2json.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11/wal2json/wal2json-pg11-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/wal2json/percona-wal2json.spec
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/wal2json/wal2json-pg11-makefile-pgxs.patch
     cd ${WORKDIR}
     #
     source wal2json.properties
@@ -457,8 +457,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
 BRANCH="wal2json_2_3"
 REPO="https://github.com/eulerto/wal2json.git"
@@ -466,7 +466,7 @@ PRODUCT=percona-wal2json
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.3'
-RELEASE='2'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

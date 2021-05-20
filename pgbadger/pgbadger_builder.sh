@@ -129,10 +129,10 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/sudokamikaze/postgres-packaging/11.12/pgbadger/control
-    wget https://raw.githubusercontent.com/sudokamikaze/postgres-packaging/11.12/pgbadger/rules
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbadger/control
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbadger/rules
     chmod +x rules
-    wget https://raw.githubusercontent.com/sudokamikaze/postgres-packaging/11.12/pgbadger/copyright
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbadger/copyright
     echo 9 > compat
     echo "percona-pgbadger (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -141,7 +141,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/sudokamikaze/postgres-packaging/11.12/pgbadger/percona-pgbadger.spec
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbadger/percona-pgbadger.spec
     cd ${WORKDIR}
     #
     source pgbadger.properties

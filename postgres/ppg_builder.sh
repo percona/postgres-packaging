@@ -127,8 +127,8 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.7/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.7/postgres/control
         sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
 	echo "9" > compat
     cd ../
@@ -138,7 +138,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-12.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.6/postgres/percona-postgresql-12.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.7/postgres/percona-postgresql-12.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -232,7 +232,7 @@ EOL
       dpkg -i percona-release_1.0-26.generic_all.deb
       percona-release disable all
       percona-release enable tools testing
-      percona-release enable ppg-12.6 testing
+      percona-release enable ppg-12.7 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" ]; then
         INSTALL_LIST="bison build-essential ccache clang-9 cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11"
@@ -485,13 +485,13 @@ INSTALL=0
 RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
-BRANCH="REL_12.6"
+BRANCH="REL_12.7"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='12'
-RELEASE='6'
+RELEASE='7'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

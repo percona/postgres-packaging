@@ -76,6 +76,7 @@ COMMON_CONFIGURE_FLAGS= \
   $(SELINUX_FLAGS) \
   $(SPINLOCK_FLAGS) \
   MKDIR_P='/bin/mkdir -p' \
+  PROVE='/usr/bin/prove' \
   TAR='/bin/tar' \
   XSLTPROC='xsltproc --nonet' \
   CFLAGS='$(CFLAGS)' \

@@ -77,18 +77,18 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        13.2
+Version:        13.3
 Release:        2%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 
-Source0:        percona-postgresql-13.2.tar.gz
+Source0:        percona-postgresql-13.3.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
 Source7:        %{sname}-%{pgmajorversion}-ecpg_config.h
 Source9:        %{sname}-%{pgmajorversion}-libs.conf
-Source12:       https://www.postgresql.org/files/documentation/pdf/%{pgmajorversion}/%{sname}-%{pgmajorversion}-A4.pdf
+Source12:       https://www.postgresql.org/files/documentation/pdf/%{pgpackageversion}/%{sname}-%{pgpackageversion}-A4.pdf
 Source14:       %{sname}-%{pgmajorversion}.pam
 Source16:       %{sname}-%{pgmajorversion}-filter-requires-perl-Pg.sh
 Source17:       %{sname}-%{pgmajorversion}-setup
@@ -1424,6 +1424,13 @@ fi
 %endif
 
 %changelog
+* Tue May 18 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.3-2PGDG
+- Rebuild against new CLANG and LLVM on RHEL 8.4
+
+* Thu May 13 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.3-1PGDG
+- Update to 13.3, for changes described at:
+  https://www.postgresql.org/docs/release/13.3/
+
 * Tue Feb 9 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.2-1PGDG
 - Update to 13.2
 

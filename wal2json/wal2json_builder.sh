@@ -79,6 +79,18 @@ add_percona_yum_repo(){
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
       mv -f percona-dev.repo /etc/yum.repos.d/
     fi
+    yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    percona-release disable all
+    percona-release enable ppg-13.3 testing
+    return
+}
+
+add_percona_apt_repo(){
+    wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+    dpkg -i percona-release_latest.generic_all.deb
+    rm -f percona-release_latest.generic_all.deb
+    percona-release disable all
+    percona-release enable ppg-13.3 testing
     return
 }
 
@@ -89,79 +101,68 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-postgresql-common
-    echo "PRODUCT=${PRODUCT}" > percona-postgresql.properties
+    PRODUCT=percona-wal2json
+    echo "PRODUCT=${PRODUCT}" > wal2json.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> percona-postgresql.properties
-    echo "VERSION=${VERSION}" >> percona-postgresql.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgresql.properties
-    echo "BUILD_ID=${BUILD_ID}" >> percona-postgresql.properties
-    git clone "$REPO"
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> wal2json.properties
+    echo "VERSION=${PSM_VER}" >> wal2json.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> wal2json.properties
+    echo "BUILD_ID=${BUILD_ID}" >> wal2json.properties
+    git clone "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
-    mv postgresql-common ${PRODUCT_FULL}
     cd ${PRODUCT_FULL}
     if [ ! -z "$BRANCH" ]
     then
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
+        git submodule update --init
     fi
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgresql.properties
-    cd debian
-        for file in $(ls | grep ^postgresql); do 
-            mv $file "percona-$file"
-        done
-	rm -rf rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/postgres-common/rules
-	    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/postgres-common/supported_versions.patch
-        patch -p0 < maintscripts-functions.patch
-        patch -p0 < percona-postgresql-common.templates.patch
-        patch -p0 < supported_versions.patch
-        rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch supported_versions.patch
-        sed -i 's:postgresql-common:percona-postgresql-common:' percona-postgresql-common.preinst
-        sed -i 's:postgresql-common:percona-postgresql-common:' percona-postgresql-common.postrm
-	    sed -i 's:db_get postgresql-common:db_get percona-postgresql-common:' percona-postgresql-common.postinst
-	    sed -i 's: ucfr postgresql-common:ucfr percona-postgresql-common:' percona-postgresql-common.postinst
-	    rm -rf changelog
-        echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
-        echo "  * Initial Release." >> changelog
-        echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-        sed -i 's:percona-postgresql-plpython-$v,::' rules
-        sed -i 's:"9.6":"13":' supported-versions
-        sed -i 's:"10":"13":' supported-versions
-        sed -i 's:"11":"13":' supported-versions
-        sed -i 's:"12":"13":' supported-versions
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/wal2json.properties
+    rm -fr debian rpm
+
+    git clone https://salsa.debian.org/postgresql/wal2json.git deb_packaging
+    mv deb_packaging/debian ./
+    cd debian/
+    for file in $(ls | grep ^wal2json | grep -v wal2json.conf); do
+        mv $file "percona-$file"
+    done
+    rm -rf changelog
+    echo "percona-wal2json (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "  * Initial Release." >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    rm -f control rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/wal2json/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/wal2json/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/wal2json/rules
+    echo 13 > pgversions
+    echo 9 > compat
     cd ../
+    rm -rf deb_packaging
+    mkdir rpm
     cd rpm
-        for file in $(ls | grep postgresql); do
-            mv $file "percona-$file"
-        done
-	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/postgres-common/percona-postgresql-common.spec
-    cd ../
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/wal2json/percona-wal2json.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.3/wal2json/wal2json-pg13-makefile-pgxs.patch
     cd ${WORKDIR}
     #
-    source percona-postgresql.properties
+    source wal2json.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-13/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> wal2json.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-postgresql*
+    rm -rf percona-wal2json*
     return
 }
 
@@ -199,29 +200,49 @@ install_deps() {
       mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
-      yum -y install epel-release
-      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmbuild rpmdevtools wget perl-podlators"
+      if [ ${RHEL} = 8 ]; then
+          dnf -y module disable postgresql
+          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+          dnf clean all
+          rm -r /var/cache/dnf
+          dnf -y upgrade
+          yum -y install perl lz4-libs c-ares-devel clang
+      else
+        until yum -y install centos-release-scl; do
+            echo "waiting"
+            sleep 1
+        done
+        yum -y install epel-release
+        yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
+      fi
+      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql-common percona-postgresql13-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
       yum -y install ${INSTALL_LIST}
+      yum -y install lz4 || true
+
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
+      add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="git wget debhelper libreadline-dev lsb-release rename devscripts"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}; do
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-13 percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config"
+      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
       done
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
     fi
     return;
 }
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-wal2json*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-wal2json*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -238,10 +259,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-postgresql*$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-*wal2json*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-postgresql*$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "percona-*wal2json*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -270,20 +291,18 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-postgresql*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name 'percona-wal2json*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cd rpmbuild/SOURCES
-    cd ../../
-    cp -av rpmbuild/SOURCES/*.spec rpmbuild/SPECS
+    cp -av rpm/percona-wal2json.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" --define "version ${VERSION}"\
-        rpmbuild/SPECS/percona-postgresql-common.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .generic" \
+        --define "version ${VERSION}" rpmbuild/SPECS/percona-wal2json.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -302,10 +321,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-postgresql-common*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-wal2json*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-postgresql-common*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-wal2json*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -327,7 +346,13 @@ build_rpm(){
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "version ${VERSION}" --define "dist .$OS_NAME" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    if [ -f /opt/rh/devtoolset-7/enable ]; then
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
+    fi
+    export LIBPQ_DIR=/usr/pgsql-13/
+    export LIBRARY_PATH=/usr/pgsql-13/lib/:/usr/pgsql-13/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -350,11 +375,11 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-postgresql-common*
-    rm -f *.dsc *.orig.tar.gz *.tar.* *.changes
+    rm -rf percona-wal2json*
     get_tar "source_tarball"
+    rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'percona-*wal2json*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
@@ -363,17 +388,17 @@ build_source_deb(){
     
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
-
-    dch -D unstable --force-distribution -v "${VERSION}" "Update to new Percona Platform for PostgreSQL version ${VERSION}"
+  
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new wal2json version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
     mkdir -p $CURDIR/source_deb
-    cp *.tar.* $WORKDIR/source_deb
+    cp *.debian.tar.* $WORKDIR/source_deb
     cp *_source.changes $WORKDIR/source_deb
     cp *.dsc $WORKDIR/source_deb
     cp *.orig.tar.gz $WORKDIR/source_deb
-    cp *.tar.* $CURDIR/source_deb
+    cp *.debian.tar.* $CURDIR/source_deb
     cp *_source.changes $CURDIR/source_deb
     cp *.dsc $CURDIR/source_deb
     cp *.orig.tar.gz $CURDIR/source_deb
@@ -390,7 +415,7 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    for file in 'dsc' 'orig.tar.gz' 'changes' 'common*.tar.*'
+    for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
     do
         get_deb_sources $file
     done
@@ -400,16 +425,16 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> percona-postgresql.properties
-    echo "ARCH=${ARCH}" >> percona-postgresql.properties
+    echo "DEBIAN=${DEBIAN}" >> wal2json.properties
+    echo "ARCH=${ARCH}" >> wal2json.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-common-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${PRODUCT}-${VERSION}
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -420,7 +445,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/percona-server-mongodb.properties
+VERSION_FILE=$CURDIR/wal2json.properties
 args=
 WORKDIR=
 SRPM=0
@@ -432,17 +457,17 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=3
+DEB_RELEASE=3
 REVISION=0
-BRANCH="226"
-REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
-PRODUCT=percona-postgresql
+BRANCH="wal2json_2_3"
+REPO="https://github.com/eulerto/wal2json.git"
+PRODUCT=percona-wal2json
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='226'
-RELEASE='1'
-PRODUCT_FULL=${PRODUCT}-${VERSION}
+VERSION='2.3'
+RELEASE='3'
+PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir
 get_system

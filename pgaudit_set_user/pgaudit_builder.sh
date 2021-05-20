@@ -135,14 +135,14 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.7/pgaudit_set_user/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.7/pgaudit_set_user/control.in
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.7/pgaudit_set_user/copyright
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.7/pgaudit_set_user/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.7/pgaudit_set_user/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.7/pgaudit_set_user/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.7/pgaudit_set_user/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.7/pgaudit_set_user/rules
     cd ../ 
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.7/pgaudit_set_user/percona-pgaudit12_set_user.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.7/pgaudit_set_user/percona-pgaudit12_set_user.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties

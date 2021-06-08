@@ -460,7 +460,7 @@ build_deb(){
     #
     cd ${PRODUCT}-${VERSION}
     cp debian/patches/add-sample-config.patch ./patroni.yml.sample
-    sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/opt/patroni/bin/patroni /etc/patroni/patroni.yml:' extras/startup-scripts/patroni.service
+    sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/usr/bin/patroni /etc/patroni/patroni.yml:' extras/startup-scripts/patroni.service
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -484,8 +484,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=4
+DEB_RELEASE=4
 REVISION=0
 BRANCH="v2.0.2"
 REPO="https://github.com/zalando/patroni.git"
@@ -493,7 +493,7 @@ PRODUCT=percona-patroni
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.0.2'
-RELEASE='2'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

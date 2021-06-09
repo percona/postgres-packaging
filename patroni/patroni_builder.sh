@@ -152,6 +152,8 @@ get_sources(){
     rm -f patroni.spec
     wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
+    sed -i 's:/opt/patroni/etc/:/etc/patroni/:' patroni.2.service
+    sed -i 's:/opt/patroni/bin:/usr/bin:g' patroni.2.service
     mv patroni.2.service patroni.service
     tar -czf patroni-customizations.tar.gz patroni.service patroni-watchdog.service postgres-telia.yml
     cd ../
@@ -484,8 +486,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=4
-DEB_RELEASE=4
+RPM_RELEASE=5
+DEB_RELEASE=5
 REVISION=0
 BRANCH="v2.0.2"
 REPO="https://github.com/zalando/patroni.git"
@@ -493,7 +495,7 @@ PRODUCT=percona-patroni
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.0.2'
-RELEASE='4'
+RELEASE='5'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

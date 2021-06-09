@@ -286,7 +286,7 @@ Requires(preun):        initscripts
 Requires(postun):       initscripts
 %endif
 
-Requires:       %{name}-libs >= %{version}-%{release}
+Requires:       %{name}-libs%{?_isa} >= %{version}-%{release}
 
 Requires(post): %{_sbindir}/update-alternatives
 Requires(postun):       %{_sbindir}/update-alternatives
@@ -317,7 +317,7 @@ if you're installing the postgresql%{pgmajorversion}-server package.
 
 %package libs
 Summary:        The shared libraries required for any PostgreSQL clients
-Provides:       postgresql-libs = %{pgmajorversion} libpq5 >= 10.0
+Provides:       postgresql-libs >= %{version}-%{release} libpq5 >= 10.0
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
 Requires:       openssl
@@ -349,8 +349,8 @@ PostgreSQL server.
 
 %package server
 Summary:        The programs needed to create and run a PostgreSQL server
-Requires:       %{name}%{?_isa} >= %{version}-%{release}
-Requires:       %{name}-libs%{?_isa} >= %{version}-%{release}
+Requires:       %{name}%{?_isa} >= %{epoch}:%{version}-%{release}
+Requires:       %{name}-libs%{?_isa} >= %{epoch}:%{version}-%{release}
 Requires(pre):  /usr/sbin/useradd /usr/sbin/groupadd
 # for /sbin/ldconfig
 Requires(post):         glibc
@@ -410,8 +410,8 @@ includes HTML version of the documentation.
 
 %package contrib
 Summary:        Contributed source and binaries distributed with PostgreSQL
-Requires:       %{name}%{?_isa} >= %{version}-%{release}
-Requires:       %{name}-libs >= %{version}-%{release}
+Requires:       %{name}%{?_isa} >= %{epoch}:%{version}-%{release}
+Requires:       %{name}-libs%{?_isa} >= %{epoch}:%{version}-%{release}
 Provides:       postgresql-contrib >= %{version}-%{release}
 Provides:       %{vname}-contrib = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-contrib = %{epoch}:%{version}-%{release}
@@ -433,8 +433,8 @@ included in the PostgreSQL distribution.
 
 %package devel
 Summary:        PostgreSQL development header files and libraries
-Requires:       %{name}%{?_isa} >= %{version}-%{release}
-Requires:       %{name}-libs >= %{version}-%{release}
+Requires:       %{name}%{?_isa} >= %{epoch}:%{version}-%{release}
+Requires:       %{name}-libs%{?_isa}  >= %{epoch}:%{version}-%{release}
 %if %llvm
 %if 0%{?rhel} && 0%{?rhel} == 7
 # Packages come from EPEL and SCL:
@@ -487,7 +487,7 @@ to develop applications which will interact with a PostgreSQL server.
 %if %llvm
 %package llvmjit
 Summary:        Just-in-time compilation support for PostgreSQL
-Requires:       %{name}-server%{?_isa} >= %{version}-%{release}
+Requires:       %{name}-server%{?_isa} >= %{epoch}:%{version}-%{release}
 %if 0%{?rhel} && 0%{?rhel} == 7
 Requires:	llvm5.0 >= 5.0
 %else

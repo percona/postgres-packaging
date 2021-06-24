@@ -3,7 +3,7 @@
 Summary:        Reliable PostgreSQL Backup & Restore
 Name:           percona-pgbackrest
 Version:        %{version}
-Release:        3%{dist}
+Release:        1%{dist}
 License:        MIT
 Group:          Applications/Databases
 URL:            http://www.pgbackrest.org

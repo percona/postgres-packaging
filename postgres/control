@@ -13,13 +13,13 @@ Build-Depends:
  docbook-xsl (>= 1.77),
  dpkg-dev (>= 1.16.1~),
  flex,
- gdb,
+ gdb <!nocheck>,
  gettext,
  krb5-multidev,
  libedit-dev,
  libicu-dev,
- libio-pty-perl,
- libipc-run-perl,
+ libio-pty-perl <!nocheck>,
+ libipc-run-perl <!nocheck>,
  libkrb5-dev,
  libldap2-dev,
  libpam0g-dev | libpam-dev,
@@ -175,8 +175,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-13, percona-postgresql-doc-13
 Provides: percona-postgresql-client, postgresql-client, postgresql-client-13
-Conflicts: postgresql-server-dev-13 (<< 13.3-2~)
-Replaces: postgresql-server-dev-13 (<< 13.3-2~)
+Conflicts: postgresql-server-dev-13 (<< 13.4-2~)
+Replaces: postgresql-server-dev-13 (<< 13.4-2~)
 Description: front-end programs for PostgreSQL 13
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and

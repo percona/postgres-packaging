@@ -4,7 +4,7 @@
 Summary:	JSON output plugin for changeset extraction
 Name:		percona-%{sname}%{pgmajorversion}
 Version:	2.3
-Release:	3%{?dist}
+Release:	4%{?dist}
 Epoch:		1
 License:	BSD
 Source0:	percona-%{sname}-%{version}.tar.gz

@@ -18,25 +18,29 @@
          19.04|19.10) /bin/echo -e "11" ;;
          20.04|20.10) /bin/echo -e "12" ;;
          21.04|21.10) /bin/echo -e "13" ;;
-@@ -99,8 +99,8 @@
+@@ -99,9 +99,9 @@
          6.0*)  /bin/echo -e "8.4" ;; # Squeeze
          7|7.*) /bin/echo -e "9.1" ;; # Wheezy
          8|8.*) /bin/echo -e "9.4" ;; # Jessie
 -        9|9.*) /bin/echo -e "9.6" ;; # Stretch
 -        10|10.*) /bin/echo -e "11" ;; # Buster
+-        11|11.*) /bin/echo -e "13" ;; # Bullseye
 +        9|9.*) /bin/echo -e "12" ;; # Stretch
 +        10|10.*) /bin/echo -e "12" ;; # Buster
-         11|11.*) /bin/echo -e "13" ;; # Bullseye
++        11|11.*) /bin/echo -e "12" ;; # Bullseye
          testing | unstable)
              /bin/echo -e "$DEFAULT" ;;
-@@ -116,8 +116,8 @@
+         *)
+@@ -116,9 +116,9 @@
          6.0*)  /bin/echo -e "8.4\n9.1" ;; # Squeeze
          7|7.*) /bin/echo -e "9.1\n9.4" ;; # Wheezy
          8|8.*) /bin/echo -e "9.4\n9.6" ;; # Jessie
 -        9|9.*) /bin/echo -e "9.6" ;; # Stretch
 -        10|10.*) /bin/echo -e "11" ;; # Buster
+-        11|11.*) /bin/echo -e "13" ;; # Bullseye
 +        9|9.*) /bin/echo -e "12" ;; # Stretch
 +        10|10.*) /bin/echo -e "12" ;; # Buster
-         11|11.*) /bin/echo -e "13" ;; # Bullseye
++        11|11.*) /bin/echo -e "12" ;; # Bullseye
          testing | unstable)
              /bin/echo -e "$DEFAULT" ;;
+         *)

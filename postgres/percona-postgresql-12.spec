@@ -107,12 +107,12 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:		percona-postgresql%{pgmajorversion}
-Version:        12.7
-Release:        2%{?dist}
+Version:        12.8
+Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 
-Source0:       percona-postgresql-12.7.tar.gz
+Source0:       percona-postgresql-12.8.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 %if %{systemd_enabled}
@@ -1712,12 +1712,12 @@ fi
 %endif
 
 %changelog
-* Tue May 18 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 12.7-2PGDG
+* Tue May 18 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 12.8-2PGDG
 - Rebuild against new CLANG and LLVM on RHEL 8.4
 
-* Thu May 13 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 12.7-1PGDG
-- Update to 12.7, per changes described at
-  https://www.postgresql.org/docs/release/12.7/
+* Thu May 13 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 12.8-1PGDG
+- Update to 12.8, per changes described at
+  https://www.postgresql.org/docs/release/12.8/
 
 * Thu Feb 11 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 12.6-2PGDG
 - A few fixes around llvm, sdt and selinux macros, so that they

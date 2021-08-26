@@ -101,14 +101,14 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-patroni
-    echo "PRODUCT=${PRODUCT}" > patroni.properties
+    PRODUCT=psycopg2
+    echo "PRODUCT=${PRODUCT}" > psycopg2.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> patroni.properties
-    echo "VERSION=${PSM_VER}" >> patroni.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> patroni.properties
-    echo "BUILD_ID=${BUILD_ID}" >> patroni.properties
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> psycopg2.properties
+    echo "VERSION=${PSM_VER}" >> psycopg2.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> psycopg2.properties
+    echo "BUILD_ID=${BUILD_ID}" >> psycopg2.properties
     git clone "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
@@ -122,55 +122,38 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
+        git submodule update --init
     fi
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/patroni.properties
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/psycopg2.properties
     rm -fr debian rpm
-    git clone https://github.com/cybertec-postgresql/patroni-packaging.git all_packaging
-    cd all_packaging
-        git reset --hard
-        git clean -xdf
-        git checkout "v1.6.5-1"
+
+    git clone https://github.com/percona/postgres-packaging.git packaging
+    cd packaging
+        git checkout 13.4
     cd ../
-    mv all_packaging/DEB/debian ./
-    cd debian
-    rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/patroni/rules
-    rm -f control
-    rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/patroni/control
-    sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
-    sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
-    mv install percona-patroni.install
-    echo "debian/tmp/usr/lib" >> percona-patroni.install
-    echo "debian/tmp/usr/bin" >> percona-patroni.install
-    echo "docs/README.rst" >> percona-patroni-doc.install
+    mv packaging/psycopg2/debian ./
+    cd debian/
+    echo "psycopg2 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "  * Initial Release." >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     cd ../
     mkdir rpm
-    mv all_packaging/RPM/* rpm/
-    cd rpm
-    rm -f patroni.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/patroni/patroni.spec
-    sed -i 's:/opt/app:/opt:g' patroni.2.service
-    sed -i 's:/opt/patroni/bin:/usr/bin:' patroni.2.service
-    sed -i 's:/opt/patroni/etc/:/etc/patroni/:' patroni.2.service
-    mv patroni.2.service patroni.service
-    tar -czf patroni-customizations.tar.gz patroni.service patroni-watchdog.service postgres-telia.yml
-    cd ../
-    rm -rf all_packaging
+    mv packaging/psycopg2/python-psycopg2.spec rpm/
+    rm -rf packaging
     cd ${WORKDIR}
     #
-    source patroni.properties
+    source psycopg2.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> patroni.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> psycopg2.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-patroni*
+    rm -rf percona-psycopg2*
     return
 }
 
@@ -209,52 +192,48 @@ install_deps() {
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} = 8 ]; then
-          yum config-manager --set-enabled PowerTools || yum config-manager --set-enabled powertools
-      fi
-      if [ ${RHEL} = 7 ]; then
-          INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc python36-psycopg2 python36-six"
-          yum -y install ${INSTALL_LIST}
-      else
+          dnf -y module disable postgresql
           dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          wget https://rpmfind.net/linux/centos/7/os/x86_64/Packages/prelink-0.5.0-9.el7.x86_64.rpm
-          INSTALL_LIST="git wget rpm-build python3-virtualenv libyaml-devel gcc python3-psycopg2"
-          yum -y install ${INSTALL_LIST}
-          yum -y install prelink-0.5.0-9.el7.x86_64.rpm
-	      #ln -s /usr/bin/virtualenv-2 /usr/bin/virtualenv
+          yum -y install perl lz4-libs c-ares-devel clang
+      else
+        until yum -y install centos-release-scl; do
+            echo "waiting"
+            sleep 1
+        done
+        yum -y install epel-release
+        yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
       fi
+      INSTALL_LIST="percona-postgresql-common percona-postgresql13-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
+      yum -y install ${INSTALL_LIST}
+      yum -y install lz4 || true
+
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      until apt-get -y install gnupg2; do
-          sleep 3
-	  echo "WAITING"
-      done
+      apt-get -y install gnupg2
       add_percona_apt_repo
       apt-get update || true
-      if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" ]; then
-        INSTALL_LIST="build-essential debconf debhelper clang-11 devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
+      INSTALL_LIST="build-essential pkg-config debconf debhelper devscripts dh-exec git wget pkg-config python-all-dev python-all-dbg python3-all-dev python3-all-dbg dh-python libpq-dev python3-sphinx"
+      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
+          sleep 1
+          echo "waiting"
+      done
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install percona-postgresql-13 python3-setuptools python3-pip
+      if [ -f /usr/bin/python2.7 ]; then
+          update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1;
       else
-        INSTALL_LIST="build-essential debconf debhelper clang-11 devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
+          update-alternatives --install /usr/bin/python python /usr/bin/python2.6 1;
       fi
-      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
-      if [ "x${DEBIAN}" = "xstretch" ]; then
-        DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip
-	pip3 install python-consul
-	pip3 install python-kubernetes 
-      else 
-        DEBIAN_FRONTEND=noninteractive apt-get -y install python3-consul python3-kubernetes python3-cdiff || true
-      fi
-      if [ "x${DEBIAN}" = "xfocal" ]; then
-        wget https://bootstrap.pypa.io/get-pip.py
-        python2.7 get-pip.py
-        rm -rf /usr/bin/python2
-        ln -s /usr/bin/python2.7 /usr/bin/python2
-        wget https://jenkins.percona.com/downloads/dh-virtualenv_1.0-1_all.deb
-        DEBIAN_FRONTEND=noninteractive apt-get -y install ./dh-virtualenv_1.0-1_all.deb
-        rm -f dh-virtualenv_1.0-1_all.deb
+      update-alternatives --install /usr/bin/python python /usr/bin/python3 100
+      if [ -f /usr/bin/python2.7 ]; then
+	  mv /usr/bin/python2.7 /usr/bin/python2.7_back
+	  ln -s /usr/bin/python3 /usr/bin/python2.7
       fi
     fi
     return;
@@ -262,10 +241,10 @@ install_deps() {
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-patroni*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'psycopg2*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-patroni*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'psycopg2*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -282,10 +261,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-patroni*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "*psycopg2*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-patroni*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "*psycopg2*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -314,20 +293,18 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-patroni*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name 'psycopg2*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/patroni.spec rpmbuild/SPECS
-    cp -av rpm/patches/* rpmbuild/SOURCES
+    cp -av rpm/python-psycopg2.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    sed -i 's:.rhel7:%{dist}:' ${WORKDIR}/rpmbuild/SPECS/patroni.spec
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/patroni.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .generic" \
+        --define "version ${VERSION}" rpmbuild/SPECS/python-psycopg2.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -346,10 +323,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-patroni*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name '*psycopg2*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-patroni*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name '*psycopg2*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -362,16 +339,22 @@ build_rpm(){
         cp $WORKDIR/srpm/$SRC_RPM $WORKDIR
     fi
     cd $WORKDIR
-    rm -fr rb
-    mkdir -vp rb/{SOURCES,SPECS,BUILD,SRPMS,RPMS,BUILDROOT}
-    cp $SRC_RPM rb/SRPMS/
+    rm -fr rpmbuild
+    mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
+    cp $SRC_RPM rpmbuild/SRPMS/
 
-    cd rb/SRPMS/
+    cd rpmbuild/SRPMS/
     #
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    rpmbuild --define "_topdir ${WORKDIR}/rb" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rb/SRPMS/$SRC_RPM
+    if [ -f /opt/rh/devtoolset-7/enable ]; then
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
+    fi
+    export LIBPQ_DIR=/usr/pgsql-13/
+    export LIBRARY_PATH=/usr/pgsql-13/lib/:/usr/pgsql-13/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -379,8 +362,8 @@ build_rpm(){
     fi
     mkdir -p ${WORKDIR}/rpm
     mkdir -p ${CURDIR}/rpm
-    cp rb/RPMS/*/*.rpm ${WORKDIR}/rpm
-    cp rb/RPMS/*/*.rpm ${CURDIR}/rpm
+    cp rpmbuild/RPMS/*/*.rpm ${WORKDIR}/rpm
+    cp rpmbuild/RPMS/*/*.rpm ${CURDIR}/rpm
 }
 
 build_source_deb(){
@@ -394,11 +377,11 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-patroni*
+    rm -rf psycopg2*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-patroni*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name '*psycopg2*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
@@ -407,16 +390,8 @@ build_source_deb(){
     
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
-
-    cd debian
-    rm -rf changelog
-    echo "percona-patroni (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
-    echo "  * Initial Release." >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-
-    cd ../
-    
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new patroni version ${VERSION}"
+  
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new psycopg2 version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -452,8 +427,8 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> patroni.properties
-    echo "ARCH=${ARCH}" >> patroni.properties
+    echo "DEBIAN=${DEBIAN}" >> psycopg2.properties
+    echo "ARCH=${ARCH}" >> psycopg2.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
@@ -461,8 +436,6 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-${VERSION}
-    cp debian/patches/add-sample-config.patch ./patroni.yml.sample
-    sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/opt/patroni/bin/patroni /etc/patroni/patroni.yml:' extras/startup-scripts/patroni.service
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -474,7 +447,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/patroni.properties
+VERSION_FILE=$CURDIR/psycopg2.properties
 args=
 WORKDIR=
 SRPM=0
@@ -486,16 +459,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=4
+DEB_RELEASE=4
 REVISION=0
-BRANCH="v2.1.0"
-REPO="https://github.com/zalando/patroni.git"
-PRODUCT=percona-patroni
+BRANCH="2_8_6"
+REPO="https://github.com/psycopg/psycopg2.git"
+PRODUCT=psycopg2
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.1.0'
-RELEASE='1'
+VERSION='2.8.6'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

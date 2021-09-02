@@ -77,12 +77,12 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        13.3
-Release:        2%{?dist}
+Version:        13.4
+Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 
-Source0:        percona-postgresql-13.3.tar.gz
+Source0:        percona-postgresql-13.4.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist

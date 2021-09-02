@@ -1,0 +1,40 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/architecture.mk
+
+export PYBUILD_NAME=psycopg2
+DEFAULT_PYTHON3 = $(shell py3versions -d)
+DEFAULT_BUILDIR = $(shell $(DEFAULT_PYTHON3) -c 'from distutils.command.build import build; from distutils.core import Distribution; b = build(Distribution()); b.finalize_options(); print(b.build_platlib)')
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@ --with python3,sphinxdoc --buildsystem=pybuild
+
+override_dh_auto_build-indep:
+	dh_auto_build -i
+	set -e; export PYTHONPATH=$(shell pybuild --print build_dir --interpreter python3) PYTHON_VERSION=3; \
+	cd $(CURDIR)/doc; make src/sqlstate_errors.rst; \
+	cd $(CURDIR)/doc/src; make html; \
+	cd $(CURDIR)/doc/src; make text; \
+	rm -f _build/text/license.txt
+
+override_dh_link:
+	rm -rf $(CURDIR)/debian/python3-psycopg2-dbg/usr/share/doc/python3-psycopg2-dbg
+	dh_link
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+override_dh_auto_test-arch:
+#ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+#ifneq ($(DEB_HOST_ARCH),hurd-i386)
+#	LANG=C.UTF-8 LC_ALL=C.UTF-8 \
+#	PSYCOPG2_TESTDB_HOST=localhost \
+#	PSYCOPG2_TESTDB=postgres \
+#	PSYCOPG2_TEST_FAST=1 \
+#	pg_virtualenv dh_auto_test
+#endif
+#endif
+
+override_dh_auto_test-indep:
+

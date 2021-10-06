@@ -1,6 +1,6 @@
 Name:           percona-postgresql-common
 Version:        %{version}
-Release:        3%{?dist}
+Release:        4%{?dist}
 BuildArch:      noarch
 Summary:        PostgreSQL database-cluster manager
 Provides:      postgresql-common
@@ -45,6 +45,11 @@ make
 
 %install
 rm -rf %{buildroot}
+pushd debian
+        for file in $(ls | grep postgresql| grep -v percona); do
+            mv $file "percona-$file"
+        done
+popd
 # install in subpackages using the Debian files
 for inst in debian/*.install; do
     pkg=$(basename $inst .install)
@@ -84,7 +89,6 @@ sed -i -e 's/#redhat# //' \
 # install init script
 mkdir -p %{buildroot}/etc/init.d %{buildroot}/etc/logrotate.d
 cp debian/percona-postgresql-common.postgresql.init %{buildroot}/etc/init.d/postgresql
-#cp debian/postgresql-common.postinst %{buildroot}/usr/share/postgresql-common
 cp rpm/init-functions-compat %{buildroot}/usr/share/postgresql-common
 # ssl defaults to 'off' here because we don't have pregenerated snakeoil certs
 sed -e 's/__SSL__/off/' createcluster.conf > %{buildroot}/etc/postgresql-common/createcluster.conf

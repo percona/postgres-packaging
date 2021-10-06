@@ -118,6 +118,14 @@ get_sources(){
         for file in $(ls | grep ^postgresql); do 
             mv $file "percona-$file"
         done
+	for file in $(ls|grep percona-postgresql-common); do 
+            newname=$(echo $file| awk -F'percona-' '{print $2}'); 
+	    mv $file $newname; 
+        done
+	for file in $(ls|grep percona-postgresql-client-common); do 
+            newname=$(echo $file| awk -F'percona-' '{print $2}'); 
+	    mv $file $newname; 
+        done
 	rm -rf rules control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres-common/control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres-common/maintscripts-functions.patch
@@ -128,10 +136,6 @@ get_sources(){
         patch -p0 < percona-postgresql-common.templates.patch
         patch -p0 < supported_versions.patch
         rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch supported_versions.patch
-        sed -i 's:postgresql-common:percona-postgresql-common:' percona-postgresql-common.preinst
-        sed -i 's:postgresql-common:percona-postgresql-common:' percona-postgresql-common.postrm
-	sed -i 's:db_get postgresql-common:db_get percona-postgresql-common:' percona-postgresql-common.postinst
-	sed -i 's: ucfr postgresql-common:ucfr -f percona-postgresql-common:' percona-postgresql-common.postinst
 	rm -rf changelog
         echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
         echo "  * Initial Release." >> changelog
@@ -432,8 +436,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=4
+DEB_RELEASE=4
 REVISION=0
 BRANCH="226"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -441,7 +445,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='226'
-RELEASE='3'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 
 check_workdir

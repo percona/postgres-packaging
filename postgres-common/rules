@@ -27,12 +27,12 @@ override_dh_auto_configure:
 
 override_dh_install:
 	dh_install
-	$(MAKE) -C systemd install DESTDIR=$(CURDIR)/debian/percona-postgresql-common
-	install -m 644 -D debian/percona-postgresql-common.sysctl debian/percona-postgresql-common/etc/sysctl.d/30-postgresql-shm.conf
-	/bin/echo -e "# See /usr/share/postgresql-common/supported-versions for documentation of this file\n$(FLAVOR)" > debian/percona-postgresql-client-common/etc/postgresql-common/supported_versions
+	$(MAKE) -C systemd install DESTDIR=$(CURDIR)/debian/postgresql-common
+	install -m 644 -D debian/postgresql-common.sysctl debian/postgresql-common/etc/sysctl.d/30-postgresql-shm.conf
+	/bin/echo -e "# See /usr/share/postgresql-common/supported-versions for documentation of this file\n$(FLAVOR)" > debian/postgresql-client-common/etc/postgresql-common/supported_versions
 
 override_dh_installinit:
-	dh_installinit -ppercona-postgresql-common --name=postgresql -u'defaults 19 21' -r
+	dh_installinit -ppostgresql-common --name=postgresql -u'defaults 19 21' -r
 
 override_dh_gencontrol:
 	dh_gencontrol -ppercona-postgresql-server-dev-all -- -Vserver-dev-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-server-dev-$v,)"
@@ -43,7 +43,7 @@ override_dh_gencontrol:
 		-Vdefault-version="$(DEFAULT_VER)" -v'$(DEFAULT_VER)+$${source:Version}' \
 		-Vpostgresql-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-contrib-$v,percona-postgresql-plperl-$v,$(if $(filter 8.% 9.% 10 11, $v), $(PYTHON2_PACKAGE)),percona-postgresql-plpython3-$v,percona-postgresql-pltcl-$v,)"
 
-	dh_gencontrol -ppercona-postgresql-client-common -- -Vpgdg:Depends="$(PGDG_DEPENDS)" -Vreadline:Recommends=$(LIBREADLINE)
+	dh_gencontrol -ppostgresql-client-common -- -Vpgdg:Depends="$(PGDG_DEPENDS)" -Vreadline:Recommends=$(LIBREADLINE)
 
 	dh_gencontrol --remaining-packages
 

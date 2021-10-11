@@ -1,10 +1,11 @@
-Source: percona-postgresql-13
+Source: percona-postgresql-14
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
 Standards-Version: 4.5.0
 Rules-Requires-Root: no
 Build-Depends:
+ autoconf,
  bison,
  clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  debhelper,
@@ -22,6 +23,7 @@ Build-Depends:
  libipc-run-perl <!nocheck>,
  libkrb5-dev,
  libldap2-dev,
+ liblz4-dev,
  libpam0g-dev | libpam-dev,
  libperl-dev,
  libreadline-dev,
@@ -32,6 +34,7 @@ Build-Depends:
  libxml2-utils,
  libxslt1-dev,
  llvm-11-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ mawk,
  perl (>= 5.8),
  pkg-config,
  python3-dev,
@@ -49,7 +52,7 @@ Depends:
  libpq5 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Suggests: percona-postgresql-doc-13
+Suggests: percona-postgresql-doc-14
 Description: header files for libpq5 (PostgreSQL library)
  Header files and static library for compiling C programs to link
  with the libpq library in order to communicate with a PostgreSQL
@@ -124,23 +127,23 @@ Section: libs
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
-Description: shared library libpgtypes for PostgreSQL 13
+Description: shared library libpgtypes for PostgreSQL 14
  The libpgtypes shared library is used by programs built with ecpg.
  (Embedded PostgreSQL for C).
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-13
+Package: percona-postgresql-14
 Architecture: any
 Depends:
  locales | locales-all,
- percona-postgresql-client-13,
+ percona-postgresql-client-14,
  percona-postgresql-common (>= 182~),
  ssl-cert,
  tzdata,
  ${misc:Depends},
  ${shlibs:Depends}
-Provides: percona-postgresql-contrib-13, postgresql-contrib-13, postgresql-13
+Provides: percona-postgresql-contrib-14, postgresql-contrib-14, postgresql-14
 Recommends: sysstat
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational
@@ -151,20 +154,10 @@ Description: The World's Most Advanced Open Source Relational Database
  a range of workloads, from single machines to data warehouses or Web services
  with many concurrent users.
  .
- This package provides the database server for PostgreSQL 13.
+ This package provides the database server for PostgreSQL 14.
 XB-Postgresql-Catversion: ${postgresql:Catversion}
 
-#dbg#Package: percona-postgresql-13-dbg
-#dbg#Section: debug
-#dbg#Priority: optional
-#dbg#Architecture: any
-#dbg#Depends: percona-postgresql-13 (= ${binary:Version}), ${misc:Depends}
-#dbg#Description: debug symbols for postgresql-13
-#dbg# This package provides detached debugging symbols for PostgreSQL 13.
-#dbg# .
-#dbg# PostgreSQL is an object-relational SQL database management system.
-
-Package: percona-postgresql-client-13
+Package: percona-postgresql-client-14
 Architecture: any
 Multi-Arch: foreign
 Depends:
@@ -173,37 +166,37 @@ Depends:
  sensible-utils,
  ${misc:Depends},
  ${shlibs:Depends}
-Suggests: percona-postgresql-13, percona-postgresql-doc-13
-Provides: percona-postgresql-client, postgresql-client, postgresql-client-13
-Conflicts: postgresql-server-dev-13 (<< 13.4-2~)
-Replaces: postgresql-server-dev-13 (<< 13.4-2~)
-Description: front-end programs for PostgreSQL 13
+Suggests: percona-postgresql-14, percona-postgresql-doc-14
+Provides: percona-postgresql-client, postgresql-client, postgresql-client-14
+Conflicts: postgresql-server-dev-14 (<< 14.0-2~)
+Replaces: postgresql-server-dev-14 (<< 14.0-2~)
+Description: front-end programs for PostgreSQL 14
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and
  programs for creating and removing users and databases.
  .
- This is the client package for PostgreSQL 13. If you install
- PostgreSQL 13 on a standalone machine, you need the server package
- postgresql-13, too. On a network, you can install this package on
+ This is the client package for PostgreSQL 14. If you install
+ PostgreSQL 14 on a standalone machine, you need the server package
+ postgresql-14, too. On a network, you can install this package on
  many client machines, while the server package may be installed on
  only one machine.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-server-dev-13
+Package: percona-postgresql-server-dev-14
 Architecture: any
 Section: libdevel
 Depends:
  clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
- libpq-dev (>= 13~~),
+ libpq-dev (>= 14~~),
  llvm-11-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
- percona-postgresql-client-13, percona-postgresql-common (>= 142~),
+ percona-postgresql-client-14, percona-postgresql-common (>= 142~),
  ${misc:Depends},
  ${shlibs:Depends}
 Breaks:
  postgresql-server-dev-all (<< 181~)
-Provides: postgresql-server-dev-all, postgresql-server-dev-all-13
-Description: development files for PostgreSQL 13 server-side programming
+Provides: postgresql-server-dev-all, postgresql-server-dev-all-14
+Description: development files for PostgreSQL 14 server-side programming
  Header files for compiling SSI code to link into PostgreSQL's backend; for
  example, for C functions to be called from SQL.
  .
@@ -213,7 +206,7 @@ Description: development files for PostgreSQL 13 server-side programming
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-doc-13
+Package: percona-postgresql-doc-14
 Architecture: all
 Multi-Arch: foreign
 Section: doc
@@ -221,53 +214,53 @@ Depends: ${misc:Depends}
 Breaks: postgresql-common (<< 158~)
 Description: documentation for the PostgreSQL database management system
  This package contains all README files, user manual, and examples for
- PostgreSQL 13. The manual is in HTML format.
+ PostgreSQL 14. The manual is in HTML format.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-plperl-13
+Package: percona-postgresql-plperl-14
 Architecture: any
 Depends:
  perl,
- percona-postgresql-13 (= ${binary:Version}),
+ percona-postgresql-14 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Breaks: percona-postgresql-13 (<< 13~beta4)
-Replaces: percona-postgresql-13 (<< 13~beta4)
-Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-13
-Description: PL/Perl procedural language for PostgreSQL 13
+Breaks: percona-postgresql-14 (<< 14~beta4)
+Replaces: percona-postgresql-14 (<< 14~beta4)
+Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-14
+Description: PL/Perl procedural language for PostgreSQL 14
  PL/Perl enables an SQL developer to write procedural language functions
- for PostgreSQL 13 in Perl.  You need this package if you have any
- PostgreSQL 13 functions that use the languages plperl or plperlu.
+ for PostgreSQL 14 in Perl.  You need this package if you have any
+ PostgreSQL 14 functions that use the languages plperl or plperlu.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-plpython3-13
+Package: percona-postgresql-plpython3-14
 Architecture: any
 Depends:
- percona-postgresql-13 (= ${binary:Version}),
+ percona-postgresql-14 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Breaks: percona-postgresql-13 (<< 13~beta4)
-Replaces: percona-postgresql-13 (<< 13~beta4)
-Provides: postgresql-plpython3,postgresql-plpython3-13, percona-postgresql-plpython3
-Description: PL/Python 3 procedural language for PostgreSQL 13
+Breaks: percona-postgresql-14 (<< 14~beta4)
+Replaces: percona-postgresql-14 (<< 14~beta4)
+Provides: postgresql-plpython3,postgresql-plpython3-14, percona-postgresql-plpython3
+Description: PL/Python 3 procedural language for PostgreSQL 14
  PL/Python 3 enables an SQL developer to write procedural language functions
- for PostgreSQL 13 in Python 3.  You need this package if you have any
- PostgreSQL 13 functions that use the languages plpython3 or plpython3u.
+ for PostgreSQL 14 in Python 3.  You need this package if you have any
+ PostgreSQL 14 functions that use the languages plpython3 or plpython3u.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-pltcl-13
+Package: percona-postgresql-pltcl-14
 Architecture: any
 Depends:
- percona-postgresql-13 (= ${binary:Version}),
+ percona-postgresql-14 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Provides: percona-postgresql-pltcl, postgresql-pltcl, postgresql-13-pltcl
-Description: PL/Tcl procedural language for PostgreSQL 13
+Provides: percona-postgresql-pltcl, postgresql-pltcl, postgresql-14-pltcl
+Description: PL/Tcl procedural language for PostgreSQL 14
  PL/Tcl enables an SQL developer to write procedural language functions
- for PostgreSQL 13 in Tcl.  You need this package if you have any
- PostgreSQL 13 functions that use the languages pltcl or pltclu.
+ for PostgreSQL 14 in Tcl.  You need this package if you have any
+ PostgreSQL 14 functions that use the languages pltcl or pltclu.
  .
  PostgreSQL is an object-relational SQL database management system.

@@ -1,9 +1,9 @@
 # These are macros to be used with find_lang and other stuff
-%global packageversion 130
-%global pgpackageversion 13
-%global prevmajorversion 12
+%global packageversion 140
+%global pgpackageversion 14
+%global prevmajorversion 13
 %global sname postgresql
-%global vname postgresql13
+%global vname postgresql14
 %global pgbaseinstdir   /usr/pgsql-%{pgmajorversion}
 
 %global beta 0
@@ -77,12 +77,12 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        13.4
+Version:        14.0
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 
-Source0:        percona-postgresql-13.4.tar.gz
+Source0:        percona-postgresql-14.0.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -90,7 +90,6 @@ Source7:        %{sname}-%{pgmajorversion}-ecpg_config.h
 Source9:        %{sname}-%{pgmajorversion}-libs.conf
 Source12:       https://www.postgresql.org/files/documentation/pdf/%{pgpackageversion}/%{sname}-%{pgpackageversion}-A4.pdf
 Source14:       %{sname}-%{pgmajorversion}.pam
-Source16:       %{sname}-%{pgmajorversion}-filter-requires-perl-Pg.sh
 Source17:       %{sname}-%{pgmajorversion}-setup
 %if %{systemd_enabled}
 Source10:       %{sname}-%{pgmajorversion}-check-db-dir
@@ -108,7 +107,10 @@ Patch6:         %{sname}-%{pgmajorversion}-perl-rpath.patch
 BuildRequires:  perl glibc-devel bison flex >= 2.5.31
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  readline-devel zlib-devel >= 1.0.4
-
+%if 0%{?rhel} || 0%{?fedora}
+BuildRequires:	lz4-devel
+Requires:	lz4
+%endif
 # This dependency is needed for Source 16:
 %if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:  perl-generators
@@ -655,6 +657,7 @@ export PYTHON=/usr/bin/python3
         --mandir=%{pgbaseinstdir}/share/man \
         --datadir=%{pgbaseinstdir}/share \
         --libdir=%{pgbaseinstdir}/lib \
+        --with-lz4 \
 %if %beta
         --enable-debug \
         --enable-cassert \
@@ -903,6 +906,9 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7 %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/pgsql
 
+# These file(s) should not be packaged:
+%{__rm} %{buildroot}%{pgbaseinstdir}/lib/libpgfeutils.a
+
 # initialize file lists
 %{__cp} /dev/null main.lst
 %{__cp} /dev/null libs.lst
@@ -919,6 +925,7 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %find_lang ecpglib6-%{pgmajorversion}
 %find_lang initdb-%{pgmajorversion}
 %find_lang libpq5-%{pgmajorversion}
+%find_lang pg_amcheck-%{pgmajorversion}
 %find_lang pg_archivecleanup-%{pgmajorversion}
 %find_lang pg_basebackup-%{pgmajorversion}
 %find_lang pg_checksums-%{pgmajorversion}
@@ -952,6 +959,7 @@ cat pltcl-%{pgmajorversion}.lang > pg_pltcl.lst
 %find_lang postgres-%{pgmajorversion}
 %find_lang psql-%{pgmajorversion}
 
+cat pg_amcheck-%{pgmajorversion}.lang > pg_contrib.lst
 cat libpq5-%{pgmajorversion}.lang > pg_libpq5.lst
 cat pg_config-%{pgmajorversion}.lang ecpg-%{pgmajorversion}.lang ecpglib6-%{pgmajorversion}.lang > pg_devel.lst
 cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
@@ -1149,7 +1157,7 @@ fi
 %doc src/tutorial
 %doc doc/html
 
-%files contrib
+%files contrib -f pg_contrib.lst
 %defattr(-,root,root)
 %doc %{pgbaseinstdir}/doc/extension/*.example
 %{pgbaseinstdir}/lib/_int.so
@@ -1176,9 +1184,15 @@ fi
 %{pgbaseinstdir}/share/extension/jsonb_plperl*.sql
 %{pgbaseinstdir}/share/extension/jsonb_plperl*.control
 %endif
+%if %plpython3
+%{pgbaseinstdir}/lib/hstore_plpython3.so
+%{pgbaseinstdir}/lib/jsonb_plpython3.so
+%{pgbaseinstdir}/lib/ltree_plpython3.so
+%endif
 %{pgbaseinstdir}/lib/lo.so
 %{pgbaseinstdir}/lib/ltree.so
 %{pgbaseinstdir}/lib/moddatetime.so
+%{pgbaseinstdir}/lib/old_snapshot.so
 %{pgbaseinstdir}/lib/pageinspect.so
 %{pgbaseinstdir}/lib/passwordcheck.so
 %{pgbaseinstdir}/lib/pgcrypto.so
@@ -1188,6 +1202,7 @@ fi
 %{pgbaseinstdir}/lib/pg_freespacemap.so
 %{pgbaseinstdir}/lib/pg_prewarm.so
 %{pgbaseinstdir}/lib/pg_stat_statements.so
+%{pgbaseinstdir}/lib/pg_surgery.so
 %{pgbaseinstdir}/lib/pg_trgm.so
 %{pgbaseinstdir}/lib/pg_visibility.so
 %{pgbaseinstdir}/lib/postgres_fdw.so
@@ -1237,11 +1252,13 @@ fi
 %{pgbaseinstdir}/share/extension/ltree.control
 %{pgbaseinstdir}/share/extension/ltree--*.sql
 %{pgbaseinstdir}/share/extension/moddatetime*
+%{pgbaseinstdir}/share/extension/old_snapshot*
 %{pgbaseinstdir}/share/extension/pageinspect*
 %{pgbaseinstdir}/share/extension/pg_buffercache*
 %{pgbaseinstdir}/share/extension/pg_freespacemap*
 %{pgbaseinstdir}/share/extension/pg_prewarm*
 %{pgbaseinstdir}/share/extension/pg_stat_statements*
+%{pgbaseinstdir}/share/extension/pg_surgery*
 %{pgbaseinstdir}/share/extension/pg_trgm*
 %{pgbaseinstdir}/share/extension/pg_visibility*
 %{pgbaseinstdir}/share/extension/pgcrypto*
@@ -1265,19 +1282,18 @@ fi
 %{pgbaseinstdir}/share/extension/xml2*
 %endif
 %{pgbaseinstdir}/bin/oid2name
-%{pgbaseinstdir}/bin/vacuumlo
+%{pgbaseinstdir}/bin/pg_amcheck
 %{pgbaseinstdir}/bin/pg_recvlogical
-%{pgbaseinstdir}/bin/pg_standby
+%{pgbaseinstdir}/bin/vacuumlo
+%{pgbaseinstdir}/share/man/man1/pg_amcheck.1
 %{pgbaseinstdir}/share/man/man1/oid2name.1
 %{pgbaseinstdir}/share/man/man1/pg_recvlogical.1
-%{pgbaseinstdir}/share/man/man1/pg_standby.1
 %{pgbaseinstdir}/share/man/man1/vacuumlo.1
 
 %files libs -f pg_libpq5.lst
 %defattr(-,root,root)
 %{pgbaseinstdir}/lib/libpq.so.*
 %{pgbaseinstdir}/lib/libecpg.so*
-%{pgbaseinstdir}/lib/libpgfeutils.a
 %{pgbaseinstdir}/lib/libpgtypes.so.*
 %{pgbaseinstdir}/lib/libecpg_compat.so.*
 %{pgbaseinstdir}/lib/libpqwalreceiver.so
@@ -1327,6 +1343,8 @@ fi
 %{pgbaseinstdir}/share/man/man1/postgres.*
 %{pgbaseinstdir}/share/man/man1/postmaster.*
 %{pgbaseinstdir}/share/postgres.bki
+%{pgbaseinstdir}/share/system_constraints.sql
+%{pgbaseinstdir}/share/system_functions.sql
 %{pgbaseinstdir}/share/system_views.sql
 %{pgbaseinstdir}/share/*.sample
 %{pgbaseinstdir}/share/timezonesets/*

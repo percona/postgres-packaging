@@ -118,7 +118,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 13 remotes/origin/13
+        git checkout -b 14 remotes/origin/14
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -127,18 +127,18 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres/control
-        sed -i 's/postgresql-13/percona-postgresql-13/' percona-postgresql-13.templates
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres/rules
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres/control
+        sed -i 's/postgresql-14/percona-postgresql-14/' percona-postgresql-14.templates
 	echo "9" > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/master/non-common/postgresql-13/master/* rpm/
+    mv pgrpms/rpm/redhat/master/non-common/postgresql-14/main/*   rpm/
     rm -rf pgrpms
     cd rpm
-        rm postgresql-13.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres/percona-postgresql-13.spec
+        rm postgresql-14.spec
+        wget  https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres/percona-postgresql-14.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -146,7 +146,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-13/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-14/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -196,12 +196,12 @@ install_deps() {
             sleep 1
         done
         yum -y install epel-release
-        INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-toolset-7-clang llvm5.0-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmbuild rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel python3-devel"
+        INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-toolset-7-clang llvm5.0-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmbuild rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel python3-devel lz4-devel"
         yum -y install ${INSTALL_LIST}
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
-        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
+        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel"
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
         cat >/etc/yum.repos.d/CENTOS8-stream-AppStream.repo <<EOL
@@ -228,15 +228,15 @@ EOL
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      wget https://repo.percona.com/apt/percona-release_1.0-25.generic_all.deb
-      dpkg -i percona-release_1.0-25.generic_all.deb
+      wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
+      dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
-      percona-release enable ppg-13.4 testing
+      percona-release enable ppg-14.0 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" ]; then
-        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb"
+        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev"
       else
-        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb"
+        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev"
       fi
  
        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
@@ -309,9 +309,9 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget https://www.postgresql.org/files/documentation/pdf/13/postgresql-13-A4.pdf
+    wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/14/postgresql-14-A4.pdf
     cd ../../
-    cp -av rpmbuild/SOURCES/percona-postgresql-13.spec rpmbuild/SPECS
+    cp -av rpmbuild/SOURCES/percona-postgresql-14.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     if [ -f /opt/rh/devtoolset-7/enable ]; then
@@ -319,8 +319,8 @@ build_srpm(){
         source /opt/rh/llvm-toolset-7/enable
     fi
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "pgmajorversion 13" --define "pginstdir /usr/pgsql-13"  --define "pgpackageversion 13" \
-        rpmbuild/SPECS/percona-postgresql-13.spec
+        --define "pgmajorversion 14" --define "pginstdir /usr/pgsql-14"  --define "pgpackageversion 14" \
+        rpmbuild/SPECS/percona-postgresql-14.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -368,7 +368,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion 13" --define "pginstdir /usr/pgsql-13" --define "pgpackageversion 13" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion 14" --define "pginstdir /usr/pgsql-14" --define "pgpackageversion 14" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -407,7 +407,7 @@ build_source_deb(){
 
     cd debian
     rm -rf changelog
-    echo "percona-postgresql-13 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgresql-14 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
@@ -484,13 +484,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_13.4"
+BRANCH="REL_14.0"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='13'
-RELEASE='4'
+VERSION='14'
+RELEASE='0'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

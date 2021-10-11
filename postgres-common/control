@@ -10,7 +10,7 @@ Build-Depends:
 Package: percona-postgresql-common
 Architecture: all
 Multi-Arch: foreign
-Pre-Depends: postgresql-common
+Pre-Depends: postgresql-common (= ${binary:Version}),
 Description: Virtual package to satisfy dependencies
 
 Package: postgresql-common
@@ -62,7 +62,7 @@ Description: PostgreSQL database-cluster manager
 Package: percona-postgresql-client-common
 Architecture: all
 Multi-Arch: foreign
-Pre-Depends: postgresql-client-common
+Pre-Depends: postgresql-client-common (= ${binary:Version}),
 Description: Virtal package to satisfy dependencies 
 
 Package: postgresql-client-common

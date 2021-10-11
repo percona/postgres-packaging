@@ -10,6 +10,7 @@ URL:            https://packages.debian.org/sid/%{name}
 Source0:        %{name}/%{name}-%{version}.tar.gz
 Requires:       percona-postgresql-client-common
 Requires:       perl-JSON
+Epoch:		1
 
 %description
 The postgresql-common package provides a structure under which

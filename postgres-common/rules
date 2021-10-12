@@ -40,7 +40,7 @@ override_dh_gencontrol:
 	# the versionless metapackages need to have version numbers which match
 	# the server version, not the p-common version
 	dh_gencontrol -ppercona-postgresql -ppercona-postgresql-client -ppercona-postgresql-doc -ppercona-postgresql-contrib -ppercona-postgresql-all -- \
-		-Vdefault-version="$(DEFAULT_VER)" -v'$(DEFAULT_VER)+$${source:Version}' \
+		-Vdefault-version="$(DEFAULT_VER)" -v'$${source:Version}' \
 		-Vpostgresql-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-contrib-$v,percona-postgresql-plperl-$v,$(if $(filter 8.% 9.% 10 11, $v), $(PYTHON2_PACKAGE)),percona-postgresql-plpython3-$v,percona-postgresql-pltcl-$v,)"
 
 	dh_gencontrol -ppostgresql-client-common -- -Vpgdg:Depends="$(PGDG_DEPENDS)" -Vreadline:Recommends=$(LIBREADLINE)

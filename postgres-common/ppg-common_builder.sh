@@ -413,8 +413,9 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-common-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
+    sed -i '33,55d' Makefile
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb

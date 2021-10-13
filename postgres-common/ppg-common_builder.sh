@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres-common/supported_versions.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/control
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/rules
+	wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/supported_versions.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
         patch -p0 < supported_versions.patch
@@ -141,17 +141,17 @@ get_sources(){
         echo "  * Initial Release." >> changelog
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
         sed -i 's:percona-postgresql-plpython-$v,::' rules
-        sed -i 's:"9.6":"13":' supported-versions
-        sed -i 's:"10":"13":' supported-versions
-        sed -i 's:"11":"13":' supported-versions
-        sed -i 's:"12":"13":' supported-versions
+        sed -i 's:"9.6":"14":' supported-versions
+        sed -i 's:"10":"14":' supported-versions
+        sed -i 's:"11":"14":' supported-versions
+        sed -i 's:"12":"14":' supported-versions
     cd ../
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -159,7 +159,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-13/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-14/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -413,8 +413,9 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-common-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
+    sed -i '33,55d' Makefile
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
@@ -436,8 +437,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=4
-DEB_RELEASE=4
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
 BRANCH="226"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -445,7 +446,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='226'
-RELEASE='4'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 
 check_workdir

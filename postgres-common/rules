@@ -10,9 +10,9 @@ else ifneq ($(findstring pgdg,$(VERSION)),)
 else
 	FLAVOR := default
 endif
-SUPPORTED_VERSIONS := 13
+SUPPORTED_VERSIONS := 14
 DEFAULT_VER := $(lastword $(SUPPORTED_VERSIONS))
-DEFAULT_VER := 13
+DEFAULT_VER := 14
 LIBREADLINE := $(shell dpkg-query -W --showformat '$${Status} $${Package}\n' 'libreadline[0-9]'| sed -n '/ installed / {s/^.* //; p}'|sort -ru | head -n1)
 
 #py2#PYTHON2_PACKAGE=percona-postgresql-plpython-$v
@@ -40,7 +40,7 @@ override_dh_gencontrol:
 	# the versionless metapackages need to have version numbers which match
 	# the server version, not the p-common version
 	dh_gencontrol -ppercona-postgresql -ppercona-postgresql-client -ppercona-postgresql-doc -ppercona-postgresql-contrib -ppercona-postgresql-all -- \
-		-Vdefault-version="$(DEFAULT_VER)" -v'$(DEFAULT_VER)+$${source:Version}' \
+		-Vdefault-version="$(DEFAULT_VER)" -v'$${source:Version}' \
 		-Vpostgresql-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-contrib-$v,percona-postgresql-plperl-$v,$(if $(filter 8.% 9.% 10 11, $v), $(PYTHON2_PACKAGE)),percona-postgresql-plpython3-$v,percona-postgresql-pltcl-$v,)"
 
 	dh_gencontrol -ppostgresql-client-common -- -Vpgdg:Depends="$(PGDG_DEPENDS)" -Vreadline:Recommends=$(LIBREADLINE)

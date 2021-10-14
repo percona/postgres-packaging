@@ -34,7 +34,7 @@
  Patch1:        better-startup-script.patch
  BuildRoot:     %{_tmppath}/%{buildprefix}-buildroot
  Requires:      python3, python3-psycopg2 >= 2.5.4, libffi, postgresql-server, libyaml
-+Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresql13-server
++Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresql14-server
  BuildRequires: prelink libyaml-devel gcc
  Requires(post): %{_sbindir}/update-alternatives
  Requires(postun):       %{_sbindir}/update-alternatives

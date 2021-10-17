@@ -145,6 +145,7 @@ get_sources(){
         sed -i 's:"10":"14":' supported-versions
         sed -i 's:"11":"14":' supported-versions
         sed -i 's:"12":"14":' supported-versions
+        sed -i 's:"13":"14":' supported-versions
     cd ../
     cd rpm
         for file in $(ls | grep postgresql); do

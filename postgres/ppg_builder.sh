@@ -402,18 +402,18 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.${RELEASE}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-postgresql-14 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgresql-14 (${VERSION}.${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}"
+    dch -D unstable --force-distribution -v "${VERSION}.${RELEASE}-${DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}.${RELEASE}-${DEB_RELEASE}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -457,8 +457,8 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}-${RELEASE}.${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${PRODUCT}-${VERSION}-${VERSION}.${RELEASE}
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

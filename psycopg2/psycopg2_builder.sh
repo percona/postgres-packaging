@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.4 testing
+    percona-release enable ppg-14.0 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.4 testing
+    percona-release enable ppg-14.0 testing
     return
 }
 
@@ -128,9 +128,9 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ${WORKDIR}/psycopg2.properties
     rm -fr debian rpm
 
-    git clone https://github.com/percona/postgres-packaging.git packaging
+    git clone https://github.com/EvgeniyPatlan/postgres-packaging.git packaging
     cd packaging
-        git checkout 13.4
+        git checkout 14.0
     cd ../
     mv packaging/psycopg2/debian ./
     cd debian/
@@ -208,7 +208,7 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="percona-postgresql-common percona-postgresql13-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
+      INSTALL_LIST="percona-postgresql-common percona-postgresql14-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 
@@ -224,7 +224,7 @@ install_deps() {
           echo "waiting"
       done
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install percona-postgresql-13 python3-setuptools python3-pip
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install percona-postgresql-14 python3-setuptools python3-pip
       if [ -f /usr/bin/python2.7 ]; then
           update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1;
       else
@@ -303,7 +303,7 @@ build_srpm(){
     cp -av rpm/python-psycopg2.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .generic" \
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-14" --define "dist .generic" \
         --define "version ${VERSION}" rpmbuild/SPECS/python-psycopg2.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -352,9 +352,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    export LIBPQ_DIR=/usr/pgsql-13/
-    export LIBRARY_PATH=/usr/pgsql-13/lib/:/usr/pgsql-13/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-14/
+    export LIBRARY_PATH=/usr/pgsql-14/lib/:/usr/pgsql-14/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-14" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then

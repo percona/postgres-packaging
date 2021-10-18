@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/control
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/rules
-	wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/supported_versions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres-common/supported_versions.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
         patch -p0 < supported_versions.patch
@@ -152,7 +152,7 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #

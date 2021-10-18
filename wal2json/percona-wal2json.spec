@@ -1,5 +1,5 @@
 %global sname wal2json
-%global pgmajorversion 13
+%global pgmajorversion 14
 
 Summary:	JSON output plugin for changeset extraction
 Name:		percona-%{sname}%{pgmajorversion}

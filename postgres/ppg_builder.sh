@@ -127,8 +127,8 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres/rules
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres/control
         sed -i 's/postgresql-14/percona-postgresql-14/' percona-postgresql-14.templates
 	echo "9" > compat
     cd ../
@@ -138,7 +138,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-14.spec
-        wget  https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/postgres/percona-postgresql-14.spec
+        wget  https://raw.githubusercontent.com/percona/postgres-packaging/14.0/postgres/percona-postgresql-14.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -402,18 +402,18 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.${RELEASE}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-postgresql-14 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgresql-14 (${VERSION}.${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}"
+    dch -D unstable --force-distribution -v "${VERSION}.${RELEASE}-${DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}.${RELEASE}-${DEB_RELEASE}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -457,8 +457,8 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}-${RELEASE}.${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${PRODUCT}-${VERSION}-${VERSION}.${RELEASE}
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

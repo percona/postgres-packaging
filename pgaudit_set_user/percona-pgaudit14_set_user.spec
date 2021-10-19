@@ -1,16 +1,16 @@
-%global  sname pgaudit13_set_user
-%define pginstdir /usr/pgsql-13/
+%global  sname pgaudit14_set_user
+%define pginstdir /usr/pgsql-14/
 
 Name:		percona-%{sname}
-Version:	2.0.1
+Version:	3.0.0
 Release:	1%{?dist}
 Epoch:      1
-Provides:	pgaudit13_set_user = %{version}-%{release}
+Provides:	pgaudit14_set_user = %{version}-%{release}
 URL:        https://github.com/pgaudit/set_user.git
 License:	PostgreSQL
 Group:		Applications/Database
 Source:		%{name}-%{version}.tar.gz
-Summary:	pgaudit13_set_user - PostgreSQL extension allowing privilege escalation with enhanced logging and control
+Summary:	pgaudit14_set_user - PostgreSQL extension allowing privilege escalation with enhanced logging and control
 
 BuildRequires:	percona-postgresql%{pgmajorversion}
 
@@ -28,7 +28,7 @@ The set_user part of that extension allows for extra logging with regard
 %setup -q -n %{name}-%{version}
 
 %build
-sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-13/bin/pg_config:' Makefile
+sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-14/bin/pg_config:' Makefile
 %{__make} USE_PGXS=1 %{?_smp_mflags}
 
 %install
@@ -43,12 +43,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %{pginstdir}/lib/bitcode/set_user.index.bc
 %{pginstdir}/lib/bitcode/set_user/set_user.bc
 %{pginstdir}/include/set_user.h
-%{pginstdir}/share/extension/set_user--1.0--1.1.sql
-%{pginstdir}/share/extension/set_user--1.1--1.4.sql
-%{pginstdir}/share/extension/set_user--1.4--1.5.sql
-%{pginstdir}/share/extension/set_user--1.5--1.6.sql
-%{pginstdir}/share/extension/set_user--1.6--2.0.sql
-%{pginstdir}/share/extension/set_user--2.0.sql
+%{pginstdir}/share/extension/set_user-*.sql
 %{pginstdir}/share/extension/set_user.control
 %doc LICENSE
 %doc README.md

@@ -23,7 +23,7 @@ Package: percona-pgbouncer
 Architecture: any
 Depends:
  lsb-base (>= 3.1),
- percona-postgresql-common,
+ percona-postgresql-common | postgresql-common,
  ${misc:Depends},
  ${shlibs:Depends}
 Provides: pgbouncer, percona-pgbouncer

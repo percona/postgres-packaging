@@ -127,13 +127,13 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgbackrest.properties
     rm -fr debian rpm
 
-    git clone https://salsa.debian.org/postgresql/pgbackrest.git deb_packaging
+    GIT_SSL_NO_VERIFY=true git clone https://salsa.debian.org/postgresql/pgbackrest.git deb_packaging
     mv deb_packaging/debian ./
     cd debian/
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
-    wget     wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbackrest/control.patch
+    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.13/pgbackrest/control.patch
     patch -p0 < control.patch
     rm -f control.patch
     cd ../

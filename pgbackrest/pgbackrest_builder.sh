@@ -194,6 +194,7 @@ install_deps() {
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} = 8 ]; then
+          yum install dnf-plugins-core
           dnf -y module disable postgresql
           dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
           dnf clean all

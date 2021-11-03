@@ -134,7 +134,7 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.13/pgbackrest/control
+    wget https://raw.githubusercontent.com/adivinho/postgres-packaging/11.13/pgbackrest/control
     wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.13/pgbackrest/control.patch
     patch -p0 < control.patch
     rm -f control.patch

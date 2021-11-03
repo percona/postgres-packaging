@@ -200,6 +200,7 @@ install_deps() {
           rm -r /var/cache/dnf
           dnf -y upgrade
           yum -y install perl lz4-libs
+          dnf -y --enablerepo=powertools install libyaml-devel
       else
         until yum -y install centos-release-scl; do
             echo "waiting"
@@ -207,10 +208,11 @@ install_deps() {
         done
         yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
+        yum -y install libyaml-devel
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="percona-postgresql-common percona-postgresql11-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel openssl-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libyaml-devel"
+      INSTALL_LIST="percona-postgresql-common percona-postgresql11-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel openssl-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 

@@ -200,7 +200,8 @@ install_deps() {
           rm -r /var/cache/dnf
           dnf -y upgrade
           yum -y install perl lz4-libs
-          dnf -y --enablerepo=powertools install libyaml-devel
+          yum config-manager --set-enabled powertools
+          yum install libyaml-devel
       else
         until yum -y install centos-release-scl; do
             echo "waiting"

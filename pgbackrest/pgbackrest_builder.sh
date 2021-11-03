@@ -135,9 +135,6 @@ get_sources(){
     done
     rm -f control
     wget https://raw.githubusercontent.com/adivinho/postgres-packaging/11.13/pgbackrest/control
-    wget https://raw.githubusercontent.com/adivinho/postgres-packaging/11.13/pgbackrest/control.patch
-    patch -p0 < control.patch
-    rm -f control.patch
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules

@@ -194,15 +194,14 @@ install_deps() {
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} = 8 ]; then
-          yum install epel-release 
           dnf -y module disable postgresql
           dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
           yum -y install perl lz4-libs
-          yum config-manager --set-enabled powertools
           yum install libyaml-devel
+          yum install libyaml
       else
         until yum -y install centos-release-scl; do
             echo "waiting"

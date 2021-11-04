@@ -135,6 +135,7 @@ get_sources(){
     done
     rm -f control
     wget https://raw.githubusercontent.com/adivinho/postgres-packaging/11.13/pgbackrest/control
+    wget https://raw.githubusercontent.com/adivinho/postgres-packaging/11.13/pgbackrest/compat
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
@@ -391,7 +392,9 @@ build_source_deb(){
     cd debian
     rm -rf changelog
     echo "percona-pgbackrest (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo >> changelog
     echo "  * Initial Release." >> changelog
+    echo >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../

@@ -142,7 +142,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.13/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/adivinho/postgres-packaging/11.13/pgbackrest/pgbackrest.spec
     wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.13/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #

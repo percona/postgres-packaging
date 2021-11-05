@@ -134,8 +134,8 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control
-    wget https://raw.githubusercontent.com/adivinho/postgres-packaging/14.0/pgbackrest/control
-    wget https://raw.githubusercontent.com/adivinho/postgres-packaging/14.0/pgbackrest/compat
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/pgbackrest/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/pgbackrest/compat
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules

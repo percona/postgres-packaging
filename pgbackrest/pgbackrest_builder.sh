@@ -127,22 +127,22 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgbackrest.properties
     rm -fr debian rpm
 
-    git clone https://salsa.debian.org/postgresql/pgbackrest.git deb_packaging
+    GIT_SSL_NO_VERIFY=true git clone https://salsa.debian.org/postgresql/pgbackrest.git deb_packaging
     mv deb_packaging/debian ./
     cd debian/
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
-    wget     wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pgbackrest/control.patch
-    patch -p0 < control.patch
-    rm -f control.patch
+    rm -f control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.13/pgbackrest/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.13/pgbackrest/compat
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.13/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.13/pgbackrest/pgbackrest.spec
     wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.13/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
@@ -201,6 +201,8 @@ install_deps() {
           rm -r /var/cache/dnf
           dnf -y upgrade
           yum -y install perl lz4-libs
+          yum config-manager --set-enabled powertools
+          yum -y install libyaml-devel
       else
         until yum -y install centos-release-scl; do
             echo "waiting"
@@ -208,6 +210,7 @@ install_deps() {
         done
         yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
+        yum -y install libyaml-devel
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
@@ -221,11 +224,14 @@ install_deps() {
       apt-get -y install gnupg2
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-11 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev"
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-11 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
       done
+      if [ "x${DEBIAN}" != "xbullseye" ]; then
+          DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install dh_systemd
+      fi
       if [ "x${DEBIAN}" = "xstretch" ]; then
           wget http://ftp.us.debian.org/debian/pool/main/liby/libyaml-libyaml-perl/libyaml-libyaml-perl_0.76+repack-1~bpo9+1_amd64.deb
           dpkg -i ./libyaml-libyaml-perl_0.76+repack-1~bpo9+1_amd64.deb
@@ -389,7 +395,9 @@ build_source_deb(){
     cd debian
     rm -rf changelog
     echo "percona-pgbackrest (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo >> changelog
     echo "  * Initial Release." >> changelog
+    echo >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../

@@ -139,17 +139,17 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/wal2json/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/wal2json/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/wal2json/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/wal2json/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/wal2json/control.in
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/wal2json/rules
     echo 14 > pgversions
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/wal2json/percona-wal2json.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/wal2json/wal2json-pg14-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/wal2json/percona-wal2json.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/wal2json/wal2json-pg14-makefile-pgxs.patch
     cd ${WORKDIR}
     #
     source wal2json.properties

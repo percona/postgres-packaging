@@ -3,7 +3,9 @@ Version:        %{version}
 Release:        4%{?dist}
 BuildArch:      noarch
 Summary:        PostgreSQL database-cluster manager
-Provides:      postgresql-common
+Provides:       postgresql-common
+Packager:       Percona Development Team <opensource-dev@percona.com>
+Vendor:         Percona, Inc
 
 License:        GPLv2+
 URL:            https://packages.debian.org/sid/%{name}

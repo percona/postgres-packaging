@@ -13,6 +13,8 @@ URL:		https://github.com/eulerto/wal2json
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
 Provides:	%{name} %{sname}%{pgmajorversion}
 Requires:	percona-postgresql%{pgmajorversion}-server
+Packager:       Percona Development Team <opensource-dev@percona.com>
+Vendor:         Percona, Inc
 
 %description
 wal2json is an output plugin for logical decoding. It means that the

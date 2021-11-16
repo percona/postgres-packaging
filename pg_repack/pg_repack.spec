@@ -15,6 +15,8 @@ Source0:        %{sname}-%{version}.tar.gz
 Patch0:         pg_repack-pg%{pgmajorversion}-makefile-pgxs.patch
 URL:            https://pgxn.org/dist/pg_repack/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
+Packager:       Percona Development Team <opensource-dev@percona.com>
+Vendor:         Percona, Inc
 
 BuildRequires:  percona-postgresql%{pgmajorversion}-devel, percona-postgresql%{pgmajorversion}
 Requires:       postgresql%{pgmajorversion}

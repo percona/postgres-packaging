@@ -11,6 +11,8 @@ URL:		https://github.com/darold/%{sname}
 Requires:	perl-Text-CSV_XS
 Provides:       pgbadger
 Epoch:          1
+Packager:       Percona Development Team <opensource-dev@percona.com>
+Vendor:         Percona, Inc
 
 %description
 pgBadger is a PostgreSQL log analyzer build for speed with fully

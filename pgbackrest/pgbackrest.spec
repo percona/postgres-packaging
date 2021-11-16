@@ -34,6 +34,8 @@ Requires:	perl(Time::HiRes)
 Requires:	perl(Compress::Raw::Zlib) zlib
 Requires:	postgresql-libs
 Epoch:		1
+Packager:       Percona Development Team <opensource-dev@percona.com>
+Vendor:         Percona, Inc
 
 %description
 pgBackRest aims to be a simple, reliable backup and restore system that can

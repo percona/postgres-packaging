@@ -42,6 +42,8 @@ Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresq
 BuildRequires: prelink libyaml-devel gcc
 Provides:      patroni
 Epoch:         1
+Packager:       Percona Development Team <opensource-dev@percona.com>
+Vendor:         Percona, Inc
 
 %description
 Patroni is a template for you to create your own customized,

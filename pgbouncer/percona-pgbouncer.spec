@@ -7,6 +7,8 @@ Release:	1%{?dist}
 Summary:	Lightweight connection pooler for PostgreSQL
 License:	MIT and BSD
 URL:		https://www.pgbouncer.org/
+Packager:       Percona Development Team <opensource-dev@percona.com>
+Vendor:         Percona, Inc
 Source0:	%{name}-%{version}.tar.gz
 Source1:    %{sname}.init
 Source2:	%{sname}.sysconfig

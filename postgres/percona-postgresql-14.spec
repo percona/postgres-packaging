@@ -81,7 +81,7 @@ Version:        14.1
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
-Packager:       Percona Development Team <opensource-dev@percona.com>
+Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, Inc
 
 Source0:        percona-postgresql-14.1.tar.gz

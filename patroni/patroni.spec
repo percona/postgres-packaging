@@ -42,7 +42,7 @@ Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresq
 BuildRequires: prelink libyaml-devel gcc
 Provides:      patroni
 Epoch:         1
-Packager:       Percona Development Team <opensource-dev@percona.com>
+Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, Inc
 
 %description

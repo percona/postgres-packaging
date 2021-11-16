@@ -13,7 +13,7 @@ URL:		https://github.com/eulerto/wal2json
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
 Provides:	%{name} %{sname}%{pgmajorversion}
 Requires:	percona-postgresql%{pgmajorversion}-server
-Packager:       Percona Development Team <opensource-dev@percona.com>
+Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, Inc
 
 %description

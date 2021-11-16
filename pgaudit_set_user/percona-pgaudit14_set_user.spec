@@ -11,7 +11,7 @@ License:	PostgreSQL
 Group:		Applications/Database
 Source:		%{name}-%{version}.tar.gz
 Summary:	pgaudit14_set_user - PostgreSQL extension allowing privilege escalation with enhanced logging and control
-Packager:       Percona Development Team <opensource-dev@percona.com>
+Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, Inc
 
 BuildRequires:	percona-postgresql%{pgmajorversion}

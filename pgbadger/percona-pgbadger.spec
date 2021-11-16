@@ -11,7 +11,7 @@ URL:		https://github.com/darold/%{sname}
 Requires:	perl-Text-CSV_XS
 Provides:       pgbadger
 Epoch:          1
-Packager:       Percona Development Team <opensource-dev@percona.com>
+Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, Inc
 
 %description

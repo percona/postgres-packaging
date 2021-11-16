@@ -34,7 +34,7 @@ Requires:	perl(Time::HiRes)
 Requires:	perl(Compress::Raw::Zlib) zlib
 Requires:	postgresql-libs
 Epoch:		1
-Packager:       Percona Development Team <opensource-dev@percona.com>
+Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, Inc
 
 %description

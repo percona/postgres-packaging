@@ -33,7 +33,7 @@ Provides:       %{srvname}
 Epoch:          1
 AutoReqProv:    no
 AutoReq:        no
-Packager:       Percona Development Team <opensource-dev@percona.com>
+Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, Inc
 
 Source0:        %{name}-%{version}.tar.gz

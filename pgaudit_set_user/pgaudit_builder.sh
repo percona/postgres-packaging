@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-14.0 testing
+    percona-release enable ppg-14.1 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-14.0 testing
+    percona-release enable ppg-14.1 testing
     return
 }
 
@@ -135,14 +135,14 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/pgaudit_set_user/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/pgaudit_set_user/control.in
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/pgaudit_set_user/copyright
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/pgaudit_set_user/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.1/pgaudit_set_user/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.1/pgaudit_set_user/control.in
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.1/pgaudit_set_user/copyright
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.1/pgaudit_set_user/rules
     cd ../ 
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.0/pgaudit_set_user/percona-pgaudit14_set_user.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/14.1/pgaudit_set_user/percona-pgaudit14_set_user.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -215,7 +215,7 @@ install_deps() {
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
         percona-release enable tools testing
-        percona-release enable ppg-14.0 testing
+        percona-release enable ppg-14.1 testing
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-11 devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
@@ -441,8 +441,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
 BRANCH="REL3_0_0"
 REPO="https://github.com/pgaudit/set_user.git"
@@ -450,7 +450,7 @@ PRODUCT=percona-pgaudit14_set_user
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='3.0.0'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

@@ -12,6 +12,8 @@ Source0:        psycopg2-%{version}.tar.gz
 # https://github.com/psycopg/psycopg2/blob/2_7_5/doc/src/install.rst#prerequisites
 BuildRequires:  postgresql-devel > 9.1
 BuildRequires:  gcc
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, Inc
 
 BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools

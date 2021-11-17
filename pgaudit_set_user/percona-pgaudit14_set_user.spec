@@ -3,7 +3,7 @@
 
 Name:		percona-%{sname}
 Version:	3.0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Epoch:      1
 Provides:	pgaudit14_set_user = %{version}-%{release}
 URL:        https://github.com/pgaudit/set_user.git
@@ -11,6 +11,8 @@ License:	PostgreSQL
 Group:		Applications/Database
 Source:		%{name}-%{version}.tar.gz
 Summary:	pgaudit14_set_user - PostgreSQL extension allowing privilege escalation with enhanced logging and control
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, Inc
 
 BuildRequires:	percona-postgresql%{pgmajorversion}
 

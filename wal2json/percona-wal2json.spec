@@ -1,10 +1,11 @@
 %global sname wal2json
 %global pgmajorversion 14
+%global _default_patch_fuzz 2
 
 Summary:	JSON output plugin for changeset extraction
 Name:		percona-%{sname}%{pgmajorversion}
-Version:	2.3
-Release:	4%{?dist}
+Version:	2.4
+Release:	1%{?dist}
 Epoch:		1
 License:	BSD
 Source0:	percona-%{sname}-%{version}.tar.gz
@@ -13,6 +14,8 @@ URL:		https://github.com/eulerto/wal2json
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
 Provides:	%{name} %{sname}%{pgmajorversion}
 Requires:	percona-postgresql%{pgmajorversion}-server
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, Inc
 
 %description
 wal2json is an output plugin for logical decoding. It means that the

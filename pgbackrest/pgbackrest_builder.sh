@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-14.0 testing
+    percona-release enable ppg-14.1 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-14.0 testing
+    percona-release enable ppg-14.1 testing
     return
 }
 
@@ -134,8 +134,8 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/pgbackrest/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/pgbackrest/compat
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/pgbackrest/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/pgbackrest/compat
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
@@ -143,8 +143,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.0/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -471,8 +471,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
 BRANCH="release/2.36"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
@@ -480,7 +480,7 @@ PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.36'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

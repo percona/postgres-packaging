@@ -132,10 +132,10 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgaudit/all.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgaudit/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgaudit/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgaudit/control.in
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgaudit/rules
     mv all.patch debian/patches/
     rm -rf debian/control*
     echo "all.patch" > debian/patches/series
@@ -147,7 +147,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -290,7 +290,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.1/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.1/pgaudit/all.patch
     mv all.patch rpmbuild/SOURCES
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES

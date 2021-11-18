@@ -135,21 +135,21 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/rules
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/percona-pgbouncer.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/pgbouncer-ini.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/pgbouncer.logrotate
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/pgbouncer-mkauth-py3.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/pgbouncer.service
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/pgbouncer.service.rhel7
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/pgbouncer.sysconfig
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/pgbouncer/pgbouncer.init
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/percona-pgbouncer.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/pgbouncer-ini.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/pgbouncer.logrotate
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/pgbouncer-mkauth-py3.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/pgbouncer.service
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/pgbouncer.service.rhel7
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/pgbouncer.sysconfig
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbouncer/pgbouncer.init
     cd ${WORKDIR}
     #
     source pgbouncer.properties

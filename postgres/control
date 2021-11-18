@@ -5,6 +5,7 @@ Maintainer: Percona Development Team <info@percona.com>
 Standards-Version: 4.5.0
 Rules-Requires-Root: no
 Build-Depends:
+ autoconf,
  bison,
  clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  debhelper,
@@ -15,8 +16,6 @@ Build-Depends:
  flex,
  gdb <!nocheck>,
  gettext,
- krb5-multidev,
- libedit-dev,
  libicu-dev,
  libio-pty-perl <!nocheck>,
  libipc-run-perl <!nocheck>,
@@ -32,6 +31,7 @@ Build-Depends:
  libxml2-utils,
  libxslt1-dev,
  llvm-11-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ mawk,
  perl (>= 5.8),
  pkg-config,
  python3-dev,
@@ -175,8 +175,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-13, percona-postgresql-doc-13
 Provides: percona-postgresql-client, postgresql-client, postgresql-client-13
-Conflicts: postgresql-server-dev-13 (<< 13.4-2~)
-Replaces: postgresql-server-dev-13 (<< 13.4-2~)
+Conflicts: postgresql-server-dev-13 (<< 13.5-1~)
+Replaces: postgresql-server-dev-13 (<< 13.5-1~)
 Description: front-end programs for PostgreSQL 13
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and

@@ -8,7 +8,7 @@
 
 Summary:        A Template for PostgreSQL HA with ZooKeeper, etcd or Consul
 Name:           percona-patroni
-Version:        2.1.0
+Version:        2.1.1
 Release:        1%{?dist}
 License:        MIT
 Source0:        %{name}-%{version}.tar.gz
@@ -42,6 +42,8 @@ Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresq
 BuildRequires: prelink libyaml-devel gcc
 Provides:      patroni
 Epoch:         1
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, Inc
 
 %description
 Patroni is a template for you to create your own customized,

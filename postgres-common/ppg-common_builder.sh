@@ -131,7 +131,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/postgres-common/maintscripts-functions.patch
         wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/postgres-common/percona-postgresql-common.templates.patch
         wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/postgres-common/rules
-	wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/postgres-common/supported_versions.patch
+	wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/postgres-common/supported-versions.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < supported-versions.patch
         patch -p0 < percona-postgresql-common.templates.patch

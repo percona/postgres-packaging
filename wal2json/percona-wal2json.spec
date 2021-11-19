@@ -15,7 +15,7 @@ BuildRequires:	percona-postgresql%{pgmajorversion}-devel
 Provides:	%{name} %{sname}%{pgmajorversion}
 Requires:	percona-postgresql%{pgmajorversion}-server
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 %description
 wal2json is an output plugin for logical decoding. It means that the

@@ -5,7 +5,7 @@ Version:        1.6.0
 Release:        2%{?dist}
 Summary:        PostgreSQL Audit Extension
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 License:        PostgreSQL
 URL:            http://pgaudit.org

@@ -133,10 +133,10 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13/pgadmin4/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13/pgadmin4/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/rules
     chmod +x rules
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13/pgadmin4/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/copyright
     echo 9 > compat
     echo "percona-pgadmin4 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -145,10 +145,10 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13/pgadmin4/percona-pgadmin4.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13/pgadmin4/pgadmin4-sphinx-theme.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13/pgadmin4/pgadmin4-python3-mod_wsgi.conf
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13/pgadmin4/pgadmin4-python3-mod_wsgi-exports.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/percona-pgadmin4.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/pgadmin4-sphinx-theme.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/pgadmin4-python3-mod_wsgi.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/pgadmin4/pgadmin4-python3-mod_wsgi-exports.patch
     cd ${WORKDIR}
     #
     source pgadmin4.properties

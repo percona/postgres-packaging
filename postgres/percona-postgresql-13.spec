@@ -77,12 +77,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        13.4
+Version:        13.5
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-13.4.tar.gz
+Source0:        percona-postgresql-13.5.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -1347,12 +1349,7 @@ fi
 
 %dir %{pgbaseinstdir}/lib
 %dir %{pgbaseinstdir}/share
-%if 0%{?suse_version}
-%if 0%{?suse_version} >= 1315
-%endif
-%else
 %attr(700,postgres,postgres) %dir /var/lib/pgsql
-%endif
 %attr(700,postgres,postgres) %dir /var/lib/pgsql/%{pgmajorversion}
 %attr(700,postgres,postgres) %dir /var/lib/pgsql/%{pgmajorversion}/data
 %attr(700,postgres,postgres) %dir /var/lib/pgsql/%{pgmajorversion}/backups

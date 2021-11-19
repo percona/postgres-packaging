@@ -11,28 +11,23 @@ else
 	FLAVOR := default
 endif
 SUPPORTED_VERSIONS := 13
-DEFAULT_VER := $(lastword $(SUPPORTED_VERSIONS))
 DEFAULT_VER := 13
 LIBREADLINE := $(shell dpkg-query -W --showformat '$${Status} $${Package}\n' 'libreadline[0-9]'| sed -n '/ installed / {s/^.* //; p}'|sort -ru | head -n1)
 
-#py2#PYTHON2_PACKAGE=percona-postgresql-plpython-$v
-WITH_SYSTEMD=--with systemd
+#py2#PYTHON2_PACKAGE=postgresql-plpython-$v
 
 %:
-	dh $@ $(WITH_SYSTEMD)
+	dh $@
 
 override_dh_auto_configure:
 	@echo "### Building percona-postgresql-common flavor $(FLAVOR)"
 	@echo "### Supported PostgreSQL versions: $(SUPPORTED_VERSIONS) (default version: $(DEFAULT_VER))"
 
-override_dh_install:
-	dh_install
-	$(MAKE) -C systemd install DESTDIR=$(CURDIR)/debian/postgresql-common
-	install -m 644 -D debian/postgresql-common.sysctl debian/postgresql-common/etc/sysctl.d/30-postgresql-shm.conf
-	/bin/echo -e "# See /usr/share/postgresql-common/supported-versions for documentation of this file\n$(FLAVOR)" > debian/postgresql-client-common/etc/postgresql-common/supported_versions
-
+# do not (re)start postgresql.service on postgresql-common install/upgrades
 override_dh_installinit:
-	dh_installinit -ppostgresql-common --name=postgresql -u'defaults 19 21' -r
+	dh_installinit -ppostgresql-common --name=postgresql -u'defaults 19 21' --no-start
+override_dh_installsystemd:
+	dh_installsystemd --no-start
 
 override_dh_gencontrol:
 	dh_gencontrol -ppercona-postgresql-server-dev-all -- -Vserver-dev-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-server-dev-$v,)"
@@ -40,10 +35,9 @@ override_dh_gencontrol:
 	# the versionless metapackages need to have version numbers which match
 	# the server version, not the p-common version
 	dh_gencontrol -ppercona-postgresql -ppercona-postgresql-client -ppercona-postgresql-doc -ppercona-postgresql-contrib -ppercona-postgresql-all -- \
-		-Vdefault-version="$(DEFAULT_VER)" -v'$${source:Version}' \
-		-Vpostgresql-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-contrib-$v,percona-postgresql-plperl-$v,$(if $(filter 8.% 9.% 10 11, $v), $(PYTHON2_PACKAGE)),percona-postgresql-plpython3-$v,percona-postgresql-pltcl-$v,)"
+                -Vdefault-version="$(DEFAULT_VER)" -v'$${source:Version}' \
+                -Vpostgresql-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-contrib-$v,percona-postgresql-plperl-$v,$(if $(filter 8.% 9.% 10 11, $v), $(PYTHON2_PACKAGE)),percona-postgresql-plpython3-$v,percona-postgresql-pltcl-$v,)"
 
 	dh_gencontrol -ppostgresql-client-common -- -Vpgdg:Depends="$(PGDG_DEPENDS)" -Vreadline:Recommends=$(LIBREADLINE)
 
 	dh_gencontrol --remaining-packages
-

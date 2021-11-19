@@ -127,8 +127,8 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/postgres/control
         sed -i 's/postgresql-13/percona-postgresql-13/' percona-postgresql-13.templates
 	echo "9" > compat
     cd ../
@@ -138,7 +138,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-13.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.4/postgres/percona-postgresql-13.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/postgres/percona-postgresql-13.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -196,12 +196,12 @@ install_deps() {
             sleep 1
         done
         yum -y install epel-release
-        INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-toolset-7-clang llvm5.0-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmbuild rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel python3-devel"
+        INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-toolset-7-clang llvm5.0-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmbuild rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel python3-devel lz4-devel"
         yum -y install ${INSTALL_LIST}
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
-        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
+        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel"
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
         cat >/etc/yum.repos.d/CENTOS8-stream-AppStream.repo <<EOL
@@ -228,15 +228,15 @@ EOL
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      wget https://repo.percona.com/apt/percona-release_1.0-25.generic_all.deb
-      dpkg -i percona-release_1.0-25.generic_all.deb
+      wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
+      dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
-      percona-release enable ppg-13.4 testing
+      percona-release enable ppg-13.5 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" ]; then
-        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb"
+        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev"
       else
-        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb"
+        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev"
       fi
  
        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
@@ -402,18 +402,18 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.${RELEASE}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-postgresql-13 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgresql-13 (${VERSION}.${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}"
+    dch -D unstable --force-distribution -v "${VERSION}.${RELEASE}-${DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}.${RELEASE}-${DEB_RELEASE}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -457,8 +457,8 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}-${RELEASE}.${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${PRODUCT}-${VERSION}-${VERSION}.${RELEASE}
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -467,7 +467,7 @@ build_deb(){
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
-
+export GIT_SSL_NO_VERIFY=1
 CURDIR=$(pwd)
 VERSION_FILE=$CURDIR/percona-server-mongodb.properties
 args=
@@ -484,13 +484,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_13.4"
+BRANCH="REL_13.5"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='13'
-RELEASE='4'
+RELEASE='5'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

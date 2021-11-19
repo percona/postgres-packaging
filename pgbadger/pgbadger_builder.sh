@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.4 testing
+    percona-release enable ppg-13.5 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.4 testing
+    percona-release enable ppg-13.5 testing
     return
 }
 
@@ -129,10 +129,10 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbadger/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbadger/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/pgbadger/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/pgbadger/rules
     chmod +x rules
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbadger/copyright
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/pgbadger/copyright
     echo 9 > compat
     echo "percona-pgbadger (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -141,7 +141,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.4/pgbadger/percona-pgbadger.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/pgbadger/percona-pgbadger.spec
     cd ${WORKDIR}
     #
     source pgbadger.properties
@@ -450,16 +450,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="v11.5"
+BRANCH="v11.6"
 REPO="https://github.com/darold/pgbadger.git"
 PRODUCT=percona-pgbadger
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='11.5'
-RELEASE='3'
+VERSION='11.6'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

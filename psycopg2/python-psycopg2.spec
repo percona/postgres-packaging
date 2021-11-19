@@ -13,7 +13,7 @@ Source0:        psycopg2-%{version}.tar.gz
 BuildRequires:  postgresql-devel > 9.1
 BuildRequires:  gcc
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools

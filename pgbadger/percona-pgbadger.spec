@@ -12,7 +12,7 @@ Requires:	perl-Text-CSV_XS
 Provides:       pgbadger
 Epoch:          1
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 %description
 pgBadger is a PostgreSQL log analyzer build for speed with fully

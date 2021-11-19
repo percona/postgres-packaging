@@ -34,7 +34,7 @@ Epoch:          1
 AutoReqProv:    no
 AutoReq:        no
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 Source0:        %{name}-%{version}.tar.gz
 Source1:        mod_wsgi-4.7.1.tar.gz

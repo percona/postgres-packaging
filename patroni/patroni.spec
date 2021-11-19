@@ -43,7 +43,7 @@ BuildRequires: prelink libyaml-devel gcc
 Provides:      patroni
 Epoch:         1
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 %description
 Patroni is a template for you to create your own customized,

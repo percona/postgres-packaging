@@ -5,7 +5,7 @@ BuildArch:      noarch
 Summary:        PostgreSQL database-cluster manager
 Provides:       postgresql-common
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 License:        GPLv2+
 URL:            https://packages.debian.org/sid/%{name}

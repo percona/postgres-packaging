@@ -82,7 +82,7 @@ Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 Source0:        percona-postgresql-13.5.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress

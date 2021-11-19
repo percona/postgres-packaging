@@ -12,7 +12,7 @@ Group:		Applications/Database
 Source:		%{name}-%{version}.tar.gz
 Summary:	pgaudit13_set_user - PostgreSQL extension allowing privilege escalation with enhanced logging and control
 Packager:       Percona Development Team <https://jira.percona.com>
-Vendor:         Percona, Inc
+Vendor:         Percona, LLC
 
 BuildRequires:	percona-postgresql%{pgmajorversion}
 

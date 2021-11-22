@@ -149,15 +149,6 @@ Description: The World's Most Advanced Open Source Relational Database
  This package provides the database server for PostgreSQL 12.
 XB-Postgresql-Catversion: ${postgresql:Catversion}
 
-#dbg#Package: percona-postgresql-12-dbg
-#dbg#Section: debug
-#dbg#Priority: optional
-#dbg#Architecture: any
-#dbg#Depends: percona-postgresql-12 (= ${binary:Version}), ${misc:Depends}
-#dbg#Description: debug symbols for postgresql-12
-#dbg# This package provides detached debugging symbols for PostgreSQL 12.
-#dbg# .
-#dbg# PostgreSQL is an object-relational SQL database management system.
 
 Package: percona-postgresql-client-12
 Architecture: any

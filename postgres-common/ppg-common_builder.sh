@@ -143,6 +143,8 @@ get_sources(){
         sed -i 's:percona-postgresql-plpython-$v,::' rules
 	echo 9 > compat
 	sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
+	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
+	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
     cd ../
     cd rpm
         for file in $(ls | grep postgresql); do
@@ -435,8 +437,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
 BRANCH="230"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -444,7 +446,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='230'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 
 check_workdir

@@ -143,6 +143,8 @@ get_sources(){
         sed -i 's:percona-postgresql-plpython-$v,::' rules
 	echo 9 > compat
 	sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
+	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
+	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
     cd ../
     cd rpm
         for file in $(ls | grep postgresql); do

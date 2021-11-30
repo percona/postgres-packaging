@@ -7,7 +7,7 @@
 Summary:        Reorganize tables in PostgreSQL databases without any locks
 Name:           %{sname}%{pgmajorversion}
 Version:        %{version}
-Release:        6%{?dist}
+Release:        1%{?dist}
 Epoch:          1
 License:        BSD
 Group:          Applications/Databases
@@ -15,6 +15,8 @@ Source0:        %{sname}-%{version}.tar.gz
 Patch0:         pg_repack-pg%{pgmajorversion}-makefile-pgxs.patch
 URL:            https://pgxn.org/dist/pg_repack/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
 BuildRequires:  percona-postgresql%{pgmajorversion}-devel, percona-postgresql%{pgmajorversion}
 Requires:       postgresql%{pgmajorversion}

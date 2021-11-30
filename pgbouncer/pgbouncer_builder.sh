@@ -142,7 +142,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/percona-pgbouncer.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/pgbouncer/percona-pgbouncer.spec
     wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer-ini.patch
     wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer.logrotate
     wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer-mkauth-py3.patch
@@ -465,8 +465,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
 BRANCH="pgbouncer_1_16_1"
 REPO="https://github.com/pgbouncer/pgbouncer.git"
@@ -474,7 +474,7 @@ PRODUCT=percona-pgbouncer
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.16.1'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

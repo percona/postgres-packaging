@@ -59,23 +59,18 @@ Description: PostgreSQL database-cluster manager
  outer joins, multiversion concurrency control, and user-defined types
  and functions.
 
-Package: percona-postgresql-client-common
-Architecture: all
-Multi-Arch: foreign
-Pre-Depends: postgresql-client-common (= ${binary:Version}),
-Description: Virtal package to satisfy dependencies 
-
 Package: postgresql-client-common
 Architecture: all
 Multi-Arch: foreign
 Depends:
  netbase,
- percona-postgresql-client-common,
+ postgresql-client-common,
  ${misc:Depends},
  ${pgdg:Depends},
 Recommends:
  lsb-release,
  ${readline:Recommends},
+Replaces: percona-postgresql-client-common
 Provides: postgresql-client-common, percona-postgresql-client-common
 Description: manager for multiple PostgreSQL client versions
  The postgresql-client-common package provides a structure under which

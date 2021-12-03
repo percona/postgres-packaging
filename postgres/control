@@ -155,7 +155,7 @@ Architecture: any
 Multi-Arch: foreign
 Depends:
  libpq5 (>= ${source:Upstream-Version}),
- percona-postgresql-client-common (>= 182~),
+ postgresql-client-common (>= 182~),
  sensible-utils,
  ${misc:Depends},
  ${shlibs:Depends}

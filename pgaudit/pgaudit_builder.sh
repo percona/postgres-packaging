@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-12.8 testing
+    percona-release enable ppg-12.9 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-12.8 testing
+    percona-release enable ppg-12.9 testing
     return
 }
 
@@ -132,10 +132,10 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.8/pgaudit/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.8/pgaudit/control.in
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.8/pgaudit/all.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.8/pgaudit/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.9/pgaudit/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.9/pgaudit/control.in
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.9/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.9/pgaudit/rules
     mv all.patch debian/patches/
     rm -rf debian/control*
     echo "all.patch" > debian/patches/series
@@ -147,7 +147,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.8/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.9/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -220,7 +220,7 @@ install_deps() {
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
         percona-release enable tools testing
-        percona-release enable ppg-12.8 testing
+        percona-release enable ppg-12.9 testing
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-11 devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
@@ -290,7 +290,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.8/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.9/pgaudit/all.patch
     mv all.patch rpmbuild/SOURCES
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
@@ -442,7 +442,7 @@ build_deb(){
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
-
+export GIT_SSL_NO_VERIFY=1
 CURDIR=$(pwd)
 VERSION_FILE=$CURDIR/pgaudit.properties
 args=
@@ -456,8 +456,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=5
-DEB_RELEASE=5
+RPM_RELEASE=6
+DEB_RELEASE=6
 REVISION=0
 BRANCH="master"
 BRANCH="1.4.1"
@@ -466,7 +466,7 @@ PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.4.1'
-RELEASE='5'
+RELEASE='6'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

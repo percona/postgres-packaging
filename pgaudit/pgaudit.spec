@@ -2,8 +2,10 @@
 
 Name:           percona-pgaudit
 Version:        1.4.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        PostgreSQL Audit Extension
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
 License:        PostgreSQL
 URL:            http://pgaudit.org

@@ -3,14 +3,16 @@
 
 Summary:	A fast PostgreSQL log analyzer
 Name:		percona-pgbadger
-Version:	11.5
-Release:	3%{?dist}
+Version:	11.6
+Release:	1%{?dist}
 License:	PostgreSQL
 Source0:	%{name}-%{version}.tar.gz
 URL:		https://github.com/darold/%{sname}
 Requires:	perl-Text-CSV_XS
 Provides:       pgbadger
 Epoch:          1
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
 %description
 pgBadger is a PostgreSQL log analyzer build for speed with fully

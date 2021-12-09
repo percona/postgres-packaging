@@ -5,7 +5,7 @@
  fi
  
 -DEFAULT="13"
-+DEFAULT="13"
++DEFAULT="12"
  
  # functions
  
@@ -19,12 +19,12 @@
 -        19.04|19.10) /bin/echo -e "11" ;;
 -        20.04|20.10) /bin/echo -e "12" ;;
 -        21.04|21.10) /bin/echo -e "13" ;;
-+        16.04|16.10) /bin/echo -e "13" ;;
-+        17.04|17.10) /bin/echo -e "13" ;;
-+        18.04|18.10) /bin/echo -e "13" ;;
-+        19.04|19.10) /bin/echo -e "13" ;;
-+        20.04|20.10) /bin/echo -e "13" ;;
-+        21.04|21.10) /bin/echo -e "13" ;;
++        16.04|16.10) /bin/echo -e "12" ;;
++        17.04|17.10) /bin/echo -e "12" ;;
++        18.04|18.10) /bin/echo -e "12" ;;
++        19.04|19.10) /bin/echo -e "12" ;;
++        20.04|20.10) /bin/echo -e "12" ;;
++        21.04|21.10) /bin/echo -e "12" ;;
          *)
              echo "supported-versions: WARNING: Unknown Ubuntu release: $1" >&2
              /bin/echo -e "$DEFAULT" ;;
@@ -35,9 +35,9 @@
 -        9|9.*) /bin/echo -e "9.6" ;; # Stretch
 -        10|10.*) /bin/echo -e "11" ;; # Buster
 -        11|11.*) /bin/echo -e "13" ;; # Bullseye
-+        9|9.*) /bin/echo -e "13" ;; # Stretch
-+        10|10.*) /bin/echo -e "13" ;; # Buster
-+        11|11.*) /bin/echo -e "13" ;; # Bullseye
++        9|9.*) /bin/echo -e "12" ;; # Stretch
++        10|10.*) /bin/echo -e "12" ;; # Buster
++        11|11.*) /bin/echo -e "12" ;; # Bullseye
          testing | unstable)
              /bin/echo -e "$DEFAULT" ;;
          *)
@@ -48,9 +48,9 @@
 -        9|9.*) /bin/echo -e "9.6" ;; # Stretch
 -        10|10.*) /bin/echo -e "11" ;; # Buster
 -        11|11.*) /bin/echo -e "13" ;; # Bullseye
-+        9|9.*) /bin/echo -e "13" ;; # Stretch
-+        10|10.*) /bin/echo -e "13" ;; # Buster
-+        11|11.*) /bin/echo -e "13" ;; # Bullseye
++        9|9.*) /bin/echo -e "12" ;; # Stretch
++        10|10.*) /bin/echo -e "12" ;; # Buster
++        11|11.*) /bin/echo -e "12" ;; # Bullseye
          testing | unstable)
              /bin/echo -e "$DEFAULT" ;;
          *)

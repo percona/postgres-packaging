@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 shell_quote_string() {
-    echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
+  echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
 }
 
 usage () {
@@ -24,7 +24,7 @@ EOF
 }
 
 append_arg_to_args () {
-    args="$args "$(shell_quote_string "$1")
+  args="$args "$(shell_quote_string "$1")
 }
 
 parse_arguments() {
@@ -49,11 +49,11 @@ parse_arguments() {
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
-                if test -n "$pick_args"
-                then
-                    append_arg_to_args "$arg"
-                fi
-            ;;
+              if test -n "$pick_args"
+              then
+                  append_arg_to_args "$arg"
+              fi
+              ;;
         esac
     done
 }
@@ -76,8 +76,8 @@ check_workdir(){
 add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
-        wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-        mv -f percona-dev.repo /etc/yum.repos.d/
+      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
+      mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
@@ -101,14 +101,14 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-pgaudit
-    echo "PRODUCT=${PRODUCT}" > pgaudit.properties
+    PRODUCT=percona-wal2json
+    echo "PRODUCT=${PRODUCT}" > wal2json.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pgaudit.properties
-    echo "VERSION=${PSM_VER}" >> pgaudit.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgaudit.properties
-    echo "BUILD_ID=${BUILD_ID}" >> pgaudit.properties
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> wal2json.properties
+    echo "VERSION=${PSM_VER}" >> wal2json.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> wal2json.properties
+    echo "BUILD_ID=${BUILD_ID}" >> wal2json.properties
     git clone "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
@@ -122,45 +122,47 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
+        git submodule update --init
     fi
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/pgaudit.properties
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/wal2json.properties
     rm -fr debian rpm
 
-    git clone https://salsa.debian.org/postgresql/pgaudit.git deb_packaging
-    cd deb_packaging
-    git checkout debian/${VERSION}-${RELEASE}
-    cd ../
+    git clone https://salsa.debian.org/postgresql/wal2json.git deb_packaging
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/all.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/rules
-    mv all.patch debian/patches/
-    rm -rf debian/control*
-    echo "all.patch" > debian/patches/series
-    echo "alternative_regression_outputs.patch" >> debian/patches/series
-    mv control* debian/
-    mv rules debian/
-    echo 12 > debian/pgversions
-    echo 9 > debian/compat
+    cd debian/
+    for file in $(ls | grep ^wal2json | grep -v wal2json.conf); do
+        mv $file "percona-$file"
+    done
+    rm -rf changelog
+    echo "percona-wal2json (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "  * Initial Release." >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    rm -f control rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/wal2json/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/wal2json/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/wal2json/rules
+    echo 12 > pgversions
+    echo 9 > compat
+    cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/wal2json/percona-wal2json.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/wal2json/wal2json-pg12-makefile-pgxs.patch
     cd ${WORKDIR}
     #
-    source pgaudit.properties
+    source wal2json.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pgaudit.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> wal2json.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf pgaudit*
+    rm -rf percona-wal2json*
     return
 }
 
@@ -192,48 +194,55 @@ install_deps() {
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
-        yum -y install wget
-        add_percona_yum_repo
-        wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-        mv -f percona-dev.repo /etc/yum.repos.d/
-        yum clean all
-        RHEL=$(rpm --eval %rhel)
-        if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
-            until yum -y install centos-release-scl; do
-                echo "waiting"
-                sleep 1
-            done
-            yum -y install epel-release
-            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql12-devel percona-postgresql12-server percona-postgresql-common percona-postgresql-server-dev-all rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel"
-            yum -y install ${INSTALL_LIST}
-            source /opt/rh/devtoolset-7/enable
-            source /opt/rh/llvm-toolset-7/enable
-        else
-            INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel percona-postgresql12-devel percona-postgresql12-server percona-postgresql-common percona-postgresql-server-dev-all rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
-            yum -y install ${INSTALL_LIST}
-            yum -y install binutils gcc gcc-c++
-        fi
+      yum -y install wget
+      add_percona_yum_repo
+      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
+      mv -f percona-dev.repo /etc/yum.repos.d/
+      yum clean all
+      RHEL=$(rpm --eval %rhel)
+      if [ ${RHEL} = 8 ]; then
+          dnf -y module disable postgresql
+          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+          dnf clean all
+          rm -r /var/cache/dnf
+          dnf -y upgrade
+          yum -y install perl lz4-libs c-ares-devel clang
+      else
+        until yum -y install centos-release-scl; do
+            echo "waiting"
+            sleep 1
+        done
+        yum -y install epel-release
+        yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
+        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/llvm-toolset-7/enable
+      fi
+      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql-common percona-postgresql12-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
+      yum -y install ${INSTALL_LIST}
+      yum -y install lz4 || true
+
     else
-        export DEBIAN=$(lsb_release -sc)
-        export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-	apt-get -y update || true
-        apt-get -y install gnupg2 curl
-        add_percona_apt_repo
-        percona-release enable tools testing
-        percona-release enable ppg-12.9 testing
-        apt-get update || true
-        INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-11 devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
-        DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
+      export DEBIAN=$(lsb_release -sc)
+      export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
+      apt-get -y install gnupg2
+      add_percona_apt_repo
+      apt-get update || true
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-12 percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config"
+      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
+        sleep 1
+        echo "waiting"
+      done
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
     fi
     return;
 }
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-pgaudit*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-wal2json*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-pgaudit*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-wal2json*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -250,10 +259,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgaudit*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-*wal2json*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-pgaudit*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "percona-*wal2json*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -282,20 +291,18 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-pgaudit*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name 'percona-wal2json*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/all.patch
-    mv all.patch rpmbuild/SOURCES
+    cp -av rpm/percona-wal2json.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/pgaudit.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-12" --define "dist .generic" \
+        --define "version ${VERSION}" rpmbuild/SPECS/percona-wal2json.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -314,10 +321,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-pgaudit*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-wal2json*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-pgaudit*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-wal2json*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -343,7 +350,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-12/
+    export LIBRARY_PATH=/usr/pgsql-12/lib/:/usr/pgsql-12/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-12" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -366,11 +375,11 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-pgaudit*
+    rm -rf percona-wal2json*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-pgaudit*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'percona-*wal2json*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
@@ -379,16 +388,8 @@ build_source_deb(){
     
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
-
-    cd debian
-    rm -rf changelog
-    echo "percona-pgaudit (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
-    echo "  * Initial Release." >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-
-    cd ../
-    
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgaudit version ${VERSION}"
+  
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new wal2json version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -424,8 +425,8 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> pgaudit.properties
-    echo "ARCH=${ARCH}" >> pgaudit.properties
+    echo "DEBIAN=${DEBIAN}" >> wal2json.properties
+    echo "ARCH=${ARCH}" >> wal2json.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
@@ -442,9 +443,9 @@ build_deb(){
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
-export GIT_SSL_NO_VERIFY=1
+
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/pgaudit.properties
+VERSION_FILE=$CURDIR/wal2json.properties
 args=
 WORKDIR=
 SRPM=0
@@ -456,17 +457,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=6
-DEB_RELEASE=6
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="master"
-BRANCH="1.4.1"
-REPO="https://github.com/pgaudit/pgaudit.git"
-PRODUCT=percona-pgaudit
+BRANCH="wal2json_2_4"
+REPO="https://github.com/eulerto/wal2json.git"
+PRODUCT=percona-wal2json
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.4.1'
-RELEASE='6'
+VERSION='2.4'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

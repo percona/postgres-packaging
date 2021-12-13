@@ -3,7 +3,7 @@
 Summary:        Reliable PostgreSQL Backup & Restore
 Name:           percona-pgbackrest
 Version:        %{version}
-Release:        1%{dist}
+Release:        2%{dist}
 License:        MIT
 Group:          Applications/Databases
 URL:            http://www.pgbackrest.org
@@ -24,7 +24,7 @@ BuildRequires:  perl(DBD::Pg)
 BuildRequires:  perl(Digest::SHA)
 BuildRequires:  perl(IO::Socket::SSL)
 BuildRequires:  perl(JSON::PP)
-BuildRequires:	percona-postgresql11-devel
+BuildRequires:	percona-postgresql12-devel
 Requires:       perl-libxml-perl
 Requires:       perl(DBD::Pg)
 Requires:       perl(Digest::SHA)
@@ -34,6 +34,8 @@ Requires:	perl(Time::HiRes)
 Requires:	perl(Compress::Raw::Zlib) zlib
 Requires:	postgresql-libs
 Epoch:		1
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
 %description
 pgBackRest aims to be a simple, reliable backup and restore system that can

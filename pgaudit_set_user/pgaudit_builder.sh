@@ -101,7 +101,7 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-pgaudit
+    PRODUCT=percona-pgaudit12_set_user
     echo "PRODUCT=${PRODUCT}" > pgaudit.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
@@ -125,29 +125,24 @@ get_sources(){
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgaudit.properties
-    rm -fr debian rpm
-
-    git clone https://salsa.debian.org/postgresql/pgaudit.git deb_packaging
-    cd deb_packaging
-    git checkout debian/${VERSION}-${RELEASE}
-    cd ../
-    mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/all.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/rules
-    mv all.patch debian/patches/
-    rm -rf debian/control*
-    echo "all.patch" > debian/patches/series
-    echo "alternative_regression_outputs.patch" >> debian/patches/series
-    mv control* debian/
-    mv rules debian/
-    echo 12 > debian/pgversions
-    echo 9 > debian/compat
-    rm -rf deb_packaging
+    mkdir debian
+    cd debian/
+    mkdir source
+    echo "3.0 (quilt)" > source/format
+    echo 12 > pgversions
+    echo 9 > compat
+    echo "percona-pgaudit12-set-user (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "  * Initial Release." >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit_set_user/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit_set_user/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit_set_user/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit_set_user/rules
+    cd ../ 
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit_set_user/percona-pgaudit12_set_user.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -289,13 +284,11 @@ build_srpm(){
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/pgaudit/all.patch
-    mv all.patch rpmbuild/SOURCES
+    cp -av rpm/percona-pgaudit12_set_user.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/pgaudit.spec
+        --define "version ${VERSION}" rpmbuild/SPECS/percona-pgaudit12_set_user.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -343,7 +336,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pgmajorversion 12" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -376,18 +369,10 @@ build_source_deb(){
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
-    
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
+    PRODUCT_DEB="percona-pgaudit12-set-user"
+    mv ${TARFILE} ${PRODUCT_DEB}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
-    cd debian
-    rm -rf changelog
-    echo "percona-pgaudit (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
-    echo "  * Initial Release." >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-
-    cd ../
-    
     dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgaudit version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
@@ -432,7 +417,7 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}
+    cd percona-pgaudit12-set-user-${VERSION}
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -442,7 +427,7 @@ build_deb(){
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
-export GIT_SSL_NO_VERIFY=1
+
 CURDIR=$(pwd)
 VERSION_FILE=$CURDIR/pgaudit.properties
 args=
@@ -456,17 +441,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=6
-DEB_RELEASE=6
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="master"
-BRANCH="1.4.1"
-REPO="https://github.com/pgaudit/pgaudit.git"
-PRODUCT=percona-pgaudit
+BRANCH="REL3_0_0"
+REPO="https://github.com/pgaudit/set_user.git"
+PRODUCT=percona-pgaudit12_set_user
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.4.1'
-RELEASE='6'
+VERSION='3.0.0'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

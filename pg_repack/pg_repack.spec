@@ -1,12 +1,13 @@
+%global _default_patch_fuzz 2
 %global debug_package %{nil}
 %global sname   percona-pg_repack
-%global pgmajorversion 11
-%global pginstdir /usr/pgsql-11
+%global pgmajorversion 12
+%global pginstdir /usr/pgsql-12
 
 Summary:        Reorganize tables in PostgreSQL databases without any locks
 Name:           %{sname}%{pgmajorversion}
 Version:        %{version}
-Release:        2%{?dist}
+Release:        1%{?dist}
 Epoch:          1
 License:        BSD
 Group:          Applications/Databases
@@ -14,6 +15,8 @@ Source0:        %{sname}-%{version}.tar.gz
 Patch0:         pg_repack-pg%{pgmajorversion}-makefile-pgxs.patch
 URL:            https://pgxn.org/dist/pg_repack/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
 BuildRequires:  percona-postgresql%{pgmajorversion}-devel, percona-postgresql%{pgmajorversion}
 Requires:       postgresql%{pgmajorversion}
@@ -56,5 +59,5 @@ update-alternatives --remove pg_repack %{pginstdir}/bin/pg_repack
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Tue Aug 30 2019 Evgeniy Patlan <evgeniy.patlan@percona.com> - 1.4.4-2
+* Tue May  5 2020 Evgeniy Patlan <evgeniy.patlan@percona.com> - 1.4.5-2
 - Initial build

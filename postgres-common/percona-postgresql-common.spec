@@ -3,13 +3,16 @@ Version:        %{version}
 Release:        2%{?dist}
 BuildArch:      noarch
 Summary:        PostgreSQL database-cluster manager
-Provides:      postgresql-common
+Provides:       postgresql-common
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
 License:        GPLv2+
 URL:            https://packages.debian.org/sid/%{name}
 Source0:        %{name}/%{name}-%{version}.tar.gz
 Requires:       percona-postgresql-client-common
 Requires:       perl-JSON
+Epoch:		1
 
 %description
 The postgresql-common package provides a structure under which
@@ -45,6 +48,11 @@ make
 
 %install
 rm -rf %{buildroot}
+pushd debian
+        for file in $(ls | grep postgresql| grep -v percona); do
+            mv $file "percona-$file"
+        done
+popd
 # install in subpackages using the Debian files
 for inst in debian/*.install; do
     pkg=$(basename $inst .install)
@@ -77,6 +85,7 @@ while read dest link; do
 done < debian/percona-postgresql-client-common.links
 # activate rpm-specific tweaks
 sed -i -e 's/#redhat# //' \
+    %{buildroot}/lib/systemd/system-generators/postgresql-generator \
     %{buildroot}/usr/bin/pg_config \
     %{buildroot}/usr/bin/pg_virtualenv \
     %{buildroot}/usr/share/perl5/PgCommon.pm \
@@ -84,19 +93,10 @@ sed -i -e 's/#redhat# //' \
 # install init script
 mkdir -p %{buildroot}/etc/init.d %{buildroot}/etc/logrotate.d
 cp debian/percona-postgresql-common.postgresql.init %{buildroot}/etc/init.d/postgresql
-#cp debian/postgresql-common.postinst %{buildroot}/usr/share/postgresql-common
 cp rpm/init-functions-compat %{buildroot}/usr/share/postgresql-common
 # ssl defaults to 'off' here because we don't have pregenerated snakeoil certs
 sed -e 's/__SSL__/off/' createcluster.conf > %{buildroot}/etc/postgresql-common/createcluster.conf
 cp debian/percona-postgresql-common.logrotate %{buildroot}/etc/logrotate.d/postgresql-common
-
-%if 0%{?rhel} >= 7
-# Prepare systemd unit files, but only for RHEL/CentOS 7 and above...
-pushd systemd
-DESTDIR=%{buildroot} gmake install
-sed -i -e 's/#redhat# //' %{buildroot}/lib/systemd/system-generators/postgresql-generator
-popd
-%endif
 
 %files -n percona-postgresql-common -f files-percona-postgresql-common
 %attr(0755, root, root) %config /etc/init.d/postgresql

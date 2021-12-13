@@ -111,6 +111,7 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
+        git checkout 0416c9c18b35c85dd55eb35cd08a4b66564301c1
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgresql.properties
@@ -118,7 +119,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 12 remotes/origin/12
+        git checkout -b 12 debian/12.9-1
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -126,11 +127,11 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.8/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.8/postgres/control
+        rm -f rules control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres/control
         sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
-	echo "9" > compat
+        echo "9" > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
@@ -138,7 +139,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-12.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.8/postgres/percona-postgresql-12.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres/percona-postgresql-12.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -228,11 +229,11 @@ EOL
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      wget https://repo.percona.com/apt/percona-release_1.0-26.generic_all.deb
-      dpkg -i percona-release_1.0-26.generic_all.deb
+      wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
+      dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
       percona-release enable tools testing
-      percona-release enable ppg-12.8 testing
+      percona-release enable ppg-12.9 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" ]; then
         INSTALL_LIST="bison build-essential ccache clang-11 cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11"
@@ -310,7 +311,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
+    wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgresql-12.spec rpmbuild/SPECS
     #
@@ -403,18 +404,18 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PRODUCT}-${VERSION}_${VERSION}.${RELEASE}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-postgresql-12 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgresql-12 (${VERSION}.${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}"
+    dch -D unstable --force-distribution -v "${VERSION}.${RELEASE}-${DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}.${RELEASE}-${DEB_RELEASE}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -458,7 +459,7 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}-${VERSION}
+    cd ${PRODUCT}-${VERSION}-${VERSION}.${RELEASE}
     dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -468,7 +469,7 @@ build_deb(){
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
-
+export GIT_SSL_NO_VERIFY=1
 CURDIR=$(pwd)
 VERSION_FILE=$CURDIR/percona-server-mongodb.properties
 args=
@@ -482,16 +483,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="REL_12.8"
+BRANCH="REL_12.9"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='12'
-RELEASE='8'
+RELEASE='9'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir
@@ -502,3 +503,4 @@ build_srpm
 build_source_deb
 build_rpm
 build_deb
+

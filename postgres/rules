@@ -10,19 +10,8 @@ MAJOR_VER := 12
 CATVERSION = $(shell awk '/CATALOG_VERSION_NO/ { print $$3 }' src/include/catalog/catversion.h)
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-#PIE# # On jessie/zesty and older, uncomment the #PIE# lines
-#PIE# # "-pie" because it would break linking our .so files
-#PIE# export DEB_BUILD_MAINT_OPTIONS = hardening=+all,-pie
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
-#PIE# # skip -pie on 32bit archs for performance and stability reasons
-#PIE# # (http://www.postgresql.org/message-id/20140519115318.GB7296@msgid.df7cb.de, #797530)
-#PIE# ifneq ($(DEB_HOST_ARCH_BITS || :),32)
-#PIE# CFLAGS+= -fPIC -pie
-#PIE# else
-#PIE# # if gcc recognizes -no-pie, add it to CFLAGS (exit is 4 for unknown options)
-#PIE# CFLAGS+= $(shell gcc -no-pie 2> /dev/null; [ $$? = 1 ] && echo "-no-pie")
-#PIE# endif
 
 # Facilitate hierarchical profile generation on amd64 (#730134)
 ifeq ($(DEB_HOST_ARCH),amd64)

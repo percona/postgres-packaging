@@ -290,7 +290,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/build_scripts/master/pg_patches/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/build_scripts/master/pg_patches/pgaudit/all.patch
     mv all.patch rpmbuild/SOURCES
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES

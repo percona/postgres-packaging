@@ -2,7 +2,7 @@
 %define pginstdir /usr/pgsql-11/
 
 Name:		percona-%{sname}
-Version:	2.0.0
+Version:	3.0.0
 Release:	2%{?dist}
 Epoch:      1
 Provides:	pgaudit11_set_user = %{version}-%{release}
@@ -11,6 +11,8 @@ License:	PostgreSQL
 Group:		Applications/Database
 Source:		%{name}-%{version}.tar.gz
 Summary:	pgaudit11_set_user - PostgreSQL extension allowing privilege escalation with enhanced logging and control
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
 BuildRequires:	percona-postgresql%{pgmajorversion}
 
@@ -43,12 +45,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %{pginstdir}/lib/bitcode/set_user.index.bc
 %{pginstdir}/lib/bitcode/set_user/set_user.bc
 %{pginstdir}/include/set_user.h
-%{pginstdir}/share/extension/set_user--1.0--1.1.sql
-%{pginstdir}/share/extension/set_user--1.1--1.4.sql
-%{pginstdir}/share/extension/set_user--1.4--1.5.sql
-%{pginstdir}/share/extension/set_user--1.5--1.6.sql
-%{pginstdir}/share/extension/set_user--1.6--2.0.sql
-%{pginstdir}/share/extension/set_user--2.0.sql
+%{pginstdir}/share/extension/set_user-*.sql
 %{pginstdir}/share/extension/set_user.control
 %doc LICENSE
 %doc README.md

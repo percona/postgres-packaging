@@ -4,7 +4,6 @@ Priority: optional
 Maintainer: Percona Development <info@percona.com>
 Build-Depends:
  debhelper (>= 10),
- dh-python,
  libjs-jquery,
  libjs-mathjax,
  libjs-underscore,

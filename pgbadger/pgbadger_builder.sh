@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.4 testing
+    percona-release enable ppg-11.14 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.4 testing
+    percona-release enable ppg-11.14 testing
     return
 }
 
@@ -129,10 +129,10 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.4/pgbadger/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.4/pgbadger/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pgbadger/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pgbadger/rules
     chmod +x rules
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.4/pgbadger/copyright
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pgbadger/copyright
     echo 9 > compat
     echo "percona-pgbadger (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -141,7 +141,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.4/pgbadger/percona-pgbadger.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pgbadger/percona-pgbadger.spec
     cd ${WORKDIR}
     #
     source pgbadger.properties

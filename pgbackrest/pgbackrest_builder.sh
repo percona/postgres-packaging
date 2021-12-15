@@ -134,8 +134,8 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pgbackrest/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pgbackrest/compat
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/pgbackrest/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/pgbackrest/compat
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
@@ -143,8 +143,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties

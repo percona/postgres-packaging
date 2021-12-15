@@ -127,8 +127,8 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f control rules
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/postgres/control
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/postgres/rules
         sed -i 's/postgresql-11/percona-postgresql-11/' percona-postgresql-11.templates
 	echo 9 > compat
     cd ../
@@ -138,7 +138,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-11.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/postgres/percona-postgresql-11.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/postgres/percona-postgresql-11.spec
     cd ../
     cd ${WORKDIR}
     #

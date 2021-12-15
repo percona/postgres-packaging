@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.12 testing
+    percona-release enable ppg-11.14 testing
     return
 }
 
@@ -89,7 +89,7 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.12 testing
+    percona-release enable ppg-11.14 testing
     return
 }
 
@@ -126,26 +126,30 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pg_repack.properties
     rm -fr debian rpm
     git clone https://salsa.debian.org/postgresql/pg-repack.git deb_packaging
-    git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
+    cd deb_packaging
+      git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
+    cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pg_repack/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pg_repack/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pg_repack/control.in
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian
-    rm -f rules control control.in
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pg_repack/rules
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pg_repack/control
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pg_repack/control.in
+    mv ../rules ./
+    mv ../control ./
+    mv ../control.in ./
     cd ../
     echo 11 > debian/pgversions
     echo 9 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pg_repack/pg_repack-pg11-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pg_repack/pg_repack.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pg_repack/pg_repack-pg11-makefile-pgxs.patch
     cd ../
-    wget https://raw.githubusercontent.com/Percona/postgres-packaging/11.12/pg_repack/make.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.14/pg_repack/make.patch
     patch -p0 < make.patch
     rm -f make.patch
     cd ${WORKDIR}
@@ -216,12 +220,14 @@ install_deps() {
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
+      until apt-get -y install gnupg2; do
+          sleep 3
+	  echo "waiting"
+      done
       add_percona_apt_repo
       percona-release enable tools experimental
       apt-get update || true
-      #INSTALL_LIST="build-essential percona-postgresql-11 debconf debhelper clang-7 devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
-      INSTALL_LIST="dpkg-dev build-essential clang-11 llvm-11-dev percona-postgresql-11 percona-postgresql-server-dev-11 debconf debhelper devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+      INSTALL_LIST="dpkg-dev build-essential percona-postgresql-11 debconf debhelper devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all clang-11"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;
@@ -439,6 +445,7 @@ build_deb(){
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
+export GIT_SSL_NO_VERIFY=1
 
 CURDIR=$(pwd)
 VERSION_FILE=$CURDIR/pg_repack.properties
@@ -453,16 +460,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=5
-DEB_RELEASE=5
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="ver_1.4.6"
+BRANCH="ver_1.4.7"
 REPO="https://github.com/reorg/pg_repack.git"
 PRODUCT=percona-pg_repack
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.4.6'
-RELEASE='5'
+VERSION='1.4.7'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

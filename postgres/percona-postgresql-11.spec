@@ -23,7 +23,12 @@
 %{!?ldap:%global ldap 1}
 %{!?nls:%global nls 1}
 %{!?pam:%global pam 1}
+
+%if 0%{?fedora} >= 33 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1500
+%{!?plpython2:%global plpython2 0}
+%else
 %{!?plpython2:%global plpython2 1}
+%endif
 
 %if 0%{?rhel} && 0%{?rhel} < 7
 # RHEL 6 does not have Python 3
@@ -33,8 +38,6 @@
 # Support Python3 on RHEL 7.7+ natively
 # RHEL 8 uses Python3
 %{!?plpython3:%global plpython3 1}
-# This is the list of contrib modules that will be compiled with PY3 as well:
-%global python3_build_list hstore_plpython jsonb_plpython ltree_plpython
 %endif
 
 %if 0%{?suse_version}
@@ -43,6 +46,9 @@
 %{!?plpython3:%global plpython3 0}
 %endif
 %endif
+
+# This is the list of contrib modules that will be compiled with PY3 as well:
+%global python3_build_list hstore_plpython jsonb_plpython ltree_plpython
 
 %{!?pltcl:%global pltcl 1}
 %{!?plperl:%global plperl 1}
@@ -92,18 +98,20 @@
 %global _hardened_build 1
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-# Define the AT version and path.
-%global atstring        at10.0
-%global atpath          /opt/%{atstring}
+%pgdg_set_ppc64le_compiler_at10
+%endif
 %endif
 
 Summary:	PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:	11.12
-Release:	2%{?dist}
+Version:	11.14
+Release:	3%{?dist}
 License:	PostgreSQL
 Url:		https://www.postgresql.org/
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 
 Source0:        percona-postgresql-%{version}.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
@@ -141,8 +149,10 @@ BuildRequires:  readline-devel zlib-devel >= 1.0.4
 BuildRequires:  perl-generators
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-BuildRequires:  advance-toolchain-%{atstring}-devel
+%pgdg_set_ppc64le_min_requires
+%endif
 %endif
 
 Requires:       /sbin/ldconfig
@@ -297,9 +307,10 @@ Provides:       %{vname} = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname} <= %{version}-%{release}
 Obsoletes:      %{vname} <= %{version}-%{release}
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
+%pgdg_set_ppc64le_min_requires
+%endif
 %endif
 
 %description
@@ -335,9 +346,10 @@ Obsoletes:      %{sname}-libs <= %{version}-%{release}
 Obsoletes:      %{vname}-libs <= %{version}-%{release}
 #Conflicts:     postgresql-libs %{vname}-libs
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
+%pgdg_set_ppc64le_min_requires
+%endif
 %endif
 Epoch:          1
 
@@ -378,9 +390,10 @@ Obsoletes:      %{vname}-server <= %{version}-%{release}
 #Conflicts:     postgresql-server
 #Conflicts:     %{vname}-server
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
+%pgdg_set_ppc64le_min_requires
+%endif
 %endif
 Epoch:          1
 
@@ -421,9 +434,10 @@ Obsoletes:      %{vname}-contrib <= %{version}-%{release}
 #Conflicts:     %{vname}-contrib
 #Epoch:         1
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
+%pgdg_set_ppc64le_min_requires
+%endif
 %endif
 Epoch:          1
 
@@ -471,9 +485,10 @@ Obsoletes:      %{sname}-devel <= %{version}-%{release}
 Obsoletes:      %{vname}-devel <= %{version}-%{release}
 #Conflicts:     %{vname}-devel
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
+%pgdg_set_ppc64le_min_requires
+%endif
 %endif
 Epoch:          1
 
@@ -840,7 +855,11 @@ unset PYTHON
 export PYTHON=/usr/bin/python2
 
 %if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch aarch64
+	export CLANG=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang LLVM_CONFIG=/opt/rh/llvm-toolset-7.0/root/usr/bin/llvm-config
+%else
 	export CLANG=/opt/rh/llvm-toolset-7/root/usr/bin/clang LLVM_CONFIG=%{_libdir}/llvm5.0/bin/llvm-config
+%endif
 %endif
 %if 0%{?rhel} && 0%{?rhel} == 8
 	export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config-64
@@ -1138,9 +1157,9 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %endif
 
 %if ! %plpython2
-%{__rm} -f %{buildroot}/%{pginstdir}/share/extension/*plpython2u*
-%{__rm} -f %{buildroot}/%{pginstdir}/share/extension/*plpythonu-*
-%{__rm} -f %{buildroot}/%{pginstdir}/share/extension/*_plpythonu.control
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpython2u*
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpythonu-*
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*_plpythonu.control
 %endif
 
 # Fix some more documentation

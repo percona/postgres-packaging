@@ -15,7 +15,7 @@ Build-Depends:
  krb5-multidev,
  libedit-dev,
  libicu-dev,
- libipc-run-perl,
+ libipc-run-perl <!nocheck>,
  libldap2-dev,
  libpam0g-dev | libpam-dev,
  libperl-dev,
@@ -159,16 +159,6 @@ Description: The World's Most Advanced Open Source Relational Database
  .
  This package provides the database server for PostgreSQL 11.
 XB-Postgresql-Catversion: ${postgresql:Catversion}
-
-#dbg#Package: postgresql-11-dbg
-#dbg#Section: debug
-#dbg#Priority: optional
-#dbg#Architecture: any
-#dbg#Depends: postgresql-11 (= ${binary:Version}), ${misc:Depends}
-#dbg#Description: debug symbols for postgresql-11
-#dbg# This package provides detached debugging symbols for PostgreSQL 11.
-#dbg# .
-#dbg# PostgreSQL is an object-relational SQL database management system.
 
 Package: percona-postgresql-client-11
 Architecture: any

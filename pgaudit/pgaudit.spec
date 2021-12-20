@@ -2,7 +2,7 @@
 
 Name:           percona-pgaudit
 Version:        1.3.2
-Release:        4%{?dist}
+Release:        6%{?dist}
 Summary:        PostgreSQL Audit Extension
 
 License:        PostgreSQL

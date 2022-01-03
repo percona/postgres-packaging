@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 
 export V=1
-export DH_VERBOSE = 1
 
 PG_CONFIG=pg_config
 PGBINDIR=$(shell $(PG_CONFIG) --bindir)

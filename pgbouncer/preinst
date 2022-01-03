@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    install)
+        # do some magic
+        if [ "$2" ]; then
+	    echo "* Previously installed version is detected."
+            if [ ! -f "/etc/pgbouncer/pgbouncer.ini" ]; then
+                echo "*"
+	        echo "* Configuration file /etc/pgbouncer/pgbouncer.ini is missed"
+	        echo "* Please perform 'apt purge percona-pgbouncer' command"
+                echo "*"
+                exit 1
+            fi
+        fi
+        ;;
+
+    abort-install)
+	;;
+
+    upgrade|abort-upgrade)
+        ;;
+
+esac
+
+#DEBHELPER#
+
+exit 0

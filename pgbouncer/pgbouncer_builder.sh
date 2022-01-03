@@ -137,6 +137,7 @@ get_sources(){
     rm -f control rules
     wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/control
     wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/preinst
     echo 9 > compat
     cd ../
     rm -rf deb_packaging

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    install)
+        if [ "$2" ]; then
+            confFiles=""
+            confFiles="${confFiles} /etc/pgbouncer/pgbouncer.ini"
+            confFiles="${confFiles} /etc/init.d/percona-pgbouncer"
+            confFiles="${confFiles} /etc/default/percona-pgbouncer"
+            missedConfFile=0
+            echo "* Previously installed version is detected."
+            for t in ${confFiles}; do
+                if [ ! -f ${t} ]; then
+                    echo "* Configuration file ${t} is missed"
+                    missedConfFile=$((missedConfFile+1))
+                fi
+            done
+            if [ ${missedConfFile} -ne 0 ]; then
+                echo "* Please perform 'apt purge percona-pgbouncer' command"
+                echo "*"
+                exit 1
+            fi
+        fi
+        ;;
+
+    abort-install)
+	;;
+
+    upgrade|abort-upgrade)
+        ;;
+
+esac
+
+#DEBHELPER#
+
+exit 0

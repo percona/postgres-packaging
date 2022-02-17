@@ -3,7 +3,7 @@
 
 Summary:	A fast PostgreSQL log analyzer
 Name:		percona-pgbadger
-Version:	11.6
+Version:	11.7
 Release:	1%{?dist}
 License:	PostgreSQL
 Source0:	%{name}-%{version}.tar.gz

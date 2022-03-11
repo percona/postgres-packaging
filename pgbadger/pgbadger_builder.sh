@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-14.1 testing
+    percona-release enable ppg-14.2 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-14.1 testing
+    percona-release enable ppg-14.2 testing
     return
 }
 
@@ -129,10 +129,10 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/pgbadger/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/pgbadger/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/pgbadger/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/pgbadger/rules
     chmod +x rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/pgbadger/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/pgbadger/copyright
     echo 9 > compat
     echo "percona-pgbadger (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -141,7 +141,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/pgbadger/percona-pgbadger.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/pgbadger/percona-pgbadger.spec
     cd ${WORKDIR}
     #
     source pgbadger.properties
@@ -172,32 +172,40 @@ get_system(){
     return
 }
 
+switch_to_vault_repo() {
+     sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
+     sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+}
+
 install_deps() {
-    if [ $INSTALL = 0 ]
-    then
+    if [ $INSTALL = 0 ]; then
         echo "Dependencies will not be installed"
         return;
     fi
-    if [ $( id -u ) -ne 0 ]
-    then
+    if [ $( id -u ) -ne 0 ]; then
         echo "It is not possible to instal dependencies. Please run as root"
         exit 1
     fi
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
+      RHEL=$(rpm --eval %rhel)
+      if [ x"$RHEL" = x8 ]; then
+        switch_to_vault_repo
+      fi
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
       mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
-      RHEL=$(rpm --eval %rhel)
+
       if [ ${RHEL} = 8 ]; then
           dnf -y module disable postgresql
           dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
+          switch_to_vault_repo
           yum -y install perl lz4-libs c-ares-devel
 	  yum -y install rpmbuild
       else
@@ -453,12 +461,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v11.6"
+BRANCH="v11.7"
 REPO="https://github.com/darold/pgbadger.git"
 PRODUCT=percona-pgbadger
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='11.6'
+VERSION='11.7'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

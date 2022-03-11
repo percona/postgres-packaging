@@ -127,18 +127,18 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.1/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres/control
         sed -i 's/postgresql-14/percona-postgresql-14/' percona-postgresql-14.templates
 	echo "9" > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/master/non-common/postgresql-14/main/*   rpm/
+    mv pgrpms/rpm/redhat/main/non-common/postgresql-14/main/*   rpm/
     rm -rf pgrpms
     cd rpm
         rm postgresql-14.spec
-        wget  https://raw.githubusercontent.com/percona/postgres-packaging/14.1/postgres/percona-postgresql-14.spec
+        wget  https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres/percona-postgresql-14.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -232,7 +232,7 @@ EOL
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
-      percona-release enable ppg-14.1 testing
+      percona-release enable ppg-14.2 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" ]; then
         INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev"
@@ -483,15 +483,15 @@ ARCH=
 OS=
 INSTALL=0
 RPM_RELEASE=2
-DEB_RELEASE=2
+DEB_RELEASE=3
 REVISION=0
-BRANCH="REL_14.1"
+BRANCH="REL_14.2"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='14'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

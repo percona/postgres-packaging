@@ -73,6 +73,11 @@ check_workdir(){
     return
 }
 
+switch_to_vault_repo() {
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+}
+
 add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
@@ -127,18 +132,18 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/postgres/control
         sed -i 's/postgresql-13/percona-postgresql-13/' percona-postgresql-13.templates
 	echo "9" > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/master/non-common/postgresql-13/master/* rpm/
+    mv pgrpms/rpm/redhat/main/non-common/postgresql-13/main/* rpm/
     rm -rf pgrpms
     cd rpm
         rm postgresql-13.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/postgres/percona-postgresql-13.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/postgres/percona-postgresql-13.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -184,6 +189,9 @@ install_deps() {
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
+      if [ x"$RHEL" = x8 ]; then
+￼          switch_to_vault_repo
+      fi
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
@@ -201,6 +209,7 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
+        dnf module -y disable llvm-toolset
         INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel"
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
@@ -231,7 +240,7 @@ EOL
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
-      percona-release enable ppg-13.5 testing
+      percona-release enable ppg-13.6 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" ]; then
         INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev"
@@ -309,7 +318,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget https://www.postgresql.org/files/documentation/pdf/13/postgresql-13-A4.pdf
+    wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/13/postgresql-13-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgresql-13.spec rpmbuild/SPECS
     #
@@ -481,16 +490,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=3
+DEB_RELEASE=3
 REVISION=0
-BRANCH="REL_13.5"
+BRANCH="REL_13.6"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='13'
-RELEASE='5'
+RELEASE='6'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

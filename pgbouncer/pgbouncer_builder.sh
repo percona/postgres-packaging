@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.5 testing
+    percona-release enable ppg-13.6 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.5 testing
+    percona-release enable ppg-13.6 testing
     return
 }
 
@@ -135,22 +135,22 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/preinst
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/preinst
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13.5/pgbouncer/percona-pgbouncer.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer-ini.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer.logrotate
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer-mkauth-py3.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer.service
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer.service.rhel7
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer.sysconfig
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.5/pgbouncer/pgbouncer.init
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/percona-pgbouncer.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/pgbouncer-ini.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/pgbouncer.logrotate
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/pgbouncer-mkauth-py3.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/pgbouncer.service
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/pgbouncer.service.rhel7
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/pgbouncer.sysconfig
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.6/pgbouncer/pgbouncer.init
     cd ${WORKDIR}
     #
     source pgbouncer.properties
@@ -181,32 +181,39 @@ get_system(){
     return
 }
 
+switch_to_vault_repo() {
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+}
+
 install_deps() {
-    if [ $INSTALL = 0 ]
-    then
+    if [ $INSTALL = 0 ]; then
         echo "Dependencies will not be installed"
         return;
     fi
-    if [ $( id -u ) -ne 0 ]
-    then
+    if [ $( id -u ) -ne 0 ]; then
         echo "It is not possible to instal dependencies. Please run as root"
         exit 1
     fi
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
+      RHEL=$(rpm --eval %rhel)
+      if [ x"$RHEL" = x8 ]; then
+          switch_to_vault_repo
+      fi
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
       mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
-      RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} = 8 ]; then
           dnf -y module disable postgresql
           dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
+	  switch_to_vault_repo
           yum -y install perl lz4-libs c-ares-devel
       else
         until yum -y install centos-release-scl; do
@@ -466,8 +473,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=3
+DEB_RELEASE=3
 REVISION=0
 BRANCH="pgbouncer_1_16_1"
 REPO="https://github.com/pgbouncer/pgbouncer.git"
@@ -475,7 +482,7 @@ PRODUCT=percona-pgbouncer
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.16.1'
-RELEASE='2'
+RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

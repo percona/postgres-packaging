@@ -77,14 +77,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        13.5
-Release:        2%{?dist}
+Version:        13.6
+Release:        3%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-13.5.tar.gz
+Source0:        percona-postgresql-13.6.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -92,7 +92,6 @@ Source7:        %{sname}-%{pgmajorversion}-ecpg_config.h
 Source9:        %{sname}-%{pgmajorversion}-libs.conf
 Source12:       https://www.postgresql.org/files/documentation/pdf/%{pgpackageversion}/%{sname}-%{pgpackageversion}-A4.pdf
 Source14:       %{sname}-%{pgmajorversion}.pam
-Source16:       %{sname}-%{pgmajorversion}-filter-requires-perl-Pg.sh
 Source17:       %{sname}-%{pgmajorversion}-setup
 %if %{systemd_enabled}
 Source10:       %{sname}-%{pgmajorversion}-check-db-dir
@@ -110,14 +109,19 @@ Patch6:         %{sname}-%{pgmajorversion}-perl-rpath.patch
 BuildRequires:  perl glibc-devel bison flex >= 2.5.31
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  readline-devel zlib-devel >= 1.0.4
-
+%if 0%{?rhel} || 0%{?fedora}
+BuildRequires:	lz4-devel
+Requires:	lz4
+%endif
 # This dependency is needed for Source 16:
 %if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:  perl-generators
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
-BuildRequires:  advance-toolchain-%{atstring}-devel
+%pgdg_set_ppc64le_min_requires
+%endif
 %endif
 
 Requires:       /sbin/ldconfig
@@ -245,12 +249,6 @@ Requires(post):         systemd
 Requires(preun):        systemd
 Requires(postun):       systemd
 %endif
-%else
-Requires(post):         chkconfig
-Requires(preun):        chkconfig
-# This is for /sbin/service
-Requires(preun):        initscripts
-Requires(postun):       initscripts
 %endif
 
 Requires:       %{name}-libs >= %{version}-%{release}
@@ -301,11 +299,12 @@ Provides:       %{vname}-libs = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-libs <= %{version}-%{release}
 Obsoletes:      %{vname}-libs <= %{version}-%{release}
 
+%if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
 AutoReq:        0
 Requires:       advance-toolchain-%{atstring}-runtime
 %endif
-Epoch:          1
+%endif
 
 %description libs
 The postgresql%{pgmajorversion}-libs package provides the essential shared libraries for any
@@ -841,10 +840,6 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 
 %{__install} -d %{buildroot}%{_unitdir}
 %{__install} -m 644 %{SOURCE18} %{buildroot}%{_unitdir}/%{sname}-%{pgmajorversion}.service
-%else
-%{__install} -d %{buildroot}%{_initrddir}
-sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
-%{__install} -m 755 %{sname}.init %{buildroot}%{_initrddir}/%{sname}-%{pgmajorversion}
 %endif
 
 %if %pam
@@ -977,8 +972,6 @@ if [ $1 -eq 1 ] ; then
    %else
    %systemd_post %{sname}-%{pgpackageversion}.service
    %endif
-  %else
-   chkconfig --add %{sname}-%{pgpackageversion}
   %endif
 fi
 
@@ -1012,15 +1005,11 @@ fi
 /sbin/ldconfig
 %if %{systemd_enabled}
  /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%else
- /sbin/service %{sname}-%{pgmajorversion} condrestart >/dev/null 2>&1
 %endif
 if [ $1 -ge 1 ] ; then
  %if %{systemd_enabled}
-        # Package upgrade, not uninstall
-        /bin/systemctl try-restart %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
- %else
-   /sbin/service %{sname}-%{pgmajorversion} condrestart >/dev/null 2>&1
+	# Package upgrade, not uninstall
+	/bin/systemctl try-restart %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
  %endif
 fi
 
@@ -1293,8 +1282,6 @@ fi
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-check-db-dir
 %{_tmpfilesdir}/%{sname}-%{pgmajorversion}.conf
 %{_unitdir}/%{sname}-%{pgmajorversion}.service
-%else
-%config(noreplace) %{_initrddir}/%{sname}-%{pgmajorversion}
 %endif
 %if %pam
 %config(noreplace) /etc/pam.d/%{sname}

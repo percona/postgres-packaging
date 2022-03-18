@@ -5,28 +5,36 @@ Maintainer: Percona Development Team <info@percona.com>
 Standards-Version: 4.5.0
 Rules-Requires-Root: no
 Build-Depends:
+ autoconf,
  bison,
- clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
+ clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ debhelper,
  dh-exec (>= 0.13~),
  docbook-xml,
  docbook-xsl (>= 1.77),
  dpkg-dev (>= 1.16.1~),
  flex,
+ gdb <!nocheck>,
  gettext,
  krb5-multidev,
  libedit-dev,
  libicu-dev,
- libipc-run-perl,
+ libio-pty-perl <!nocheck>,
+ libipc-run-perl <!nocheck>,
+ libkrb5-dev,
  libldap2-dev,
+ liblz4-dev,
  libpam0g-dev | libpam-dev,
  libperl-dev,
+ libreadline-dev,
  libselinux1-dev [linux-any],
  libssl-dev,
  libsystemd-dev [linux-any],
  libxml2-dev,
  libxml2-utils,
  libxslt1-dev,
- llvm-11-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !ppc64 !riscv64 !s390x !sh4 !sparc64 !x32],
+ llvm-11-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ mawk,
  perl (>= 5.8),
  pkg-config,
  python3-dev,
@@ -42,6 +50,7 @@ Architecture: any
 Section: libdevel
 Depends:
  libpq5 (= ${binary:Version}),
+ libssl-dev,
  ${misc:Depends},
  ${shlibs:Depends}
 Suggests: percona-postgresql-doc-12

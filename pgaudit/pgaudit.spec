@@ -1,8 +1,8 @@
 %define pginstdir /usr/pgsql-12/
 
 Name:           percona-pgaudit
-Version:        1.4.1
-Release:        6%{?dist}
+Version:        1.4.2
+Release:        1%{?dist}
 Summary:        PostgreSQL Audit Extension
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC

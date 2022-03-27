@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres-common/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres-common/supported-versions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/postgres-common/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/postgres-common/supported-versions.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < supported-versions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -151,7 +151,7 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.9/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -440,12 +440,12 @@ INSTALL=0
 RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
-BRANCH="230"
+BRANCH="debian/237"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='230'
+VERSION='237'
 RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

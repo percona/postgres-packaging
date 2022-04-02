@@ -106,7 +106,7 @@
 
 Summary:	PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:	11.14
+Version:	11.15
 Release:	3%{?dist}
 License:	PostgreSQL
 Url:		https://www.postgresql.org/

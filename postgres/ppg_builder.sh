@@ -73,6 +73,11 @@ check_workdir(){
     return
 }
 
+switch_to_vault_repo() {
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+}
+
 add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
@@ -118,7 +123,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 11 debian/11.14-1
+        git checkout -b 11 debian/11.15-1
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -127,18 +132,18 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f control rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/postgres/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres/rules
         sed -i 's/postgresql-11/percona-postgresql-11/' percona-postgresql-11.templates
 	echo 9 > compat
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/master/non-common/postgresql-11/master/* rpm/
+    mv pgrpms/rpm/redhat/main/non-common/postgresql-11/main/* rpm/
     rm -rf pgrpms
     cd rpm
         rm postgresql-11.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.14/postgres/percona-postgresql-11.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres/percona-postgresql-11.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -184,6 +189,9 @@ install_deps() {
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
+      if [ x"$RHEL" = x8 ]; then
+          switch_to_vault_repo
+      fi
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
@@ -204,7 +212,19 @@ install_deps() {
         INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
-	yum -y install docbook-xsl libxslt-devel
+        cat >/etc/yum.repos.d/CENTOS8-stream-AppStream.repo <<EOL
+[Stream-AppStream]
+name=Stream-AppStream
+baseurl=http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+EOL
+        yum clean all
+        if [ ! -f  /usr/bin/llvm-config ]; then
+            ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
+        fi
+    
       fi
       yum -y install docbook-xsl libxslt-devel
     else
@@ -220,7 +240,7 @@ install_deps() {
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
       percona-release enable tools testing
-      percona-release enable ppg-11.14 testing
+      percona-release enable ppg-11.15 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" ]; then
         INSTALL_LIST="bison build-essential ccache clang-11 cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11"
@@ -473,13 +493,13 @@ INSTALL=0
 RPM_RELEASE=3
 DEB_RELEASE=3
 REVISION=0
-BRANCH="REL_11_14"
+BRANCH="REL_11.15"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='11'
-RELEASE='14'
+RELEASE='15'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir
@@ -490,4 +510,3 @@ build_srpm
 build_source_deb
 build_rpm
 build_deb
-

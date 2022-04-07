@@ -131,7 +131,7 @@ get_sources(){
     git clone https://salsa.debian.org/postgresql/pgbouncer.git deb_packaging
     mv deb_packaging/debian ./
     cd debian/
-    for file in $(ls | grep ^pgbouncer | grep -v pgbouncer.conf); do
+    for file in $(ls | grep ^pgbouncer | grep -v pgbouncer.conf | grep -v service); do
         mv $file "percona-$file"
     done
     rm -f control rules
@@ -474,8 +474,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=4
+DEB_RELEASE=4
 REVISION=0
 BRANCH="pgbouncer_1_16_1"
 REPO="https://github.com/pgbouncer/pgbouncer.git"
@@ -483,7 +483,7 @@ PRODUCT=percona-pgbouncer
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.16.1'
-RELEASE='3'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

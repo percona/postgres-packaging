@@ -141,7 +141,7 @@ get_sources(){
         echo "  * Initial Release." >> changelog
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
         sed -i 's:percona-postgresql-plpython-$v,::' rules
-	echo 13 > compat
+	echo 12 > compat
 	sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
@@ -413,6 +413,9 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-common-${VERSION}
+    if [ ${DEBIAN} = "stretch" ]; then
+        sed -i 's:12:11:' debian/compat
+    fi
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     sed -i '33,55d' Makefile

@@ -103,6 +103,7 @@ get_sources(){
     fi
     PRODUCT=percona-patroni
     echo "PRODUCT=${PRODUCT}" > patroni.properties
+    GIT_USER=$(echo ${REPO} | awk -F'/' '{print $4}')
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
     echo "PRODUCT_FULL=${PRODUCT_FULL}" >> patroni.properties
@@ -135,10 +136,10 @@ get_sources(){
     mv all_packaging/DEB/debian ./
     cd debian
     rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/patroni/rules
+    wget https://raw.githubusercontent.com/${GIT_USER}/postgres-packaging/13/patroni/rules
     rm -f control
     rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13/patroni/control
+    wget https://raw.githubusercontent.com/${GIT_USER}/postgres-packaging/13/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     mv install percona-patroni.install
@@ -150,7 +151,7 @@ get_sources(){
     mv all_packaging/RPM/* rpm/
     cd rpm
     rm -f patroni.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/13/patroni/patroni.spec
+    wget https://raw.githubusercontent.com/${GIT_USER}/postgres-packaging/13/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     mv patroni.2.service patroni.service
     tar -czf patroni-customizations.tar.gz patroni.service patroni-watchdog.service postgres-telia.yml

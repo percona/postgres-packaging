@@ -110,7 +110,8 @@ get_sources(){
     echo "VERSION=${PSM_VER}" >> patroni.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> patroni.properties
     echo "BUILD_ID=${BUILD_ID}" >> patroni.properties
-    git clone "$REPO" ${PRODUCT_FULL}
+#   git clone "$REPO" ${PRODUCT_FULL}
+    git clone https://github.com/zalando/patroni.git ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then

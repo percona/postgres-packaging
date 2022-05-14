@@ -256,6 +256,9 @@ install_deps() {
         DEBIAN_FRONTEND=noninteractive apt-get -y install ./dh-virtualenv_1.0-1_all.deb
         rm -f dh-virtualenv_1.0-1_all.deb
       fi
+      if [ "x${DEBIAN}" = "xbullseye" ]; then
+         apt-get -y install dpkg-dev
+      fi
     fi
     return;
 }

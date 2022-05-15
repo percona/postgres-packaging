@@ -154,6 +154,8 @@ get_sources(){
     rm -f patroni.spec
     wget https://raw.githubusercontent.com/${GIT_USER}/postgres-packaging/13/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
+    sed -i 's:/opt/patroni/bin:/usr/bin:' patroni.2.service
+    sed -i 's:/opt/patroni/etc/:/etc/patroni/:' patroni.2.service
     mv patroni.2.service patroni.service
     tar -czf patroni-customizations.tar.gz patroni.service patroni-watchdog.service postgres-telia.yml
     cd ../
@@ -234,10 +236,10 @@ install_deps() {
       done
       add_percona_apt_repo
       apt-get update || true
-      if [ "x${DEBIAN}" != "xfocal" ]; then
-        INSTALL_LIST="build-essential debconf debhelper clang-11 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
+      if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" ]; then
+        INSTALL_LIST="build-essential debconf debhelper clang-11 devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
       else
-        INSTALL_LIST="build-essential debconf debhelper clang-11 devscripts dh-exec dh-systemd git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang dh-python libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff"
+        INSTALL_LIST="build-essential debconf debhelper clang-11 devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
       fi
       DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
       if [ "x${DEBIAN}" = "xstretch" ]; then
@@ -255,9 +257,6 @@ install_deps() {
         wget https://jenkins.percona.com/downloads/dh-virtualenv_1.0-1_all.deb
         DEBIAN_FRONTEND=noninteractive apt-get -y install ./dh-virtualenv_1.0-1_all.deb
         rm -f dh-virtualenv_1.0-1_all.deb
-      fi
-      if [ "x${DEBIAN}" = "xbullseye" ]; then
-         apt-get -y install dpkg-dev
       fi
     fi
     return;
@@ -475,7 +474,7 @@ build_deb(){
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
-
+export GIT_SSL_NO_VERIFY=1
 CURDIR=$(pwd)
 VERSION_FILE=$CURDIR/patroni.properties
 args=

@@ -108,13 +108,15 @@ get_sources(){
     fi
     PRODUCT=percona-patroni
     echo "PRODUCT=${PRODUCT}" > patroni.properties
+    GIT_USER=$(echo ${REPO} | awk -F'/' '{print $4}')
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
     echo "PRODUCT_FULL=${PRODUCT_FULL}" >> patroni.properties
     echo "VERSION=${PSM_VER}" >> patroni.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> patroni.properties
     echo "BUILD_ID=${BUILD_ID}" >> patroni.properties
-    git clone "$REPO" ${PRODUCT_FULL}
+#   git clone "$REPO" ${PRODUCT_FULL}
+    git clone https://github.com/zalando/patroni.git ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then
@@ -140,10 +142,10 @@ get_sources(){
     mv all_packaging/DEB/debian ./
     cd debian
     rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/patroni/rules
+    wget https://raw.githubusercontent.com/${GIT_USER}/postgres-packaging/12.10/patroni/rules
     rm -f control
     rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/patroni/control
+    wget https://raw.githubusercontent.com/${GIT_USER}/postgres-packaging/12.10/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     mv install percona-patroni.install
@@ -155,7 +157,7 @@ get_sources(){
     mv all_packaging/RPM/* rpm/
     cd rpm
     rm -f patroni.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.10/patroni/patroni.spec
+    wget https://raw.githubusercontent.com/${GIT_USER}/postgres-packaging/12.10/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     sed -i 's:/opt/patroni/bin:/usr/bin:' patroni.2.service
     sed -i 's:/opt/patroni/etc/:/etc/patroni/:' patroni.2.service
@@ -227,7 +229,7 @@ install_deps() {
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-	  switch_to_vault_repo
+          switch_to_vault_repo
           wget https://rpmfind.net/linux/centos/7/os/x86_64/Packages/prelink-0.5.0-9.el7.x86_64.rpm
           INSTALL_LIST="git wget rpm-build python3-virtualenv libyaml-devel gcc python3-psycopg2"
           yum -y install ${INSTALL_LIST}

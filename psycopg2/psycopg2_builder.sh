@@ -130,7 +130,7 @@ get_sources(){
 
     git clone https://github.com/EvgeniyPatlan/postgres-packaging.git packaging
     cd packaging
-        git checkout 14.0
+        git checkout 14.3
     cd ../
     mv packaging/psycopg2/debian ./
     cd debian/

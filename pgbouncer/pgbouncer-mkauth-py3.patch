@@ -1,9 +1,0 @@
---- etc/mkauth.py.old	2019-11-01 11:55:10.281576116 +0000
-+++ etc/mkauth.py	2019-11-01 11:55:23.186656376 +0000
-@@ -1,4 +1,4 @@
--#! /usr/bin/env python
-+#! /usr/bin/python3
- 
- import sys
- import os
-

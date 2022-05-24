@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres-common/supported-versions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres-common/supported-versions.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < supported-versions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -151,7 +151,7 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.2/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -443,12 +443,12 @@ INSTALL=0
 RPM_RELEASE=3
 DEB_RELEASE=3
 REVISION=0
-BRANCH="debian/237"
+BRANCH="debian/241"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='237'
+VERSION='241'
 RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

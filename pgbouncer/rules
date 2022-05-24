@@ -8,6 +8,9 @@ PGBINDIR=$(shell $(PG_CONFIG) --bindir)
 %:
 	dh $@
 
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
 override_dh_auto_clean:
 	[ ! -f config.mak ] || $(MAKE) distclean
 	rm -f doc/pgbouncer.?

@@ -11,3 +11,5 @@ override_dh_pgxs_test:
 %:
 	dh $@
 
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip

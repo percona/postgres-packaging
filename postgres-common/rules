@@ -19,6 +19,9 @@ LIBREADLINE := $(shell dpkg-query -W --showformat '$${Status} $${Package}\n' 'li
 %:
 	dh $@
 
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
 override_dh_auto_configure:
 	@echo "### Building percona-postgresql-common flavor $(FLAVOR)"
 	@echo "### Supported PostgreSQL versions: $(SUPPORTED_VERSIONS) (default version: $(DEFAULT_VER))"

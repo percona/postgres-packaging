@@ -82,6 +82,9 @@ endif
 %:
 	dh $@
 
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
 override_dh_auto_configure-indep: stamp/configure-build
 override_dh_auto_configure-arch: stamp/configure-build
 ifeq ($(HAVE_PYTHON2),yes)

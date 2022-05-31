@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.15 testing
+    percona-release enable ppg-11.16 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.15 testing
+    percona-release enable ppg-11.16 testing
     return
 }
 
@@ -139,17 +139,17 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/wal2json/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/wal2json/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/wal2json/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/control.in
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/rules
     echo 11 > pgversions
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/wal2json/percona-wal2json.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/wal2json/wal2json-pg11-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/percona-wal2json.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/wal2json-pg11-makefile-pgxs.patch
     cd ${WORKDIR}
     #
     source wal2json.properties
@@ -235,7 +235,7 @@ install_deps() {
       apt-get -y install gnupg2
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential clang-11 pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-11 percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config"
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-11 percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
@@ -465,8 +465,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=3
+DEB_RELEASE=3
 REVISION=0
 BRANCH="wal2json_2_4"
 REPO="https://github.com/eulerto/wal2json.git"
@@ -474,7 +474,7 @@ PRODUCT=percona-wal2json
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.4'
-RELEASE='2'
+RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

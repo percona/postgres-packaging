@@ -1,0 +1,12 @@
+--- rules	2022-05-25 21:42:21.498261494 +0300
++++ rules	2022-05-25 21:43:02.926278175 +0300
+@@ -11,6 +11,9 @@
+ %:
+ 	dh $@
+ 
++override_dh_builddeb:
++	dh_builddeb -- -Zgzip
++
+ override_dh_auto_configure:
+ 	# src contains a seperate configure script.
+ 	cd $(CURDIR)/src && ./configure --prefix=/usr --bindir=/usr/bin

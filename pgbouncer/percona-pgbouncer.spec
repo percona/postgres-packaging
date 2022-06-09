@@ -2,8 +2,8 @@
 %global sname pgbouncer
 
 Name:		percona-pgbouncer
-Version:	1.16.1
-Release:	3%{?dist}
+Version:	1.17.0
+Release:	1%{?dist}
 Summary:	Lightweight connection pooler for PostgreSQL
 License:	MIT and BSD
 URL:		https://www.pgbouncer.org/
@@ -16,7 +16,6 @@ Source3:	%{sname}.logrotate
 Source4:	%{sname}.service
 Source5:	%{sname}.service.rhel7
 Patch0:		%{sname}-ini.patch
-Patch1:		%{sname}-mkauth-py3.patch
 
 BuildRequires:	libevent-devel libtool pandoc
 Requires:	libevent-devel
@@ -43,7 +42,6 @@ pgbouncer uses libevent for low-level socket handling.
 %prep
 %setup -q
 %patch0 -p0
-%patch1 -p0
 
 
 %build

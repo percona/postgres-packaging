@@ -24,6 +24,10 @@ export DH_PIP_EXTRA_ARGS=-I
 %:
 	dh $@ --with=python3 --buildsystem=pybuild
 
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
+
 override_dh_auto_clean:
 	-dh_auto_clean
 	rm -rf docs/build features/output coverage.xml .coverage*

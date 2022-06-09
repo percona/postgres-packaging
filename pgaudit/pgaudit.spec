@@ -1,7 +1,7 @@
 %define pginstdir /usr/pgsql-13/
 
 Name:           percona-pgaudit
-Version:        1.5.1
+Version:        1.5.2
 Release:        1%{?dist}
 Summary:        PostgreSQL Audit Extension
 Packager:       Percona Development Team <https://jira.percona.com>

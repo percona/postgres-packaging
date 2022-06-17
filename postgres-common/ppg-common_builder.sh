@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres-common/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres-common/maintscripts-functions.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres-common/percona-postgresql-common.templates.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres-common/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres-common/supported-versions.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/postgres-common/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/postgres-common/maintscripts-functions.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/postgres-common/percona-postgresql-common.templates.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/postgres-common/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/postgres-common/supported-versions.patch
     patch -p0 < maintscripts-functions.patch
         patch -p0 < supported-versions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -145,13 +145,14 @@ get_sources(){
 	sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
+	sed -i 's:14:11:g' supported-versions
     cd ../
     cd rpm
     	for file in $(ls | grep postgresql); do
         mv $file "percona-$file"
     done
 	rm -rf percona-postgresql-common.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.15/postgres-common/percona-postgresql-common.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -443,12 +444,12 @@ INSTALL=0
 RPM_RELEASE=3
 DEB_RELEASE=3
 REVISION=0
-BRANCH="debian/237"
+BRANCH="debian/241"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='237'
+VERSION='241'
 RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

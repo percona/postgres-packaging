@@ -381,6 +381,7 @@ Provides:       %{vname}-contrib = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-contrib = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-contrib <= %{version}-%{release}
 Obsoletes:      %{vname}-contrib <= %{version}-%{release}
+Conflicts:      percona-postgresql14-plpython3 <= 14.3-3
 
 %ifarch ppc64 ppc64le
 AutoReq:        0

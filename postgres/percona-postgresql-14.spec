@@ -1430,9 +1430,6 @@ fi
 %files plpython3 -f pg_plpython3.lst
 %{pgbaseinstdir}/share/extension/plpython3*
 %{pgbaseinstdir}/lib/plpython3.so
-%{pgbaseinstdir}/lib/hstore_plpython3.so
-%{pgbaseinstdir}/lib/jsonb_plpython3.so
-%{pgbaseinstdir}/lib/ltree_plpython3.so
 %{pgbaseinstdir}/share/extension/*_plpython3u*
 %endif
 

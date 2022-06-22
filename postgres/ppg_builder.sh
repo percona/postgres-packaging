@@ -127,8 +127,8 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres/control
         sed -i 's/postgresql-14/percona-postgresql-14/' percona-postgresql-14.templates
 	echo "9" > compat
     cd ../
@@ -485,13 +485,13 @@ INSTALL=0
 RPM_RELEASE=3
 DEB_RELEASE=3
 REVISION=0
-BRANCH="REL_14.3"
+BRANCH="REL_14_4"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='14'
-RELEASE='3'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

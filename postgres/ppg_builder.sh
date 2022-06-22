@@ -138,7 +138,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-14.spec
-        wget  https://raw.githubusercontent.com/percona/postgres-packaging/14.3/postgres/percona-postgresql-14.spec
+        wget  https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres/percona-postgresql-14.spec
     cd ../
     cd ${WORKDIR}
     #

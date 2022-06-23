@@ -374,7 +374,6 @@ includes HTML version of the documentation.
 
 %package contrib
 Summary:        Contributed source and binaries distributed with PostgreSQL
-Requires(pre):  percona-postgresql14-plpython3 >= 14.4-%{release}
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
 Provides:       postgresql-contrib >= %{version}-%{release}
@@ -382,6 +381,7 @@ Provides:       %{vname}-contrib = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-contrib = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-contrib <= %{version}-%{release}
 Obsoletes:      %{vname}-contrib <= %{version}-%{release}
+Obsoletes:      percona-postgresql14-plpython3 >= 14.3-%{release}
 
 %ifarch ppc64 ppc64le
 AutoReq:        0

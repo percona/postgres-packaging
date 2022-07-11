@@ -1,0 +1,21 @@
+Source: percona-ppg-server-14
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+Standards-Version: 14.4 
+Homepage: www.percona.com
+
+Package: percona-ppg-server-14
+Architecture: any
+Depends: 
+ percona-postgresql-14, 
+ percona-postgresql-common, 
+ percona-pg-stat-monitor14, 
+ percona-postgresql-14-pgaudit, 
+ percona-postgresql-14-repack, 
+ percona-postgresql-contrib, 
+ percona-postgresql-14-wal2json  
+Description: base selection of PostgreSQL14 components 
+ Percona Distribution for PostgreSQL provides the best and most critical enterprise
+ components from the open-source community, in a single distribution, designed and 
+ tested to work together.

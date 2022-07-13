@@ -381,6 +381,8 @@ Provides:       %{vname}-contrib = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-contrib = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-contrib <= %{version}-%{release}
 Obsoletes:      %{vname}-contrib <= %{version}-%{release}
+Obsoletes:      percona-postgresql14-plpython3 <= %{epoch}:14.3-%{release}
+Obsoletes:      percona-postgresql14-plpython3 <= 14.3-%{release}
 
 %ifarch ppc64 ppc64le
 AutoReq:        0
@@ -1430,9 +1432,6 @@ fi
 %files plpython3 -f pg_plpython3.lst
 %{pgbaseinstdir}/share/extension/plpython3*
 %{pgbaseinstdir}/lib/plpython3.so
-%{pgbaseinstdir}/lib/hstore_plpython3.so
-%{pgbaseinstdir}/lib/jsonb_plpython3.so
-%{pgbaseinstdir}/lib/ltree_plpython3.so
 %{pgbaseinstdir}/share/extension/*_plpython3u*
 %endif
 

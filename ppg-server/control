@@ -13,8 +13,8 @@ Depends:
  percona-postgresql-contrib, 
  percona-postgresql-14-pgaudit, 
  percona-postgresql-14-repack, 
- percona-postgresql-14-wal2json  
- percona-pg-stat-monitor14, 
+ percona-postgresql-14-wal2json, 
+ percona-pg-stat-monitor14
 Description: base selection of PostgreSQL14 components 
  This package provides the best and most critical Percona Distribution for PostgreSQL
  enterprise components from the open-source community, in a single distribution,

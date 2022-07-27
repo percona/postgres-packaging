@@ -22,9 +22,9 @@ Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 
 %description
-This package provides the best and most critical Percona Distribution for PostgreSQL
-enterprise components from the open-source community, in a single distribution,
-designed and tested to work together.
+Essential / key PostgreSQL14 components.
+Percona Distribution for PostgreSQL features core components, tools and add-ons 
+from the community, tested to work together in demanding enterprise environments.
 
 %files
 

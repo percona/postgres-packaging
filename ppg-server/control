@@ -15,7 +15,6 @@ Depends:
  percona-postgresql-14-repack, 
  percona-postgresql-14-wal2json, 
  percona-pg-stat-monitor14
-Description: base selection of PostgreSQL14 components 
- This package provides the best and most critical Percona Distribution for PostgreSQL
- enterprise components from the open-source community, in a single distribution,
- designed and tested to work together.
+Description: Essential / key PostgreSQL14 components 
+ Percona Distribution for PostgreSQL features core components, tools and add-ons
+ from the community, tested to work together in demanding enterprise environments.

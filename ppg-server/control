@@ -1,0 +1,20 @@
+Source: percona-ppg-server-13
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+Standards-Version: 13.7 
+Homepage: https://www.percona.com/software/postgresql-distribution
+
+Package: percona-ppg-server-13
+Architecture: any
+Depends: 
+ percona-postgresql-13, 
+ percona-postgresql-common, 
+ percona-postgresql-contrib, 
+ percona-postgresql-13-pgaudit, 
+ percona-postgresql-13-repack, 
+ percona-postgresql-13-wal2json, 
+ percona-pg-stat-monitor13
+Description: Essential / key PostgreSQL13 components 
+ Percona Distribution for PostgreSQL features core components, tools and add-ons
+ from the community, tested to work together in demanding enterprise environments.

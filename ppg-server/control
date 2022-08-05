@@ -1,0 +1,20 @@
+Source: percona-ppg-server-11
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+Standards-Version: 11.16 
+Homepage: https://www.percona.com/software/postgresql-distribution
+
+Package: percona-ppg-server-11
+Architecture: any
+Depends: 
+ percona-postgresql-11, 
+ percona-postgresql-common, 
+ percona-postgresql-contrib, 
+ percona-postgresql-11-pgaudit, 
+ percona-postgresql-11-repack, 
+ percona-postgresql-11-wal2json, 
+ percona-pg-stat-monitor11
+Description: Essential / key PostgreSQL11 components 
+ Percona Distribution for PostgreSQL features core components, tools and add-ons
+ from the community, tested to work together in demanding enterprise environments.

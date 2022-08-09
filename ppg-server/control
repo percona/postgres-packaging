@@ -1,0 +1,20 @@
+Source: percona-ppg-server-12
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+Standards-Version: 12.11 
+Homepage: https://www.percona.com/software/postgresql-distribution
+
+Package: percona-ppg-server-12
+Architecture: any
+Depends: 
+ percona-postgresql-12, 
+ percona-postgresql-common, 
+ percona-postgresql-contrib, 
+ percona-postgresql-12-pgaudit, 
+ percona-postgresql-12-repack, 
+ percona-postgresql-12-wal2json, 
+ percona-pg-stat-monitor12
+Description: Essential / key PostgreSQL12 components 
+ Percona Distribution for PostgreSQL features core components, tools and add-ons
+ from the community, tested to work together in demanding enterprise environments.

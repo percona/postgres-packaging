@@ -1,0 +1,16 @@
+Source: percona-ppg-server-ha-12
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+Standards-Version: 12.11.0
+Homepage: www.percona.com
+
+Package: percona-ppg-server-ha-12
+Architecture: any
+Depends:
+ etcd,
+ percona-patroni,
+ percona-haproxy
+Description: Essential / key PostgreSQL12 high availability components
+ Percona Distribution for PostgreSQL features core components, tools and add-ons
+ from the community, tested to work together in demanding enterprise environments

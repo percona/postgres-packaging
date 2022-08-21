@@ -1,6 +1,6 @@
 Name:           percona-postgresql-common
 Version:        %{version}
-Release:        4%{?dist}
+Release:        5%{?dist}
 BuildArch:      noarch
 Summary:        PostgreSQL database-cluster manager
 Provides:       postgresql-common

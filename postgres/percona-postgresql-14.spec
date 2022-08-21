@@ -1,3 +1,5 @@
+%undefine _package_note_file
+
 # These are macros to be used with find_lang and other stuff
 %global packageversion 140
 %global pgpackageversion 14
@@ -27,7 +29,7 @@
 
 # All Fedora releases now use Python3
 # Support Python3 on RHEL 7.7+ natively
-# RHEL 8 uses Python3
+# RHEL 8+ use Python3
 %{!?plpython3:%global plpython3 1}
 
 %if 0%{?suse_version}
@@ -69,6 +71,10 @@
 %global _hardened_build 1
 %endif
 
+#Filter out some Perl "dependencies"
+%global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
+%global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
+
 %if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch ppc64 ppc64le
 %pgdg_set_ppc64le_compiler_at10
@@ -77,14 +83,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        14.4
+Version:        14.5
 Release:        3%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-14.4.tar.gz
+Source0:        percona-postgresql-14.5.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -110,8 +116,8 @@ BuildRequires:  perl glibc-devel bison flex >= 2.5.31
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  readline-devel zlib-devel >= 1.0.4
 %if 0%{?rhel} || 0%{?fedora}
-BuildRequires:	lz4-devel
-Requires:	lz4
+BuildRequires:  lz4-devel
+Requires:       lz4
 %endif
 # This dependency is needed for Source 16:
 %if 0%{?fedora} || 0%{?rhel} > 7
@@ -598,8 +604,6 @@ PostgreSQL database management system, including regression tests and
 benchmarks.
 %endif
 
-%global __perl_requires %{SOURCE16}
-
 %prep
 %setup -q -n percona-postgresql-%{version}
 %patch1 -p0
@@ -640,8 +644,8 @@ CFLAGS="${CFLAGS:-%optflags}"
 export CFLAGS
 
 %if %plpython3
-
 export PYTHON=/usr/bin/python3
+%endif
 
 %if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch aarch64
@@ -725,7 +729,6 @@ export PYTHON=/usr/bin/python3
 %ifarch ppc64 ppc64le
         --with-includes=%{atpath}/include \
         --with-libraries=%{atpath}/lib64 \
-%endif
 %endif
         --with-system-tzdata=%{_datadir}/zoneinfo \
         --sysconfdir=/etc/sysconfig/pgsql \
@@ -1163,7 +1166,11 @@ fi
 
 %files contrib -f pg_contrib.lst
 %defattr(-,root,root)
+%if 0%{?rhel} && 0%{?rhel} == 7
 %doc %{pgbaseinstdir}/doc/extension/*.example
+%else
+%doc %{pgbaseinstdir}/share/doc/extension/*.example
+%endif
 %{pgbaseinstdir}/lib/_int.so
 %{pgbaseinstdir}/lib/adminpack.so
 %{pgbaseinstdir}/lib/amcheck.so
@@ -1351,7 +1358,12 @@ fi
 %{pgbaseinstdir}/share/system_functions.sql
 %{pgbaseinstdir}/share/system_views.sql
 %{pgbaseinstdir}/share/*.sample
+%if 0%{?rhel} && 0%{?rhel} == 7
 %{pgbaseinstdir}/share/timezonesets/*
+%else
+%{pgbaseinstdir}/share/timezonesets/*
+%{pgbaseinstdir}/share/timezone/*
+%endif
 %{pgbaseinstdir}/share/tsearch_data/*.affix
 %{pgbaseinstdir}/share/tsearch_data/*.dict
 %{pgbaseinstdir}/share/tsearch_data/*.ths

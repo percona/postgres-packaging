@@ -77,11 +77,11 @@ add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.2 testing
+    percona-release enable ppg-14.5 testing
     return
 }
 
@@ -200,10 +200,10 @@ install_deps() {
         yum -y install centos-release-scl
         yum -y install curl
         RHEL=$(rpm --eval %rhel)
-        if [ ${RHEL} = 8 ]; then
+        if [ ${RHEL} -gt 7 ]; then
             yum config-manager --enable PowerTools AppStream BaseOS *epel
             dnf -qy module disable postgresql
-            dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+            dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
             dnf clean all
             rm -r /var/cache/dnf
             dnf -y upgrade

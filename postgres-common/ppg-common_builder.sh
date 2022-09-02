@@ -77,7 +77,7 @@ add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     return
 }
@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres-common/supported-versions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/supported-versions.patch
         patch -p0 < maintscripts-functions.patch
         patch -p0 < supported-versions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -151,7 +151,7 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -200,7 +200,7 @@ install_deps() {
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
       yum -y install epel-release
@@ -440,8 +440,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=4
-DEB_RELEASE=4
+RPM_RELEASE=5
+DEB_RELEASE=5
 REVISION=0
 BRANCH="debian/241"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -449,7 +449,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='241'
-RELEASE='4'
+RELEASE='5'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 
 check_workdir

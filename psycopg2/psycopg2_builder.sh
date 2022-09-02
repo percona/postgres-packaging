@@ -77,7 +77,7 @@ add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-14.0 testing
+    percona-release enable ppg-14.5 testing
     return
 }
 
@@ -130,7 +130,7 @@ get_sources(){
 
     git clone https://github.com/EvgeniyPatlan/postgres-packaging.git packaging
     cd packaging
-        git checkout 14.4
+        git checkout 14.5
     cd ../
     mv packaging/psycopg2/debian ./
     cd debian/
@@ -188,12 +188,12 @@ install_deps() {
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
-      if [ ${RHEL} = 8 ]; then
-          dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+      if [ ${RHEL} -gt 7 ]; then
+          dnf -y module disable postgresql || true
+          dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade

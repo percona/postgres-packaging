@@ -4,7 +4,7 @@
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
-Version:        %{version}
+Version:        %{pgmajorversion}.%{version}  
 Release:        1%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases
@@ -29,5 +29,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
+* Fri Sep 23 2022 Surabhi Bhat <surabhi.bhat> 14.4-1
+- Update version for ppg-server meta-package
 * Wed Jul 20 2022 Kai Wagner <kai.wagner@percona.com> 14.4-1
 - Initial build

@@ -17,6 +17,7 @@ Usage: $0 [OPTIONS]
         --install_deps      Install build dependencies(root privilages are required)
         --branch            Branch for build
         --repo              Repo for build
+        --version           Packaging repo
         --help) usage ;;
 Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
 EOF
@@ -46,6 +47,7 @@ parse_arguments() {
             --get_sources=*) SOURCE="$val" ;;
             --branch=*) BRANCH="$val" ;;
             --repo=*) REPO="$val" ;;
+            --version=*) VERSION=$(echo $val|awk -F'-' '{print $2}') ;;
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
@@ -124,7 +126,8 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/ppg-server/control
+    wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/14.4/ppg-server/control
+    wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/14.4/ppg-server/rules
     echo 9 > compat
     echo "percona-ppg-server-14 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -133,7 +136,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/ppg-server/ppg-server.spec
+    wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/14.4/ppg-server/ppg-server.spec
     cd ${WORKDIR}
     #
     source ppg-server.properties
@@ -158,6 +161,8 @@ get_system(){
         OS="rpm"
     else
         ARCH=$(uname -m)
+        apt-get -y update
+        apt-get -y install lsb-release
         OS_NAME="$(lsb_release -sc)"
         OS="deb"
     fi
@@ -182,9 +187,6 @@ install_deps() {
 
     if [ "x$OS" = "xrpm" ]; then
       RHEL=$(rpm --eval %rhel)
-      if [ x"$RHEL" = x8 ]; then
-        switch_to_vault_repo
-      fi
       yum -y install wget
       add_percona_yum_repo
       yum clean all
@@ -195,21 +197,20 @@ install_deps() {
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          switch_to_vault_repo
           yum -y install perl lz4-libs c-ares-devel
-	  yum -y install rpmbuild
       fi
-      INSTALL_LIST="git rpm-build rpmdevtools wget rpmbuild rpmlint"
+      INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 
     else
-      export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
+      apt-get -y update
+      apt-get -y install wget curl lsb-release gnupg2
+      export DEBIAN=$(lsb_release -sc)
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="debconf debhelper devscripts dh-exec git wget"
+      INSTALL_LIST="debconf debhelper devscripts dh-exec git"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
@@ -352,7 +353,7 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-ppg-server*
+    #rm -rf percona-ppg-server*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
@@ -389,12 +390,17 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
+    #
+
     #for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
     for file in 'dsc' 'orig.tar.gz' 'changes'
     do
         get_deb_sources $file
     done
     cd $WORKDIR
+    TARFILE=$(basename $(find . -name 'percona-ppg-server*.tar.gz' | sort | tail -n1))
+    tar zxf ${TARFILE}
+
     rm -fv *.deb
     #
     export DEBIAN=$(lsb_release -sc)
@@ -436,11 +442,11 @@ RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
 BRANCH="v14.4"
-REPO="https://github.com/percona/postgres-packaging.git"
+REPO="https://github.com/surbhat1595/postgres-packaging.git"
 PRODUCT=percona-ppg-server-14
 DEBUG=0
+VERSION='ppg-14.4'
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='14.4'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

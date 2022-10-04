@@ -24,7 +24,7 @@ BuildRequires:  perl(DBD::Pg)
 BuildRequires:  perl(Digest::SHA)
 BuildRequires:  perl(IO::Socket::SSL)
 BuildRequires:  perl(JSON::PP)
-BuildRequires:	percona-postgresql14-devel
+BuildRequires:	percona-postgresql15-devel
 Requires:       perl-libxml-perl
 Requires:       perl(DBD::Pg)
 Requires:       perl(Digest::SHA)

@@ -1,18 +1,18 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/pkg-info.mk
 VERSION := $(shell dpkg-parsechangelog | awk '/^Version:/ { print $$2 }')
-ifneq ($(findstring bpo,$(VERSION)),)
+ifneq ($(findstring bpo,$(DEB_VERSION)),)
 	FLAVOR := debian-backports
-else ifneq ($(findstring pgdg,$(VERSION)),)
+else ifneq ($(findstring pgdg,$(DEB_VERSION)),)
 	FLAVOR := pgdg
 	# for apt.postgresql.org builds, pull in the repository key package
 	PGDG_DEPENDS := pgdg-keyring
 else
 	FLAVOR := default
 endif
-SUPPORTED_VERSIONS := 14
-DEFAULT_VER := 14
-LIBREADLINE := $(shell dpkg-query -W --showformat '$${Status} $${Package}\n' 'libreadline[0-9]'| sed -n '/ installed / {s/^.* //; p}'|sort -ru | head -n1)
+SUPPORTED_VERSIONS := 15
+DEFAULT_VER := 15
 
 #py2#PYTHON2_PACKAGE=postgresql-plpython-$v
 
@@ -38,9 +38,13 @@ override_dh_gencontrol:
 	# the versionless metapackages need to have version numbers which match
 	# the server version, not the p-common version
 	dh_gencontrol -ppercona-postgresql -ppercona-postgresql-client -ppercona-postgresql-doc -ppercona-postgresql-contrib -ppercona-postgresql-all -- \
-                -Vdefault-version="$(DEFAULT_VER)" -v'$${source:Version}' \
-                -Vpostgresql-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-contrib-$v,percona-postgresql-plperl-$v,$(if $(filter 8.% 9.% 10 11, $v), $(PYTHON2_PACKAGE)),percona-postgresql-plpython3-$v,percona-postgresql-pltcl-$v,)"
+		-Vdefault-version="$(DEFAULT_VER)" -v'$${source:Version}' \
+		-Vpostgresql-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-contrib-$v,percona-postgresql-plperl-$v,$(if $(filter 8.% 9.% 10 11, $v), $(PYTHON2_PACKAGE)),percona-postgresql-plpython3-$v,percona-postgresql-pltcl-$v,)"
 
-	dh_gencontrol -ppostgresql-client-common -- -Vpgdg:Depends="$(PGDG_DEPENDS)" -Vreadline:Recommends=$(LIBREADLINE)
+	dh_gencontrol -ppostgresql-client-common -- \
+		-Vpgdg:Depends="$(PGDG_DEPENDS)"
+
+	dh_gencontrol -ppercona-postgresql-all -- \
+		-Vpostgresql-all-depends="$(foreach v,$(SUPPORTED_VERSIONS),percona-postgresql-contrib-$v,percona-postgresql-plperl-$v,$(if $(filter 8.% 9.% 10 11, $v), $(PYTHON2_PACKAGE)),percona-postgresql-plpython3-$v,percona-postgresql-pltcl-$v,)"
 
 	dh_gencontrol --remaining-packages

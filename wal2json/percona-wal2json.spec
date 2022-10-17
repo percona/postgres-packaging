@@ -1,11 +1,11 @@
 %global sname wal2json
-%global pgmajorversion 14
+%global pgmajorversion 15
 %global _default_patch_fuzz 2
 
 Summary:	JSON output plugin for changeset extraction
 Name:		percona-%{sname}%{pgmajorversion}
-Version:	2.4
-Release:	5%{?dist}
+Version:	2.5
+Release:	1%{?dist}
 Epoch:		1
 License:	BSD
 Source0:	percona-%{sname}-%{version}.tar.gz

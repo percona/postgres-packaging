@@ -4,7 +4,7 @@
 Summary:        PostgreSQL database adapter for Python
 Name:           python3-%{srcname}
 Version:        2.8.6
-Release:        4%{?dist}
+Release:        5%{?dist}
 # The exceptions allow linking to OpenSSL and PostgreSQL's libpq
 License:        LGPLv3+ with exceptions
 URL:            http://initd.org/psycopg/

@@ -25,5 +25,5 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 14.5-1
+* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 15.0-1
 - Initial build

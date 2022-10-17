@@ -39,7 +39,7 @@ Requires:      python3-pyyaml, python3-urllib3, python3-prettytable, python3-six
 Requires:      python36-six python2-pyyaml python36-urllib3 python36-prettytable python36-dateutil python36-click python36-psutil python36-PyYAML python36-psycopg2
 %endif
 Requires:      python3, libffi, postgresql-server, libyaml, python3-ydiff, ydiff, python3-pysyncobj
-Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresql14-server
+Requires:      /usr/bin/python3.6, libffi, postgresql-server, libyaml, postgresql15-server
 BuildRequires: prelink libyaml-devel gcc
 Provides:      patroni
 Epoch:         1

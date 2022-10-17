@@ -749,6 +749,7 @@ export PYTHON=/usr/bin/python3
         --mandir=%{pgbaseinstdir}/share/man \
         --datadir=%{pgbaseinstdir}/share \
         --libdir=%{pgbaseinstdir}/lib \
+        --with-extra-version=" - Percona Distribution" \
 %if %beta
         --enable-debug \
         --enable-cassert \

@@ -47,7 +47,7 @@ COMMON_CONFIGURE_FLAGS= \
   --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)/ \
   --libexecdir=/usr/lib/postgresql/ \
   --includedir=/usr/include/postgresql/ \
-  --with-extra-version=" ($(DEB_VENDOR) $(DEB_VERSION))" \
+  --with-extra-version="Percona Distribution ($(DEB_VENDOR) $(DEB_VERSION))" \
   --enable-nls \
   --enable-thread-safety \
   --enable-tap-tests \

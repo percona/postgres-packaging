@@ -98,14 +98,14 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-ppg-server-14
-    echo "PRODUCT=${PRODUCT}" > ppg-server.properties
+    PRODUCT=percona-ppg-server-ha-14
+    echo "PRODUCT=${PRODUCT}" > ppg-server-ha.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> ppg-server.properties
-    echo "VERSION=${PSM_VER}" >> ppg-server.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ppg-server.properties
-    echo "BUILD_ID=${BUILD_ID}" >> ppg-server.properties
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> ppg-server-ha.properties
+    echo "VERSION=${PSM_VER}" >> ppg-server-ha.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ppg-server-ha.properties
+    echo "BUILD_ID=${BUILD_ID}" >> ppg-server-ha.properties
     git clone "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
@@ -122,34 +122,34 @@ get_sources(){
         git submodule update --init
     fi
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/ppg-server.properties
-    
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/ppg-server-ha.properties
+
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/ppg-server/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/ppg-server/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/ppg-server-ha/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/ppg-server-ha/rules
     echo 9 > compat
-    echo "percona-ppg-server-14 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-ppg-server-ha-14 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
 
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/ppg-server/ppg-server.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.4/ppg-server-ha/ppg-server-ha.spec
     cd ${WORKDIR}
     #
-    source ppg-server.properties
+    source ppg-server-ha.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> ppg-server.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> ppg-server-ha.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-ppg-server*
+    rm -rf percona-ppg-server-ha*
     return
 }
 
@@ -221,10 +221,10 @@ install_deps() {
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-ppg-server*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-ppg-server-ha*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-ppg-server*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-ppg-server-ha*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -241,10 +241,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-ppg-server*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-ppg-server-ha*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-ppg-server*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "percona-ppg-server-ha*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -273,18 +273,18 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-ppg-server*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name 'percona-ppg-server-ha*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/ppg-server.spec rpmbuild/SPECS
+    cp -av rpm/ppg-server-ha.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/ppg-server.spec
+        --define "version ${VERSION}" rpmbuild/SPECS/ppg-server-ha.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -303,10 +303,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-ppg-server*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-ppg-server-ha*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-ppg-server*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-ppg-server-ha*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -353,20 +353,21 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    #rm -rf percona-ppg-server*
+    #rm -rf percona-ppg-server-ha*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-ppg-server*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'percona-ppg-server-ha*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
+
     
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}    
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new ppg-server version ${VERSION}"
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new ppg-server-ha version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -390,24 +391,21 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    #
-
     #for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
     for file in 'dsc' 'orig.tar.gz' 'changes'
     do
         get_deb_sources $file
     done
     cd $WORKDIR
-    TARFILE=$(basename $(find . -name 'percona-ppg-server*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'percona-ppg-server-ha*.tar.gz' | sort | tail -n1))
     tar zxf ${TARFILE}
-
     rm -fv *.deb
     #
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> ppg-server.properties
-    echo "ARCH=${ARCH}" >> ppg-server.properties
+    echo "DEBIAN=${DEBIAN}" >> ppg-server-ha.properties
+    echo "ARCH=${ARCH}" >> ppg-server-ha.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
@@ -426,7 +424,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/ppg-server.properties
+VERSION_FILE=$CURDIR/ppg-server-ha.properties
 args=
 WORKDIR=
 SRPM=0
@@ -443,7 +441,7 @@ DEB_RELEASE=1
 REVISION=0
 BRANCH="v14.4"
 REPO="https://github.com/percona/postgres-packaging.git"
-PRODUCT=percona-ppg-server-14
+PRODUCT=percona-ppg-server-ha-14
 DEBUG=0
 VERSION='ppg-14.4'
 parse_arguments PICK-ARGS-FROM-ARGV "$@"

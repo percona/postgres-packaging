@@ -1,10 +1,10 @@
 %global sname   percona-ppg-server
-%global pgmajorversion 14
-%global version 4
+%global pgmajorversion 15
+%global version 0
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
-Version:        %{version}
+Version:        %{pgmajorversion}.%{version}
 Release:        1%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases
@@ -14,20 +14,22 @@ Vendor:         Percona, LLC
 BuildArch:      noarch
 
 Requires:       percona-postgresql%{pgmajorversion}-server
-Requires:       percona-postgresql-common > 14.0
+Requires:       percona-postgresql-common > 15.0
 Requires:       percona-postgresql%{pgmajorversion}-contrib
 Requires:       percona-pg-stat-monitor%{pgmajorversion}
-Requires:       percona-pgaudit > 14.0
+Requires:       percona-pgaudit > 15.0
 Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 
 %description
-Essential / key PostgreSQL14 components.
+Essential / key PostgreSQL15 components.
 Percona Distribution for PostgreSQL features core components, tools and add-ons 
 from the community, tested to work together in demanding enterprise environments.
 
 %files
 
 %changelog
+* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 15.0-1
+- Update version for ppg-server meta-package
 * Wed Jul 20 2022 Kai Wagner <kai.wagner@percona.com> 15.0-1
 - Initial build

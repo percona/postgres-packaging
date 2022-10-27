@@ -1,20 +1,20 @@
-Source: percona-ppg-server-14
+Source: percona-ppg-server-15
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
 Standards-Version: 15.0 
 Homepage: https://www.percona.com/software/postgresql-distribution
 
-Package: percona-ppg-server-14
+Package: percona-ppg-server-15
 Architecture: any
 Depends: 
- percona-postgresql-14, 
+ percona-postgresql-15, 
  percona-postgresql-common, 
  percona-postgresql-contrib, 
- percona-postgresql-14-pgaudit, 
- percona-postgresql-14-repack, 
- percona-postgresql-14-wal2json, 
- percona-pg-stat-monitor14
-Description: Essential / key PostgreSQL14 components 
+ percona-postgresql-15-pgaudit, 
+ percona-postgresql-15-repack, 
+ percona-postgresql-15-wal2json, 
+ percona-pg-stat-monitor15
+Description: Essential / key PostgreSQL15 components 
  Percona Distribution for PostgreSQL features core components, tools and add-ons
  from the community, tested to work together in demanding enterprise environments.

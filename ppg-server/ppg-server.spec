@@ -1,10 +1,10 @@
 %global sname   percona-ppg-server
 %global pgmajorversion 11
-%global version 16
+%global version 17
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
-Version:        %{version}
+Version:        %{pgmajorversion}.%{version}
 Release:        1%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases
@@ -29,5 +29,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
+* Mon Oct 31 2022 Surabhi Bhat <surabhi.bhat> 11.17-1
+- Update version for ppg-server meta-package
 * Fri Aug 05 2022 Kai Wagner <kai.wagner@percona.com> 11.16-1
 - Initial build

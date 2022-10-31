@@ -2,7 +2,7 @@ Source: percona-ppg-server-12
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 12.11 
+Standards-Version: 12.12 
 Homepage: https://www.percona.com/software/postgresql-distribution
 
 Package: percona-ppg-server-12

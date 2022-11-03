@@ -4,7 +4,7 @@
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
-Version:        %{pgmajorversion} %{version}
+Version:        %{pgmajorversion}.%{version}
 Release:        1%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases

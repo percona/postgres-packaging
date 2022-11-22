@@ -77,7 +77,7 @@ add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     return
 }
@@ -126,16 +126,16 @@ get_sources(){
             newname=$(echo $file| awk -F'percona-' '{print $2}'); 
 	    mv $file $newname; 
         done
-	rm -rf rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.11/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.11/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.11/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.11/postgres-common/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.11/postgres-common/supported-versions.patch
+	rm -rf rules control supported-versions 
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.13/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.13/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.13/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.13/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/12.13/postgres-common/supported-versions
+	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
-        patch -p0 < supported-versions.patch
         patch -p0 < percona-postgresql-common.templates.patch
-        rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch supported-versions.patch 
+        rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch
 	rm -rf changelog
         echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
         echo "  * Initial Release." >> changelog
@@ -145,13 +145,16 @@ get_sources(){
 	sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
+	echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
     cd ../
+    sudo chmod +x pgcommon.sh
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.13/postgres-common/pgcommon.sh
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.11/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.6/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -159,7 +162,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-12/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-14/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -200,7 +203,7 @@ install_deps() {
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
       yum -y install epel-release
@@ -418,7 +421,7 @@ build_deb(){
     fi
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
-    sed -i '33,55d' Makefile
+    sed -i '38,55d' Makefile
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
@@ -426,7 +429,7 @@ build_deb(){
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
-export GIT_SSL_NO_VERIFY=1
+
 CURDIR=$(pwd)
 VERSION_FILE=$CURDIR/percona-server-mongodb.properties
 args=
@@ -440,8 +443,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=6
+DEB_RELEASE=6
 REVISION=0
 BRANCH="debian/241"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -449,7 +452,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='241'
-RELEASE='3'
+RELEASE='6'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 
 check_workdir

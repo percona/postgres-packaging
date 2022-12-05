@@ -77,11 +77,11 @@ add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.16 testing
+    percona-release enable ppg-11.18 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-11.16 testing
+    percona-release enable ppg-11.18 testing
     return
 }
 
@@ -139,17 +139,17 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     rm -f control rules
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/control.in
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.18/wal2json/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.18/wal2json/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.18/wal2json/rules
     echo 11 > pgversions
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/percona-wal2json.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.16/wal2json/wal2json-pg11-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.18/wal2json/percona-wal2json.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/11.18/wal2json/wal2json-pg11-makefile-pgxs.patch
     cd ${WORKDIR}
     #
     source wal2json.properties
@@ -205,11 +205,11 @@ install_deps() {
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
-      if [ ${RHEL} = 8 ]; then
+      if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+          dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
@@ -465,16 +465,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="wal2json_2_4"
+BRANCH="wal2json_2_5"
 REPO="https://github.com/eulerto/wal2json.git"
 PRODUCT=percona-wal2json
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.4'
-RELEASE='3'
+VERSION='2.5'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

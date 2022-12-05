@@ -2,8 +2,8 @@
 %define pginstdir /usr/pgsql-11/
 
 Name:		percona-%{sname}
-Version:	3.0.0
-Release:	2%{?dist}
+Version:	4.0.0
+Release:	1%{?dist}
 Epoch:      1
 Provides:	pgaudit11_set_user = %{version}-%{release}
 URL:        https://github.com/pgaudit/set_user.git

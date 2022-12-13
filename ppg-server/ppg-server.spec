@@ -1,6 +1,6 @@
 %global sname   percona-ppg-server
 %global pgmajorversion 13
-%global version 8
+%global version 9
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
@@ -29,7 +29,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Mon Oct 31 2022 Surabhi Bhat <surabhi.bhat> 13.8-1
+* Mon Oct 31 2022 Surabhi Bhat <surabhi.bhat> 13.9-1
 - Update version for ppg-server meta-package
-* Fri Aug 05 2022 Kai Wagner <kai.wagner@percona.com> 13.7-1
+* Fri Aug 05 2022 Kai Wagner <kai.wagner@percona.com> 13.9-1
 - Initial build

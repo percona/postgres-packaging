@@ -82,7 +82,7 @@ add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     return
 }
@@ -132,8 +132,8 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.7/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.7/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.9/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.9/postgres/control
         sed -i 's/postgresql-13/percona-postgresql-13/' percona-postgresql-13.templates
 	echo "9" > compat
     cd ../
@@ -143,7 +143,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-13.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.7/postgres/percona-postgresql-13.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/13.9/postgres/percona-postgresql-13.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -190,12 +190,12 @@ install_deps() {
 
     if [ "x$OS" = "xrpm" ]; then
       if [ x"$RHEL" = x8 ]; then
-￼          switch_to_vault_repo
+          switch_to_vault_repo
       fi
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      mv -f percona-dev.repo /etc/yum.repos.d/
+      #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
@@ -240,7 +240,7 @@ EOL
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
-      percona-release enable ppg-13.7 testing
+      percona-release enable ppg-13.9 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" ]; then
         INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev"
@@ -490,16 +490,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_13.7"
+BRANCH="REL_13.9"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='13'
-RELEASE='7'
+RELEASE='9'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

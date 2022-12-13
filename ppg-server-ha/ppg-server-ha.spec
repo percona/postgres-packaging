@@ -14,6 +14,7 @@ Vendor:         Percona, LLC
 BuildArch:      noarch
 
 Requires:       etcd
+Requires:       python3-python-etcd
 Requires:       percona-patroni
 Requires:       percona-haproxy
 
@@ -25,7 +26,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Mon Oct 31 2022 Surabhi Bhat <surabhi.bhat> 13.8-1
+* Mon Oct 31 2022 Surabhi Bhat <surabhi.bhat> 13.9-1
 - Update version for ppg-server-ha meta-package
-* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 13.7-1
+* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 13.9-1
 - Initial build

@@ -169,8 +169,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-15, percona-postgresql-doc-15
 Provides: percona-postgresql-client, postgresql-client, postgresql-client-15
-Conflicts: postgresql-server-dev-15 (<< 15.0-1~)
-Replaces: postgresql-server-dev-15 (<< 15.0-1~)
+Conflicts: postgresql-server-dev-15 (<< 15.1-1~)
+Replaces: postgresql-server-dev-15 (<< 15.1-1~)
 Description: front-end programs for PostgreSQL 15
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and

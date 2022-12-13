@@ -83,14 +83,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        15.0
+Version:        15.1
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-15.0.tar.gz
+Source0:        percona-postgresql-15.1.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -162,10 +162,10 @@ BuildRequires:  llvm-devel clang-devel
 BuildRequires:  llvm-devel >= 5.0 clang-devel >= 5.0
 %endif
 %if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-BuildRequires:  llvm6-devel clang6-devel
+BuildRequires:	llvm6-devel clang6-devel
 %endif
 %if 0%{?suse_version} >= 1500
-BuildRequires:  llvm5-devel clang5-devel
+BuildRequires:	llvm13-devel clang13-devel
 %endif
 %endif
 
@@ -1479,20 +1479,20 @@ fi
 %endif
 
 %changelog
-* Tue Sep 27 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-rc1-1
+* Tue Sep 27 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-rc1-1
 - Update to PostgreSQL 15 RC 1
 
-* Wed Sep 7 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-beta4-1
+* Wed Sep 7 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-beta4-1
 - Update to PostgreSQL 15 Beta 4
 
-* Fri Aug 19 2022 John Harvey <john.harvey@crunchydata.com> - 15.0-beta3-3
+* Fri Aug 19 2022 John Harvey <john.harvey@crunchydata.com> - 15.1-beta3-3
 - Ensure that /var/lib/pgsql is postgres-owned on SLES. This fixes
   postgres startup on SLES when using the default logfile path.
 
-* Fri Aug 12 2022 - John Harvey <john.harvey@crunchydata.com> 15.0-beta3-2
+* Fri Aug 12 2022 - John Harvey <john.harvey@crunchydata.com> 15.1-beta3-2
 - Fix macro for consistency
 
-* Tue Aug 9 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-beta3-1
+* Tue Aug 9 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-beta3-1
 - Update to PostgreSQL 15 Beta 3
 - Require LLVM and clang 13 on SLES 15, as SP4 is out and SP2 is
   already EOLed.
@@ -1500,24 +1500,24 @@ fi
 - Create a symlink of pg_regress instead of full copy to fix "duplicate
   build-id"  warning while building the package.
 
-* Tue Jul 26 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-beta2-2
+* Tue Jul 26 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-beta2-2
 - Add gcc-c++ BR expliclity.
 
-* Thu Jun 30 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-beta2-1
+* Thu Jun 30 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-beta2-1
 - Update to PostgreSQL 15 Beta 2
 
-* Fri Jun 24 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-beta1-3
+* Fri Jun 24 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-beta1-3
 - Enable LLVM on ppc64le except on RHEL 7, per report from Chuan Hua Zhao
 - Fix builds when plpython3 macro is disabled, per report from Shteryu Hristov.
 
-* Tue May 31 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-beta1-2
+* Tue May 31 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-beta1-2
 - Fix zstd conditional, per report from Justin Pryzby
 
-* Thu May 19 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-beta1-1
+* Thu May 19 2022 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-beta1-1
 - Update to PostgreSQL 15 Beta 1
 
-* Wed Jan 26 2022 John Harvey <john.harvey@crunchydata.com> - 15.0-20220126
+* Wed Jan 26 2022 John Harvey <john.harvey@crunchydata.com> - 15.1-20220126
 - Fix PAM support on suse
 
-* Thu Jun 24 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.0-alpha
+* Thu Jun 24 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-alpha
 - Initial cut for PostgreSQL 15

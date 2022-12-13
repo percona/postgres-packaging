@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.0 testing
+    percona-release enable ppg-15.1 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.0 testing
+    percona-release enable ppg-15.1 testing
     return
 }
 
@@ -135,22 +135,22 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/preinst
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/preinst
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/percona-pgbouncer.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/pgbouncer-ini.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/pgbouncer.logrotate
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/pgbouncer-mkauth-py3.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/pgbouncer.service
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/pgbouncer.service.rhel7
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/pgbouncer.sysconfig
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.0/pgbouncer/pgbouncer.init
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/percona-pgbouncer.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer-ini.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.logrotate
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer-mkauth-py3.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.service
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.service.rhel7
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.sysconfig
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.init
     cd ${WORKDIR}
     #
     source pgbouncer.properties
@@ -473,8 +473,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
 BRANCH="pgbouncer_1_17_0"
 REPO="https://github.com/pgbouncer/pgbouncer.git"
@@ -482,7 +482,7 @@ PRODUCT=percona-pgbouncer
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.17.0'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

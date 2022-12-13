@@ -126,16 +126,16 @@ get_sources(){
             newname=$(echo $file| awk -F'percona-' '{print $2}'); 
 	    mv $file $newname; 
         done
-	rm -rf rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/supported-versions.patch
+	rm -rf rules control supported-versions 
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.6/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.6/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.6/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.6/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.6/postgres-common/supported-versions
+	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
-        patch -p0 < supported-versions.patch
         patch -p0 < percona-postgresql-common.templates.patch
-        rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch supported-versions.patch 
+        rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch
 	rm -rf changelog
         echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
         echo "  * Initial Release." >> changelog
@@ -145,13 +145,16 @@ get_sources(){
 	sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
+	echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
     cd ../
+    sudo chmod +x pgcommon.sh
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.6/postgres-common/pgcommon.sh
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.5/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.6/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -418,7 +421,7 @@ build_deb(){
     fi
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
-    sed -i '33,55d' Makefile
+    sed -i '38,55d' Makefile
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
@@ -440,8 +443,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=5
-DEB_RELEASE=5
+RPM_RELEASE=6
+DEB_RELEASE=6
 REVISION=0
 BRANCH="debian/241"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -449,7 +452,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='241'
-RELEASE='5'
+RELEASE='6'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 
 check_workdir

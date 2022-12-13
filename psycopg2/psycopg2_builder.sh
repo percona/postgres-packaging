@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-14.5 testing
+    percona-release enable ppg-14.6 testing
     return
 }
 
@@ -130,7 +130,7 @@ get_sources(){
 
     git clone https://github.com/EvgeniyPatlan/postgres-packaging.git packaging
     cd packaging
-        git checkout 14.5
+        git checkout 14.6
     cd ../
     mv packaging/psycopg2/debian ./
     cd debian/

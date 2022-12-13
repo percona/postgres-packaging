@@ -1,0 +1,198 @@
+#!/bin/sh
+
+# print a list of PostgreSQL versions that are supported for the platform this
+# script runs on.
+# Note: Newer installed versions than the highest one listed here are always
+# considered supported, so that backports will not cause an "obsolete" warning.
+#
+# /usr/share/postgresql-common/supported-versions decides which PostgreSQL
+# server versions are supported. This information is used
+# 1) for notifying users of obsolete versions, suggesting to upgrade
+# 2) by postgresql-common itself (in debian/rules) to determine the
+#    dependencies of the postgresql meta packages (default version), and to
+#    generate the list of postgresql-server-dev-* packages
+#    postgresql-server-dev-all depends on
+# 3) by the pg_buildext tool to decide which server versions to build extension
+#    modules for
+#
+# The *last* version returned here will be considered the default version, the
+# remaining lines list other supported versions in an undefined order.
+#
+# * PG_SUPPORTED_VERSIONS
+# * DEB_PG_SUPPORTED_VERSIONS
+# * ~/.pg_supported_versions
+# * /etc/postgresql-common/supported_versions
+# (in that order) can be used to override the defaults. (Tokens separated by
+# newlines.)
+#
+# Recognized tokens:
+# default: use the appropiate defaults for the current distribution and release
+#          (as determined by os-release or lsb_release)
+# debian [release]: use Debian defaults
+# debian-backports [release]: use Debian Backports defaults
+# ubuntu [release]: use Ubuntu defaults
+# pgdg [release]: use defaults for apt.postgresql.org
+# installed: consider all installed versions supported (determined by
+#            postgresql-server-dev-X packages)
+# X: consider this version supported
+#
+# (C) 2005-2016 Martin Pitt <mpitt@debian.org>
+# (C) 2012-2021 Christoph Berg <myon@debian.org>
+
+set -eu
+
+# at build time, use our pgcommon.sh, not the system one (this assumes
+# debian/supported-versions is one directory deeper than ./pgcommon.sh)
+if [ -e "${0%/supported-versions}/../pgcommon.sh" ]; then
+    . "${0%/supported-versions}/../pgcommon.sh"
+else
+    . /usr/share/postgresql-common/pgcommon.sh
+fi
+
+DEFAULT="11"
+
+# functions
+
+default() {
+    case "$DISTRO" in
+        [uU]buntu)
+            ubuntu "$RELEASE"
+            ;;
+        [dD]ebian)
+            debian "$RELEASE"
+            ;;
+        *)
+            echo "supported-versions: WARNING! Unknown distribution: $DISTRO" >&2
+            if  echo $ID_LIKE | egrep  '(^| )ubuntu($| )' > /dev/null; then
+                echo "ubuntu found in ID_LIKE, treating as Ubuntu" >&2
+                ubuntu "$RELEASE"
+            elif echo $ID_LIKE | egrep  '(^| )debian($| )' > /dev/null; then
+                echo "debian found in ID_LIKE, treating as Debian" >&2
+                debian "$RELEASE"
+            else
+                echo "Please submit this as a bug report to your distribution." >&2
+                /bin/echo -e "$DEFAULT"
+            fi
+            ;;
+    esac
+}
+
+ubuntu() {
+    case "$1" in
+        12.04) /bin/echo -e "9.1" ;;
+        14.04) /bin/echo -e "9.3" ;;
+        16.04|16.10) /bin/echo -e "9.5" ;;
+        17.04|17.10) /bin/echo -e "9.6" ;;
+        18.04|18.10) /bin/echo -e "11" ;;
+        19.04|19.10) /bin/echo -e "11" ;;
+        20.04|20.10) /bin/echo -e "11" ;;
+        21.04|21.10) /bin/echo -e "11" ;;
+        22.04|22.10) /bin/echo -e "11" ;;
+        *)
+            echo "supported-versions: WARNING: Unknown Ubuntu release: $1" >&2
+            /bin/echo -e "$DEFAULT" ;;
+    esac
+}
+
+debian() {
+    case "$1" in
+        5.0*)  /bin/echo -e "8.3" ;; # Lenny
+        6.0*)  /bin/echo -e "8.4" ;; # Squeeze
+        7|7.*) /bin/echo -e "9.1" ;; # Wheezy
+        8|8.*) /bin/echo -e "9.4" ;; # Jessie
+        9|9.*) /bin/echo -e "11" ;; # Stretch
+        10|10.*) /bin/echo -e "11" ;; # Buster
+        11|11.*) /bin/echo -e "11" ;; # Bullseye
+        12|12.*) /bin/echo -e "11" ;; # Bookworm
+        testing | unstable)
+            /bin/echo -e "$DEFAULT" ;;
+        *)
+            echo "supported-versions: WARNING: Unknown Debian release: $1" >&2
+            /bin/echo -e "$DEFAULT" ;;
+    esac
+}
+
+debian_backports() {
+    case "$1" in
+        5.0*)  /bin/echo -e "8.3" ;; # Lenny
+        6.0*)  /bin/echo -e "8.4\n9.1" ;; # Squeeze
+        7|7.*) /bin/echo -e "9.1\n9.4" ;; # Wheezy
+        8|8.*) /bin/echo -e "9.4\n9.6" ;; # Jessie
+        9|9.*) /bin/echo -e "11" ;; # Stretch
+        10|10.*) /bin/echo -e "11" ;; # Buster
+        11|11.*) /bin/echo -e "11" ;; # Bullseye
+        12|12.*) /bin/echo -e "11" ;; # Bookworm
+        testing | unstable)
+            /bin/echo -e "$DEFAULT" ;;
+        *)
+            echo "supported-versions: WARNING: Unknown Debian release: $1" >&2
+            /bin/echo -e "$DEFAULT" ;;
+    esac
+}
+
+pgdg() {
+    cat <<-EOF
+	10
+	11
+	12
+	13
+	14
+	15
+	EOF
+}
+
+installed() {
+    dpkg -l 'postgresql-server-dev-[1-9]*' | \
+        sed -ne 's/^ii *postgresql-server-dev-\([^ ]*\).*/\1/p' | \
+        sort -V
+}
+
+# main
+
+if [ "${PG_SUPPORTED_VERSIONS:-}" ] ; then
+    SUPPORTED_VERSIONS=$(echo "$PG_SUPPORTED_VERSIONS" | xargs -n1)
+elif [ "${DEB_PG_SUPPORTED_VERSIONS:-}" ] ; then
+    SUPPORTED_VERSIONS=$(echo "$DEB_PG_SUPPORTED_VERSIONS" | xargs -n1)
+elif [ -f ${HOME:-}/.pg_supported_versions ] ; then
+    SUPPORTED_VERSIONS="$(cat ${HOME:-}/.pg_supported_versions)"
+elif [ -f ${PGSYSCONFDIR:-/etc/postgresql-common}/supported_versions ] ; then
+    SUPPORTED_VERSIONS="$(cat ${PGSYSCONFDIR:-/etc/postgresql-common}/supported_versions)"
+else
+    SUPPORTED_VERSIONS="default"
+fi
+
+echo "$SUPPORTED_VERSIONS" | while read version release; do
+    COMMENT="#"
+    case $version in
+        "") ;;
+        $COMMENT*) ;;
+        default)
+            get_release
+            default
+            ;;
+        debian)
+            get_release
+            debian "${release:-$RELEASE}"
+            ;;
+        debian-backports)
+            get_release
+            debian_backports "${release:-$RELEASE}"
+            ;;
+        ubuntu)
+            get_release
+            ubuntu "${release:-$RELEASE}"
+            ;;
+        pgdg) # apt.postgresql.org
+            get_release
+            pgdg "${release:-$RELEASE}"
+            ;;
+        installed)
+            installed
+            ;;
+        *)
+            /bin/echo -e "$version"
+            ;;
+    esac
+done
+
+exit 0

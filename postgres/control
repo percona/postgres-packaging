@@ -144,7 +144,7 @@ Depends:
  tzdata,
  ${misc:Depends},
  ${shlibs:Depends}
-Provides: percona-postgresql-contrib-14, postgresql-contrib-14, postgresql-14
+Provides: percona-postgresql-contrib-14, postgresql-contrib-14 (= ${binary:Version}), postgresql-14 (= ${binary:Version})
 Recommends: sysstat
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational
@@ -168,7 +168,7 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends}
 Suggests: percona-postgresql-14, percona-postgresql-doc-14
-Provides: percona-postgresql-client, postgresql-client, postgresql-client-14
+Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-14 (= ${binary:Version})
 Conflicts: postgresql-server-dev-14 (<< 14.6-1~)
 Replaces: postgresql-server-dev-14 (<< 14.6-1~)
 Description: front-end programs for PostgreSQL 14

@@ -134,6 +134,7 @@ get_sources(){
 
     echo "PRODUCT=${PRODUCT}" > pgpool2.properties
     echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pgpool2.properties
+    echo "PRODUCT_CUT=${PRODUCT_CUT}" >> pgpool2.properties
     echo "VERSION=${VERSION}" >> pgpool2.properties
     echo "BRANCH_NAME=$(echo ${BRANCH} | awk -F '/' '{print $(NF)}')" >> pgpool2.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgpool2.properties

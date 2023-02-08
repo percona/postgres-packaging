@@ -254,11 +254,12 @@ install_deps() {
         PKGLIST+=" clang-devel git clang llvm-devel rpmdevtools vim wget"
         PKGLIST+=" perl binutils gcc gcc-c++"
         PKGLIST+=" clang-devel llvm-devel git rpm-build rpmdevtools wget gcc make autoconf"
-        PKGLIST+=" pam-devel openssl-devel jade docbook-dtds docbook-style-xsl docbook-style-dsssl openldap-devel libmemcached-devel llvm-toolset-7"
+        PKGLIST+=" pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel"
         if [[ "${RHEL}" -eq 8 ]]; then 
             dnf -y module disable postgresql
         elif [[ "${RHEL}" -eq 7 ]]; then
             PKGLIST+=" llvm-toolset-7-clang llvm-toolset-7-llvm-devel llvm5.0-devel"
+            PKGLIST+=" jade docbook-style-dsssl libmemcached-devel llvm-toolset-7"
             until yum -y install epel-release centos-release-scl; do
                 yum clean all
                 sleep 1
@@ -272,7 +273,7 @@ install_deps() {
         fi
         until yum -y install ${PKGLIST}; do
             echo "waiting"
-            sleep 1
+            sleep 5
         done
     else
         apt-get update

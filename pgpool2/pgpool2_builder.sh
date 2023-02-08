@@ -250,12 +250,12 @@ install_deps() {
         PKGLIST+=" clang-devel git clang llvm-devel rpmdevtools vim wget"
         PKGLIST+=" perl binutils gcc gcc-c++"
         PKGLIST+=" clang-devel llvm-devel git rpm-build rpmdevtools wget gcc make autoconf"
-        PKGLIST+=" jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel"
+        PKGLIST+=" jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel libxslt"
         if [[ "${RHEL}" -eq 8 ]]; then 
             dnf -y module disable postgresql
             dnf config-manager --set-enabled powertools
         elif [[ "${RHEL}" -eq 7 ]]; then
-            PKGLIST+=" llvm-toolset-7-clang llvm-toolset-7 llvm5.0-devel"
+            PKGLIST+=" llvm-toolset-7-clang llvm-toolset-7 llvm5.0-devel llvm-toolset-7-llvm-devel"
             until yum -y install epel-release centos-release-scl; do
                 yum clean all
                 sleep 1

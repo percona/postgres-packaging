@@ -124,9 +124,9 @@ get_sources(){
         return 0
     fi
 
-    echo "================================================"
-    echo "====             TEST !!!!!!!               ===="
-    echo "================================================"
+    echo "------------------------------------------------"
+    echo "----             123456789012               ----"
+    echo "------------------------------------------------"
 
     PRODUCT=percona-pgpool-II-pg${PG_RELEASE}
     PRODUCT_CUT=percona-pgpool-II-${VERSION}
@@ -143,6 +143,9 @@ get_sources(){
     echo "PG_RELEASE=${PG_RELEASE}" >> pgpool2.properties
     echo "RPM_RELEASE=${RPM_RELEASE}" >> pgpool2.properties
     echo "DEB_RELEASE=${DEB_RELEASE}" >> pgpool2.properties
+
+    cat pgpool2.properties
+
     git clone "$REPO" ${PRODUCT_CUT}
     retval=$?
     if [ $retval != 0 ]

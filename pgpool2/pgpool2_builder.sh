@@ -124,10 +124,6 @@ get_sources(){
         return 0
     fi
 
-    echo "------------------------------------------------"
-    echo "----             123456789012               ----"
-    echo "------------------------------------------------"
-
     PRODUCT=percona-pgpool-II-pg${PG_RELEASE}
     PRODUCT_CUT=percona-pgpool-II-${VERSION}
     PRODUCT_FULL=${PRODUCT}-${VERSION}
@@ -254,12 +250,12 @@ install_deps() {
         PKGLIST+=" clang-devel git clang llvm-devel rpmdevtools vim wget"
         PKGLIST+=" perl binutils gcc gcc-c++"
         PKGLIST+=" clang-devel llvm-devel git rpm-build rpmdevtools wget gcc make autoconf"
-        PKGLIST+=" pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel"
+        PKGLIST+=" jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel"
         if [[ "${RHEL}" -eq 8 ]]; then 
             dnf -y module disable postgresql
+            dnf config-manager --set-enabled powertools
         elif [[ "${RHEL}" -eq 7 ]]; then
-            PKGLIST+=" llvm-toolset-7-clang llvm-toolset-7-llvm-devel llvm5.0-devel"
-            PKGLIST+=" jade docbook-style-dsssl libmemcached-devel llvm-toolset-7"
+            PKGLIST+=" llvm-toolset-7-clang llvm-toolset-7 llvm5.0-devel"
             until yum -y install epel-release centos-release-scl; do
                 yum clean all
                 sleep 1

@@ -123,6 +123,11 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
+
+    echo "================================================"
+    echo "====             TEST !!!!!!!               ===="
+    echo "================================================"
+
     PRODUCT=percona-pgpool-II-pg${PG_RELEASE}
     PRODUCT_CUT=percona-pgpool-II-${VERSION}
     PRODUCT_FULL=${PRODUCT}-${VERSION}

@@ -162,8 +162,10 @@ get_sources(){
     # get deb files
     git clone https://salsa.debian.org/postgresql/pgpool2.git ../pgpool2
     mv ../pgpool2/debian/ .
+    wget $(echo ${GIT_BUILD_REPO} | sed -re 's|github.com|raw.githubusercontent.com|; s|\\.git\$||')/${BUILD_BRANCH}/pgpool2/pgpool2-debian-config.patch -O debian/patches/pgpool2-debian-config.patch
 
     sed -i "s:PGVERSION:${PG_RELEASE}:g" debian/control.in
+
     sed -i "s:pgpool-II:percona-pgpool-II:g" src/pgpool.spec
     sed -i "s:short_name  percona-pgpool-II:short_name  pgpool-II:g" src/pgpool.spec
     sed -i "s:pgdg::g" src/pgpool.spec
@@ -302,6 +304,12 @@ install_deps() {
         PKGLIST+=" build-essential debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl"
       # PKGLIST+=" libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev"
         PKGLIST+=" chrpath docbook docbook-dsssl docbook-xml docbook-xsl flex libmemcached-dev libxml2-utils openjade opensp xsltproc"
+        PKGLIST+=" bison libldap-dev libpam0g-dev"
+
+
+        if [[ "${OS_NAME}" != "focal" ]]; then
+            PKGLIST+=" libdebhelper-perl=13.6ubuntu1~bpo20.04.1 debhelper=13.6ubuntu1~bpo20.04.1"
+        fi
 
         until DEBIAN_FRONTEND=noninteractive apt-get -y install ${PKGLIST}; do
             sleep 1
@@ -467,7 +475,7 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
 
-    mv ${TARFILE} percona-pgpool2_${VERSION}.orig.tar.gz
+    mv ${TARFILE} pgpool2_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
     ls -la
     dch -D unstable --force-distribution -v "${VERSION}-${DEB_RELEASE}" "Update to new percona-pgpool2${PG_RELEASE} version ${VERSION}"

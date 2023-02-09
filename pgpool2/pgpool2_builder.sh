@@ -167,7 +167,7 @@ get_sources(){
     # get deb files
     git clone https://salsa.debian.org/postgresql/pgpool2.git ../pgpool2
     mv ../pgpool2/debian/ .
-    wget $(echo ${GIT_BUILD_REPO} | sed -re 's|github.com|raw.githubusercontent.com|; s|\\.git\$||')/${BUILD_BRANCH}/pgpool2/pgpool2-debian-config.patch -O debian/patches/pgpool2-debian-config.patch
+    wget $(echo ${GIT_BUILD_REPO} | sed -re 's|github.com|raw.githubusercontent.com|; s|\.git$||')/${BUILD_BRANCH}/pgpool2/pgpool2-debian-config.patch -O debian/patches/pgpool2-debian-config.patch
 
     sed -i "s:PGVERSION:${PG_RELEASE}:g" debian/control.in
 

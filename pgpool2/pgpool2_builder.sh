@@ -18,6 +18,8 @@ Usage: $0 [OPTIONS]
         --install_deps      Install build dependencies(root previlages are required)
         --branch            Branch for build
         --repo              Repo for build
+        --pp_branch         Branch for postgres-packaging repo
+        --pp_repo           Used postgres-packaging repo for build
         --rpm_release       RPM version( default = 1)
         --deb_release       DEB version( default = 1)
         --pg_release        PPG version build on( default = 11)
@@ -54,6 +56,8 @@ parse_arguments() {
             --install_deps=*) INSTALL="$val" ;;
             --branch=*) BRANCH="$val" ;;
             --repo=*) REPO="$val" ;;
+            --pp_branch=*) BUILD_BRANCH="$val" ;;
+            --pp_repo=*) GIT_BUILD_REPO="$val" ;;
             --rpm_release=*) RPM_RELEASE="$val" ;;
             --deb_release=*) DEB_RELEASE="$val" ;;
             --pg_release=*) PG_RELEASE="$val" ;;
@@ -133,6 +137,7 @@ get_sources(){
     echo "PRODUCT_CUT=${PRODUCT_CUT}" >> pgpool2.properties
     echo "VERSION=${VERSION}" >> pgpool2.properties
     echo "BRANCH_NAME=$(echo ${BRANCH} | awk -F '/' '{print $(NF)}')" >> pgpool2.properties
+    echo "BUILD_BRANCH=$(echo ${BUILD_BRANCH} | awk -F '/' '{print $(NF)}')" >> pgpool2.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgpool2.properties
     echo "BUILD_ID=${BUILD_ID}" >> pgpool2.properties
     echo "BRANCH_NAME=$(echo ${BRANCH} | awk -F '/' '{print $(NF)}')" >> pgpool2.properties

@@ -165,10 +165,11 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgpool2.properties
 
     # get files for deb
-    until git clone https://salsa.debian.org/postgresql/pgpool2.git ../pgpool2; do
-        sleep 5
-        echo "waiting for salsa.debian.org"
-    done
+    GIT_SSL_NO_VERIFY=true git clone https://salsa.debian.org/postgresql/pgpool2.git ../pgpool2
+    #until git clone https://salsa.debian.org/postgresql/pgpool2.git ../pgpool2; do
+    #    sleep 5
+    #    echo "waiting for salsa.debian.org"
+    #done
     mv ../pgpool2/debian/ .
     wget $(echo ${GIT_BUILD_REPO} | sed -re 's|github.com|raw.githubusercontent.com|; s|\.git$||')/${BUILD_BRANCH}/pgpool2/pgpool2-debian-config.patch -O debian/patches/pgpool2-debian-config.patch
 

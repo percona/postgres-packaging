@@ -164,7 +164,7 @@ get_sources(){
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgpool2.properties
 
-    # get deb files
+    # get files for deb
     git clone https://salsa.debian.org/postgresql/pgpool2.git ../pgpool2
     mv ../pgpool2/debian/ .
     wget $(echo ${GIT_BUILD_REPO} | sed -re 's|github.com|raw.githubusercontent.com|; s|\.git$||')/${BUILD_BRANCH}/pgpool2/pgpool2-debian-config.patch -O debian/patches/pgpool2-debian-config.patch
@@ -172,7 +172,18 @@ get_sources(){
     sed -i "s:PGVERSION:${PG_RELEASE}:g" debian/control.in
     sed -i "s:Source\: pgpool2:Source\: percona-pgpool2:g" debian/control.in
     sed -i "s:Package\: pgpool2:Package\: percona-pgpool2:g" debian/control.in
+    sed -i "/Vcs-Git/d" debian/control.in
+    sed -i "/Vcs-Browser/d" debian/control.in
+    sed -i "s:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:g" debian/control.in
+    sed -i '/Uploaders/{N;N;N;d;}' debian/control.in
     sed -i '0,/pgpool2/ s/pgpool2/percona-pgpool2/' debian/changelog
+    DEBEDITFILES=$(ls debian | grep ^pgpool2\.)
+    for file in $DEBEDITFILES; do 
+        cp debian/$file debian/percona-$file; 
+    done 
+    mv -f "debian/percona-pgpool2.tmpfile" "debian/percona-pgpool2.tmpfiles"
+    echo "etc/pgpool2/aws_eip_if_cmd.sh.sample            usr/share/doc/pgpool2/examples" >> debian/percona-pgpool2.install
+    echo "etc/pgpool2/aws_rtb_if_cmd.sh.sample            usr/share/doc/pgpool2/examples" >> debian/percona-pgpool2.install 
 
     sed -i "s:pgpool-II:percona-pgpool-II:g" src/pgpool.spec
     sed -i "s:short_name  percona-pgpool-II:short_name  pgpool-II:g" src/pgpool.spec

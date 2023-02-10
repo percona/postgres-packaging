@@ -330,14 +330,17 @@ install_deps() {
         PKGLIST+=" bison libldap-dev libpam0g-dev"
 
 
-        if [[ "${OS_NAME}" == "focal" ]]; then
-            PKGLIST+=" libdebhelper-perl=13.6ubuntu1~bpo20.04.1 debhelper=13.6ubuntu1~bpo20.04.1"
-        fi
+        #if [[ "${OS_NAME}" == "focal" ]]; then
+        #    PKGLIST+=" libdebhelper-perl=13.6ubuntu1~bpo20.04.1 debhelper=13.6ubuntu1~bpo20.04.1"
+        #fi
 
         until DEBIAN_FRONTEND=noninteractive apt-get -y install ${PKGLIST}; do
             sleep 1
             echo "waiting"
         done
+
+        apt list --all-versions debhelper
+        apt-get -y install -t ${OS_NAME}-backports debhelper
 
         get_openjade_devel
     fi

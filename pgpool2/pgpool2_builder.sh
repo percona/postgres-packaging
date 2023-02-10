@@ -330,7 +330,7 @@ install_deps() {
         PKGLIST+=" bison libldap-dev libpam0g-dev"
 
 
-        if [[ "${OS_NAME}" != "focal" ]]; then
+        if [[ "${OS_NAME}" == "focal" ]]; then
             PKGLIST+=" libdebhelper-perl=13.6ubuntu1~bpo20.04.1 debhelper=13.6ubuntu1~bpo20.04.1"
         fi
 

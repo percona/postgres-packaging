@@ -170,6 +170,9 @@ get_sources(){
     wget $(echo ${GIT_BUILD_REPO} | sed -re 's|github.com|raw.githubusercontent.com|; s|\.git$||')/${BUILD_BRANCH}/pgpool2/pgpool2-debian-config.patch -O debian/patches/pgpool2-debian-config.patch
 
     sed -i "s:PGVERSION:${PG_RELEASE}:g" debian/control.in
+    sed -i "s:Source: pgpool2:Source: percona-pgpool2:g" debian/control.in
+    sed -i "s::Package pgpool2:Source: percona-pgpool2:g" debian/control.in
+    sed -i '0,/pgpool2/ s/pgpool2/percona-pgpool2/' debian/changelog
 
     sed -i "s:pgpool-II:percona-pgpool-II:g" src/pgpool.spec
     sed -i "s:short_name  percona-pgpool-II:short_name  pgpool-II:g" src/pgpool.spec
@@ -480,7 +483,7 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
 
-    mv ${TARFILE} pgpool2_${VERSION}.orig.tar.gz
+    mv ${TARFILE} percona-pgpool2_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
     ls -la
     dch -D unstable --force-distribution -v "${VERSION}-${DEB_RELEASE}" "Update to new percona-pgpool2${PG_RELEASE} version ${VERSION}"

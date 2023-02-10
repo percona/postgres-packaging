@@ -339,6 +339,7 @@ install_deps() {
             echo "waiting"
         done
 
+        cat /etc/apt/sources.list | grep ${OS_NAME}-backports
         apt list --all-versions debhelper
         apt-get -y install -t ${OS_NAME}-backports debhelper
 

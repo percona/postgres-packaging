@@ -180,7 +180,7 @@ get_sources(){
     sed -i "/Vcs-Browser/d" debian/control.in
     sed -i "s:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:g" debian/control.in
     sed -i '/Uploaders/{N;N;N;d;}' debian/control.in
-    sed -i '0,/pgpool2/ s/pgpool2/percona-pgpool2/' debian/changelog
+    sed -i "0,/pgpool2/ s/pgpool2.*/percona-pgpool2 (${VERSION}-${DEB_RELEASE}) stable; urgency=medium/" debian/changelog
     DEBEDITFILES=$(ls debian | grep ^pgpool2\.)
     for file in $DEBEDITFILES; do 
         cp debian/$file debian/percona-$file; 
@@ -242,14 +242,14 @@ get_system(){
 
 get_openjade_devel() {
     pushd /tmp
-    sudo apt-get install libosp-dev
-    sudo apt install dh-buildinfo
+    sudo apt-get -y install libosp-dev libperl4-corelibs-perl
+    sudo apt -y install dh-buildinfo
     wget http://archive.ubuntu.com/ubuntu/pool/universe/o/openjade/openjade_1.4devel1-22.dsc http://archive.ubuntu.com/ubuntu/pool/universe/o/openjade/openjade_1.4devel1.orig.tar.gz http://archive.ubuntu.com/ubuntu/pool/universe/o/openjade/openjade_1.4devel1-22.diff.gz
     dpkg-source -x openjade_1.4devel1-22.dsc
     cd openjade-1.4devel1/
     dpkg-buildpackage -rfakeroot -uc -us -b
     cd ../
-    sudo apt install ./openjade_1.4devel1-22_amd64.deb ./libostyle-dev_1.4devel1-22_amd64.deb ./libostyle1c2_1.4devel1-22_amd64.deb
+    sudo apt -y install ./openjade_1.4devel1-22_amd64.deb ./libostyle-dev_1.4devel1-22_amd64.deb ./libostyle1c2_1.4devel1-22_amd64.deb
     popd
 }
 
@@ -323,19 +323,14 @@ install_deps() {
             fi
         fi
 
-        PKGLIST+=" debconf debhelper clang-7 devscripts dh-exec dh-systemd git wget libkrb5-dev libssl-dev"
-        PKGLIST+=" build-essential debconf debhelper devscripts dh-exec dh-systemd git wget libxml-checker-perl"
+        PKGLIST+=" debconf devscripts dh-exec git wget libkrb5-dev libssl-dev"
+        PKGLIST+=" build-essential debconf debhelper devscripts dh-exec libxml-checker-perl"
       # PKGLIST+=" libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev"
         PKGLIST+=" chrpath docbook docbook-dsssl docbook-xml docbook-xsl flex libmemcached-dev libxml2-utils openjade opensp xsltproc"
         PKGLIST+=" bison libldap-dev libpam0g-dev"
 
-
-        #if [[ "${OS_NAME}" == "focal" ]]; then
-        #    PKGLIST+=" libdebhelper-perl=13.6ubuntu1~bpo20.04.1 debhelper=13.6ubuntu1~bpo20.04.1"
-        #fi
-
         until DEBIAN_FRONTEND=noninteractive apt-get -y install ${PKGLIST}; do
-            sleep 1
+            sleep 5
             echo "waiting"
         done
 
@@ -504,8 +499,8 @@ build_source_deb(){
 
     mv ${TARFILE} percona-pgpool2_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
-    ls -la
-    dch -D unstable --force-distribution -v "${VERSION}-${DEB_RELEASE}" "Update to new percona-pgpool2${PG_RELEASE} version ${VERSION}"
+    DEBEMAIL="info@percona.com"
+    dch -D unstable --force-distribution -v "${VERSION}-${DEB_RELEASE}" "Update to new percona-pgpool2 pg${PG_RELEASE} version ${VERSION}"
     pg_buildext updatecontrol
     dpkg-buildpackage -S
     cd ../

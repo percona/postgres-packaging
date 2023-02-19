@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.1 testing
+    percona-release enable ppg-15.2 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.1 testing
+    percona-release enable ppg-15.2 testing
     return
 }
 
@@ -135,22 +135,22 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/preinst
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/preinst
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/percona-pgbouncer.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer-ini.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.logrotate
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer-mkauth-py3.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.service
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.service.rhel7
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.sysconfig
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.1/pgbouncer/pgbouncer.init
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/percona-pgbouncer.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/pgbouncer-ini.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/pgbouncer.logrotate
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/pgbouncer-mkauth-py3.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/pgbouncer.service
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/pgbouncer.service.rhel7
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/pgbouncer.sysconfig
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/pgbouncer/pgbouncer.init
     cd ${WORKDIR}
     #
     source pgbouncer.properties
@@ -209,7 +209,7 @@ install_deps() {
       yum clean all
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
+          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
@@ -225,7 +225,7 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql-common percona-postgresql15-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
+      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel  percona-postgresql15-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libevent-devel libtool pandoc"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 
@@ -473,16 +473,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="pgbouncer_1_17_0"
+BRANCH="pgbouncer_1_18_0"
 REPO="https://github.com/pgbouncer/pgbouncer.git"
 PRODUCT=percona-pgbouncer
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.17.0'
-RELEASE='2'
+VERSION='1.18.0'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

@@ -3,7 +3,7 @@
 
 Summary:        PostgreSQL database adapter for Python
 Name:           python3-%{srcname}
-Version:        2.8.6
+Version:        2.9.5
 Release:        5%{?dist}
 # The exceptions allow linking to OpenSSL and PostgreSQL's libpq
 License:        LGPLv3+ with exceptions
@@ -47,11 +47,29 @@ find -name \*.py | xargs sed -i -e '1 {/^#!/d}'
 
 
 %build
-%py3_build
+export CFLAGS=${RPM_OPT_FLAGS} LDFLAGS=${RPM_LD_FLAGS}
+  python3 setup.py build
+
+# Fix for wrong-file-end-of-line-encoding problem; upstream also must fix this.
+for i in `find doc -iname "*.html"`; do sed -i 's/\r//' $i; done
+for i in `find doc -iname "*.css"`; do sed -i 's/\r//' $i; done
+
+# Get rid of a "hidden" file that rpmlint complains about
+%{__rm} -f doc/html/.buildinfo
+
+# We can not build docs now:
+# https://www.postgresql.org/message-id/2741387.dvL6Cb0VMB@nb.usersys.redhat.com
+# make -C doc/src html
 
 
 %install
-%py3_install
+export CFLAGS=${RPM_OPT_FLAGS} LDFLAGS=${RPM_LD_FLAGS}
+  python3 setup.py install --no-compile --root %{buildroot}
+cp -r tests/ %{buildroot}%{python3_sitearch}/%{srcname}/tests/
+for i in `find %{buildroot}%{python3_sitearch}/%{srcname}/tests/ -iname "*.py"`; do
+  sed -i 's|#!/usr/bin/env python|#!/usr/bin/python3|' $i
+done
+
 
 # Copy tests directory:
 %{__mkdir} -p %{buildroot}%{python3_sitearch}/%{srcname}/

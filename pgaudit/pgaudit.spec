@@ -2,7 +2,7 @@
 
 Name:           percona-pgaudit
 Version:        1.7.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        PostgreSQL Audit Extension
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
@@ -16,7 +16,7 @@ Patch0:		all.patch
 BuildRequires:  gcc
 BuildRequires:  percona-postgresql15-server
 BuildRequires:  percona-postgresql15-devel
-BuildRequires:  openssl-devel percona-postgresql-common
+BuildRequires:  openssl-devel 
 
 Requires:       postgresql15
 Requires:       postgresql15-libs

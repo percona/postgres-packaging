@@ -75,22 +75,17 @@
 %global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
 %global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
 
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-%pgdg_set_ppc64le_compiler_at10
-%endif
-%endif
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        15.1
-Release:        1%{?dist}
+Version:        15.2
+Release:        2%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
-Packager:       Percona Development Team <https://jira.percona.com>
+Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-15.1.tar.gz
+Source0:        percona-postgresql-15.2.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -228,14 +223,10 @@ BuildRequires:  selinux-policy >= 3.9.13
 %endif
 
 %if %ssl
-# We depend un the SSL libraries provided by Advance Toolchain on PPC,
-# so use openssl-devel only on other platforms:
-%ifnarch ppc64 ppc64le
 %if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
 BuildRequires:  libopenssl-devel
 %else
 BuildRequires:  openssl-devel
-%endif
 %endif
 %endif
 
@@ -267,12 +258,6 @@ Requires(post):         systemd
 Requires(preun):        systemd
 Requires(postun):       systemd
 %endif
-%else
-Requires(post):         chkconfig
-Requires(preun):        chkconfig
-# This is for /sbin/service
-Requires(preun):        initscripts
-Requires(postun):       initscripts
 %endif
 
 Requires:       %{name}-libs >= %{version}-%{release}
@@ -355,8 +340,6 @@ Requires(post):         systemd
 Requires(preun):        systemd
 Requires(postun):       systemd
 %endif
-%else
-Requires:       /usr/sbin/useradd, /sbin/chkconfig
 %endif
 Provides:       postgresql-server >= %{version}-%{release}
 Provides:       %{vname}-server = %{epoch}:%{version}-%{release}
@@ -640,19 +623,10 @@ benchmarks.
 %endif
 
 CFLAGS="${CFLAGS:-%optflags}"
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-        CFLAGS="${CFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
-        CXXFLAGS="${CXXFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
-        LDFLAGS="-L%{atpath}/%{_lib}"
-        CC=%{atpath}/bin/gcc; export CC
-%endif
-%else
-        # Strip out -ffast-math from CFLAGS....
-        CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
-        %if 0%{?rhel}
-        LDFLAGS="-Wl,--as-needed"; export LDFLAGS
-        %endif
+# Strip out -ffast-math from CFLAGS....
+CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
+%if 0%{?rhel}
+LDFLAGS="-Wl,--as-needed"; export LDFLAGS
 %endif
 
 export CFLAGS

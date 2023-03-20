@@ -3,7 +3,7 @@
 Summary:        Reliable PostgreSQL Backup & Restore
 Name:           percona-pgbackrest
 Version:        %{version}
-Release:        2%{dist}
+Release:        1%{dist}
 License:        MIT
 Group:          Applications/Databases
 URL:            http://www.pgbackrest.org
@@ -19,13 +19,17 @@ BuildRequires:  libxml2-devel
 BuildRequires:  openssl-devel
 BuildRequires: zlib-devel perl-ExtUtils-Embed
 BuildRequires:  perl
+%if 0%{?rhel} <= 8
 BuildRequires:  perl-libxml-perl
+%endif
 BuildRequires:  perl(DBD::Pg)
 BuildRequires:  perl(Digest::SHA)
 BuildRequires:  perl(IO::Socket::SSL)
 BuildRequires:  perl(JSON::PP)
 BuildRequires:	percona-postgresql15-devel
+%if 0%{?rhel} <= 8
 Requires:       perl-libxml-perl
+%endif
 Requires:       perl(DBD::Pg)
 Requires:       perl(Digest::SHA)
 Requires:       perl(IO::Socket::SSL)
@@ -85,6 +89,6 @@ popd
 %attr(-,postgres,postgres) /var/spool/pgbackrest
 
 %changelog
-* Tue Jul 16 2019  Evgeniy Patlan <evgeniy.patlan@percona.com> - 2.15.1
+* Tue Jul 16 2019  Evgeniy Patlan <evgeniy.patlan@percona.com> - 2.15.2
 - First build of pgbackrest for Percona.
 

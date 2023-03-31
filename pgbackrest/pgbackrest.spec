@@ -19,13 +19,17 @@ BuildRequires:  libxml2-devel
 BuildRequires:  openssl-devel
 BuildRequires: zlib-devel perl-ExtUtils-Embed
 BuildRequires:  perl
+%if 0%{?rhel} <= 8
 BuildRequires:  perl-libxml-perl
+%endif
 BuildRequires:  perl(DBD::Pg)
 BuildRequires:  perl(Digest::SHA)
 BuildRequires:  perl(IO::Socket::SSL)
 BuildRequires:  perl(JSON::PP)
 BuildRequires:	percona-postgresql11-devel
+%if 0%{?rhel} <= 8
 Requires:       perl-libxml-perl
+%endif
 Requires:       perl(DBD::Pg)
 Requires:       perl(Digest::SHA)
 Requires:       perl(IO::Socket::SSL)

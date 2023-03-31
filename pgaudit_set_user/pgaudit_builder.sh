@@ -77,11 +77,11 @@ add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
         wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-        mv -f percona-dev.repo /etc/yum.repos.d/
+        #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.9 testing
+    percona-release enable ppg-13.10 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.9 testing
+    percona-release enable ppg-13.10 testing
     return
 }
 
@@ -135,14 +135,14 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.9/pgaudit_set_user/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.9/pgaudit_set_user/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.9/pgaudit_set_user/copyright
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.9/pgaudit_set_user/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.10/pgaudit_set_user/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.10/pgaudit_set_user/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.10/pgaudit_set_user/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.10/pgaudit_set_user/rules
     cd ../ 
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.9/pgaudit_set_user/percona-pgaudit13_set_user.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.10/pgaudit_set_user/percona-pgaudit13_set_user.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -199,12 +199,12 @@ install_deps() {
                 sleep 1
             done
             yum -y install epel-release
-            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql13-devel percona-postgresql13-server percona-postgresql-common percona-postgresql-server-dev-all rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel"
+            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql13-devel percona-postgresql13-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel"
             yum -y install ${INSTALL_LIST}
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
         else
-            INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel percona-postgresql13-devel percona-postgresql13-server percona-postgresql-common percona-postgresql-server-dev-all rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
+            INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql13-devel percona-postgresql13-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
             yum -y install ${INSTALL_LIST}
             yum -y install binutils gcc gcc-c++
         fi
@@ -215,7 +215,7 @@ install_deps() {
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
         percona-release enable tools testing
-        percona-release enable ppg-13.9 testing
+        percona-release enable ppg-13.10 testing
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-11 devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
@@ -444,12 +444,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL4_0_0"
+BRANCH="REL4_0_1"
 REPO="https://github.com/pgaudit/set_user.git"
 PRODUCT=percona-pgaudit13_set_user
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='4.0.0'
+VERSION='4.0.1'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

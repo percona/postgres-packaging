@@ -1,3 +1,5 @@
+%undefine _package_note_file
+
 # These are macros to be used with find_lang and other stuff
 %global packageversion 130
 %global pgpackageversion 13
@@ -77,14 +79,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        13.9
+Version:        13.10
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-13.9.tar.gz
+Source0:        percona-postgresql-13.10.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -656,6 +658,7 @@ export PYTHON=/usr/bin/python3
         --mandir=%{pgbaseinstdir}/share/man \
         --datadir=%{pgbaseinstdir}/share \
         --libdir=%{pgbaseinstdir}/lib \
+        --with-lz4 \
         --with-extra-version=" - Percona Distribution" \
 %if %beta
         --enable-debug \
@@ -841,6 +844,10 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 
 %{__install} -d %{buildroot}%{_unitdir}
 %{__install} -m 644 %{SOURCE18} %{buildroot}%{_unitdir}/%{sname}-%{pgmajorversion}.service
+%else
+%{__install} -d %{buildroot}%{_initrddir}
+sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
+%{__install} -m 755 %{sname}.init %{buildroot}%{_initrddir}/%{sname}-%{pgmajorversion}
 %endif
 
 %if %pam
@@ -992,13 +999,9 @@ chmod 700 /var/lib/pgsql/.bash_profile
 %preun server
 if [ $1 -eq 0 ] ; then
 %if %{systemd_enabled}
-        # Package removal, not upgrade
-        /bin/systemctl --no-reload disable %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
-        /bin/systemctl stop %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
-%else
-        /sbin/service %{sname}-%{pgmajorversion} condstop >/dev/null 2>&1
-        chkconfig --del %{sname}-%{pgmajorversion}
-
+	# Package removal, not upgrade
+	/bin/systemctl --no-reload disable %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+	/bin/systemctl stop %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
 %endif
 fi
 
@@ -1319,7 +1322,12 @@ fi
 %{pgbaseinstdir}/share/postgres.bki
 %{pgbaseinstdir}/share/system_views.sql
 %{pgbaseinstdir}/share/*.sample
+%if 0%{?rhel} && 0%{?rhel} == 7
 %{pgbaseinstdir}/share/timezonesets/*
+%else
+%{pgbaseinstdir}/share/timezonesets/*
+#%{pgbaseinstdir}/share/timezone/*
+%endif
 %{pgbaseinstdir}/share/tsearch_data/*.affix
 %{pgbaseinstdir}/share/tsearch_data/*.dict
 %{pgbaseinstdir}/share/tsearch_data/*.ths

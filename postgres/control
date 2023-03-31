@@ -158,16 +158,6 @@ Description: The World's Most Advanced Open Source Relational Database
  This package provides the database server for PostgreSQL 13.
 XB-Postgresql-Catversion: ${postgresql:Catversion}
 
-#dbg#Package: percona-postgresql-13-dbg
-#dbg#Section: debug
-#dbg#Priority: optional
-#dbg#Architecture: any
-#dbg#Depends: percona-postgresql-13 (= ${binary:Version}), ${misc:Depends}
-#dbg#Description: debug symbols for postgresql-13
-#dbg# This package provides detached debugging symbols for PostgreSQL 13.
-#dbg# .
-#dbg# PostgreSQL is an object-relational SQL database management system.
-
 Package: percona-postgresql-client-13
 Architecture: any
 Multi-Arch: foreign

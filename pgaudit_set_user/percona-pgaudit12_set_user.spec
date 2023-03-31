@@ -2,7 +2,7 @@
 %define pginstdir /usr/pgsql-12/
 
 Name:		percona-%{sname}
-Version:	4.0.0
+Version:	4.0.1
 Release:	1%{?dist}
 Epoch:      1
 Provides:	pgaudit13_set_user = %{version}-%{release}
@@ -42,8 +42,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %files
 %defattr(-,root,root)
 %{pginstdir}/lib/set_user.so
-%{pginstdir}/lib/bitcode/set_user.index.bc
-%{pginstdir}/lib/bitcode/set_user/set_user.bc
+%{pginstdir}/lib/bitcode/src/set_user.index.bc
+%{pginstdir}/lib/bitcode/src/set_user/src/set_user.bc
 %{pginstdir}/include/set_user.h
 %{pginstdir}/share/extension/set_user-*.sql
 %{pginstdir}/share/extension/set_user.control

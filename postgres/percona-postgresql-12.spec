@@ -1,3 +1,5 @@
+%undefine _package_note_file
+
 # These are macros to be used with find_lang and other stuff
 %global packageversion 120
 %global pgpackageversion 12
@@ -107,14 +109,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:		percona-postgresql%{pgmajorversion}
-Version:        12.13
+Version:        12.14
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-12.13.tar.gz
+Source0:        percona-postgresql-12.14.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 %if %{systemd_enabled}
@@ -144,6 +146,15 @@ Patch6:         %{sname}-%{pgmajorversion}-perl-rpath.patch
 BuildRequires:  perl glibc-devel bison flex >= 2.5.31
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  readline-devel zlib-devel >= 1.0.4
+%if 0%{?rhel} || 0%{?fedora}
+BuildRequires:	lz4-devel
+Requires:	lz4
+%endif
+
+BuildRequires:	perl glibc-devel bison flex
+BuildRequires:	gcc-c++
+BuildRequires:	perl(ExtUtils::MakeMaker)
+BuildRequires:	readline-devel zlib-devel
 
 # This dependency is needed for Source 16:
 %if 0%{?fedora} || 0%{?rhel} > 7
@@ -250,14 +261,10 @@ BuildRequires:  selinux-policy >= 3.9.13
 %endif
 
 %if %ssl
-# We depend un the SSL libraries provided by Advance Toolchain on PPC,
-# so use openssl-devel only on other platforms:
-%ifnarch ppc64 ppc64le
 %if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
 BuildRequires:  libopenssl-devel
 %else
 BuildRequires:  openssl-devel
-%endif
 %endif
 %endif
 
@@ -308,11 +315,6 @@ Provides:       %{vname} = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname} <= %{version}-%{release}
 Obsoletes:      %{vname} <= %{version}-%{release}
 
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-%pgdg_set_ppc64le_min_requires
-%endif
-%endif
 
 %description
 PostgreSQL is an advanced Object-Relational database management system (DBMS).
@@ -343,11 +345,6 @@ Provides:       %{sname}-libs = %{epoch}:%{version}-%{release}
 Provides:       %{vname}-libs = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-libs <= %{version}-%{release}
 Obsoletes:      %{vname}-libs <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description libs
@@ -384,11 +381,6 @@ Provides:       %{vname}-server = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-server = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-server <= %{version}-%{release}
 Obsoletes:      %{vname}-server <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description server
@@ -422,11 +414,6 @@ Provides:       %{vname}-contrib = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-contrib = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-contrib <= %{version}-%{release}
 Obsoletes:      %{vname}-contrib <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description contrib
@@ -478,11 +465,6 @@ Provides:       %{vname}-devel = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-devel = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-devel <= %{version}-%{release}
 Obsoletes:      %{vname}-devel <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description devel
@@ -515,11 +497,6 @@ Provides:       %{vname}-llvmjit = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-llvmjit = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-llvmjit <= %{version}-%{release}
 Obsoletes:      %{vname}-llvmjit <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description llvmjit
@@ -543,11 +520,6 @@ Provides:       %{vname}-plperl = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-plperl = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-plperl <= %{version}-%{release}
 Obsoletes:      %{vname}-plperl <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description plperl
@@ -595,25 +567,16 @@ Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-server >= %{version}-%{release}
 Obsoletes:      %{name}-pl <= %{version}-%{release}
 Provides:       postgresql-plpython3 >= %{version}-%{release}
-%if 0%{?rhel} == 7
-# We support Python3 natively on RHEL/CentOS 7 as of 7.7+,
-Requires:       python3-libs
+%if 0%{?suse_version} >= 1315
+Requires:       python3-base
 %else
-%if 0%{?suse_version} >= 1500
-Requires:       libpython3_6m1_0
-%else
+# We support Python3 natively on RHEL/CentOS 7 as of 7.7.
 Requires:       python3-libs
-%endif
 %endif
 Provides:       %{vname}-plpython3 = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-plpython3 = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-plpython3 <= %{version}-%{release}
 Obsoletes:      %{vname}-plpython3 <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description plpython3
@@ -635,11 +598,6 @@ Provides:       %{vname}-pltcl = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-pltcl = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-pltcl <= %{version}-%{release}
 Obsoletes:      %{vname}-pltcl <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description pltcl
@@ -658,11 +616,6 @@ Provides:       %{vname}-test = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-test = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-test <= %{version}-%{release}
 Obsoletes:      %{vname}-test <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description test
@@ -695,19 +648,10 @@ benchmarks.
 %endif
 
 CFLAGS="${CFLAGS:-%optflags}"
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-        CFLAGS="${CFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
-        CXXFLAGS="${CXXFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
-        LDFLAGS="-L%{atpath}/%{_lib}"
-        CC=%{atpath}/bin/gcc; export CC
-%endif
-%else
-        # Strip out -ffast-math from CFLAGS....
-        CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
-        %if 0%{?rhel}
-        LDFLAGS="-Wl,--as-needed"; export LDFLAGS
-        %endif
+# Strip out -ffast-math from CFLAGS....
+CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
+%if 0%{?rhel}
+LDFLAGS="-Wl,--as-needed"; export LDFLAGS
 %endif
 
 export CFLAGS
@@ -715,8 +659,8 @@ export CFLAGS
 %if %icu
 # Export ICU flags on RHEL 6:
 %if 0%{?rhel} && 0%{?rhel} <= 6
-        ICU_CFLAGS='-I%{_includedir}'; export ICU_CFLAGS
-        ICU_LIBS='-L%{_libdir} -licui18n -licuuc -licudata'; export ICU_LIBS
+	ICU_CFLAGS='-I%{_includedir}'; export ICU_CFLAGS
+	ICU_LIBS='-L%{_libdir} -licui18n -licuuc -licudata'; export ICU_LIBS
 %endif
 %endif
 
@@ -734,9 +678,9 @@ export PYTHON=/usr/bin/python3
 
 %if 0%{?rhel} && 0%{?rhel} == 7
 %ifarch aarch64
-        export CLANG=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang LLVM_CONFIG=/opt/rh/llvm-toolset-7.0/root/usr/bin/llvm-config
+	export CLANG=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang LLVM_CONFIG=/opt/rh/llvm-toolset-7.0/root/usr/bin/llvm-config
 %else
-        export CLANG=/opt/rh/llvm-toolset-7/root/usr/bin/clang LLVM_CONFIG=%{_libdir}/llvm5.0/bin/llvm-config
+	export CLANG=/opt/rh/llvm-toolset-7/root/usr/bin/clang LLVM_CONFIG=%{_libdir}/llvm5.0/bin/llvm-config
 %endif
 %endif
 %if 0%{?rhel} && 0%{?rhel} == 8
@@ -807,13 +751,7 @@ export PYTHON=/usr/bin/python3
         --with-selinux \
 %endif
 %if %{systemd_enabled}
-        --with-systemd \
-%endif
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-	--with-includes=%{atpath}/include \
-	--with-libraries=%{atpath}/lib64 \
-%endif
+	--with-systemd \
 %endif
 	--with-system-tzdata=%{_datadir}/zoneinfo \
 	--sysconfdir=/etc/sysconfig/pgsql \
@@ -935,13 +873,7 @@ export PYTHON=/usr/bin/python2
         --with-selinux \
 %endif
 %if %{systemd_enabled}
-        --with-systemd \
-%endif
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-	--with-includes=%{atpath}/include \
-	--with-libraries=%{atpath}/lib64 \
-%endif
+	--with-systemd \
 %endif
 	--with-system-tzdata=%{_datadir}/zoneinfo \
 	--sysconfdir=/etc/sysconfig/pgsql \
@@ -1032,6 +964,7 @@ run_testsuite()
 %endif
         run_testsuite "contrib"
 %endif
+
 
 %if %test
         pushd src/test/regress
@@ -1140,20 +1073,25 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %{__install} -m 700 %{SOURCE9} %{buildroot}%{pgbaseinstdir}/share/
 
 %if %test
-        # tests. There are many files included here that are unnecessary,
-        # but include them anyway for completeness. We replace the original
-        # Makefiles, however.
-        %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/lib/test
-        %{__cp} -a src/test/regress %{buildroot}%{pgbaseinstdir}/lib/test
-        %{__install} -m 0755 contrib/spi/refint.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
-        %{__install} -m 0755 contrib/spi/autoinc.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
-        pushd %{buildroot}%{pgbaseinstdir}/lib/test/regress
-        strip *.so
-        %{__rm} -f GNUmakefile Makefile *.o
-        chmod 0755 pg_regress regress.so
-        popd
-        %{__cp} %{SOURCE4} %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
-        chmod 0644 %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
+	# tests. There are many files included here that are unnecessary,
+	# but include them anyway for completeness. We replace the original
+	# Makefiles, however.
+	%{__mkdir} -p %{buildroot}%{pgbaseinstdir}/lib/test
+	%{__cp} -a src/test/regress %{buildroot}%{pgbaseinstdir}/lib/test
+	%{__install} -m 0755 contrib/spi/refint.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
+	%{__install} -m 0755 contrib/spi/autoinc.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
+	# pg_regress binary should be only in one subpackage,
+	# there will be a symlink from -test to -devel
+	%{__rm} -f %{buildroot}%{pgbaseinstdir}/lib/test/regress/pg_regress
+	%{__mkdir} -p %{buildroot}%{pgbaseinstdir}/lib/pgsql/test/regress/
+	%{__ln_s} -f ../../pgxs/src/test/regress/pg_regress %{buildroot}%{pgbaseinstdir}/lib/test/regress/pg_regress
+	pushd %{buildroot}%{pgbaseinstdir}/lib/test/regress
+	strip *.so
+	%{__rm} -f GNUmakefile Makefile *.o
+	chmod 0755 pg_regress regress.so
+	popd
+	%{__cp} %{SOURCE4} %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
+	chmod 0644 %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
 %endif
 
 %if ! %plpython2
@@ -1241,7 +1179,7 @@ cat postgres-%{pgmajorversion}.lang pg_resetwal-%{pgmajorversion}.lang pg_checks
 %pre server
 groupadd -g 26 -o -r postgres >/dev/null 2>&1 || :
 useradd -M -g postgres -o -r -d /var/lib/pgsql -s /bin/bash \
-        -c "PostgreSQL Server" -u 26 postgres >/dev/null 2>&1 || :
+	-c "PostgreSQL Server" -u 26 postgres >/dev/null 2>&1 || :
 
 %post server
 /sbin/ldconfig
@@ -1276,12 +1214,12 @@ chmod 700 /var/lib/pgsql/.bash_profile
 %preun server
 if [ $1 -eq 0 ] ; then
 %if %{systemd_enabled}
-        # Package removal, not upgrade
-        /bin/systemctl --no-reload disable %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
-        /bin/systemctl stop %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+	# Package removal, not upgrade
+	/bin/systemctl --no-reload disable %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+	/bin/systemctl stop %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
 %else
-        /sbin/service %{sname}-%{pgmajorversion} condstop >/dev/null 2>&1
-        chkconfig --del %{sname}-%{pgmajorversion}
+	/sbin/service %{sname}-%{pgmajorversion} condstop >/dev/null 2>&1
+	chkconfig --del %{sname}-%{pgmajorversion}
 
 %endif
 fi
@@ -1295,8 +1233,8 @@ fi
 %endif
 if [ $1 -ge 1 ] ; then
  %if %{systemd_enabled}
-        # Package upgrade, not uninstall
-        /bin/systemctl try-restart %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+	# Package upgrade, not uninstall
+	/bin/systemctl try-restart %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
  %else
    /sbin/service %{sname}-%{pgmajorversion} condrestart >/dev/null 2>&1
  %endif
@@ -1609,7 +1547,12 @@ fi
 %{pgbaseinstdir}/share/postgres.shdescription
 %{pgbaseinstdir}/share/system_views.sql
 %{pgbaseinstdir}/share/*.sample
+%if 0%{?rhel} && 0%{?rhel} == 7
 %{pgbaseinstdir}/share/timezonesets/*
+%else
+%{pgbaseinstdir}/share/timezonesets/*
+#%{pgbaseinstdir}/share/timezone/*
+%endif
 %{pgbaseinstdir}/share/tsearch_data/*.affix
 %{pgbaseinstdir}/share/tsearch_data/*.dict
 %{pgbaseinstdir}/share/tsearch_data/*.ths

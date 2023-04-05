@@ -1,0 +1,135 @@
+Source: percona-postgis
+Maintainer: Percona Development Team <info@percona.com>
+Uploaders: Percona Development Team <info@percona.com>
+Section: misc
+Priority: optional
+Build-Depends: bison,
+               dctrl-tools,
+               dblatex,
+               docbook,
+               docbook-xsl,
+               dpkg-dev (>= 1.16.1~),
+               flex,
+               imagemagick,
+               libcunit1-dev,
+               libgdal-dev (>= 1.11.2+dfsg-3~) | libgdal1-dev (>= 1.9.0~),
+               libgeos-dev (>= 3.6),
+               libjson-c-dev | libjson0-dev (>= 0.9~),
+               libpcre2-dev,
+               libproj-dev (>= 4.9.0),
+               libprotobuf-c-dev,
+               libsfcgal-dev (>= 1.3.1) [!armel !armhf],
+               libxml2-dev (>= 2.5.0~),
+               lsb-release,
+               pkg-config,
+               po-debconf,
+               percona-postgresql-all,
+               percona-postgresql-common (>= 148~),
+               percona-postgresql-server-dev-all,
+               protobuf-c-compiler,
+               rdfind,
+               xsltproc
+Standards-Version: 3.3.1
+Homepage: https://postgis.net/
+Rules-Requires-Root: no
+
+Package:percona-postgis
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Recommends:percona-postgresql-postgis,
+           percona-postgis-doc
+Description: Geographic objects support for PostgreSQL
+ PostGIS adds support for geographic objects to the PostgreSQL
+ object-relational database. In effect, PostGIS "spatially enables"
+ the PostgreSQL server, allowing it to be used as a backend spatial
+ database for geographic information systems (GIS), much like ESRI's
+ SDE or Oracle's Spatial extension. PostGIS follows the OpenGIS
+ "Simple Features Specification for SQL".
+ .
+ This package contains the PostGIS userland binaries for importing and
+ exporting shape and raster files: pgsql2shp, raster2pgsql, and shp2pgsql.
+
+Package: percona-postgis-doc
+Architecture: all
+Multi-Arch: foreign
+Section: doc
+Depends: ${misc:Depends}
+Suggests: percona-postgis
+Description: Geographic objects support for PostgreSQL -- documentation
+ PostGIS adds support for geographic objects to the PostgreSQL
+ object-relational database. In effect, PostGIS "spatially enables"
+ the PostgreSQL server, allowing it to be used as a backend spatial
+ database for geographic information systems (GIS), much like ESRI's
+ SDE or Oracle's Spatial extension. PostGIS follows the OpenGIS
+ "Simple Features Specification for SQL".
+ .
+ This package contains the PostGIS documentation.
+
+Package: percona-postgresql-14-postgis-3
+Architecture: any
+Depends: percona-postgresql-14,
+         percona-postgresql-14-postgis-3-scripts,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Suggests: percona-postgis
+Breaks: percona-postgis (<< 1.2.1)
+Provides: percona-postgresql-14-postgis
+Description: Geographic objects support for PostgreSQL 14
+ PostGIS adds support for geographic objects to the PostgreSQL
+ object-relational database. In effect, PostGIS "spatially enables"
+ the PostgreSQL server, allowing it to be used as a backend spatial
+ database for geographic information systems (GIS), much like ESRI's
+ SDE or Oracle's Spatial extension. PostGIS follows the OpenGIS
+ "Simple Features Specification for SQL".
+
+Package: percona-postgresql-14-postgis-3-scripts
+Architecture: any
+Multi-Arch: foreign
+Depends: ${perl:Depends},
+         ${misc:Depends}
+Recommends: percona-postgresql-14-postgis-3
+Provides: percona-postgresql-14-postgis-scripts
+Replaces:percona-postgresql-14-postgis-scripts (<< 2.2.2+dfsg-3~)
+Description: Geographic objects support for PostgreSQL 14 -- SQL scripts
+ PostGIS adds support for geographic objects to the PostgreSQL
+ object-relational database. In effect, PostGIS "spatially enables"
+ the PostgreSQL server, allowing it to be used as a backend spatial
+ database for geographic information systems (GIS), much like ESRI's
+ SDE or Oracle's Spatial extension. PostGIS follows the OpenGIS
+ "Simple Features Specification for SQL".
+ .
+ This package contains the SQL scripts for installing PostGIS in a PostgreSQL
+ 14 database, and for upgrading from earlier PostGIS versions.
+
+Package: percona-postgresql-postgis
+Architecture: any
+Section: metapackages
+Depends: percona-postgresql-postgis-scripts,
+         percona-postgresql-14-postgis-3,
+         ${misc:Depends}
+Description: Geographic objects support for PostgreSQL -- Metapackage
+ PostGIS adds support for geographic objects to the PostgreSQL
+ object-relational database. In effect, PostGIS "spatially enables"
+ the PostgreSQL server, allowing it to be used as a backend spatial
+ database for geographic information systems (GIS), much like ESRI's
+ SDE or Oracle's Spatial extension. PostGIS follows the OpenGIS
+ "Simple Features Specification for SQL".
+ .
+ This metapackage depends on the PostGIS package for PostgreSQL 14.
+
+Package: percona-postgresql-postgis-scripts
+Architecture: any
+Multi-Arch: foreign
+Depends: percona-postgresql-14-postgis-3-scripts,
+         ${misc:Depends}
+Description: Geographic objects support for PostgreSQL -- SQL scripts metapackage
+ PostGIS adds support for geographic objects to the PostgreSQL
+ object-relational database. In effect, PostGIS "spatially enables"
+ the PostgreSQL server, allowing it to be used as a backend spatial
+ database for geographic information systems (GIS), much like ESRI's
+ SDE or Oracle's Spatial extension. PostGIS follows the OpenGIS
+ "Simple Features Specification for SQL".
+ .
+ This metapackage depends on the PostGIS scripts package for
+ PostgreSQL 14.

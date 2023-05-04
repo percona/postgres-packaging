@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -eu
+
+MAJOR_VERSION="3"
+PGVERSION="15"
+DIR="/usr/share/postgresql/$PGVERSION/extension"
+
+case $1 in
+  remove)
+    # remove our alternatives
+    update-alternatives --remove postgresql-$PGVERSION-postgis.control $DIR/postgis-$MAJOR_VERSION.control
+
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -eu
+
+MAJOR_VERSION="3"
+PGVERSION="15"
+DIR="/usr/share/postgresql/$PGVERSION/extension"
+
+case $1 in
+  configure)
+    # install our alternatives (priority is "30" for compatibility with 2.5, "25")
+    update-alternatives \
+    --install $DIR/postgis.control                      postgresql-$PGVERSION-postgis.control                      $DIR/postgis-$MAJOR_VERSION.control ${MAJOR_VERSION}0 \
+      --slave $DIR/postgis_raster.control               postgresql-$PGVERSION-postgis_raster.control               $DIR/postgis_raster-$MAJOR_VERSION.control \
+      --slave $DIR/postgis_sfcgal.control               postgresql-$PGVERSION-postgis_sfcgal.control               $DIR/postgis_sfcgal-$MAJOR_VERSION.control \
+      --slave $DIR/postgis_tiger_geocoder.control       postgresql-$PGVERSION-postgis_tiger_geocoder.control       $DIR/postgis_tiger_geocoder-$MAJOR_VERSION.control \
+      --slave $DIR/postgis_topology.control             postgresql-$PGVERSION-postgis_topology.control             $DIR/postgis_topology-$MAJOR_VERSION.control \
+      --slave $DIR/address_standardizer.control         postgresql-$PGVERSION-address_standardizer.control         $DIR/address_standardizer-$MAJOR_VERSION.control \
+      --slave $DIR/address_standardizer_data_us.control postgresql-$PGVERSION-address_standardizer_data_us.control $DIR/address_standardizer_data_us-$MAJOR_VERSION.control
+
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

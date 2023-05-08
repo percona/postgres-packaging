@@ -1,0 +1,248 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# Enable hardening build flags
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+# Don't fail when d/control doesn't match template
+export PG_UPDATECONTROL=yes
+
+include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/pkg-info.mk
+include /usr/share/postgresql-common/pgxs_debian_control.mk
+
+# Ignore testsuite failures on these architectures
+IGNORE_TEST_FAILURE_ARCHS = mips mips64el mipsel s390x alpha hppa hurd-i386 kfreebsd-i386 powerpc ppc64 sparc64
+ifneq (,$(filter $(DEB_BUILD_ARCH),$(IGNORE_TEST_FAILURE_ARCHS)))
+	TEST_FAIL_COMMAND = echo "Ignoring test failures"
+else
+	TEST_FAIL_COMMAND = exit 1
+endif
+
+# Upstream version (including ~rcN) for symbols version
+UPSTREAM_VERSION := $(shell echo $(DEB_VERSION_UPSTREAM) | sed -e 's/\+.*//')
+
+MAJOR_VERSION = $(shell grep ^POSTGIS_MAJOR_VERSION Version.config | cut -d= -f2)
+MINOR_VERSION = $(shell grep ^POSTGIS_MINOR_VERSION Version.config | cut -d= -f2)
+MICRO_VERSION = $(shell grep ^POSTGIS_MICRO_VERSION Version.config | cut -d= -f2)
+POSTGIS_VERSION = $(MAJOR_VERSION).$(MINOR_VERSION).$(MICRO_VERSION)
+ifeq ($(POSTGIS_VERSION),..)
+$(error Cannot detect Postgis version, fix debian/rules)
+endif
+
+# For the Postgres APT repository, we want to support multiple
+# Postgres versions. However, docs and the JDBC jar only need to be
+# built once - in the main directory.
+NEWEST_POSTGRES_VERSION = $(shell pg_buildext supported-versions $(CURDIR) | tail -1)
+ifeq ($(NEWEST_POSTGRES_VERSION),)
+$(error Cannot detect Postgres version, check debian/pgversions and pg_buildext)
+endif
+
+OTHER_POSTGRES_VERSIONS = $(shell pg_buildext supported-versions $(CURDIR) \
+	| grep -v "$(NEWEST_POSTGRES_VERSION)")
+
+COMMON_CONFIGURE_ARGS = --host=$(DEB_HOST_GNU_TYPE) \
+	--build=$(DEB_BUILD_GNU_TYPE) \
+	--prefix=/usr \
+	--exec-prefix=\$${prefix} \
+	--docdir=\$${prefix}/share/doc \
+	--mandir=\$${prefix}/share/man \
+	--infodir=\$${prefix}/share/info \
+	--without-interrupt-tests \
+	--without-phony-revision \
+	--enable-lto
+
+NJOBS := -j1
+ifneq (,$(filter parallel=%,$(subst $(COMMA), ,$(DEB_BUILD_OPTIONS))))
+NJOBS := -j$(subst parallel=,,$(filter parallel=%,$(subst $(COMMA), ,$(DEB_BUILD_OPTIONS))))
+endif
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
+override_dh_autoreconf:
+	dh_autoreconf ./autogen.sh
+
+override_dh_auto_clean: debian/control
+#	Clean all separate build directories.
+	(set -ex; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS); do \
+		rm -rf $(CURDIR)/debian/build-$$PGVER; \
+	done)
+
+	[ ! -f GNUmakefile ] || $(MAKE) $(NJOBS) distclean || true
+	[ ! -f GNUmakefile ] || $(MAKE) $(NJOBS) -C doc images-clean || true
+
+#	Cleanup after the Makefile
+	rm -f postgis/postgis_upgrade_20_minor.sql.in \
+		raster/rt_pg/rtpostgis_drop.sql \
+		raster/rt_pg/rtpostgis_upgrade_cleanup.sql
+
+#	Cleanup auto-generated packaging control files
+	rm -f $(CURDIR)/debian/postgresql-*-postgis-*.install
+	rm -f $(CURDIR)/debian/postgresql-*-postgis-*.lintian-overrides
+	rm -f $(CURDIR)/debian/postgresql-*-postgis-*-scripts.install
+	rm -f $(CURDIR)/debian/postgresql-*-postgis-*-scripts.lintian-overrides
+	rm -f $(CURDIR)/debian/postgresql-*-postgis-*-scripts.postinst
+	rm -f $(CURDIR)/debian/postgresql-*-postgis-*-scripts.prerm
+	rm -f loader/cunit/cu_tester
+	rm -rf liblwgeom/cunit/.libs
+
+override_dh_auto_configure:
+#	Copy sources required to build extensions for all but the most
+#	recent Postgres version. Unfortunately, Postgis doesn't support
+#	vpath builds.
+	(set -ex; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS); do \
+		mkdir $(CURDIR)/debian/build-$$PGVER; \
+		for FILE in `ls $(CURDIR) | grep -v debian`; do \
+			cp -a $$FILE $(CURDIR)/debian/build-$$PGVER; \
+		done; \
+	done)
+	sh autogen.sh
+#	PostGIS for the most recent PostgreSQL version
+	@echo "### PostgreSQL $(NEWEST_POSTGRES_VERSION) configure ###"
+	./configure $(COMMON_CONFIGURE_ARGS) \
+		--datadir=\$${prefix}/share/postgresql-$(NEWEST_POSTGRES_VERSION)-postgis \
+		--with-pgconfig=/usr/lib/postgresql/$(NEWEST_POSTGRES_VERSION)/bin/pg_config \
+		--with-sfcgal=/usr/bin/sfcgal-config
+
+#	PostGIS for all older Postgres versions
+	(set -e; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS); do \
+		echo "### PostgreSQL $$PGVER configure ###"; \
+		cd $(CURDIR)/debian/build-$$PGVER; \
+		./configure $(COMMON_CONFIGURE_ARGS) \
+			--datadir=\$${prefix}/share/postgresql-$$PGVER-postgis \
+			--with-pgconfig=/usr/lib/postgresql/$$PGVER/bin/pg_config \
+			--with-sfcgal=/usr/bin/sfcgal-config ; \
+	done)
+
+override_dh_auto_build:
+#	Create debhelper files for each Postgres major version
+	(set -ex; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS) $(NEWEST_POSTGRES_VERSION); do \
+		for SUFFIX in .install .lintian-overrides -scripts.install -scripts.lintian-overrides -scripts.postinst -scripts.prerm; do \
+			cat $(CURDIR)/debian/postgresql-generic-postgis$$SUFFIX.in \
+				| sed -e "s/@PGVERSION@/$$PGVER/g" \
+				> $(CURDIR)/debian/postgresql-$$PGVER-postgis-$(MAJOR_VERSION)$$SUFFIX; \
+		done \
+	done)
+
+#	Build against the newest Postgres version
+	@echo "### PostgreSQL $(NEWEST_POSTGRES_VERSION) build ###"
+	$(MAKE) $(NJOBS)
+	$(MAKE) $(NJOBS) -C doc
+
+#	Build against all other Postgres versions
+	(set -e; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS); do \
+		echo "### PostgreSQL $$PGVER build ###"; \
+		$(MAKE) $(NJOBS) -C $(CURDIR)/debian/build-$$PGVER; \
+	done)
+
+#	Let PostGIS create a perl script from postgis_restore.pl.in
+	$(MAKE) $(NJOBS) -C utils
+
+#	Create a few SQL scripts that the Makefiles are not clever enough
+#	to resolve, when building arch-indep only.
+	$(MAKE) $(NJOBS) -C postgis postgis.sql postgis_upgrade.sql
+	$(MAKE) $(NJOBS) -C raster/rt_pg rtpostgis.sql rtpostgis_upgrade.sql
+	$(MAKE) $(NJOBS) -C topology topology.sql topology_upgrade.sql
+
+#	This creates the required SQL scripts. Again, the Makefile is not
+#	clever enough to run this before 'install'.
+	$(MAKE) $(NJOBS) -C extensions
+
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+#	Run unit tests (against the newest Postgres version first)
+	@echo "### PostgreSQL $(NEWEST_POSTGRES_VERSION) test ###"
+	pg_virtualenv -v $(NEWEST_POSTGRES_VERSION) \
+		make check RUNTESTFLAGS="-v" || $(TEST_FAIL_COMMAND)
+
+#	Test against all other Postgres versions
+	set -e; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS); do \
+		echo "### PostgreSQL $$PGVER test ###"; \
+		pg_virtualenv -v $$PGVER \
+			make -C $(CURDIR)/debian/build-$$PGVER check RUNTESTFLAGS="-v" || $(TEST_FAIL_COMMAND); \
+	done
+endif
+
+override_dh_auto_install:
+#	Install the most recent Postgres version. Note that we used to
+#	install only utils and extensions. However, there are sql scripts
+#	in postgis, raster and topology as well, which need to be
+#	installed for the -scripts package(s).
+	@echo "### PostgreSQL $(NEWEST_POSTGRES_VERSION) install ###"
+	$(MAKE) $(NJOBS) install DESTDIR=$(CURDIR)/debian/tmp
+
+#	Install all older Postgres versions.
+	(set -e; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS); do \
+		echo "### PostgreSQL $$PGVER install ###"; \
+		$(MAKE) $(NJOBS) -C $(CURDIR)/debian/build-$$PGVER \
+			install DESTDIR=$(CURDIR)/debian/tmp; \
+	done)
+
+#	Remove unversioned and unused files from address standardizer
+	rm -fv debian/tmp/usr/share/postgresql/*/extension/address_standardizer.sql
+	rm -fv debian/tmp/usr/share/postgresql/*/extension/address_standardizer_data_us.sql
+
+#	Move extension control files to version-specific names
+#	(otherwise, the -script packages from different major versions would conflict)
+	(set -ex; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS) $(NEWEST_POSTGRES_VERSION); do \
+		for control in $(CURDIR)/debian/tmp/usr/share/postgresql/$$PGVER/extension/*.control; do \
+			mv $$control $${control%.control}-$(MAJOR_VERSION).control; \
+		done \
+	done)
+
+#	Compile and install docs
+	$(MAKE) -C doc docs-install man-install \
+		DESTDIR=$(CURDIR)/debian/tmp \
+		PGSQL_DOCDIR=/usr/share/doc \
+	        PGSQL_MANDIR=/usr/share/man	
+
+#	Move binaries from the NEWEST_POSTGRES_VERSION build to the
+#	'postgis' binary package.
+	mkdir -p $(CURDIR)/debian/postgis/usr/bin
+	mv $(CURDIR)/debian/tmp/usr/lib/postgresql/$(NEWEST_POSTGRES_VERSION)/bin/* \
+		$(CURDIR)/debian/postgis/usr/bin/
+
+#	Set executable bit for postgis_restore.pl
+	chmod 755 $(CURDIR)/debian/*/usr/share/postgresql/*/contrib/postgis-*/postgis_restore.pl
+
+#	De-duplicate upgrade scripts - using hard-links for exactly one
+#	directory (so we don't generate cross-directory hard ones).
+	(set -e; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS) $(NEWEST_POSTGRES_VERSION); do \
+		rdfind -makeresultsfile false -makehardlinks true \
+			$(CURDIR)/debian/postgresql-$$PGVER-postgis-*-scripts/usr/share/postgresql/$$PGVER/extension; \
+	done)
+
+#	Don't include desktop file & application icons in scripts package
+	rm -rf debian/postgresql-*-postgis-*-scripts/usr/share/postgresql/*/applications
+	rm -rf debian/postgresql-*-postgis-*-scripts/usr/share/postgresql/*/icons
+
+override_dh_install:
+	$(RM) $(CURDIR)/debian/tmp/usr/lib/postgresql/*/bin/*
+	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/postgis/README.postgis
+	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/postgresql-doc-*/extension/README.address_standardizer
+
+	dh_install
+
+override_dh_makeshlibs:
+	dh_makeshlibs -Xusr/lib/postgis -- -v$(UPSTREAM_VERSION)
+
+.PHONY: debian/control

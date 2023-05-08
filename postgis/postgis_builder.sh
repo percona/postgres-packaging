@@ -88,6 +88,7 @@ get_sources(){
         return 0
     fi
     PRODUCT=percona-postgis
+    PPG_VERSION=12.14
     echo "PRODUCT=${PRODUCT}" > percona-postgis.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}.${RELEASE}
@@ -125,8 +126,14 @@ get_sources(){
             mv $file "percona-$file"
         done
         rm -f rules* control*
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.14/postgis/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.14/postgis/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.postinst
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.prerm
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3.lintian-overrides
 	cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
@@ -137,8 +144,8 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm -f postgis33.spec postgis33-3.3.0-gdalfpic.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.14/postgis/percona-postgis33.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.14/postgis/postgis33-3.3.0-gdalfpic.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
     cd ../
     cd ${WORKDIR}
     #
@@ -510,6 +517,7 @@ build_deb(){
     then
         sed -i '/libsfcgal/d' debian/control
         cp debian/control debian/control.in
+	sed -i "248i override_dh_shlibdeps:\n\tdh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info" debian/rules
     fi
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

@@ -125,8 +125,14 @@ get_sources(){
             mv $file "percona-$file"
         done
         rm -f rules* control*
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3-scripts.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3-scripts.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3-scripts.postinst
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3-scripts.prerm
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3.lintian-overrides
 	cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
@@ -137,8 +143,8 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm -f postgis33.spec postgis33-3.3.0-gdalfpic.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/percona-postgis33.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/postgis33-3.3.0-gdalfpic.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/rpm/percona-postgis33.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
     cd ../
     cd ${WORKDIR}
     #
@@ -510,6 +516,7 @@ build_deb(){
     then
         sed -i '/libsfcgal/d' debian/control
         cp debian/control debian/control.in
+	sed -i "248i override_dh_shlibdeps:\n\tdh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info" debian/rules
     fi
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

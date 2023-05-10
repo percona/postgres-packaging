@@ -201,12 +201,12 @@ override_dh_auto_install:
 
 #	Move extension control files to version-specific names
 #	(otherwise, the -script packages from different major versions would conflict)
-	#(set -ex; \
-	#for PGVER in $(OTHER_POSTGRES_VERSIONS) $(NEWEST_POSTGRES_VERSION); do \
-	#	for control in $(CURDIR)/debian/tmp/usr/share/postgresql/$$PGVER/extension/*.control; do \
-	#		mv $$control $${control%.control}-$(MAJOR_VERSION).control; \
-	#	done \
-	#done)
+	(set -ex; \
+	for PGVER in $(OTHER_POSTGRES_VERSIONS) $(NEWEST_POSTGRES_VERSION); do \
+		for control in $(CURDIR)/debian/tmp/usr/share/postgresql/$$PGVER/extension/*.control; do \
+			mv $$control $${control%.control}-$(MAJOR_VERSION).control; \
+		done \
+	done)
 
 #	Compile and install docs
 	$(MAKE) -C doc docs-install man-install \

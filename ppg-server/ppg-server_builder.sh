@@ -78,7 +78,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.2 testing
+    percona-release enable ppg-15.3 testing
     return
 }
 
@@ -87,7 +87,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.2 testing
+    percona-release enable ppg-15.3 testing
     return
 }
 
@@ -126,8 +126,8 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/ppg-server/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/ppg-server/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/ppg-server/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/ppg-server/rules
     echo 9 > compat
     echo "percona-ppg-server-15 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -136,7 +136,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.2/ppg-server/ppg-server.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/ppg-server/ppg-server.spec
     cd ${WORKDIR}
     #
     source ppg-server.properties
@@ -438,16 +438,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="v15.2"
+BRANCH="v15.3"
 REPO="https://github.com/percona/postgres-packaging.git"
 PRODUCT=percona-ppg-server-15
 DEBUG=0
-VERSION='ppg-15.2'
+VERSION='ppg-15.3'
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-RELEASE='2'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

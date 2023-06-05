@@ -10,6 +10,9 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@ --with python3,sphinxdoc --buildsystem=pybuild
 
+override_dh_buildde:
+	dh_builddeb -- -Zgzip
+
 override_dh_auto_build-indep:
 	dh_auto_build -i
 	set -e; export PYTHONPATH=$(shell pybuild --print build_dir --interpreter python3) PYTHON_VERSION=3; \

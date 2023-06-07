@@ -109,14 +109,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:		percona-postgresql%{pgmajorversion}
-Version:        12.14
+Version:        12.15
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-12.14.tar.gz
+Source0:        percona-postgresql-12.15.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 %if %{systemd_enabled}
@@ -756,7 +756,8 @@ export PYTHON=/usr/bin/python3
 	--with-system-tzdata=%{_datadir}/zoneinfo \
 	--sysconfdir=/etc/sysconfig/pgsql \
 	--docdir=%{pgbaseinstdir}/doc \
-	--htmldir=%{pgbaseinstdir}/doc/html
+	--htmldir=%{pgbaseinstdir}/doc/html \
+        --enable-tap-tests
 # We need to build PL/Python 3 and a few extensions:
 # Build PL/Python 3
 cd src/backend

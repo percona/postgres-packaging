@@ -1,11 +1,11 @@
 %global sname   percona-ppg-server
 %global pgmajorversion 12
-%global version 14
+%global version 15
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
 Version:        %{pgmajorversion}.%{version}
-Release:        2%{?dist}
+Release:        1%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases
 URL:            https://www.percona.com/software/postgresql-distribution
@@ -28,7 +28,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Mon Oct 31 2022 Surabhi Bhat <surabhi.bhat> 12.14-1
+* Mon Oct 31 2022 Surabhi Bhat <surabhi.bhat> 12.15-1
 - Update version for ppg-server meta-package
-* Fri Aug 05 2022 Kai Wagner <kai.wagner@percona.com> 12.14-1
+* Fri Aug 05 2022 Kai Wagner <kai.wagner@percona.com> 12.15-1
 - Initial build

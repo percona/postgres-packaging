@@ -68,7 +68,7 @@
 
 Summary:	Geographic Information Systems Extensions to PostgreSQL
 Name:		percona-postgis%{postgiscurrmajorversion}
-Version:	%{postgismajorversion}.1
+Version:	%{postgismajorversion}.3
 Release:	1%{?dist}
 License:	GPLv2+
 Source0:	percona-postgis-%{version}.tar.gz
@@ -218,7 +218,7 @@ BuildRequires:  llvm13-devel clang13-devel
 Requires:	llvm13
 %endif
 %if 0%{?fedora} || 0%{?rhel} >= 8
-Requires:	llvm => 13.0
+Requires:	llvm => 12.0
 %endif
 
 %description llvmjit

@@ -125,15 +125,16 @@ get_sources(){
         for file in $(ls | grep postgis); do
             mv $file "percona-$file"
         done
-        rm -f rules* control*
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.lintian-overrides
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.postinst
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.prerm
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3.lintian-overrides
+        rm -f rules* control* percona-postgis.install 
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/control
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgis.install
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.install
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.lintian-overrides
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.postinst
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.prerm
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3.install
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3.lintian-overrides
 	cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
@@ -150,8 +151,8 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm -f postgis33.spec postgis33-3.3.0-gdalfpic.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
     cd ../
     cd ${WORKDIR}
     #

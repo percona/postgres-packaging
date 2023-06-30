@@ -568,13 +568,13 @@ OS_NAME=
 ARCH=
 OS=
 REVISION=0
-BRANCH="4_4_2"
+BRANCH="4_4_3"
 INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REPO="https://git.postgresql.org/git/pgpool2.git"
-VERSION="4.4.2"
-PG_RELEASE=14.7
+VERSION="4.4.3"
+PG_RELEASE=14.8
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 PG_VER=$(echo ${PG_RELEASE} | awk -F'.' '{print $1}')
 check_workdir

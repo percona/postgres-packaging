@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control supported-versions 
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.7/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.7/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.7/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.7/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.7/postgres-common/supported-versions
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/postgres-common/supported-versions
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -146,15 +146,16 @@ get_sources(){
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
 	echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
+	sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
     cd ../
     sudo chmod +x pgcommon.sh
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.7/postgres-common/pgcommon.sh
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/postgres-common/pgcommon.sh
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.7/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -446,12 +447,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="debian/247"
+BRANCH="debian/250"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='247'
+VERSION='250'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

@@ -56,13 +56,13 @@
 %endif
 
 %ifarch ppc64 ppc64le s390 s390x armv7hl
- %if 0%{?rhel} && 0%{?rhel} == 7
-  %{!?llvm:%global llvm 0}
- %else
-  %{!?llvm:%global llvm 1}
- %endif
+%if 0%{?rhel} && 0%{?rhel} == 7
+%{!?llvm:%global llvm 0}
 %else
- %{!?llvm:%global llvm 1}
+%{!?llvm:%global llvm 1}
+%endif
+%else
+%{!?llvm:%global llvm 1}
 %endif
 
 %{!?selinux:%global selinux 1}
@@ -75,6 +75,11 @@
 %global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
 %global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
 
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+%pgdg_set_ppc64le_compiler_at10
+%endif
+%endif
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
@@ -114,17 +119,6 @@ BuildRequires:  readline-devel zlib-devel >= 1.0.4
 BuildRequires:  lz4-devel
 Requires:       lz4
 %endif
-
-# zstd dependency
-%if 0%{?suse_version} >= 1499
-BuildRequires:	libzstd-devel >= 1.4.0
-Requires:	libzstd1 >= 1.4.0
-%endif
-%if 0%{?rhel} || 0%{?fedora}
-BuildRequires:	libzstd-devel >= 1.4.0
-Requires:	libzstd >= 1.4.0
-%endif
-
 # This dependency is needed for Source 16:
 %if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:  perl-generators
@@ -133,6 +127,7 @@ BuildRequires:  perl-generators
 %ifarch ppc64 ppc64le
 BuildRequires:  advance-toolchain-%{atstring}-devel
 %endif
+
 Requires:       /sbin/ldconfig
 
 %if %icu
@@ -143,11 +138,7 @@ Requires:       libicu
 %if %llvm
 %if 0%{?rhel} && 0%{?rhel} == 7
 # Packages come from EPEL and SCL:
-%ifarch aarch64
-BuildRequires:	llvm-toolset-7.0-llvm-devel >= 7.0.1 llvm-toolset-7.0-clang >= 7.0.1
-%else
 BuildRequires:  llvm5.0-devel >= 5.0 llvm-toolset-7-clang >= 4.0.1
-%endif
 %endif
 %if 0%{?rhel} && 0%{?rhel} >= 8
 # Packages come from Appstream:
@@ -157,10 +148,10 @@ BuildRequires:  llvm-devel clang-devel
 BuildRequires:  llvm-devel >= 5.0 clang-devel >= 5.0
 %endif
 %if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-BuildRequires:	llvm6-devel clang6-devel
+BuildRequires:  llvm6-devel clang6-devel
 %endif
 %if 0%{?suse_version} >= 1500
-BuildRequires:	llvm13-devel clang13-devel
+BuildRequires:  llvm5-devel clang5-devel
 %endif
 %endif
 
@@ -223,10 +214,14 @@ BuildRequires:  selinux-policy >= 3.9.13
 %endif
 
 %if %ssl
+# We depend un the SSL libraries provided by Advance Toolchain on PPC,
+# so use openssl-devel only on other platforms:
+%ifnarch ppc64 ppc64le
 %if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
 BuildRequires:  libopenssl-devel
 %else
 BuildRequires:  openssl-devel
+%endif
 %endif
 %endif
 
@@ -258,6 +253,12 @@ Requires(post):         systemd
 Requires(preun):        systemd
 Requires(postun):       systemd
 %endif
+%else
+Requires(post):         chkconfig
+Requires(preun):        chkconfig
+# This is for /sbin/service
+Requires(preun):        initscripts
+Requires(postun):       initscripts
 %endif
 
 Requires:       %{name}-libs >= %{version}-%{release}
@@ -340,7 +341,8 @@ Requires(post):         systemd
 Requires(preun):        systemd
 Requires(postun):       systemd
 %endif
-
+%else
+Requires:       /usr/sbin/useradd, /sbin/chkconfig
 %endif
 Provides:       postgresql-server >= %{version}-%{release}
 Provides:       %{vname}-server = %{epoch}:%{version}-%{release}
@@ -624,10 +626,19 @@ benchmarks.
 %endif
 
 CFLAGS="${CFLAGS:-%optflags}"
-# Strip out -ffast-math from CFLAGS....
-CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
-%if 0%{?rhel}
-LDFLAGS="-Wl,--as-needed"; export LDFLAGS
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+        CFLAGS="${CFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
+        CXXFLAGS="${CXXFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
+        LDFLAGS="-L%{atpath}/%{_lib}"
+        CC=%{atpath}/bin/gcc; export CC
+%endif
+%else
+        # Strip out -ffast-math from CFLAGS....
+        CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
+        %if 0%{?rhel}
+        LDFLAGS="-Wl,--as-needed"; export LDFLAGS
+        %endif
 %endif
 
 export CFLAGS
@@ -656,9 +667,6 @@ export PYTHON=/usr/bin/python3
         --libdir=%{pgbaseinstdir}/lib \
         --with-lz4 \
         --with-extra-version=" - Percona Distribution" \
-%if 0%{?rhel} || 0%{?suse_version} >= 1499 || 0%{?fedora}
-	--with-zstd \
-%endif
 %if %beta
         --enable-debug \
         --enable-cassert \
@@ -723,11 +731,15 @@ export PYTHON=/usr/bin/python3
         --with-includes=%{atpath}/include \
         --with-libraries=%{atpath}/lib64 \
 %endif
+        --with-system-tzdata=%{_datadir}/zoneinfo \
+        --sysconfdir=/etc/sysconfig/pgsql \
+        --docdir=%{pgbaseinstdir}/doc \
+        --htmldir=%{pgbaseinstdir}/doc/html \
+        --enable-tap-tests
+%else
+        --enable-tap-tests
+        
 %endif
-	--with-system-tzdata=%{_datadir}/zoneinfo \
-	--sysconfdir=/etc/sysconfig/pgsql \
-	--docdir=%{pgbaseinstdir}/doc \
-	--htmldir=%{pgbaseinstdir}/doc/html
 
 cd src/backend
 MAKELEVEL=0 %{__make} submake-generated-headers
@@ -1161,7 +1173,7 @@ fi
 %if 0%{?rhel} && 0%{?rhel} == 7
 %doc %{pgbaseinstdir}/doc/extension/*.example
 %else
-%doc %{pgbaseinstdir}/doc/extension/*.example
+%doc %{pgbaseinstdir}/share/doc/extension/*.example
 %endif
 %{pgbaseinstdir}/lib/_int.so
 %{pgbaseinstdir}/lib/adminpack.so
@@ -1354,7 +1366,7 @@ fi
 %{pgbaseinstdir}/share/timezonesets/*
 %else
 %{pgbaseinstdir}/share/timezonesets/*
-#%{pgbaseinstdir}/share/timezone/*
+%{pgbaseinstdir}/share/timezone/*
 %endif
 %{pgbaseinstdir}/share/tsearch_data/*.affix
 %{pgbaseinstdir}/share/tsearch_data/*.dict
@@ -1566,4 +1578,3 @@ fi
 - Initial attempt for RHEL 8 packaging updates.
 - Rename plpython macro to plpython2, to stress that it is for Python 2.
 - Initial cut for PostgreSQL 12
-

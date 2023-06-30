@@ -2,7 +2,7 @@
 %global sname pgbouncer
 
 Name:		percona-pgbouncer
-Version:	1.18.0
+Version:	1.19.1
 Release:	1%{?dist}
 Summary:	Lightweight connection pooler for PostgreSQL
 License:	MIT and BSD

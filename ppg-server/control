@@ -2,7 +2,7 @@ Source: percona-ppg-server-11
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 11.19 
+Standards-Version: 11.20 
 Homepage: https://www.percona.com/software/postgresql-distribution
 
 Package: percona-ppg-server-11

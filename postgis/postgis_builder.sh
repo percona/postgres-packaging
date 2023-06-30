@@ -76,7 +76,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-11.19 testing
+    percona-release enable ppg-11.20 testing
     return 
 }
 
@@ -88,6 +88,7 @@ get_sources(){
         return 0
     fi
     PRODUCT=percona-postgis
+    PPG_VERSION=11.20
     echo "PRODUCT=${PRODUCT}" > percona-postgis.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}.${RELEASE}
@@ -125,14 +126,14 @@ get_sources(){
             mv $file "percona-$file"
         done
         rm -f rules* control*
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3-scripts.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3-scripts.lintian-overrides
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3-scripts.postinst
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3-scripts.prerm
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/debian/percona-postgresql-11-postgis-3.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/debian/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/debian/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/debian/percona-postgresql-11-postgis-3-scripts.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/debian/percona-postgresql-11-postgis-3-scripts.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/debian/percona-postgresql-11-postgis-3-scripts.postinst
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/debian/percona-postgresql-11-postgis-3-scripts.prerm
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/debian/percona-postgresql-11-postgis-3.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/debian/percona-postgresql-11-postgis-3.lintian-overrides
 	cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
@@ -143,8 +144,8 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm -f postgis33.spec postgis33-3.3.0-gdalfpic.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/rpm/percona-postgis33.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.19/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/rpm/percona-postgis33.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/11.20/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
     cd ../
     cd ${WORKDIR}
     #
@@ -231,8 +232,6 @@ install_deps() {
     if [ "x$OS" = "xrpm" ]; then
       yum -y install wget
       add_percona_yum_repo
-#      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-#      mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       yum -y install epel-release
       RHEL=$(rpm --eval %rhel)
@@ -240,27 +239,36 @@ install_deps() {
       yum -y install pgdg-redhat-repo-latest.noarch.rpm
       yum -y install pgdg-srpm-macros
       if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
-        until yum -y install centos-release-scl; do
-            echo "waiting"
-            sleep 1
-        done
-        INSTALL_LIST="git rpm-build clang autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql11-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj72-devel protobuf-c-devel pkg-config"
-        yum -y install ${INSTALL_LIST}
-        source /opt/rh/devtoolset-7/enable
-        source /opt/rh/llvm-toolset-7/enable
+          until yum -y install centos-release-scl; do
+              echo "waiting"
+              sleep 1
+          done
+          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql11-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj72-devel protobuf-c-devel pkg-config"
+          yum -y install ${INSTALL_LIST}
+          source /opt/rh/devtoolset-7/enable
+          source /opt/rh/llvm-toolset-7/enable
       else
-	 yum config-manager --enable PowerTools AppStream BaseOS *epel
-	 dnf module -y disable postgresql
+	     yum config-manager --enable PowerTools AppStream BaseOS *epel
+	     dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-         INSTALL_LIST="git rpm-build clang autoconf libtool flex rpmdevtools wget llvm-toolset rpmlint percona-postgresql11-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj90-devel protobuf-c-devel pkg-config"
-        yum -y install ${INSTALL_LIST}
-        yum -y install binutils gcc gcc-c++
-        yum clean all
-        if [ ! -f  /usr/bin/llvm-config ]; then
-            ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
-        fi
-      fi
-      yum -y install docbook-xsl libxslt-devel
+         if [ x"$RHEL" = x8 ]; then
+	         dnf module -y disable llvm-toolset || true
+             yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
+             yum -y install $(echo "llvm-toolset-$(yum list llvm-toolset --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
+	         dnf module -y enable llvm-toolset || true
+             yum -y install $(echo "clang-$(yum list clang --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
+	     else
+             yum -y install llvm-toolset llvm-devel clang
+	     fi
+         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql11-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj90-devel protobuf-c-devel pkg-config"
+         yum -y install ${INSTALL_LIST}
+         yum -y install binutils gcc gcc-c++
+         yum clean all
+         if [ ! -f  /usr/bin/llvm-config ]; then
+             ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
+         fi
+       fi
+       yum -y install docbook-xsl libxslt-devel
     else
       apt-get -y update
       apt-get -y install curl wget lsb-release
@@ -275,7 +283,7 @@ install_deps() {
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release enable-only tools testing
-      percona-release enable-only ppg-11.19 testing
+      percona-release enable-only ppg-11.20 testing
       apt-get update
       if [ "x${DEBIAN}" = "xbionic" ]; then
         INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools dblatex docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-11 protobuf-c-compiler rdfind xsltproc"
@@ -286,10 +294,10 @@ install_deps() {
        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
-      done
-    fi
-    if [ "x${DEBIAN}" = "xbionic" ]; then
-        install_sfcgal
+       done
+       if [ "x${DEBIAN}" = "xbionic" ]; then
+          install_sfcgal
+       fi
     fi
     return;
 }
@@ -356,7 +364,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.1.pdf
+    wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.3.pdf
     #wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis33.spec rpmbuild/SPECS
@@ -508,10 +516,10 @@ build_deb(){
     cd ${PRODUCT}-${VERSION}.${RELEASE}
     dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
-    if [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbionic" ]
-    then
+#    if [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbionic" ]
+#    then
         sed -i '15i DEB_BUILD_OPTIONS=nocheck' debian/rules
-    fi
+#    fi
     if [ "x${DEBIAN}" = "xbionic" ]
     then
         sed -i '/libsfcgal/d' debian/control
@@ -542,13 +550,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-POSTGIS_BRANCH="stable-3.3"
+POSTGIS_BRANCH="3.3.3"
 POSTGIS_GITREPO="https://github.com/postgis/postgis.git"
 PRODUCT=percona-postgis
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='3.3'
-RELEASE='1'
+RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

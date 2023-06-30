@@ -111,6 +111,7 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
+	sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgresql.properties
@@ -118,7 +119,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 12 debian/12.14-1
+        git checkout -b 12 debian/12.15-1
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -127,8 +128,8 @@ get_sources(){
             mv $file "percona-$file"
         done
         rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.14/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.14/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.15/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.15/postgres/control
         sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
     cd ../
@@ -138,7 +139,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-12.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.14/postgres/percona-postgresql-12.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.15/postgres/percona-postgresql-12.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -196,27 +197,22 @@ install_deps() {
             sleep 1
         done
         yum -y install epel-release
-        INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-toolset-7-clang llvm5.0-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpmbuild rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel python3-devel lz4-devel  libzstd-devel"
+        INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-toolset-7-clang llvm5.0-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed python2-devel readline-devel rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel python3-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
         yum -y install ${INSTALL_LIST}
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
-        dnf module -y disable llvm-toolset
-        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel  libzstd-devel"
+	dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
+	yum -y install rpmbuild || yum -y install rpm-build || true
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
 	if [ x"$RHEL" = x8 ]; then
 	    yum -y install python2-devel
-            cat >/etc/yum.repos.d/CENTOS8-stream-AppStream.repo <<EOL
-[Stream-AppStream]
-name=Stream-AppStream
-baseurl=http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/
-gpgcheck=1
-enabled=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-EOL
+            yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
         else
 	    yum -y install python-devel
+            yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 14 | awk '{print $2}'| head -n1)")
         fi
         yum clean all
         if [ ! -f  /usr/bin/llvm-config ]; then
@@ -224,12 +220,16 @@ EOL
         fi
     
       fi
+      yum -y install bzip2-devel gcc gcc-c++ rpm-build || true
+      yum -y install cmake cyrus-sasl-devel make openssl-devel zlib-devel libcurl-devel || true
+      yum -y install perl-IPC-Run perl-Test-Simple
       yum -y install docbook-xsl libxslt-devel
     else
+      apt-get update || true
+      apt-get -y install gnupg2 curl wget lsb-release
+      apt-get update || true
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
-      apt-get update || true
       ENV export DEBIAN_FRONTEND=noninteractive
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
@@ -238,7 +238,7 @@ EOL
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
       percona-release enable tools testing
-      percona-release enable ppg-12.14 testing
+      percona-release enable ppg-12.15 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" ]; then
         INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev"
@@ -491,13 +491,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_12.14"
+BRANCH="REL_12.15"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='12'
-RELEASE='14'
+RELEASE='15'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

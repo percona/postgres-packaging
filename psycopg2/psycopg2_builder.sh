@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.4 testing
+    percona-release enable ppg-13.11 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.4 testing
+    percona-release enable ppg-13.11 testing
     return
 }
 
@@ -128,9 +128,9 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ${WORKDIR}/psycopg2.properties
     rm -fr debian rpm
 
-    git clone https://github.com/percona/postgres-packaging.git packaging
+    git clone https://github.com/EvgeniyPatlan/postgres-packaging.git packaging
     cd packaging
-        git checkout 13.4
+        git checkout 13.11
     cd ../
     mv packaging/psycopg2/debian ./
     cd debian/
@@ -191,9 +191,9 @@ install_deps() {
       mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
-      if [ ${RHEL} = 8 ]; then
-          dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+      if [ ${RHEL} -gt 7 ]; then
+          dnf -y module disable postgresql || true
+          dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
@@ -211,7 +211,7 @@ install_deps() {
       INSTALL_LIST="percona-postgresql-common percona-postgresql13-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
-
+      ln -s /usr/pgsql-14/bin/pg_config /usr/bin/pg_config
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
@@ -459,16 +459,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=4
-DEB_RELEASE=4
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="2_8_6"
+BRANCH="2_9_5"
 REPO="https://github.com/psycopg/psycopg2.git"
 PRODUCT=psycopg2
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.8.6'
-RELEASE='4'
+VERSION='2.9.5'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

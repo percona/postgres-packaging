@@ -46,6 +46,9 @@ parse_arguments() {
             --get_sources=*) SOURCE="$val" ;;
             --postgis_branch=*) POSTGIS_BRANCH="$val" ;;
             --postgis_gitrepo=*) POSTGIS_GITREPO="$val" ;;
+            --postgis_ver=*) POSTGIS_VERSION="$val" ;;
+            --rpm_release=*) RPM_RELEASE="$val" ;;
+            --deb_release=*) DEB_RELEASE="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
@@ -90,10 +93,10 @@ get_sources(){
     PRODUCT=percona-postgis
     PPG_VERSION=12.15
     echo "PRODUCT=${PRODUCT}" > percona-postgis.properties
-
+    VERSION=${POSTGIS_VERSION}
     PRODUCT_FULL=${PRODUCT}-${VERSION}.${RELEASE}
     echo "PRODUCT_FULL=${PRODUCT_FULL}" >> percona-postgis.properties
-    echo "VERSION=${PSM_VER}" >> percona-postgis.properties
+    echo "VERSION=${POSTGIS_VERSION}" >> percona-postgis.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgis.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgis.properties
     git clone "$POSTGIS_GITREPO"
@@ -125,15 +128,16 @@ get_sources(){
         for file in $(ls | grep postgis); do
             mv $file "percona-$file"
         done
-        rm -f rules* control*
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.lintian-overrides
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.postinst
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.prerm
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3.lintian-overrides
+        rm -f rules* control* percona-postgis.install
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/control
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.install
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.lintian-overrides
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.postinst
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3-scripts.prerm
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3.install
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgis.install
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-12-postgis-3.lintian-overrides
 	cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
@@ -144,8 +148,8 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm -f postgis33.spec postgis33-3.3.0-gdalfpic.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
+        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
     cd ../
     cd ${WORKDIR}
     #
@@ -547,15 +551,15 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=${RPM_RELEASE}
+DEB_RELEASE=${DEB_RELEASE}
 REVISION=0
-POSTGIS_BRANCH="3.3.3"
-POSTGIS_GITREPO="https://github.com/postgis/postgis.git"
+POSTGIS_BRANCH=${POSTGIS_BRANCH}
+POSTGIS_GITREPO=${POSTGIS_GITREPO}
 PRODUCT=percona-postgis
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='3.3'
+VERSION=${POSTGIS_VERSION}
 RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

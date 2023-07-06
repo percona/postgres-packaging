@@ -46,6 +46,9 @@ parse_arguments() {
             --get_sources=*) SOURCE="$val" ;;
             --postgis_branch=*) POSTGIS_BRANCH="$val" ;;
             --postgis_gitrepo=*) POSTGIS_GITREPO="$val" ;;
+            --postgis_ver=*) POSTGIS_VERSION="$val" ;;
+            --rpm_release=*) RPM_RELEASE="$val" ;;
+            --deb_release=*) DEB_RELEASE="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
@@ -88,12 +91,13 @@ get_sources(){
         return 0
     fi
     PRODUCT=percona-postgis
+    VERSION=${POSTGIS_VERSION}
     PPG_VERSION=13.11
     echo "PRODUCT=${PRODUCT}" > percona-postgis.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}.${RELEASE}
     echo "PRODUCT_FULL=${PRODUCT_FULL}" >> percona-postgis.properties
-    echo "VERSION=${PSM_VER}" >> percona-postgis.properties
+    echo "VERSION=${POSTGIS_VERSION}" >> percona-postgis.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgis.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgis.properties
     git clone "$POSTGIS_GITREPO"
@@ -554,15 +558,15 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=${RPM_RELEASE}
+DEB_RELEASE=${DEB_RELEASE}
 REVISION=0
-POSTGIS_BRANCH="3.3.3"
-POSTGIS_GITREPO="https://github.com/postgis/postgis.git"
+POSTGIS_BRANCH=${POSTGIS_BRANCH}
+POSTGIS_GITREPO=${POSTGIS_GITREPO}
 PRODUCT=percona-postgis
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='3.3'
+VERSION=${POSTGIS_VERSION}
 RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

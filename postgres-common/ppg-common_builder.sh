@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control supported-versions 
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres-common/supported-versions
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.4/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.4/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.4/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.4/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/15.4/postgres-common/supported-versions
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -149,13 +149,13 @@ get_sources(){
 	sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
     cd ../
     sudo chmod +x pgcommon.sh
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres-common/pgcommon.sh
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.4/postgres-common/pgcommon.sh
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.4/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -426,6 +426,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -447,12 +451,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="debian/250"
+BRANCH="debian/252"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='250'
+VERSION='252'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

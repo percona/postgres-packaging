@@ -1,0 +1,11 @@
+Source: percona-pg-gather
+Maintainer: Percona Development Team <info@percona.com>
+Section: misc
+Priority: optional
+Standards-Version: 21
+
+
+Package: percona-pg-gather
+Architecture: any
+Depends: percona-postgresql-15
+Description: pg_gather consists of one sql-only script (gather.sql) for gathering performance and configuration data from PostgreSQL databases.

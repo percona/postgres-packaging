@@ -13,10 +13,10 @@ Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
 Requires:       percona-postgresql%{pgmajorversion}-server
-Requires:       percona-postgresql-common >= 15.3
+Requires:       percona-postgresql-common >= 15.4
 Requires:       percona-postgresql%{pgmajorversion}-contrib
 Requires:       percona-pg-stat-monitor%{pgmajorversion}
-Requires:       percona-pgaudit >= 15.3
+Requires:       percona-pgaudit >= 15.4
 Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 
@@ -28,7 +28,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 15.3-1
+* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 15.4-1
 - Update version for ppg-server meta-package
-* Wed Jul 20 2022 Kai Wagner <kai.wagner@percona.com> 15.3-1
+* Wed Jul 20 2022 Kai Wagner <kai.wagner@percona.com> 15.4-1
 - Initial build

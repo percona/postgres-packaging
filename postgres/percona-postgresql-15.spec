@@ -78,14 +78,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        15.3
+Version:        15.4
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-15.3.tar.gz
+Source0:        percona-postgresql-15.4.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist

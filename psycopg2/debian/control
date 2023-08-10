@@ -1,8 +1,8 @@
 Source: psycopg2
 Section: python
 Priority: optional
-Build-Depends: python-all-dev, python-all-dbg,
- python3-all-dev, python3-all-dbg, dh-python,
+Build-Depends: python-all-dev | python3-all-dev, python-all-dbg | python3-all-dbg,
+ dh-python,
  libpq-dev, python3-sphinx (>= 1.0.7+dfsg-1~)
 Maintainer: Percona Development Team <info@percona.com>
 Standards-Version: 4.3.0

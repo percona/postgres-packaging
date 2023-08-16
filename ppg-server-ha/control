@@ -2,13 +2,13 @@ Source: percona-ppg-server-ha-14
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 14.8.0
+Standards-Version: 14.9.0
 Homepage: www.percona.com
 
 Package: percona-ppg-server-ha-14
 Architecture: any
 Depends:
- etcd,
+ etcd | etcd-server,
  percona-patroni,
  percona-haproxy
 Description: Essential / key PostgreSQL14 high availability components

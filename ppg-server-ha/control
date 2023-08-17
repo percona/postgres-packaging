@@ -8,7 +8,7 @@ Homepage: www.percona.com
 Package: percona-ppg-server-ha-15
 Architecture: any
 Depends:
- etcd,
+ etcd | etcd-server,
  percona-patroni,
  percona-haproxy
 Description: Essential / key PostgreSQL15 high availability components

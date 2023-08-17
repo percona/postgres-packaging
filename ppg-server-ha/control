@@ -9,6 +9,7 @@ Package: percona-ppg-server-ha-14
 Architecture: any
 Depends:
  etcd | etcd-server,
+ etcd-client,
  percona-patroni,
  percona-haproxy
 Description: Essential / key PostgreSQL14 high availability components

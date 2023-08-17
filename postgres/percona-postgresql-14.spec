@@ -78,14 +78,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        14.8
+Version:        14.9
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-14.8.tar.gz
+Source0:        percona-postgresql-14.9.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -385,8 +385,6 @@ Provides:       %{vname}-contrib = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-contrib = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-contrib <= %{version}-%{release}
 Obsoletes:      %{vname}-contrib <= %{version}-%{release}
-Obsoletes:      percona-postgresql14-plpython3 <= %{epoch}:14.3-%{release}
-Obsoletes:      percona-postgresql14-plpython3 <= 14.3-%{release}
 
 %ifarch ppc64 ppc64le
 AutoReq:        0

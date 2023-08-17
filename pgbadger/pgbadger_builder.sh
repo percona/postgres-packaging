@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-14.8 testing
+    percona-release enable ppg-14.9 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-14.8 testing
+    percona-release enable ppg-14.9 testing
     return
 }
 
@@ -123,16 +123,18 @@ get_sources(){
         git clean -xdf
         git checkout "$BRANCH"
         git submodule update --init
+	        # https://github.com/darold/pgbadger/issues/773
+        sed -i 's:12.0:12.1:g' pgbadger
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgbadger.properties
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbadger/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbadger/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbadger/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbadger/rules
     chmod +x rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbadger/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbadger/copyright
     echo 9 > compat
     echo "percona-pgbadger (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -141,7 +143,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbadger/percona-pgbadger.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbadger/percona-pgbadger.spec
     cd ${WORKDIR}
     #
     source pgbadger.properties
@@ -440,6 +442,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -458,8 +464,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
 BRANCH="v12.1"
 REPO="https://github.com/darold/pgbadger.git"
@@ -467,7 +473,7 @@ PRODUCT=percona-pgbadger
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='12.1'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

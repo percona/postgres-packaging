@@ -45,7 +45,7 @@ parse_arguments() {
             --build_deb=*) DEB="$val" ;;
             --get_sources=*) SOURCE="$val" ;;
             --branch=*) BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
+            --repo=*) GIT_REPO="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
@@ -88,7 +88,6 @@ add_percona_yum_repo(){
 add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
-    rm -f percona-release_latest.generic_all.deb
     percona-release disable all
     percona-release enable ppg-13.12 testing
     return
@@ -101,62 +100,42 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-pgbadger
-    echo "PRODUCT=${PRODUCT}" > pgbadger.properties
+    PRODUCT=percona-pg_gather
+    echo "PRODUCT=${PRODUCT}" > pg_gather.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pgbadger.properties
-    echo "VERSION=${PSM_VER}" >> pgbadger.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgbadger.properties
-    echo "BUILD_ID=${BUILD_ID}" >> pgbadger.properties
-    git clone "$REPO" ${PRODUCT_FULL}
-    retval=$?
-    if [ $retval != 0 ]
-    then
-        echo "There were some issues during repo cloning from github. Please retry one more time"
-        exit 1
-    fi
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pg_gather.properties
+    echo "VERSION=${PSM_VER}" >> pg_gather.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pg_gather.properties
+    echo "BUILD_ID=${BUILD_ID}" >> pg_gather.properties
+    mkdir ${PRODUCT_FULL} 
     cd ${PRODUCT_FULL}
-    if [ ! -z "$BRANCH" ]
-    then
-        git reset --hard
-        git clean -xdf
-        git checkout "$BRANCH"
-        git submodule update --init
-	        # https://github.com/darold/pgbadger/issues/773
-        sed -i 's:12.0:12.1:g' pgbadger
-    fi
-    REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/pgbadger.properties
-    
-    mkdir debian
-    cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pgbadger/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pgbadger/rules
-    chmod +x rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pgbadger/copyright
-    echo 9 > compat
-    echo "percona-pgbadger (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
-    echo "  * Initial Release." >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-
+    wget https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/gather.sql .
+    wget https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/README.md .
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/pg_gather.properties
+    rm -fr debian rpm
+    mkdir debian rpm
+    cd debian 
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_gather/debian/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_gather/debian/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_gather/debian/percona-pg-gather.install
     cd ../
-    mkdir rpm
+    echo 9 > debian/compat
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pgbadger/percona-pgbadger.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_gather/rpm/pg_gather.spec
     cd ${WORKDIR}
     #
-    source pgbadger.properties
+    source pg_gather.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> pgbadger.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pg_gather.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-pgbadger*
+    rm -rf percona-pg_gather*
     return
 }
 
@@ -174,78 +153,50 @@ get_system(){
     return
 }
 
-switch_to_vault_repo() {
-     sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
-     sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
-}
-
 install_deps() {
-    if [ $INSTALL = 0 ]; then
+    if [ $INSTALL = 0 ]
+    then
         echo "Dependencies will not be installed"
         return;
     fi
-    if [ $( id -u ) -ne 0 ]; then
+    if [ $( id -u ) -ne 0 ]
+    then
         echo "It is not possible to instal dependencies. Please run as root"
         exit 1
     fi
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
-      RHEL=$(rpm --eval %rhel)
-      if [ x"$RHEL" = x8 ]; then
-        switch_to_vault_repo
-      fi
       yum -y install wget
-      add_percona_yum_repo
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
       #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
-
-      if [ ${RHEL} -gt 7 ]; then
-          dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
-          dnf clean all
-          rm -r /var/cache/dnf
-          dnf -y upgrade
-          switch_to_vault_repo
-          yum -y install perl lz4-libs c-ares-devel
-	  yum -y install rpmbuild
-      else
+      RHEL=$(rpm --eval %rhel)
+      if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
         until yum -y install centos-release-scl; do
             echo "waiting"
             sleep 1
         done
-        yum -y install epel-release
-        yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
-        source /opt/rh/devtoolset-7/enable
-        source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql13-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
+      INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
       yum -y install ${INSTALL_LIST}
-      yum -y install lz4 || true
-
     else
+      apt-get -y install wget lsb-release
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
-      add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-13 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config libjson-xs-perl"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
+      INSTALL_LIST="debconf debhelper devscripts dh-exec git"
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;
 }
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-pgbadger*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name '*gather*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-pgbadger*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name '*gather*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -262,10 +213,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgbadger*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "*gather*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-pgbadger*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "*gather*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -294,18 +245,18 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-pgbadger*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name '*gather*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/percona-pgbadger.spec rpmbuild/SPECS
+    cp -av rpm/pg_gather.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/percona-pgbadger.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
+        --define "version ${VERSION}" rpmbuild/SPECS/pg_gather.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -324,10 +275,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-pgbadger*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name '*gather*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-pgbadger*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name '*gather*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -341,7 +292,7 @@ build_rpm(){
     fi
     cd $WORKDIR
     rm -fr rpmbuild
-    mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
+    mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS,BUILDROOT}
     cp $SRC_RPM rpmbuild/SRPMS/
 
     cd rpmbuild/SRPMS/
@@ -353,9 +304,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    export LIBPQ_DIR=/usr/pgsql-13/
-    export LIBRARY_PATH=/usr/pgsql-13/lib/:/usr/pgsql-13/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -378,32 +327,42 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-pgbadger*
+    rm -rf percona-pg_gather*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-pgbadger*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name '*gather*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
-    cd ${BUILDDIR}    
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgbadger version ${VERSION}"
+    mv ${TARFILE} percona-pg-gather_${VERSION}.orig.tar.gz
+    mv ${BUILDDIR} percona-pg-gather-${VERSION}
+    cd percona-pg-gather-${VERSION}
+
+    cd debian
+    rm -rf changelog
+    echo "percona-pg-gather (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "  * Initial Release." >> changelog
+    echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
+
+    cd ../
+    
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
     mkdir -p $CURDIR/source_deb
-    cp *.diff.gz $WORKDIR/source_deb
     cp *_source.changes $WORKDIR/source_deb
     cp *.dsc $WORKDIR/source_deb
     cp *.orig.tar.gz $WORKDIR/source_deb
-    cp *.diff.gz $CURDIR/source_deb
+    cp *.diff.gz $WORKDIR/source_deb
     cp *_source.changes $CURDIR/source_deb
     cp *.dsc $CURDIR/source_deb
     cp *.orig.tar.gz $CURDIR/source_deb
+    cp *.diff.gz $CURDIR/source_deb
 }
 
 build_deb(){
@@ -417,7 +376,6 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    #for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
     for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'
     do
         get_deb_sources $file
@@ -428,31 +386,27 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> pgbadger.properties
-    echo "ARCH=${ARCH}" >> pgbadger.properties
+    echo "DEBIAN=${DEBIAN}" >> pg_gather.properties
+    echo "ARCH=${ARCH}" >> pg_gather.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}
+    cd percona-pg-gather-${VERSION}
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
-    cd $WORKDIR/
-    for file in $(ls | grep ddeb); do
-        mv "$file" "${file%.ddeb}.deb";
-    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/pgbadger.properties
+VERSION_FILE=$CURDIR/pg_gather.properties
 args=
 WORKDIR=
 SRPM=0
@@ -464,16 +418,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="v12.1"
-REPO="https://github.com/darold/pgbadger.git"
-PRODUCT=percona-pgbadger
+BRANCH="13.12"
+GIT_REPO="https://github.com/EvgeniyPatlan/postgres-packaging"
+PRODUCT=percona-pg_gather
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='12.1'
-RELEASE='2'
+VERSION='22'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

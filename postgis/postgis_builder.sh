@@ -79,7 +79,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.11 testing
+    percona-release enable ppg-13.12 testing
     return 
 }
 
@@ -92,7 +92,7 @@ get_sources(){
     fi
     PRODUCT=percona-postgis
     VERSION=${POSTGIS_VERSION}
-    PPG_VERSION=13.11
+    PPG_VERSION=13.12
     echo "PRODUCT=${PRODUCT}" > percona-postgis.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}.${RELEASE}
@@ -130,15 +130,15 @@ get_sources(){
             mv $file "percona-$file"
         done
         rm -f rules* control* percona-postgis.install
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/control
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3-scripts.install
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3-scripts.lintian-overrides
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3-scripts.postinst
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3-scripts.prerm
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3.install
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgis.install
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3-scripts.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3-scripts.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3-scripts.postinst
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3-scripts.prerm
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgis.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-13-postgis-3.lintian-overrides
 	cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
@@ -155,8 +155,8 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm -f postgis33.spec postgis33-3.3.0-gdalfpic.patch
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
-        wget https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
     cd ../
     cd ${WORKDIR}
     #
@@ -262,15 +262,7 @@ install_deps() {
 	     yum config-manager --enable PowerTools AppStream BaseOS *epel
 	     dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-         if [ x"$RHEL" = x8 ]; then
-	         dnf module -y disable llvm-toolset || true
-             yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
-             yum -y install $(echo "llvm-toolset-$(yum list llvm-toolset --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
-	         dnf module -y enable llvm-toolset || true
-             yum -y install $(echo "clang-$(yum list clang --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
-	     else
-             yum -y install llvm-toolset llvm-devel clang
-	     fi
+         yum -y install llvm-toolset llvm-devel clang
          INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql13-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
@@ -294,7 +286,7 @@ install_deps() {
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release enable-only tools testing
-      percona-release enable-only ppg-13.11 testing
+      percona-release enable-only ppg-13.12 testing
       apt-get update
       if [ "x${DEBIAN}" = "xbionic" ]; then
         INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools dblatex docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-13 protobuf-c-compiler rdfind xsltproc"
@@ -375,7 +367,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.3.pdf
+    wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.4.pdf
     #wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis33.spec rpmbuild/SPECS
@@ -530,6 +522,7 @@ build_deb(){
 #    if [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbionic" ]
 #    then
         sed -i '15i DEB_BUILD_OPTIONS=nocheck' debian/rules
+	sed -i '1d' debian/percona-postgis-doc.install
 #    fi
     if [ "x${DEBIAN}" = "xbionic" ]
     then
@@ -567,7 +560,7 @@ PRODUCT=percona-postgis
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION=${POSTGIS_VERSION}
-RELEASE='3'
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

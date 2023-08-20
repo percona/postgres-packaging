@@ -2,13 +2,14 @@ Source: percona-ppg-server-ha-12
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 12.15.0
+Standards-Version: 12.16.0
 Homepage: www.percona.com
 
 Package: percona-ppg-server-ha-12
 Architecture: any
 Depends:
- etcd,
+ etcd | etcd-server,
+ etcd-client,
  percona-patroni,
  percona-haproxy
 Description: Essential / key PostgreSQL12 high availability components

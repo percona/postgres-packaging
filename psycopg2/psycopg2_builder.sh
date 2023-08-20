@@ -58,11 +58,6 @@ parse_arguments() {
     done
 }
 
-switch_to_vault_repo() {
-    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
-}
-
 check_workdir(){
     if [ "x$WORKDIR" = "x$CURDIR" ]
     then
@@ -82,11 +77,11 @@ add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      #mv -f percona-dev.repo /etc/yum.repos.d/
+      mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-12.16 testing
+    percona-release enable ppg-13.12 testing
     return
 }
 
@@ -95,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-12.16 testing
+    percona-release enable ppg-13.12 testing
     return
 }
 
@@ -106,14 +101,14 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-pgbackrest
-    echo "PRODUCT=${PRODUCT}" > pgbackrest.properties
+    PRODUCT=psycopg2
+    echo "PRODUCT=${PRODUCT}" > psycopg2.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pgbackrest.properties
-    echo "VERSION=${PSM_VER}" >> pgbackrest.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgbackrest.properties
-    echo "BUILD_ID=${BUILD_ID}" >> pgbackrest.properties
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> psycopg2.properties
+    echo "VERSION=${PSM_VER}" >> psycopg2.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> psycopg2.properties
+    echo "BUILD_ID=${BUILD_ID}" >> psycopg2.properties
     git clone "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
@@ -127,45 +122,38 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
+        git submodule update --init
     fi
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/pgbackrest.properties
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/psycopg2.properties
     rm -fr debian rpm
 
-    GIT_SSL_NO_VERIFY=true git clone https://salsa.debian.org/postgresql/pgbackrest.git deb_packaging
-    mv deb_packaging/debian ./
-    cd debian/
-    for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
-        mv $file "percona-$file"
-    done
-    rm -f control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.16/pgbackrest/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.16/pgbackrest/compat
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.16/pgbackrest/rules.patch
-    patch -p0 < rules.patch
-    rm rules.patch
+    git clone https://github.com/EvgeniyPatlan/postgres-packaging.git packaging
+    cd packaging
+        git checkout 13.12
     cd ../
-    sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
-    sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
-    echo 9 > debian/compat
-    rm -rf deb_packaging
+    mv packaging/psycopg2/debian ./
+    cd debian/
+    echo "psycopg2 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "  * Initial Release." >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    cd ../
     mkdir rpm
-    cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.16/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.16/pgbackrest/pgbackrest.conf
+    mv packaging/psycopg2/python-psycopg2.spec rpm/
+    rm -rf packaging
     cd ${WORKDIR}
     #
-    source pgbackrest.properties
+    source psycopg2.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> pgbackrest.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> psycopg2.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-pgbackrest*
+    rm -rf percona-psycopg2*
     return
 }
 
@@ -197,24 +185,19 @@ install_deps() {
     CURPLACE=$(pwd)
 
     if [ "x$OS" = "xrpm" ]; then
-      if [ x"$RHEL" = x8 ]; then
-          switch_to_vault_repo
-      fi
       yum -y install wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      #mv -f percona-dev.repo /etc/yum.repos.d/
+      mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} -gt 7 ]; then
-          dnf -y module disable postgresql
+          dnf -y module disable postgresql || true
           dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          yum -y install perl lz4-libs
-          yum config-manager --set-enabled powertools
-          yum -y install libyaml-devel
+          yum -y install perl lz4-libs c-ares-devel clang
       else
         until yum -y install centos-release-scl; do
             echo "waiting"
@@ -222,32 +205,35 @@ install_deps() {
         done
         yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
-        yum -y install libyaml-devel
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="percona-postgresql12-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
+      INSTALL_LIST="percona-postgresql-common percona-postgresql13-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
-      yum -y install perl-libxml-perl || true
-
+      ln -s /usr/pgsql-14/bin/pg_config /usr/bin/pg_config
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-12 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev"
+      INSTALL_LIST="build-essential pkg-config debconf debhelper devscripts dh-exec git wget pkg-config python-all-dev python-all-dbg python3-all-dev python3-all-dbg dh-python libpq-dev python3-sphinx"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
+          sleep 1
+          echo "waiting"
       done
-      if [ "x${DEBIAN}" != "xbullseye" ]; then
-          DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install dh_systemd
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install percona-postgresql-13 python3-setuptools python3-pip
+      if [ -f /usr/bin/python2.7 ]; then
+          update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1;
+      else
+          update-alternatives --install /usr/bin/python python /usr/bin/python2.6 1;
       fi
-      if [ "x${DEBIAN}" = "xstretch" ]; then
-          wget http://ftp.us.debian.org/debian/pool/main/liby/libyaml-libyaml-perl/libyaml-libyaml-perl_0.76+repack-1~bpo9+1_amd64.deb
-          dpkg -i ./libyaml-libyaml-perl_0.76+repack-1~bpo9+1_amd64.deb
+      update-alternatives --install /usr/bin/python python /usr/bin/python3 100
+      if [ -f /usr/bin/python2.7 ]; then
+	  mv /usr/bin/python2.7 /usr/bin/python2.7_back
+	  ln -s /usr/bin/python3 /usr/bin/python2.7
       fi
     fi
     return;
@@ -255,10 +241,10 @@ install_deps() {
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-pgbackrest*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'psycopg2*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-pgbackrest*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'psycopg2*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -275,10 +261,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgbackrest*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "*psycopg2*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-pgbackrest*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "*psycopg2*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -307,18 +293,18 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-pgbackrest*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name 'psycopg2*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/pgbackrest.spec rpmbuild/SPECS
+    cp -av rpm/python-psycopg2.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-12" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/pgbackrest.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .generic" \
+        --define "version ${VERSION}" rpmbuild/SPECS/python-psycopg2.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -337,10 +323,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-pgbackrest*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name '*psycopg2*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-pgbackrest*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name '*psycopg2*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -366,9 +352,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    export LIBPQ_DIR=/usr/pgsql-12/
-    export LIBRARY_PATH=/usr/pgsql-12/lib/:/usr/pgsql-12/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-12" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-13/
+    export LIBRARY_PATH=/usr/pgsql-13/lib/:/usr/pgsql-13/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-13" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -391,11 +377,11 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-pgbackrest*
+    rm -rf psycopg2*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name 'percona-pgbackrest*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name '*psycopg2*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
@@ -404,18 +390,8 @@ build_source_deb(){
     
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
-
-    cd debian
-    rm -rf changelog
-    echo "percona-pgbackrest (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
-    echo >> changelog
-    echo "  * Initial Release." >> changelog
-    echo >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-
-    cd ../
-    
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgbackrest version ${VERSION}"
+  
+    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new psycopg2 version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -451,8 +427,8 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> pgbackrest.properties
-    echo "ARCH=${ARCH}" >> pgbackrest.properties
+    echo "DEBIAN=${DEBIAN}" >> psycopg2.properties
+    echo "ARCH=${ARCH}" >> psycopg2.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
@@ -475,7 +451,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/pgbackrest.properties
+VERSION_FILE=$CURDIR/psycopg2.properties
 args=
 WORKDIR=
 SRPM=0
@@ -490,12 +466,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.47"
-REPO="https://github.com/pgbackrest/pgbackrest.git"
-PRODUCT=percona-pgbackrest
+BRANCH="2_9_5"
+REPO="https://github.com/psycopg/psycopg2.git"
+PRODUCT=psycopg2
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.47'
+VERSION='2.9.5'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

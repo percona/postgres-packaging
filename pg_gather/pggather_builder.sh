@@ -45,7 +45,7 @@ parse_arguments() {
             --build_deb=*) DEB="$val" ;;
             --get_sources=*) SOURCE="$val" ;;
             --branch=*) BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
+            --repo=*) GIT_REPO="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
@@ -100,71 +100,42 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-pg_repack
-    echo "PRODUCT=${PRODUCT}" > pg_repack.properties
+    PRODUCT=percona-pg_gather
+    echo "PRODUCT=${PRODUCT}" > pg_gather.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pg_repack.properties
-    echo "VERSION=${PSM_VER}" >> pg_repack.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pg_repack.properties
-    echo "BUILD_ID=${BUILD_ID}" >> pg_repack.properties
-    git clone "$REPO" ${PRODUCT_FULL}
-    retval=$?
-    if [ $retval != 0 ]
-    then
-        echo "There were some issues during repo cloning from github. Please retry one more time"
-        exit 1
-    fi
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pg_gather.properties
+    echo "VERSION=${PSM_VER}" >> pg_gather.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pg_gather.properties
+    echo "BUILD_ID=${BUILD_ID}" >> pg_gather.properties
+    mkdir ${PRODUCT_FULL} 
     cd ${PRODUCT_FULL}
-    if [ ! -z "$BRANCH" ]
-    then
-        git reset --hard
-        git clean -xdf
-        git checkout "$BRANCH"
-    fi
-    REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/pg_repack.properties
+    wget https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/gather.sql .
+    wget https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/README.md .
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/pg_gather.properties
     rm -fr debian rpm
-    git clone https://salsa.debian.org/postgresql/pg-repack.git deb_packaging
-    cd deb_packaging
-      git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
+    mkdir debian rpm
+    cd debian 
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${BRANCH}/pg_gather/debian/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${BRANCH}/pg_gather/debian/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${BRANCH}/pg_gather/debian/percona-pg-gather.install
     cd ../
-    mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.21/pg_repack/Makefile.patch
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.21/pg_repack/rules
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.21/pg_repack/control
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.21/pg_repack/control.in
-    patch -p0 < Makefile.patch
-    rm -rf Makefile.patch
-    cd debian
-    mv ../rules ./
-    mv ../control ./
-    mv ../control.in ./
-    cd ../
-    echo 11 > debian/pgversions
     echo 9 > debian/compat
-    rm -rf deb_packaging
-    mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.21/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.21/pg_repack/pg_repack-pg11-makefile-pgxs.patch
-    cd ../
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/11.21/pg_repack/make.patch
-    patch -p0 < make.patch
-    rm -f make.patch
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${BRANCH}/pg_gather/rpm/pg_gather.spec
     cd ${WORKDIR}
     #
-    source pg_repack.properties
+    source pg_gather.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pg_repack.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pg_gather.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-pg_repack*
+    rm -rf percona-pg_gather*
     return
 }
 
@@ -197,8 +168,6 @@ install_deps() {
 
     if [ "x$OS" = "xrpm" ]; then
       yum -y install wget
-      add_percona_yum_repo
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
       #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
@@ -207,24 +176,16 @@ install_deps() {
             echo "waiting"
             sleep 1
         done
-        yum -y install epel-release
-        INSTALL_LIST="percona-postgresql11 bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql11-devel percona-postgresql11-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
-        yum -y install ${INSTALL_LIST}
-        source /opt/rh/devtoolset-7/enable
-        source /opt/rh/llvm-toolset-7/enable
-      else
-        INSTALL_LIST="percona-postgresql11 clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql11-devel percona-postgresql11-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
-        yum -y install ${INSTALL_LIST}
-        yum -y install binutils gcc gcc-c++
       fi
+      INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
+      yum -y install ${INSTALL_LIST}
     else
+      apt-get -y install wget lsb-release
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
-      add_percona_apt_repo
-      percona-release enable tools experimental
       apt-get update || true
-      INSTALL_LIST="dpkg-dev build-essential percona-postgresql-11 debconf debhelper devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all clang"
+      INSTALL_LIST="debconf debhelper devscripts dh-exec git"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;
@@ -232,10 +193,10 @@ install_deps() {
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name '*repack*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name '*gather*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name '*repack*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name '*gather*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -252,10 +213,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "*repack*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "*gather*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "*repack*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "*gather*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -284,18 +245,18 @@ build_srpm(){
     get_tar "source_tarball"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name '*repack*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name '*gather*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/pg_repack.spec rpmbuild/SPECS
+    cp -av rpm/pg_gather.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/pg_repack.spec
+        --define "version ${VERSION}" rpmbuild/SPECS/pg_gather.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -314,10 +275,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name '*repack*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name '*gather*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name '*repack*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name '*gather*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -366,25 +327,26 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-pg_repack*
+    rm -rf percona-pg_gather*
     get_tar "source_tarball"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
-    TARFILE=$(basename $(find . -name '*repack*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name '*gather*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} percona-pg-repack_${VERSION}.orig.tar.gz
-    cd ${BUILDDIR}
+    mv ${TARFILE} percona-pg-gather_${VERSION}.orig.tar.gz
+    mv ${BUILDDIR} percona-pg-gather-${VERSION}
+    cd percona-pg-gather-${VERSION}
 
     cd debian
     rm -rf changelog
-    echo "percona-pg-repack (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-pg-gather (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
 
     cd ../
     
@@ -393,14 +355,14 @@ build_source_deb(){
     cd ../
     mkdir -p $WORKDIR/source_deb
     mkdir -p $CURDIR/source_deb
-    cp *.debian.tar.* $WORKDIR/source_deb
     cp *_source.changes $WORKDIR/source_deb
     cp *.dsc $WORKDIR/source_deb
     cp *.orig.tar.gz $WORKDIR/source_deb
-    cp *.debian.tar.* $CURDIR/source_deb
+    cp *.diff.gz $WORKDIR/source_deb
     cp *_source.changes $CURDIR/source_deb
     cp *.dsc $CURDIR/source_deb
     cp *.orig.tar.gz $CURDIR/source_deb
+    cp *.diff.gz $CURDIR/source_deb
 }
 
 build_deb(){
@@ -414,7 +376,7 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
+    for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'
     do
         get_deb_sources $file
     done
@@ -424,32 +386,27 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> pg_repack.properties
-    echo "ARCH=${ARCH}" >> pg_repack.properties
+    echo "DEBIAN=${DEBIAN}" >> pg_gather.properties
+    echo "ARCH=${ARCH}" >> pg_gather.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
     #
     dpkg-source -x ${DSC}
     #
-    cd percona-pg-repack-${VERSION}
+    cd percona-pg-gather-${VERSION}
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
-    cd $WORKDIR/
-    for file in $(ls | grep ddeb); do
-        mv "$file" "${file%.ddeb}.deb";
-    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
 #main
-export GIT_SSL_NO_VERIFY=1
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/pg_repack.properties
+VERSION_FILE=$CURDIR/pg_gather.properties
 args=
 WORKDIR=
 SRPM=0
@@ -461,16 +418,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=6
-DEB_RELEASE=6
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="ver_1.4.8"
-REPO="https://github.com/reorg/pg_repack.git"
-PRODUCT=percona-pg_repack
+BRANCH="11.21"
+GIT_REPO="https://github.com/EvgeniyPatlan/postgres-packaging"
+PRODUCT=percona-pg_gather
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.4.8'
-RELEASE='2'
+VERSION='22'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

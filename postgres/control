@@ -7,7 +7,7 @@ Rules-Requires-Root: no
 Build-Depends:
  autoconf,
  bison,
- clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ clang [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  debhelper,
  dh-exec (>= 0.13~),
  docbook-xml,
@@ -33,7 +33,7 @@ Build-Depends:
  libxml2-dev,
  libxml2-utils,
  libxslt1-dev,
- llvm-11-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ llvm-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  mawk,
  perl (>= 5.8),
  pkg-config,
@@ -169,8 +169,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-14, percona-postgresql-doc-14
 Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-14 (= ${binary:Version})
-Conflicts: postgresql-server-dev-14 (<< 14.8-1~)
-Replaces: postgresql-server-dev-14 (<< 14.8-1~)
+Conflicts: postgresql-server-dev-14 (<< 14.9-1~)
+Replaces: postgresql-server-dev-14 (<< 14.9-1~)
 Description: front-end programs for PostgreSQL 14
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and
@@ -188,9 +188,9 @@ Package: percona-postgresql-server-dev-14
 Architecture: any
 Section: libdevel
 Depends:
- clang-11 [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ clang [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  libpq-dev (>= 14~~),
- llvm-11-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ llvm-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  percona-postgresql-client-14, percona-postgresql-common (>= 142~),
  ${misc:Depends},
  ${shlibs:Depends}

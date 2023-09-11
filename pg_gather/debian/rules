@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+TMP=$(CURDIR)/debian/tmp/
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+override_dh_auto_install:
+	mkdir -p $(TMP)
+	install -m 0755 gather.sql $(TMP)

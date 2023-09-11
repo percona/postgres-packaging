@@ -86,7 +86,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-14.8 testing
+    percona-release enable ppg-14.9 testing
     return
 }
 
@@ -95,7 +95,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-14.8 testing
+    percona-release enable ppg-14.9 testing
     return
 }
 
@@ -139,9 +139,9 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbackrest/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbackrest/compat
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbackrest/rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbackrest/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbackrest/compat
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbackrest/rules.patch
     patch -p0 < rules.patch
     rm rules.patch
     cd ../
@@ -151,8 +151,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.8/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.9/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -465,6 +465,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -486,12 +490,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.44"
+BRANCH="release/2.47"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.44'
+VERSION='2.47'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

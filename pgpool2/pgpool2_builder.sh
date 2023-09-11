@@ -550,6 +550,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -570,11 +574,11 @@ OS=
 REVISION=0
 BRANCH="4_4_3"
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REPO="https://git.postgresql.org/git/pgpool2.git"
 VERSION="4.4.3"
-PG_RELEASE=13.11
+PG_RELEASE=13.12
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 PG_VER=$(echo ${PG_RELEASE} | awk -F'.' '{print $1}')
 check_workdir

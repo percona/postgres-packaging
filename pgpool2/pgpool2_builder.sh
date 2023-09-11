@@ -262,7 +262,7 @@ install_deps() {
     if [ "$OS" == "rpm" ]
     then
        # yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-        percona-release enable ppg-${PG_RELEASE} testing
+        percona-release enable ppg-11.21 testing
         yum -y install git wget
         PKGLIST="percona-postgresql${PG_VER}-devel"
         PKGLIST+=" clang-devel git clang llvm-devel rpmdevtools vim wget"
@@ -301,7 +301,7 @@ install_deps() {
         DEBIAN_FRONTEND=noninteractive apt-get -y install lsb-release gnupg git wget
 
         wget https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb && dpkg -i percona-release_latest.$(lsb_release -sc)_all.deb
-        percona-release enable ppg-${PG_RELEASE} testing
+        percona-release enable ppg-11.21 testing
 
         PKGLIST="percona-postgresql-${PG_VER} percona-postgresql-common percona-postgresql-server-dev-all"
 
@@ -550,6 +550,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -570,11 +574,11 @@ OS=
 REVISION=0
 BRANCH="4_4_3"
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REPO="https://git.postgresql.org/git/pgpool2.git"
 VERSION="4.4.3"
-PG_RELEASE=11.20
+PG_RELEASE=11.21
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 PG_VER=$(echo ${PG_RELEASE} | awk -F'.' '{print $1}')
 check_workdir

@@ -108,7 +108,7 @@
 
 Summary:	PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:	11.20
+Version:	11.21
 Release:	1%{?dist}
 License:	PostgreSQL
 Url:		https://www.postgresql.org/
@@ -1721,10 +1721,6 @@ fi
 - Update to 11.12, per changes described at
   https://www.postgresql.org/docs/release/11.12/
 
-* Thu Feb 11 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 11.11-2PGDG
-- A few fixes around llvm, sdt and selinux macros, so that they
-  work on RHEL 6 as well.
-
 * Tue Feb 9 2021 Devrim Gündüz <devrim@gunduz.org> - 11.11-1PGDG
 - Update to 11.11, per changes described at
   https://www.postgresql.org/docs/release/11.11/
@@ -1750,9 +1746,6 @@ fi
 - Update to 11.9, per changes described at
   https://www.postgresql.org/docs/release/11.9/
 
-* Tue Aug 11 2020 John K. Harvey <john.harvey@crunchydata.com> - 11.8-4PGDG
-- Globalize python3_build_list so EL-6 can compile plpython2 contribs
-
 * Mon Jun 15 2020 Devrim Gündüz <devrim@gunduz.org> - 11.8-3PGDG
 - Fix builds if plperl macro is disabled. Per report and patch from
   Floris Van Nee.
@@ -1769,20 +1762,9 @@ fi
 - Fix F-32 PL/Python2 dependency. Fedora 32 is the last version which
   supports PL/Python2 package.
 
-* Tue Feb 11 2020 Devrim Gündüz <devrim@gunduz.org> - 11.7-1PGDG
-- Update to 11.7, per changes described at
-  https://www.postgresql.org/docs/release/11.7/
-
 * Tue Nov 19 2019 Devrim Gündüz <devrim@gunduz.org> - 11.6-2PGDG
 - Re-enable llvmjit subpackage on SLES 12
 - Fix PL/Python 3 packaging.
-
-* Mon Nov 11 2019 Devrim Gündüz <devrim@gunduz.org> - 11.6-1PGDG
-- Update to 11.6, per changes described at
-  https://www.postgresql.org/docs/release/11.6/
-- Fix Python dependency issue in the main package, and move all
-  plpython* packages into their respective subpackages.
-- Use correct openssl-libs dependency, per John Harvey.
 
 * Mon Oct 28 2019 Devrim Gündüz <devrim@gunduz.org> - 11.5-2PGDG
 - Remove obsoleted tmpfiles_create macro. We don't need it anyway,
@@ -1849,9 +1831,6 @@ fi
 * Wed Mar 21 2018 Devrim Gündüz <devrim@gunduz.org> - 11.0-devPGDG
 - Build with LLVM.
 
-* Sun Mar 11 2018 Devrim Gündüz <devrim@gunduz.org> - 11.0-devPGDG
-- Initial cut for v11
-
 * Mon Feb 26 2018 Devrim Gündüz <devrim@gunduz.org> - 10.3-1PGDG
 - Update to 10.3, per changes described at
   https://www.postgresql.org/docs/devel/static/release-10-3.html
@@ -1863,14 +1842,6 @@ fi
 * Tue Dec 12 2017 Devrim Gündüz <devrim@gunduz.org> - 10.1-6PGDG
 - Revert TimeOutSec changes in unit file, because infinity is only
   valid in systemd >= 229.
-
-* Mon Dec 11 2017 Devrim Gündüz <devrim@gunduz.org> - 10.1-5PGDG
-- RHEL 6 only: Fix startup issue in init script, per
-  https://redmine.postgresql.org/issues/2941
-
-* Mon Dec 11 2017 Devrim Gündüz <devrim@gunduz.org> - 10.1-4PGDG
-- RHEL 6 only: Fix regression in init script. Fixes PostgreSQL bug
- #14957 and many other reports.
 
 * Thu Dec 7 2017 John K. Harvey <john.harvey@crunchydata.com> - 10.1-3PGDG
 - Fixes for CVE-2017-12172 (EL-6 only)
@@ -1907,9 +1878,6 @@ fi
 
 * Fri Jul 14 2017 Devrim Gündüz <devrim@gunduz.org> - 10.0beta2-2PGDG
 - Fix version calculation in RHEL 6 init script, per Justin Pryzby.
-
-* Tue Jul 11 2017 Devrim Gündüz <devrim@gunduz.org> - 10.0beta2-1PGDG
-- Update to 10 beta2
 
 * Sat Jul 8  2017 Devrim Gündüz <devrim@gunduz.org> - 10.0beta1-3PGDG
 - Bump up the version for SLES support.

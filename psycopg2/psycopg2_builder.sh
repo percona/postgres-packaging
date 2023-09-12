@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -130,7 +130,7 @@ get_sources(){
 
     git clone https://github.com/EvgeniyPatlan/postgres-packaging.git packaging
     cd packaging
-        git checkout 15.3
+        git checkout 16.0
     cd ../
     mv packaging/psycopg2/debian ./
     cd debian/
@@ -208,23 +208,23 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="percona-postgresql15-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
+      INSTALL_LIST="percona-postgresql16-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
-      ln -s /usr/pgsql-15/bin/pg_config /usr/bin/pg_config
+      ln -s /usr/pgsql-16/bin/pg_config /usr/bin/pg_config
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config debconf debhelper devscripts dh-exec git wget pkg-config python-all-dev python-all-dbg python3-all-dev python3-all-dbg dh-python libpq-dev python3-sphinx"
+      INSTALL_LIST="build-essential pkg-config debconf debhelper devscripts dh-exec git wget pkg-config python-all-dbg python3-all-dev python3-all-dbg dh-python libpq-dev python3-sphinx"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
           sleep 1
           echo "waiting"
       done
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install percona-postgresql-15 python3-setuptools python3-pip
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install percona-postgresql-16 python3-setuptools python3-pip
       if [ -f /usr/bin/python2.7 ]; then
           update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1;
       else
@@ -303,7 +303,7 @@ build_srpm(){
     cp -av rpm/python-psycopg2.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-15" --define "dist .generic" \
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-16" --define "dist .generic" \
         --define "version ${VERSION}" rpmbuild/SPECS/python-psycopg2.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -352,9 +352,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    export LIBPQ_DIR=/usr/pgsql-15/
-    export LIBRARY_PATH=/usr/pgsql-15/lib/:/usr/pgsql-15/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-15" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-16/
+    export LIBRARY_PATH=/usr/pgsql-16/lib/:/usr/pgsql-16/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-16" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -441,6 +441,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }

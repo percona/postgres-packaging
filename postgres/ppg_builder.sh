@@ -119,7 +119,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 15 remotes/origin/15
+        git checkout -b 16 remotes/origin/16
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -128,18 +128,19 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres/control
-        sed -i 's/postgresql-15/percona-postgresql-15/' percona-postgresql-15.templates
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres/control
+        sed -i 's/postgresql-16/percona-postgresql-16/' percona-postgresql-16.templates
 	echo "9" > compat
+	sed -i '14d' patches/series
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/main/non-common/postgresql-15/main/*   rpm/
+    mv pgrpms/rpm/redhat/main/non-common/postgresql-16/main/*   rpm/
     rm -rf pgrpms
     cd rpm
-        rm postgresql-15.spec
-        wget  https://raw.githubusercontent.com/percona/postgres-packaging/15.3/postgres/percona-postgresql-15.spec
+        rm postgresql-16.spec
+        wget  https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres/percona-postgresql-16.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -147,7 +148,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-15/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-16/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -237,12 +238,12 @@ install_deps() {
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
-      percona-release enable ppg-15.3 testing
+      percona-release enable ppg-16.0 testing
       apt-get update
-      if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" ]; then
-        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev libipc-run-perl"
+      if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" -a "x${DEBIAN}" != "xbookworm" ]; then
+        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang gdb liblz4-dev libipc-run-perl"
       else
-        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-11-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang-11 gdb liblz4-dev libipc-run-perl"
+        INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang gdb liblz4-dev libipc-run-perl"
       fi
  
        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
@@ -315,9 +316,9 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/15/postgresql-15-A4.pdf
+    wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/16/postgresql-16-A4.pdf
     cd ../../
-    cp -av rpmbuild/SOURCES/percona-postgresql-15.spec rpmbuild/SPECS
+    cp -av rpmbuild/SOURCES/percona-postgresql-16.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     if [ -f /opt/rh/devtoolset-7/enable ]; then
@@ -325,8 +326,8 @@ build_srpm(){
         source /opt/rh/llvm-toolset-7/enable
     fi
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "pgmajorversion 15" --define "pginstdir /usr/pgsql-15"  --define "pgpackageversion 15" \
-        rpmbuild/SPECS/percona-postgresql-15.spec
+        --define "pgmajorversion 16" --define "pginstdir /usr/pgsql-16"  --define "pgpackageversion 16" \
+        rpmbuild/SPECS/percona-postgresql-16.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -374,7 +375,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion 15" --define "pginstdir /usr/pgsql-15" --define "pgpackageversion 15" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion 16" --define "pginstdir /usr/pgsql-16" --define "pgpackageversion 16" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -413,12 +414,12 @@ build_source_deb(){
 
     cd debian
     rm -rf changelog
-    echo "percona-postgresql-15 (${VERSION}.${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgresql-16 (${VERSION}.${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../
-    
+    quilt refresh
     dch -D unstable --force-distribution -v "${VERSION}.${RELEASE}-${DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}.${RELEASE}-${DEB_RELEASE}"
     dpkg-buildpackage -S
     cd ../
@@ -469,6 +470,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -490,13 +495,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_15.3"
+BRANCH="REL_16.0"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='15'
-RELEASE='3'
+VERSION='16'
+RELEASE='0'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

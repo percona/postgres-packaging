@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -89,7 +89,7 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -130,10 +130,10 @@ get_sources(){
       git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pg_repack/Makefile.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pg_repack/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pg_repack/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pg_repack/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pg_repack/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pg_repack/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pg_repack/control.in
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian
@@ -141,15 +141,15 @@ get_sources(){
     mv ../control ./
     mv ../control.in ./
     cd ../
-    echo 15 > debian/pgversions
+    echo 16 > debian/pgversions
     echo 9 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pg_repack/pg_repack-pg15-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pg_repack/pg_repack.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pg_repack/pg_repack-pg16-makefile-pgxs.patch
     cd ../
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pg_repack/make.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pg_repack/make.patch
     patch -p0 < make.patch
     rm -f make.patch
     cd ${WORKDIR}
@@ -208,12 +208,12 @@ install_deps() {
             sleep 1
         done
         yum -y install epel-release
-        INSTALL_LIST="percona-postgresql15 bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql15-devel percona-postgresql15-server  rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
+        INSTALL_LIST="percona-postgresql16 bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql16-devel percona-postgresql16-server  rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
         yum -y install ${INSTALL_LIST}
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
-        INSTALL_LIST="percona-postgresql15 clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql15-devel percona-postgresql15-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
+        INSTALL_LIST="percona-postgresql16 clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
       fi
@@ -224,7 +224,7 @@ install_deps() {
       add_percona_apt_repo
       percona-release enable tools experimental
       apt-get update || true
-      INSTALL_LIST="dpkg-dev build-essential percona-postgresql-15 debconf debhelper devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+      INSTALL_LIST="dpkg-dev build-essential percona-postgresql-16 debconf debhelper devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;
@@ -438,6 +438,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -456,8 +460,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=4
-DEB_RELEASE=4
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
 BRANCH="ver_1.4.8"
 REPO="https://github.com/reorg/pg_repack.git"

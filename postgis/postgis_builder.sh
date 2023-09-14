@@ -46,6 +46,9 @@ parse_arguments() {
             --get_sources=*) SOURCE="$val" ;;
             --postgis_branch=*) POSTGIS_BRANCH="$val" ;;
             --postgis_gitrepo=*) POSTGIS_GITREPO="$val" ;;
+            --postgis_ver=*) POSTGIS_VERSION="$val" ;;
+            --rpm_release=*) RPM_RELEASE="$val" ;;
+            --deb_release=*) DEB_RELEASE="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
@@ -76,7 +79,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return 
 }
 
@@ -88,12 +91,13 @@ get_sources(){
         return 0
     fi
     PRODUCT=percona-postgis
-    PPG_VERSION=15.3
+    VERSION=${POSTGIS_VERSION}
+    PPG_VERSION=16.0
     echo "PRODUCT=${PRODUCT}" > percona-postgis.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}.${RELEASE}
     echo "PRODUCT_FULL=${PRODUCT_FULL}" >> percona-postgis.properties
-    echo "VERSION=${PSM_VER}" >> percona-postgis.properties
+    echo "VERSION=${POSTGIS_VERSION}" >> percona-postgis.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgis.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgis.properties
     git clone "$POSTGIS_GITREPO"
@@ -125,15 +129,16 @@ get_sources(){
         for file in $(ls | grep postgis); do
             mv $file "percona-$file"
         done
-        rm -f rules* control*
+        rm -f rules* control* percona-postgis.install 
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.lintian-overrides
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.postinst
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3-scripts.prerm
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-15-postgis-3.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3-scripts.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3-scripts.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3-scripts.postinst
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3-scripts.prerm
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgis.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3.lintian-overrides
 	cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
@@ -217,7 +222,7 @@ install_sfcgal(){
     cd $CURDIR/SFCGAL-v1.3.10
     cmake . && make && make install
     chmod 777 /usr/local/lib/libSFCGAL.*
-    cp /usr/local/lib/libSFCGAL.* /usr/lib/postgresql/15/lib
+    cp /usr/local/lib/libSFCGAL.* /usr/lib/postgresql/16/lib
     ldconfig -v | grep -i sfcgal
     ln /usr/local/bin/sfcgal-config /usr/bin/sfcgal-config
 }
@@ -249,7 +254,7 @@ install_deps() {
               echo "waiting"
               sleep 1
           done
-          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql15-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj72-devel protobuf-c-devel pkg-config"
+          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj72-devel protobuf-c-devel pkg-config"
           yum -y install ${INSTALL_LIST}
           source /opt/rh/devtoolset-7/enable
           source /opt/rh/llvm-toolset-7/enable
@@ -266,7 +271,7 @@ install_deps() {
 	     else
              yum -y install llvm-toolset llvm-devel clang
 	     fi
-         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql15-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj90-devel protobuf-c-devel pkg-config"
+         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all
@@ -289,12 +294,12 @@ install_deps() {
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release enable-only tools testing
-      percona-release enable-only ppg-15.3 testing
+      percona-release enable-only ppg-16.0 testing
       apt-get update
       if [ "x${DEBIAN}" = "xbionic" ]; then
-        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools dblatex docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-15 protobuf-c-compiler rdfind xsltproc"
+        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools dblatex docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-16 protobuf-c-compiler rdfind xsltproc"
       else
-        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git vim wget dctrl-tools dblatex docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-15 protobuf-c-compiler rdfind xsltproc"
+        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git vim wget dctrl-tools dblatex docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-16 protobuf-c-compiler rdfind xsltproc"
       fi
  
        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
@@ -370,7 +375,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.3.pdf
+    wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.4.pdf
     #wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis33.spec rpmbuild/SPECS
@@ -381,7 +386,7 @@ build_srpm(){
         source /opt/rh/llvm-toolset-7/enable
     fi
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" --define "pginstdir /usr/pgsql-15"  \
+        --define "version ${VERSION}" --define "pginstdir /usr/pgsql-16"  \
         rpmbuild/SPECS/percona-postgis33.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -430,7 +435,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --define "pginstdir /usr/pgsql-15" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --define "pginstdir /usr/pgsql-16" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -525,6 +530,7 @@ build_deb(){
 #    if [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbionic" ]
 #    then
         sed -i '15i DEB_BUILD_OPTIONS=nocheck' debian/rules
+	sed -i '1d' debian/percona-postgis-doc.install
 #    fi
     if [ "x${DEBIAN}" = "xbionic" ]
     then
@@ -535,6 +541,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -553,16 +563,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=${RPM_RELEASE}
+DEB_RELEASE=${DEB_RELEASE}
 REVISION=0
-POSTGIS_BRANCH="3.3.3"
-POSTGIS_GITREPO="https://github.com/postgis/postgis.git"
+POSTGIS_BRANCH=${POSTGIS_BRANCH}
+POSTGIS_GITREPO=${POSTGIS_GITREPO}
 PRODUCT=percona-postgis
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='3.3'
-RELEASE='3'
+VERSION=${POSTGIS_VERSION}
+RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

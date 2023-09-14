@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -132,22 +132,22 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pgaudit/all.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pgaudit/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pgaudit/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pgaudit/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pgaudit/rules
     mv all.patch debian/patches/
     rm -rf debian/control*
     echo "all.patch" > debian/patches/series
     echo "alternative_regression_outputs.patch" >> debian/patches/series
     mv control* debian/
     mv rules debian/
-    echo 15 > debian/pgversions
+    echo 16 > debian/pgversions
     echo 9 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -204,12 +204,12 @@ install_deps() {
                 sleep 1
             done
             yum -y install epel-release
-            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql15-devel percona-postgresql15-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel"
+            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel"
             yum -y install ${INSTALL_LIST}
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
         else
-            INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql15-devel percona-postgresql15-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
+            INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
             yum -y install ${INSTALL_LIST}
             yum -y install binutils gcc gcc-c++
         fi
@@ -220,9 +220,9 @@ install_deps() {
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
         percona-release enable tools testing
-        percona-release enable ppg-15.3 testing
+        percona-release enable ppg-16.0 testing
         apt-get update || true
-        INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang-11 devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+        INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;
@@ -290,7 +290,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/pgaudit/all.patch
     mv all.patch rpmbuild/SOURCES
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
@@ -438,6 +438,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -456,17 +460,17 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=4
-DEB_RELEASE=4
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
 BRANCH="master"
-BRANCH="1.7.0"
+BRANCH="16.0"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.7.0'
-RELEASE='4'
+VERSION='16.0'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

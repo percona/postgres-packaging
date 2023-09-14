@@ -78,7 +78,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -87,7 +87,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -98,7 +98,7 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-ppg-server-15
+    PRODUCT=percona-ppg-server-16
     echo "PRODUCT=${PRODUCT}" > ppg-server.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
@@ -126,17 +126,17 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/ppg-server/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/ppg-server/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/ppg-server/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/ppg-server/rules
     echo 9 > compat
-    echo "percona-ppg-server-15 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-ppg-server-16 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
 
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/ppg-server/ppg-server.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/ppg-server/ppg-server.spec
     cd ${WORKDIR}
     #
     source ppg-server.properties
@@ -328,8 +328,8 @@ build_rpm(){
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    export LIBPQ_DIR=/usr/pgsql-15/
-    export LIBRARY_PATH=/usr/pgsql-15/lib/:/usr/pgsql-15/include/
+    export LIBPQ_DIR=/usr/pgsql-16/
+    export LIBRARY_PATH=/usr/pgsql-16/lib/:/usr/pgsql-16/include/
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -441,11 +441,11 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v15.3"
+BRANCH="v16.0"
 REPO="https://github.com/percona/postgres-packaging.git"
-PRODUCT=percona-ppg-server-15
+PRODUCT=percona-ppg-server-16
 DEBUG=0
-VERSION='ppg-15.3'
+VERSION='ppg-16.0'
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}

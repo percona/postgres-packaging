@@ -1,7 +1,7 @@
 %undefine _debugsource_packages
 %global postgismajorversion 3.3
 %global postgissomajorversion 3
-%global pgmajorversion 15
+%global pgmajorversion 16
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
 %global sname	postgis
 
@@ -68,7 +68,7 @@
 
 Summary:	Geographic Information Systems Extensions to PostgreSQL
 Name:		percona-postgis%{postgiscurrmajorversion}
-Version:	%{postgismajorversion}.3
+Version:	%{postgismajorversion}.4
 Release:	1%{?dist}
 License:	GPLv2+
 Source0:	percona-postgis-%{version}.tar.gz

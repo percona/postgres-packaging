@@ -86,7 +86,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -95,7 +95,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.3 testing
+    percona-release enable ppg-16.0 testing
     return
 }
 
@@ -142,10 +142,10 @@ get_sources(){
     mv all_packaging/DEB/debian ./
     cd debian
     rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/patroni/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/patroni/rules
     rm -f control
     rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/patroni/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     mv install percona-patroni.install
@@ -157,7 +157,7 @@ get_sources(){
     mv all_packaging/RPM/* rpm/
     cd rpm
     rm -f patroni.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.3/patroni/patroni.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     sed -i 's:/opt/patroni/bin:/usr/bin:' patroni.2.service
     sed -i 's:/opt/patroni/etc/:/etc/patroni/:' patroni.2.service
@@ -244,10 +244,10 @@ install_deps() {
       done
       add_percona_apt_repo
       apt-get update || true
-      if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" ]; then
-        INSTALL_LIST="build-essential debconf debhelper clang-11 devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
+      if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" -a "x${DEBIAN}" != "xbookworm" ]; then
+        INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
       else
-        INSTALL_LIST="build-essential debconf debhelper clang-11 devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python2-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
+        INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python3-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
       fi
       DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
       if [ "x${DEBIAN}" = "xstretch" ]; then
@@ -478,6 +478,10 @@ build_deb(){
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
+    cd $WORKDIR/
+    for file in $(ls | grep ddeb); do
+        mv "$file" "${file%.ddeb}.deb";
+    done
     cp $WORKDIR/*.*deb $WORKDIR/deb
     cp $WORKDIR/*.*deb $CURDIR/deb
 }
@@ -499,12 +503,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v3.0.2"
+BRANCH="v3.1.0"
 REPO="https://github.com/zalando/patroni.git"
 PRODUCT=percona-patroni
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='3.0.2'
+VERSION='3.1.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

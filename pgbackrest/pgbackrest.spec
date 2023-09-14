@@ -26,7 +26,7 @@ BuildRequires:  perl(DBD::Pg)
 BuildRequires:  perl(Digest::SHA)
 BuildRequires:  perl(IO::Socket::SSL)
 BuildRequires:  perl(JSON::PP)
-BuildRequires:	percona-postgresql15-devel
+BuildRequires:	percona-postgresql16-devel
 %if 0%{?rhel} <= 8
 Requires:       perl-libxml-perl
 %endif
@@ -89,6 +89,6 @@ popd
 %attr(-,postgres,postgres) /var/spool/pgbackrest
 
 %changelog
-* Tue Jul 16 2019  Evgeniy Patlan <evgeniy.patlan@percona.com> - 2.15.3
+* Tue Jul 16 2019  Evgeniy Patlan <evgeniy.patlan@percona.com> - 2.16.0
 - First build of pgbackrest for Percona.
 

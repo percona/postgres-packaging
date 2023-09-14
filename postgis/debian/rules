@@ -240,7 +240,7 @@ override_dh_install:
 	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/postgis/README.postgis
 	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/postgresql-doc-*/extension/README.address_standardizer
 
-	dh_install
+#	dh_install
 
 override_dh_makeshlibs:
 	dh_makeshlibs -Xusr/lib/postgis -- -v$(UPSTREAM_VERSION)

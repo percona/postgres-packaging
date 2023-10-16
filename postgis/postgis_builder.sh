@@ -267,7 +267,7 @@ install_deps() {
              yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
              yum -y install $(echo "llvm-toolset-$(yum list llvm-toolset --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
 	         dnf module -y enable llvm-toolset || true
-             yum -y install $(echo "clang-$(yum list clang --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
+             yum -y install $(echo "clang-$(yum list clang --showduplicates | grep 12 | grep -v metadata | awk '{print $2}'| head -n1)")
 	     else
              yum -y install llvm-toolset llvm-devel clang
 	     fi

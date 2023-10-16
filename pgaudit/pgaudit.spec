@@ -1,6 +1,6 @@
 %define pginstdir /usr/pgsql-15/
 
-Name:           percona-pgaudit
+Name:           percona-pgaudit15
 Version:        1.7.0
 Release:        6%{?dist}
 Summary:        PostgreSQL Audit Extension
@@ -10,7 +10,7 @@ Vendor:         Percona, LLC
 License:        PostgreSQL
 URL:            http://pgaudit.org
 Epoch:          1
-Source0:        %{name}-%{version}.tar.gz
+Source0:        percona-pgaudit-%{version}.tar.gz
 Patch0:		all.patch
 
 BuildRequires:  gcc
@@ -39,7 +39,7 @@ trail or audit log. The term audit log is used in this documentation.
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n percona-pgaudit-%{version}
 %patch0
 
 %build

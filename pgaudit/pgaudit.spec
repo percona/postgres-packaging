@@ -1,6 +1,6 @@
 %define pginstdir /usr/pgsql-11/
 
-Name:           percona-pgaudit
+Name:           percona-pgaudit11
 Version:        1.3.4
 Release:        6%{?dist}
 Summary:        PostgreSQL Audit Extension
@@ -10,7 +10,7 @@ Vendor:         Percona, LLC
 License:        PostgreSQL
 URL:            http://pgaudit.org
 Epoch:          2
-Source0:        %{name}-%{version}.tar.gz
+Source0:        percona-pgaudit-%{version}.tar.gz
 
 BuildRequires:  gcc
 BuildRequires:  percona-postgresql11-server
@@ -38,7 +38,7 @@ trail or audit log. The term audit log is used in this documentation.
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n percona-pgaudit-%{version}
 
 %build
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-11/bin/pg_config:' Makefile

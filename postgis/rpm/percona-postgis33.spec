@@ -67,7 +67,7 @@
 %endif
 
 Summary:	Geographic Information Systems Extensions to PostgreSQL
-Name:		percona-postgis%{postgiscurrmajorversion}
+Name:		percona-postgis%{postgiscurrmajorversion}_%{pgmajorversion}
 Version:	%{postgismajorversion}.4
 Release:	1%{?dist}
 License:	GPLv2+

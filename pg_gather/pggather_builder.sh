@@ -116,13 +116,13 @@ get_sources(){
     rm -fr debian rpm
     mkdir debian rpm
     cd debian 
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_gather/debian/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_gather/debian/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_gather/debian/percona-pg-gather.install
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${BRANCH}/pg_gather/debian/rules
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${BRANCH}/pg_gather/debian/control
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${BRANCH}/pg_gather/debian/percona-pg-gather.install
     cd ../
     echo 9 > debian/compat
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_gather/rpm/pg_gather.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${BRANCH}/pg_gather/rpm/pg_gather.spec
     cd ${WORKDIR}
     #
     source pg_gather.properties
@@ -421,12 +421,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="16.0"
+BRANCH="16.1"
 GIT_REPO="https://github.com/EvgeniyPatlan/postgres-packaging"
 PRODUCT=percona-pg_gather
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='22'
+VERSION='23'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

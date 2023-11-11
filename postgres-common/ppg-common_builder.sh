@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control supported-versions 
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres-common/supported-versions
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/postgres-common/supported-versions
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -149,13 +149,16 @@ get_sources(){
 	sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
     cd ../
     sudo chmod +x pgcommon.sh
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres-common/pgcommon.sh
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/postgres-common/pgcommon.sh
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.0/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/postgres-common/percona-postgresql-common.spec
+    	if [ ${ARCH} -eq "aarch64" ]; then
+            sed -e '4d' percona-postgresql-common.spec
+	fi	
     cd ../
     cd ${WORKDIR}
     #
@@ -208,7 +211,7 @@ install_deps() {
       yum clean all
       RHEL=$(rpm --eval %rhel)
       yum -y install epel-release
-      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmbuild rpmdevtools wget perl-podlators"
+      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmdevtools wget perl-podlators"
       yum -y install ${INSTALL_LIST}
     else
       export DEBIAN=$(lsb_release -sc)
@@ -451,12 +454,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="debian/253"
+BRANCH="debian/256"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='253'
+VERSION='256'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 

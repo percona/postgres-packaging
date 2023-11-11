@@ -89,6 +89,6 @@ popd
 %attr(-,postgres,postgres) /var/spool/pgbackrest
 
 %changelog
-* Tue Jul 16 2019  Evgeniy Patlan <evgeniy.patlan@percona.com> - 2.16.0
+* Tue Jul 16 2019  Evgeniy Patlan <evgeniy.patlan@percona.com> - 2.16.1
 - First build of pgbackrest for Percona.
 

@@ -1,11 +1,11 @@
 %global sname   percona-ppg-server-ha
 %global pgmajorversion 15
-%global version 2
+%global version 5
 
 Summary:        Percona selection of PostgreSQL%{pgmajorversion} HA components
 Name:           %{sname}%{pgmajorversion}
 Version:        %{pgmajorversion}.%{version}
-Release:        2%{?dist}
+Release:        1%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases
 URL:            https://www.percona.com/software/postgresql-distribution
@@ -25,7 +25,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 15.4-1
+* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 15.5-1
 - Update version for ppg-server-ha meta-package
-* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 15.4-1
+* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 15.5-1
 - Initial build

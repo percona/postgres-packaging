@@ -10,7 +10,7 @@ Vcs-Git: https://salsa.debian.org/postgresql/pg-repack.git
 
 Package: percona-postgresql-15-repack
 Architecture: any
-Depends: postgresql-15 (>= 15.4) | percona-postgresql-15 (>= 15.4), ${shlibs:Depends}, ${misc:Depends}
+Depends: postgresql-15 (>= 15.5) | percona-postgresql-15 (>= 15.5), ${shlibs:Depends}, ${misc:Depends}
 Provides: pg-repack, postgresql-15-repack
 Description: reorganize tables in PostgreSQL databases with minimal locks
  pg_repack is a PostgreSQL extension which lets you remove bloat from tables

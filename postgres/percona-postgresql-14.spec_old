@@ -83,14 +83,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        14.9
+Version:        14.10
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-14.9.tar.gz
+Source0:        percona-postgresql-14.10.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -147,7 +147,7 @@ BuildRequires:  llvm-devel clang-devel
 %if 0%{?fedora}
 BuildRequires:  llvm-devel >= 5.0 clang-devel >= 5.0
 %endif
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 14.10
 BuildRequires:  llvm6-devel clang6-devel
 %endif
 %if 0%{?suse_version} >= 1500
@@ -204,7 +204,7 @@ BuildRequires:  systemtap-sdt-devel
 BuildRequires:  libselinux-devel >= 2.0.93
 # SLES: SLES 15 does not have selinux-policy package. Use
 # it only on SLES 12:
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 14.10
 BuildRequires:  selinux-policy >= 3.9.13
 %endif
 # RHEL/Fedora has selinux-policy:
@@ -217,7 +217,7 @@ BuildRequires:  selinux-policy >= 3.9.13
 # We depend un the SSL libraries provided by Advance Toolchain on PPC,
 # so use openssl-devel only on other platforms:
 %ifnarch ppc64 ppc64le
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 14.10
 BuildRequires:  libopenssl-devel
 %else
 BuildRequires:  openssl-devel
@@ -297,7 +297,7 @@ Provides:       libpq5 >= 10.0
 %if 0%{?rhel} && 0%{?rhel} <= 6
 Requires:       openssl
 %else
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 14.10
 Requires:       libopenssl1_0_0
 %else
 Requires:       openssl-libs >= 1.0.2k
@@ -417,7 +417,7 @@ Requires:       llvm-devel >= 6.0.0
 %if 0%{?fedora}
 Requires:       llvm-devel >= 5.0 clang-devel >= 5.0
 %endif
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 14.10
 Requires:       llvm6-devel clang6-devel
 %endif
 %endif

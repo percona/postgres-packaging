@@ -29,7 +29,7 @@ Build-Depends: bison,
                protobuf-c-compiler,
                rdfind,
                xsltproc
-Standards-Version: 3.3.1
+Standards-Version: 3.3.2
 Homepage: https://postgis.net/
 Rules-Requires-Root: no
 

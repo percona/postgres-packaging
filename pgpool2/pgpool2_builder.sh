@@ -170,6 +170,11 @@ get_sources(){
     sed -i "s:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:g" debian/control.in
     sed -i '/Uploaders/{N;N;N;d;}' debian/control.in
     sed -i "0,/pgpool2/ s/pgpool2.*/percona-pgpool2 (${VERSION}-${DEB_RELEASE}) stable; urgency=medium/" debian/changelog
+    sed -i '84s:11.22:11:' debian/control.in
+    sed -i '90s:11.22:11:' debian/control
+    sed -i '84s:postgresql-11:postgresql-11|percona-postgresql-11:' debian/control.in
+    sed -i '90s:postgresql-11:postgresql-11|percona-postgresql-11:' debian/control
+
     DEBEDITFILES=$(ls debian | grep ^pgpool2\.)
     for file in $DEBEDITFILES; do 
         cp debian/$file debian/percona-$file; 
@@ -262,7 +267,7 @@ install_deps() {
     if [ "$OS" == "rpm" ]
     then
        # yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-        percona-release enable ppg-11.21 testing
+        percona-release enable ppg-11.22 testing
         yum -y install git wget
         PKGLIST="percona-postgresql${PG_VER}-devel"
         PKGLIST+=" clang-devel git clang llvm-devel rpmdevtools vim wget"
@@ -301,7 +306,7 @@ install_deps() {
         DEBIAN_FRONTEND=noninteractive apt-get -y install lsb-release gnupg git wget
 
         wget https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb && dpkg -i percona-release_latest.$(lsb_release -sc)_all.deb
-        percona-release enable ppg-11.21 testing
+        percona-release enable ppg-11.22 testing
 
         PKGLIST="percona-postgresql-${PG_VER} percona-postgresql-common percona-postgresql-server-dev-all"
 
@@ -572,13 +577,13 @@ OS_NAME=
 ARCH=
 OS=
 REVISION=0
-BRANCH="4_4_3"
+BRANCH="4_4_4"
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REPO="https://git.postgresql.org/git/pgpool2.git"
-VERSION="4.4.3"
-PG_RELEASE=11.21
+VERSION="4.4.4"
+PG_RELEASE=11.22
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 PG_VER=$(echo ${PG_RELEASE} | awk -F'.' '{print $1}')
 check_workdir

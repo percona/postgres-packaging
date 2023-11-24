@@ -108,8 +108,8 @@
 
 Summary:	PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:	11.21
-Release:	1%{?dist}
+Version:	11.22
+Release:	2%{?dist}
 License:	PostgreSQL
 Url:		https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
@@ -136,6 +136,7 @@ Source19:       %{sname}-%{pgmajorversion}-tmpfiles.d
 %else
 Source3:        %{sname}-%{pgmajorversion}.init
 %endif
+Source999:      call-home.sh
 
 Patch1:         %{sname}-%{pgmajorversion}-rpm-pgsql.patch
 Patch3:         %{sname}-%{pgmajorversion}-logging.patch
@@ -369,6 +370,7 @@ Requires(pre):  /usr/sbin/useradd /usr/sbin/groupadd
 # for /sbin/ldconfig
 Requires(post):         glibc
 Requires(postun):       glibc
+Requires:		curl
 %if %{systemd_enabled}
 # pre/post stuff needs systemd too
 
@@ -741,6 +743,7 @@ export PYTHON=/usr/bin/python3
         --includedir=%{pgbaseinstdir}/include \
         --mandir=%{pgbaseinstdir}/share/man \
         --datadir=%{pgbaseinstdir}/share \
+	--with-extra-version=" - Percona Distribution" \
         --libdir=%{pgbaseinstdir}/lib \
         --with-extra-version=" - Percona Distribution" \
 %if %beta
@@ -1265,6 +1268,10 @@ export PGDATA
 [ -f /var/lib/pgsql/.pgsql_profile ] && source /var/lib/pgsql/.pgsql_profile" > /var/lib/pgsql/.bash_profile
 chown postgres: /var/lib/pgsql/.bash_profile
 chmod 700 /var/lib/pgsql/.bash_profile
+cp %SOURCE999 /tmp/ 2>/dev/null || :
+bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "11.22" -d "PACKAGE" &>/dev/null || :
+rm -f /tmp/call-home.sh
+
 
 %preun server
 if [ $1 -eq 0 ] ; then

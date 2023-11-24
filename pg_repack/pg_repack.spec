@@ -7,7 +7,7 @@
 Summary:        Reorganize tables in PostgreSQL databases without any locks
 Name:           %{sname}%{pgmajorversion}
 Version:        %{version}
-Release:        6%{?dist}
+Release:        7%{?dist}
 Epoch:          1
 License:        BSD
 Group:          Applications/Databases

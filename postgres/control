@@ -132,6 +132,7 @@ Depends:
  percona-postgresql-client-11,
  percona-postgresql-common (>= 194~),
  ssl-cert,
+ curl,
  tzdata,
  ${misc:Depends},
  ${shlibs:Depends}

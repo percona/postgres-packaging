@@ -421,12 +421,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="12.16"
+BRANCH="13.13"
 GIT_REPO="https://github.com/EvgeniyPatlan/postgres-packaging"
 PRODUCT=percona-pg_gather
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='22'
+VERSION='23'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

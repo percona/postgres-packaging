@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.12 testing
+    percona-release enable ppg-13.13 testing
     return
 }
 
@@ -89,7 +89,7 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.12 testing
+    percona-release enable ppg-13.13 testing
     return
 }
 
@@ -130,10 +130,10 @@ get_sources(){
       git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pg_repack/Makefile.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pg_repack/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pg_repack/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pg_repack/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/pg_repack/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/pg_repack/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/pg_repack/control.in
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian
@@ -146,10 +146,10 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pg_repack/pg_repack-pg13-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/pg_repack/pg_repack.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/pg_repack/pg_repack-pg13-makefile-pgxs.patch
     cd ../
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.12/pg_repack/make.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/pg_repack/make.patch
     patch -p0 < make.patch
     rm -f make.patch
     cd ${WORKDIR}
@@ -213,9 +213,17 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
-        INSTALL_LIST="percona-postgresql13 clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql13-devel percona-postgresql13-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
-        yum -y install ${INSTALL_LIST}
-        yum -y install binutils gcc gcc-c++
+        if [ x"$RHEL" = x8 ]; then
+        	INSTALL_LIST="percona-postgresql13 clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql13-devel percona-postgresql13-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
+        	yum -y install ${INSTALL_LIST}
+        	yum -y install binutils gcc gcc-c++
+	else
+		yum -y install epel-release
+		dnf config-manager --set-enabled ol9_codeready_builder
+		dnf module -y disable postgresql
+		yum -y install percona-postgresql13-devel
+		yum -y install zlib-devel libzstd-devel readline-devel lz4-devel clang rpmdevtools git openssl-devel openssl-libs
+	fi
       fi
     else
       export DEBIAN=$(lsb_release -sc)
@@ -460,8 +468,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=6
-DEB_RELEASE=6
+RPM_RELEASE=7
+DEB_RELEASE=7
 REVISION=0
 BRANCH="ver_1.4.8"
 REPO="https://github.com/reorg/pg_repack.git"
@@ -469,7 +477,7 @@ PRODUCT=percona-pg_repack
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.4.8'
-RELEASE='2'
+RELEASE='7'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

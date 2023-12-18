@@ -1,5 +1,5 @@
 %undefine _debugsource_packages
-%global postgismajorversion 3.3
+%global postgismajorversion 3.4
 %global postgissomajorversion 3
 %global pgmajorversion 16
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
@@ -68,13 +68,12 @@
 
 Summary:	Geographic Information Systems Extensions to PostgreSQL
 Name:		percona-postgis%{postgiscurrmajorversion}_%{pgmajorversion}
-Version:	%{postgismajorversion}.4
-Release:	2%{?dist}
+Version:	%{postgismajorversion}.0
+Release:	1%{?dist}
 License:	GPLv2+
 Source0:	percona-postgis-%{version}.tar.gz
-Source2:        https://download.osgeo.org/postgis/docs/postgis-%{version}.pdf
+Source2:        https://download.osgeo.org/postgis/docs/postgis-%{version}-en.pdf
 Source4:	%{sname}%{postgiscurrmajorversion}-filter-requires-perl-Pg.sh
-Patch0:		%{sname}%{postgiscurrmajorversion}-%{postgismajorversion}.0-gdalfpic.patch
 
 URL:		https://www.postgis.net/
 
@@ -230,8 +229,7 @@ This packages provides JIT support for postgis33
 %setup -q -n percona-postgis-%{version}
 %{__cp} -p %{SOURCE2} .
 # Copy .pdf file to top directory before installing.
-/usr/bin/patch --no-backup-if-mismatch -p0 --ignore-whitespace  --fuzz=0  < %{PATCH0}
-#%patch0 -p0
+%{__cp} -p %{SOURCE2} %{sname}-%{version}.pdf
 
 %build
 LDFLAGS="-Wl,-rpath,%{geosinstdir}/lib64 ${LDFLAGS}" ; export LDFLAGS
@@ -239,6 +237,7 @@ LDFLAGS="-Wl,-rpath,%{projinstdir}/lib ${LDFLAGS}" ; export LDFLAGS
 LDFLAGS="-Wl,-rpath,%{libspatialiteinstdir}/lib ${LDFLAGS}" ; export LDFLAGS
 SHLIB_LINK="$SHLIB_LINK -Wl,-rpath,%{geosinstdir}/lib64" ; export SHLIB_LINK
 SFCGAL_LDFLAGS="$SFCGAL_LDFLAGS -L/usr/lib64"; export SFCGAL_LDFLAGS
+
 LDFLAGS="$LDFLAGS -L%{geosinstdir}/lib64 -lgeos_c -L%{projinstdir}/lib64 -L%{gdalinstdir}/lib -L%{libgeotiffinstdir}/lib -ltiff -L/usr/lib64"; export LDFLAGS
 CFLAGS="$CFLAGS -I%{gdalinstdir}/include"; export CFLAGS
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:%{projinstdir}/lib64/pkgconfig
@@ -247,8 +246,13 @@ sh autogen.sh
 autoconf
 
 %configure --with-pgconfig=%{pginstdir}/bin/pg_config \
-        --with-projdir=%{projinstdir} \
+	--bindir=%{pginstdir}/bin/ \
+	--with-projdir=%{projinstdir} \
+	--datadir=%{pginstdir}/share/ \
 	--enable-lto \
+%if !%raster
+	--without-raster \
+%endif
 %if %{sfcgal}
 	--with-sfcgal=%{_bindir}/sfcgal-config \
 %endif
@@ -266,7 +270,7 @@ autoconf
 
 SHLIB_LINK="$SHLIB_LINK" %{__make} LPATH=`%{pginstdir}/bin/pg_config --pkglibdir` shlib="%{sname}-%{postgissomajorversion}.so"
 
-%{__make} %{?_smp_mflags}
+%{__make} %{?_smp_mflags} -C extensions
 
 %if %utils
  SHLIB_LINK="$SHLIB_LINK" %{__make} %{?_smp_mflags} -C utils
@@ -302,15 +306,12 @@ fi
 %defattr(-,root,root)
 %doc COPYING CREDITS NEWS TODO README.%{sname} doc/html loader/README.* doc/%{sname}.xml doc/ZMSgeoms.txt
 %license LICENSE.TXT
-#%if 0%{?rhel} == 7
+%{pginstdir}/bin/postgis
+%{pginstdir}/bin/postgis_restore
 %{pginstdir}/doc/extension/README.address_standardizer
-#%else
-#%{pginstdir}/share/doc/extension/README.address_standardizer
-#%endif
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_comments.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_upgrade*.sql
-%{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_restore.pl
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/uninstall_postgis.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/legacy*.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/*topology*.sql
@@ -346,6 +347,7 @@ fi
 %{pginstdir}/lib/postgis_raster-%{postgissomajorversion}.so
 %{pginstdir}/share/extension/%{sname}_raster.control
 %endif
+%{_mandir}/man1/%{sname}*
 
 %files client
 %defattr(644,root,root)
@@ -356,6 +358,9 @@ fi
 %attr(755,root,root) %{pginstdir}/bin/shp2pgsql
 %attr(755,root,root) %{pginstdir}/bin/pgtopo_export
 %attr(755,root,root) %{pginstdir}/bin/pgtopo_import
+%{_mandir}/man1/pgsql2shp*
+%{_mandir}/man1/pgtopo_*
+%{_mandir}/man1/shp2pgsql*
 
 %files devel
 %defattr(644,root,root)

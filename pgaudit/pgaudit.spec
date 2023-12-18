@@ -1,8 +1,8 @@
 %define pginstdir /usr/pgsql-16/
 
 Name:           percona-pgaudit16
-Version:        16.0
-Release:        1%{?dist}
+Version:        16.1
+Release:        2%{?dist}
 Summary:        PostgreSQL Audit Extension
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
@@ -60,7 +60,7 @@ sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-16/bin/pg_config:' Makefi
 %defattr(-,root,root,-)
 %doc %{pginstdir}/doc/extension/README-pgaudit.md
 %{pginstdir}/lib/pgaudit.so
-%{pginstdir}/share/extension/pgaudit--16.0*.sql
+%{pginstdir}/share/extension/pgaudit--16.1*.sql
 %{pginstdir}/lib/bitcode/pgaudit*.bc
 %{pginstdir}/lib/bitcode/pgaudit/pgaudit*.bc
 %{pginstdir}/share/extension/pgaudit.control

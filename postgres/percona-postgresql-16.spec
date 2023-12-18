@@ -64,14 +64,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        16.0
-Release:        1%{?dist}
+Version:        16.1
+Release:        2%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-16.0.tar.gz
+Source0:        percona-postgresql-16.1.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -83,6 +83,7 @@ Source17:	%{sname}-%{pgmajorversion}-setup
 Source10:       %{sname}-%{pgmajorversion}-check-db-dir
 Source18:       %{sname}-%{pgmajorversion}.service
 Source19:       %{sname}-%{pgmajorversion}-tmpfiles.d
+Source999:      call-home.sh
 
 Patch1:         %{sname}-%{pgmajorversion}-rpm-pgsql.patch
 Patch3:         %{sname}-%{pgmajorversion}-conf.patch
@@ -306,6 +307,7 @@ Requires(pre):  /usr/sbin/useradd /usr/sbin/groupadd
 # for /sbin/ldconfig
 Requires(post):         glibc
 Requires(postun):       glibc
+Requires:		curl
 # pre/post stuff needs systemd too
 
 Requires(post):         systemd
@@ -938,6 +940,10 @@ export PGDATA
 [ -f /var/lib/pgsql/.pgsql_profile ] && source /var/lib/pgsql/.pgsql_profile" > /var/lib/pgsql/.bash_profile
 chown postgres: /var/lib/pgsql/.bash_profile
 chmod 700 /var/lib/pgsql/.bash_profile
+cp %SOURCE999 /tmp/ 2>/dev/null || :
+bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "16.1" -d "PACKAGE" &>/dev/null || :
+rm -f /tmp/call-home.sh
+
 
 %preun server
 if [ $1 -eq 0 ] ; then

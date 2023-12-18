@@ -119,7 +119,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 12 debian/12.16-1
+        git checkout -b 12 debian/12.17-1
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -128,8 +128,8 @@ get_sources(){
             mv $file "percona-$file"
         done
         rm -f rules control
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.16/postgres/rules
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.16/postgres/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.17/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.17/postgres/control
         sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
     cd ../
@@ -139,7 +139,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-12.spec
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/12.16/postgres/percona-postgresql-12.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/12.17/postgres/percona-postgresql-12.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -238,7 +238,7 @@ install_deps() {
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release disable all
       percona-release enable tools testing
-      percona-release enable ppg-12.16 testing
+      percona-release enable ppg-12.17 testing
       apt-get update
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" -a "x${DEBIAN}" != "xbookworm" ]; then
         INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang gdb liblz4-dev libipc-run-perl"
@@ -325,6 +325,20 @@ build_srpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
+    wget https://raw.githubusercontent.com/Percona-Lab/telemetry-agent/phase-0/call-home.sh
+    mv call-home.sh rpmbuild/SOURCES
+    cd ${WORKDIR}/rpmbuild/SPECS
+    line_number=$(grep -n SOURCE999 percona-postgresql-12.spec | awk -F ':' '{print $1}')
+    cp ../SOURCES/call-home.sh ./
+    awk -v n=$line_number 'NR <= n {print > "part1.txt"} NR > n {print > "part2.txt"}' percona-postgresql-12.spec
+    head -n -1 part1.txt > temp && mv temp part1.txt
+    echo "cat <<'CALLHOME' > /tmp/call-home.sh" >> part1.txt
+    cat call-home.sh >> part1.txt
+    echo "CALLHOME" >> part1.txt
+    cat part2.txt >> part1.txt
+    rm -f call-home.sh part2.txt
+    mv part1.txt percona-postgresql-12.spec
+    cd ${WORKDIR}
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
         --define "pgmajorversion 12" --define "pginstdir /usr/pgsql-12"  --define "pgpackageversion 12" \
         rpmbuild/SPECS/percona-postgresql-12.spec
@@ -467,6 +481,17 @@ build_deb(){
     cd ${PRODUCT}-${VERSION}-${VERSION}.${RELEASE}
     dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
+        cd debian/
+        wget https://raw.githubusercontent.com/Percona-Lab/telemetry-agent/phase-0/call-home.sh
+        sed -i 's:exit 0::' percona-postgresql-12.postinst
+        echo "cat <<'CALLHOME' > /tmp/call-home.sh" >> percona-postgresql-12.postinst
+        cat call-home.sh >> percona-postgresql-12.postinst
+        echo "CALLHOME" >> percona-postgresql-12.postinst
+        echo 'bash +x /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "12.17" -d "PACKAGE" || :' >> percona-postgresql-12.postinst
+        echo "rm -rf /tmp/call-home.sh" >> percona-postgresql-12.postinst
+        echo "exit 0" >> percona-postgresql-12.postinst
+        rm -f call-home.sh
+    cd ../
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb
@@ -492,16 +517,16 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 REVISION=0
-BRANCH="REL_12.16"
+BRANCH="REL_12.17"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='12'
-RELEASE='16'
+RELEASE='17'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

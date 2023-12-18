@@ -148,7 +148,9 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
+    git apply patches/add-sample-config.patch
     mv install percona-patroni.install
+    sed -i 's|patroni.yml.sample|debian/patroni.yml.sample|g' percona-patroni.install
     echo "debian/tmp/usr/lib" >> percona-patroni.install
     echo "debian/tmp/usr/bin" >> percona-patroni.install
     echo "docs/README.rst" >> percona-patroni-doc.install
@@ -471,7 +473,6 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-${VERSION}
-    cp debian/patches/add-sample-config.patch ./patroni.yml.sample
     sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/opt/patroni/bin/patroni /etc/patroni/patroni.yml:' extras/startup-scripts/patroni.service
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)

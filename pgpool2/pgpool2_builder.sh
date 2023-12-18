@@ -170,8 +170,8 @@ get_sources(){
     sed -i "s:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:g" debian/control.in
     sed -i '/Uploaders/{N;N;N;d;}' debian/control.in
     sed -i "0,/pgpool2/ s/pgpool2.*/percona-pgpool2 (${VERSION}-${DEB_RELEASE}) stable; urgency=medium/" debian/changelog
-    sed -i '84s:15.4:15:' debian/control.in
-    sed -i '90s:15.4:15:' debian/control
+    sed -i '84s:15.5:15:' debian/control.in
+    sed -i '90s:15.5:15:' debian/control
     sed -i '84s:postgresql-15:postgresql-15|percona-postgresql-15:' debian/control.in
     sed -i '90s:postgresql-15:postgresql-15|percona-postgresql-15:' debian/control
 
@@ -577,13 +577,13 @@ OS_NAME=
 ARCH=
 OS=
 REVISION=0
-BRANCH="4_4_3"
+BRANCH="4_4_4"
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REPO="https://git.postgresql.org/git/pgpool2.git"
-VERSION="4.4.3"
-PG_RELEASE=15.4
+VERSION="4.4.4"
+PG_RELEASE=15.5
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 PG_VER=$(echo ${PG_RELEASE} | awk -F'.' '{print $1}')
 check_workdir

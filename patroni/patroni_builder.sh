@@ -149,6 +149,7 @@ get_sources(){
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     git apply patches/add-sample-config.patch
+    sed -i "s|9.6|${PG_VERSION}|g" patroni.yml.sample
     mv install percona-patroni.install
     sed -i 's|patroni.yml.sample|debian/patroni.yml.sample|g' percona-patroni.install
     echo "debian/tmp/usr/lib" >> percona-patroni.install
@@ -512,6 +513,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='3.1.0'
 RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+PG_VERSION=$(grep "percona-release enable ppg-" "$0" | head -1 | cut -f3 -d'-' | cut -f1 -d' ' | cut -f1 -d'.')
 
 check_workdir
 get_system

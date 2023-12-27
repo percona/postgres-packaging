@@ -80,8 +80,11 @@ add_percona_yum_repo(){
         #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
+    mv percona-release.sh /usr/bin/percona-release
+    chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-16.1 testing
+    percona-release enable ppg-16.1 experimental
     return
 }
 
@@ -90,7 +93,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-16.1 testing
+    percona-release enable ppg-16.1 experimental
     return
 }
 
@@ -147,7 +150,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/16.1/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -224,8 +227,8 @@ install_deps() {
 	apt-get -y update || true
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
-        percona-release enable tools testing
-        percona-release enable ppg-16.1 testing
+        percona-release enable tools experimental
+        percona-release enable ppg-16.1 experimental
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
@@ -469,13 +472,13 @@ RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
 BRANCH="master"
-BRANCH="16.0"
+BRANCH="16.1"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='16.0'
-RELEASE='0'
+VERSION='16.1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

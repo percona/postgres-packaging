@@ -1,33 +1,8 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ #--with pgxs_loop
+	dh $@
 
 override_dh_installdocs:
 	dh_installdocs --all README.*
 
-# change the way tests are run:
-# override_dh_pgxs_test:
-#	+pg_buildext installcheck . . postgresql-%v-pgvector
-
-# classic `pg_buildext` interface:
-
-#include /usr/share/postgresql-common/pgxs_debian_control.mk
-#
-#override_dh_auto_build:
-#	+pg_buildext build build-%v
-#
-#override_dh_auto_test:
-#	# nothing to do here, see debian/tests/* instead
-#
-#override_dh_auto_install:
-#	+pg_buildext install build-%v postgresql-%v-pgvector
-#
-#override_dh_installdocs:
-#	dh_installdocs --all README.*
-#
-#override_dh_auto_clean:
-#	+pg_buildext clean build-%v
-#
-#%:
-#	dh $@

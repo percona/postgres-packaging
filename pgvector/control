@@ -1,9 +1,7 @@
 Source: percona-pgvector
 Section: database
 Priority: optional
-Maintainer: Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>
-Uploaders:
- Bradford D. Boyle <bradford.d.boyle@gmail.com>,
+Maintainer: Percona Development Team info@percona.com
 Build-Depends:
  debhelper (>= 9),
  percona-postgresql-server-dev-all (>= 153~),

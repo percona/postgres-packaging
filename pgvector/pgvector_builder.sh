@@ -376,13 +376,8 @@ build_source_deb(){
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
-    pwd 
-    echo "TARFILE=$TARFILE"
-    echo "BUILDDIR=$BUILDDIR"
-    cd /build/source_tarball
     PRODUCT=percona-pgvector
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
-    tar -xvzf ${PRODUCT}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian

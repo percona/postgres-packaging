@@ -66,7 +66,6 @@ if [ -n "$USE_SYSTEM_SSL" ]; then
 fi
 
 export DEPENDENCY_LIBS_PATH=/opt/dependency-libs64
-export LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH
 
 
 export OPENSSL_VERSION=3.1.4
@@ -280,9 +279,17 @@ build_ldap(){
 	wget https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-${OPENLDAP_VERSION}.tgz
 	tar -xvzf openldap-${OPENLDAP_VERSION}.tgz
 	cd openldap-${OPENLDAP_VERSION}
-	./configure --prefix=${DEPENDENCY_LIBS_PATH} \
-		CPPFLAGS="-I/usr/local/include -I${DEPENDENCY_LIBS_PATH}/include" \
-                LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib"
+
+	if [ "$USE_SYSTEM_SSL" != "1" ]; then
+		./configure --prefix=${DEPENDENCY_LIBS_PATH} \
+			CPPFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" \
+			LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
+	else
+		./configure --prefix=${DEPENDENCY_LIBS_PATH} \
+			CPPFLAGS="-I/usr/local/include -I${DEPENDENCY_LIBS_PATH}/include" \
+			LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib"
+	fi
+
 	make
 	make install
 	build_status "ends" "libldap"
@@ -862,8 +869,8 @@ build_pgbackrest(){
         export CPPFLAGS="-I${POSTGRESQL_PREFIX}/include"
         export PATH=${POSTGRESQL_PREFIX}/bin/:$PATH
         export LD_LIBRARY_PATH=${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH
-        CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" ./configure --prefix=${PGBACKREST_PREFIX}
-        make
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" ./configure --prefix=${PGBACKREST_PREFIX}
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make
         make install
         popd
 

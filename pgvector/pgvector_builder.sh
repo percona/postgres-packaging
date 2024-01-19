@@ -255,7 +255,9 @@ get_deb_sources(){
     echo WORKDIR=$WORKDIR
     echo CURDIR=$CURDIR
 
-    ls -lrt $WORKDIR/../
+    ls -lrt $WORKDIR/../source_deb
+
+    find $WORKDIR/source_deb -name "percona-pgvector*.$param"
 
     FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgvector*.$param" | sort | tail -n1))
     if [ -z $FILE ]

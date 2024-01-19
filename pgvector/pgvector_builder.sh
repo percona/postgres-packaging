@@ -252,6 +252,11 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
+    echo WORKDIR=$WORKDIR
+    echo CURDIR=$CURDIR
+
+    ls -lrt $WORKDIR/../
+
     FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgvector*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then

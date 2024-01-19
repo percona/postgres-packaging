@@ -391,17 +391,16 @@ build_source_deb(){
     dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgvector version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
-
     mkdir -p $WORKDIR/source_deb
-    mkdir -p $CURDIR/test/source_deb
+    mkdir -p $CURDIR/source_deb
     cp *.debian.tar.* $WORKDIR/source_deb
     cp *_source.changes $WORKDIR/source_deb
     cp *.dsc $WORKDIR/source_deb
     cp *.orig.tar.gz $WORKDIR/source_deb
-    cp *.debian.tar.* $CURDIR/test/source_deb
-    cp *_source.changes $CURDIR/test/source_deb
-    cp *.dsc $CURDIR/test/source_deb
-    cp *.orig.tar.gz $CURDIR/test/source_deb
+    cp *.debian.tar.* $CURDIR/source_deb
+    cp *_source.changes $CURDIR/source_deb
+    cp *.dsc $CURDIR/source_deb
+    cp *.orig.tar.gz $CURDIR/source_deb
 }
 
 build_deb(){

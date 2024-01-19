@@ -440,6 +440,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     ls -lrt
+    PRODUCT=percona-pgvector
     echo "PRODUCT-VERSION=${PRODUCT}-${VERSION}"
 
     cd ${PRODUCT}-${VERSION}

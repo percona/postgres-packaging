@@ -1067,10 +1067,10 @@ build_status(){
 
 create_tarball(){
 
-	mkdir -p ${CWD}/tarballs
+	mkdir -p ${CWD}/tarballs-${PG_VERSION}
         pushd /opt
 	ARCH=$(uname -m)
-        find . \( -type d -name 'percona-*' \) -exec tar czvf ${CWD}/tarballs/percona-postgresql-${PG_VERSION}-${SSL_VERSION}-linux-${ARCH}.tar.gz {} +
+        find . \( -type d -name 'percona-*' \) -exec tar czvf ${CWD}/tarballs-${PG_VERSION}/percona-postgresql-${PG_VERSION}-${SSL_VERSION}-linux-${ARCH}.tar.gz {} +
         popd
 }
 

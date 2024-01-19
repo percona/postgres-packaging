@@ -251,13 +251,6 @@ get_tar(){
 
 get_deb_sources(){
     param=$1
-    echo $param
-    echo WORKDIR=$WORKDIR
-    echo CURDIR=$CURDIR
-
-    ls -lrt $WORKDIR/../source_deb
-
-    find $WORKDIR/source_deb -name "percona-pgvector*.$param"
 
     FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgvector*.$param" | sort | tail -n1))
     if [ -z $FILE ]
@@ -439,10 +432,7 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    ls -lrt
     PRODUCT=percona-pgvector
-    echo "PRODUCT-VERSION=${PRODUCT}-${VERSION}"
-
     cd ${PRODUCT}-${VERSION}
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)

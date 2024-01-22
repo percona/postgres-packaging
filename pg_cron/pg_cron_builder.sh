@@ -138,12 +138,9 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    #wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/control
-    #wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/control.in
-    #wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/rules
-    cp /backup/control .
-    cp /backup/control.in .
-    cp /backup/rules .
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/rules
 
     rm -rf debian/control*
     #rm -rf debian/source/format
@@ -159,8 +156,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    #wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/pg_cron.spec
-    cp /backup/pg_cron.spec .
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/pg_cron.spec
     cd ${WORKDIR}
     #
     source pg-cron.properties

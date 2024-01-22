@@ -1,0 +1,22 @@
+Source: percona-pg-cron
+Section: database
+Priority: optional
+Maintainer: Percona Development Team info@percona.com 
+Build-Depends: debhelper, percona-postgresql-server-dev-all (>= 153~),
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Vcs-Browser: https://salsa.debian.org/postgresql/pg-cron
+Vcs-Git: https://salsa.debian.org/postgresql/pg-cron.git
+Homepage: https://github.com/citusdata/pg_cron
+
+Package: percona-postgresql-11-cron
+Architecture: any
+Depends: ${postgresql:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Description: Run periodic jobs in PostgreSQL
+ pg_cron is a simple cron-based job scheduler for PostgreSQL (9.5 or higher)
+ that runs inside the database as an extension. It uses the same syntax as
+ regular cron, but it allows you to schedule PostgreSQL commands directly from
+ the database. pg_cron can run multiple jobs in parallel, but it runs at most
+ one instance of a job at a time. If a second run is supposed to start before
+ the first one finishes, then the second run is queued and started as soon as
+ the first run completes.

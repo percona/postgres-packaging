@@ -107,14 +107,14 @@ get_sources(){
         PRODUCT=percona-pg_cron_${PG_MAJOR_VERSION}
     fi
 
-    echo "PRODUCT=${PRODUCT}" > pg-cron.properties
+    echo "PRODUCT=${PRODUCT}" > pg_cron.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pg-cron.properties
-    #echo "VERSION=${PSM_VER}" >> pg-cron.properties
-    echo "VERSION=${VERSION}" >> pg-cron.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pg-cron.properties
-    echo "BUILD_ID=${BUILD_ID}" >> pg-cron.properties
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pg_cron.properties
+    #echo "VERSION=${PSM_VER}" >> pg_cron.properties
+    echo "VERSION=${VERSION}" >> pg_cron.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pg_cron.properties
+    echo "BUILD_ID=${BUILD_ID}" >> pg_cron.properties
     git clone "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
@@ -130,7 +130,7 @@ get_sources(){
         git checkout "$BRANCH"
     fi
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/pg-cron.properties
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/pg_cron.properties
     rm -fr debian rpm
 
     git clone https://salsa.debian.org/postgresql/pg-cron.git deb_packaging
@@ -138,9 +138,9 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_cron/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_cron/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_cron/rules
 
     rm -rf debian/control*
     #rm -rf debian/source/format
@@ -156,20 +156,20 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg-cron/pg_cron.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_cron/pg_cron.spec
     cd ${WORKDIR}
     #
-    source pg-cron.properties
+    source pg_cron.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pg-cron.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pg_cron.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf pg-cron*
+    rm -rf pg_cron*
     return
 }
 
@@ -446,8 +446,8 @@ build_deb(){
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    echo "DEBIAN=${DEBIAN}" >> pg-cron.properties
-    echo "ARCH=${ARCH}" >> pg-cron.properties
+    echo "DEBIAN=${DEBIAN}" >> pg_cron.properties
+    echo "ARCH=${ARCH}" >> pg_cron.properties
 
     #
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
@@ -470,7 +470,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/pg-cron.properties
+VERSION_FILE=$CURDIR/pg_cron.properties
 args=
 WORKDIR=
 SRPM=0

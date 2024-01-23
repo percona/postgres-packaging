@@ -454,6 +454,7 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
+    PRODUCT=percona-pg-cron
     cd ${PRODUCT}-${VERSION}
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)

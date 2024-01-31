@@ -60,7 +60,7 @@ sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-16/bin/pg_config:' Makefi
 %defattr(-,root,root,-)
 %doc %{pginstdir}/doc/extension/README-pgaudit.md
 %{pginstdir}/lib/pgaudit.so
-%{pginstdir}/share/extension/pgaudit--16.1*.sql
+%{pginstdir}/share/extension/pgaudit--16.*.sql
 %{pginstdir}/lib/bitcode/pgaudit*.bc
 %{pginstdir}/lib/bitcode/pgaudit/pgaudit*.bc
 %{pginstdir}/share/extension/pgaudit.control

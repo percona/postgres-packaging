@@ -521,13 +521,13 @@ RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
 BRANCH="REL_16_2"
-PG_VERSION=16.2
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='16'
 RELEASE='2'
+PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

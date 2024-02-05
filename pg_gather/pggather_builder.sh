@@ -180,6 +180,7 @@ install_deps() {
       INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
       yum -y install ${INSTALL_LIST}
     else
+      apt-get update || true
       apt-get -y install wget lsb-release
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
@@ -421,12 +422,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="16.1"
+BRANCH="16.2"
 GIT_REPO="https://github.com/EvgeniyPatlan/postgres-packaging"
 PRODUCT=percona-pg_gather
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='23'
+VERSION='25'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

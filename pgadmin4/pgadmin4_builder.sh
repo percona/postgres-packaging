@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-16.1 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -475,6 +475,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='5.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+PG_VERSION=16.2
 
 check_workdir
 get_system

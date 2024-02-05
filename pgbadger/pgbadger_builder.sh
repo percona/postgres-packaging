@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.5 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.5 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -131,10 +131,10 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgbadger/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgbadger/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbadger/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbadger/rules
     chmod +x rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgbadger/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbadger/copyright
     echo 9 > compat
     echo "percona-pgbadger (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -143,7 +143,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgbadger/percona-pgbadger.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbadger/percona-pgbadger.spec
     cd ${WORKDIR}
     #
     source pgbadger.properties
@@ -195,7 +195,7 @@ install_deps() {
       if [ x"$RHEL" = x8 ]; then
         switch_to_vault_repo
       fi
-      yum -y install wget
+      yum -y install epel-release wget
       add_percona_yum_repo
       wget http://jenkins.percona.com/yum-repo/percona-dev.repo
       #mv -f percona-dev.repo /etc/yum.repos.d/
@@ -203,34 +203,34 @@ install_deps() {
 
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
+          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
           switch_to_vault_repo
           yum -y install perl lz4-libs c-ares-devel
-	  yum -y install rpmbuild
+	  yum -y install rpm-build
       else
         until yum -y install centos-release-scl; do
             echo "waiting"
             sleep 1
         done
-        yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql15-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-libxml-perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
+      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql15-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 
     else
+      apt-get update || true
+      apt-get -y install gnupg2 lsb-release wget curl
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-15 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config libjson-xs-perl"
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-libxml-perl libcontextual-return-perl libxml-checker-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-15 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config libjson-xs-perl"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
@@ -467,13 +467,14 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v12.2"
+BRANCH="v12.4"
 REPO="https://github.com/darold/pgbadger.git"
 PRODUCT=percona-pgbadger
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='12.2'
+VERSION='12.4'
 RELEASE='1'
+PG_VERSION=16.2
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

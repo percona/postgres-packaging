@@ -127,11 +127,11 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control supported-versions 
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.10/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.10/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.10/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.10/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/14.10/postgres-common/supported-versions
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/maintscripts-functions.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.templates.patch
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -149,13 +149,13 @@ get_sources(){
 	sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
     cd ../
     sudo chmod +x pgcommon.sh
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/14.10/postgres-common/pgcommon.sh
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/pgcommon.sh
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
 	rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/14.10/postgres-common/percona-postgresql-common.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -459,6 +459,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='256'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
+PG_VERSION=14.11
 
 check_workdir
 get_system

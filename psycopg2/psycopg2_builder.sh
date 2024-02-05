@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-14.10 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-14.10 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -130,7 +130,7 @@ get_sources(){
 
     git clone https://github.com/EvgeniyPatlan/postgres-packaging.git packaging
     cd packaging
-        git checkout 14.10
+        git checkout ${PG_VERSION}
     cd ../
     mv packaging/psycopg2/debian ./
     cd debian/
@@ -474,6 +474,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.9.5'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+PG_VERSION=14.11
 
 check_workdir
 get_system

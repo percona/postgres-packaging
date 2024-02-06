@@ -28,7 +28,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 15.5-1
+* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 15.6-1
 - Update version for ppg-server meta-package
-* Wed Jul 20 2022 Kai Wagner <kai.wagner@percona.com> 15.5-1
+* Wed Jul 20 2022 Kai Wagner <kai.wagner@percona.com> 15.6-1
 - Initial build

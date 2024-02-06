@@ -170,8 +170,8 @@ get_sources(){
     sed -i "s:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:g" debian/control.in
     sed -i '/Uploaders/{N;N;N;d;}' debian/control.in
     sed -i "0,/pgpool2/ s/pgpool2.*/percona-pgpool2 (${VERSION}-${DEB_RELEASE}) stable; urgency=medium/" debian/changelog
-    sed -i '84s:14.10:14:' debian/control.in
-    sed -i '90s:14.10:14:' debian/control
+    sed -i "84s:${PG_RELEASE}:14:" debian/control.in
+    sed -i "90s:${PG_RELEASE}:14:" debian/control
     sed -i '84s:postgresql-14:postgresql-14|percona-postgresql-14:' debian/control.in
     sed -i '90s:postgresql-14:postgresql-14|percona-postgresql-14:' debian/control
 	#sed -i 's:debhelper-compat (= 13):debhelper-compat:' debian/control

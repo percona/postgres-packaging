@@ -25,7 +25,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Wed Oct 26 2022 Surabhi Bhat <surabhi.bhat> 14.10-1
+* Wed Oct 26 2022 Surabhi Bhat <surabhi.bhat> 14.11-1
 - Update version for ppg-server-ha meta-package
-* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 14.10-1
+* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 14.11-1
 - Initial build

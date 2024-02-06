@@ -86,7 +86,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-12.17 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -95,7 +95,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-12.17 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -139,9 +139,9 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.17/pgbackrest/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.17/pgbackrest/compat
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.17/pgbackrest/rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/compat
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/rules.patch
     patch -p0 < rules.patch
     rm rules.patch
     cd ../
@@ -151,8 +151,8 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.17/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/12.17/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -208,7 +208,7 @@ install_deps() {
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
+          dnf config-manager --enable ol${RHEL}_codeready_builder
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
@@ -226,18 +226,22 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="percona-postgresql12-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
+      INSTALL_LIST="percona-postgresql12-devel git rpm-build rpmdevtools systemd systemd-devel wget bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
       yum -y install perl-libxml-perl || true
 
     else
-      export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
-      add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-12 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev"
+      apt-get -y install gnupg2 wget curl lsb-release
+
+      export DEBIAN=$(lsb_release -sc)
+      add_percona_apt_repo
+      percona-release enable tools testing
+      percona-release enable ppg-${BRANCH} testing
+      apt-get update || true
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-12 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev meson"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
@@ -411,7 +415,7 @@ build_source_deb(){
     echo >> changelog
     echo "  * Initial Release." >> changelog
     echo >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com>  $(date -R)" >> changelog
 
     cd ../
     
@@ -490,13 +494,14 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.48"
+BRANCH="release/2.50"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.48'
+VERSION='2.50'
 RELEASE='1'
+PG_VERSION=12.18
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

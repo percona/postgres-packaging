@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.13 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.13 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -139,17 +139,17 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/wal2json/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/wal2json/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/wal2json/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/wal2json/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/wal2json/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/wal2json/rules
     echo 13 > pgversions
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/wal2json/percona-wal2json.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/wal2json/wal2json-pg13-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/wal2json/percona-wal2json.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/wal2json/wal2json-pg13-makefile-pgxs.patch
     cd ${WORKDIR}
     #
     source wal2json.properties
@@ -480,6 +480,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.5'
 RELEASE='6'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+PG_VERSION=13.14
 
 check_workdir
 get_system

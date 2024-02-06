@@ -78,7 +78,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.13 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -87,7 +87,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.13 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -126,8 +126,8 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/ppg-server/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/ppg-server/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server/rules
     echo 9 > compat
     echo "percona-ppg-server-13 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
@@ -136,7 +136,7 @@ get_sources(){
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/13.13/ppg-server/ppg-server.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server/ppg-server.spec
     cd ${WORKDIR}
     #
     source ppg-server.properties
@@ -441,11 +441,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v13.13"
+PG_VERSION=13.14
+BRANCH="v${PG_VERSION}"
 REPO="https://github.com/percona/postgres-packaging.git"
 PRODUCT=percona-ppg-server-13
 DEBUG=0
-VERSION='ppg-13.13'
+VERSION="ppg-${PG_VERSION}"
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}

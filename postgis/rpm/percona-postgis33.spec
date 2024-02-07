@@ -5,27 +5,27 @@
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
 %global sname	postgis
 
-%pgdg_set_gis_variables
+#%pgdg_set_gis_variables
 
 # Override some variables. PostGIS 3.3 is best served with GeOS 3.11,
 # GDAL 3.4 and PROJ 9.0:
-%global geosfullversion %geos311fullversion
-%global geosmajorversion %geos311majorversion
-%global geosinstdir %geos311instdir
-%global gdalfullversion %gdal35fullversion
-%global gdalmajorversion %gdal35majorversion
-%global gdalinstdir %gdal35instdir
-%global projmajorversion %proj90majorversion
-%global projfullversion %proj90fullversion
-%global projinstdir %proj90instdir
+%global geosfullversion 3.11.2
+%global geosmajorversion 311
+%global geosinstdir /usr/geos%{geosmajorversion}
+%global gdalfullversion 3.5.3
+%global gdalmajorversion 35
+%global gdalinstdir /usr/gdal%{gdalmajorversion}
+%global projmajorversion 90
+%global projfullversion 9.0.1
+%global projinstdir /usr/proj%{projmajorversion}
 
 # Override PROJ major version on RHEL 7.
 # libspatialite 4.3 does not build against 8.0.0 as of March 2021.
 # Also use GDAL 3.4
 %if 0%{?rhel} && 0%{?rhel} == 7
-%global gdalfullversion %gdal34fullversion
-%global gdalmajorversion %gdal34majorversion
-%global gdalinstdir %gdal34instdir
+%global gdalfullversion 3.3.3
+%global gdalmajorversion 33
+%global gdalinstdir /usr/gdal%{gdalmajorversion}
 %global projmajorversion 72
 %global projfullversion 7.2.1
 %global projinstdir /usr/proj%{projmajorversion}
@@ -68,8 +68,8 @@
 
 Summary:	Geographic Information Systems Extensions to PostgreSQL
 Name:		percona-postgis%{postgiscurrmajorversion}_%{pgmajorversion}
-Version:	%{postgismajorversion}.4
-Release:	2%{?dist}
+Version:	%{postgismajorversion}.5
+Release:	1%{?dist}
 License:	GPLv2+
 Source0:	percona-postgis-%{version}.tar.gz
 Source2:        https://download.osgeo.org/postgis/docs/postgis-%{version}.pdf

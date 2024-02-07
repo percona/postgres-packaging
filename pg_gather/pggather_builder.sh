@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-13.13 testing
+    percona-release enable ppg-${BRANCH} testing
     return
 }
 
@@ -89,7 +89,7 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-13.13 testing
+    percona-release enable ppg-${BRANCH} testing
     return
 }
 
@@ -180,6 +180,7 @@ install_deps() {
       INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
       yum -y install ${INSTALL_LIST}
     else
+      apt-get update || true
       apt-get -y install wget lsb-release
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
@@ -421,12 +422,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="13.13"
+BRANCH="13.14"
 GIT_REPO="https://github.com/EvgeniyPatlan/postgres-packaging"
 PRODUCT=percona-pg_gather
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='23'
+VERSION='25'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

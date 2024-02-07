@@ -170,10 +170,19 @@ get_sources(){
     sed -i "s:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:g" debian/control.in
     sed -i '/Uploaders/{N;N;N;d;}' debian/control.in
     sed -i "0,/pgpool2/ s/pgpool2.*/percona-pgpool2 (${VERSION}-${DEB_RELEASE}) stable; urgency=medium/" debian/changelog
-    sed -i '84s:15.5:15:' debian/control.in
-    sed -i '90s:15.5:15:' debian/control
+    sed -i "84s:${PG_RELEASE}:15:" debian/control.in
+    sed -i "90s:${PG_RELEASE}:15:" debian/control
     sed -i '84s:postgresql-15:postgresql-15|percona-postgresql-15:' debian/control.in
     sed -i '90s:postgresql-15:postgresql-15|percona-postgresql-15:' debian/control
+    #sed -i 's:debhelper-compat (= 13):debhelper-compat:' debian/control
+    #sed -i 's:debhelper-compat (= 13):debhelper-compat:' debian/control.in
+
+    sed -i '/debhelper-compat (= 13)/d' debian/control
+    sed -i '/debhelper-compat (= 13)/d' debian/control.in
+
+    sed -i 's:./configure --prefix=/usr:autoreconf --force --install; ./configure --prefix=/usr:g' debian/rules
+
+    echo "10" > debian/compat
 
     DEBEDITFILES=$(ls debian | grep ^pgpool2\.)
     for file in $DEBEDITFILES; do 
@@ -193,6 +202,11 @@ EOT
     sed -i "s:pgdg::g" src/pgpool.spec
     sed -i "/mv doc.ja/d" src/pgpool.spec
 
+    sed -i "s:%patch1 -p0:#%patch1 -p0:g" src/pgpool.spec
+    sed -i "s:%configure --with-pgsql=%{pghome}:libtoolize; autoreconf --force --install; %configure --with-pgsql=%{pghome}:g" src/pgpool.spec
+
+    sed -i "s:make %{?_smp_mflags}:make:g" src/pgpool.spec
+
     #EDITFILES="debian/control debian/control.in debian/rules rpm/pgpool.spec"
     #for file in $EDITFILES; do
     #    sed -i "s:@@PG_REL@@:${PG_RELEASE}:g" "$file"
@@ -207,6 +221,12 @@ EOT
     sed -i 's/SPFLAGS = /SPFLAGS = -E0 /g' doc.ja/src/sgml/Makefile.in
     rm src/sample/pgpool.conf.sample
     mv src/sample/pgpool.conf.sample-stream src/sample/pgpool.conf.sample
+
+    sed -i "s|#port = 9999|#port = 5433|g" src/sample/pgpool.conf.sample
+    sed -i "s|#unix_socket_directories = '/tmp'|#unix_socket_directories = '/var/run/postgresql'|g" src/sample/pgpool.conf.sample
+    sed -i "s|#pcp_socket_dir = '/tmp'|#pcp_socket_dir = '/var/run/postgresql'|g" src/sample/pgpool.conf.sample
+    sed -i "s|#pid_file_name = '/var/run/pgpool/pgpool.pid'|#pid_file_name = '/var/run/postgresql/pgpool.pid'|g" src/sample/pgpool.conf.sample
+    sed -i "s|#logdir = '/tmp'|#logdir = '/var/log/postgresql'|g" src/sample/pgpool.conf.sample
 
     cd ${WORKDIR}
     #
@@ -241,6 +261,8 @@ get_system(){
 
 get_openjade_devel() {
     pushd /tmp
+    apt-get update
+    apt-get install sudo || true
     sudo apt-get -y install libosp-dev libperl4-corelibs-perl
     sudo apt -y install dh-buildinfo
     wget http://archive.ubuntu.com/ubuntu/pool/universe/o/openjade/openjade_1.4devel1-22.dsc http://archive.ubuntu.com/ubuntu/pool/universe/o/openjade/openjade_1.4devel1.orig.tar.gz http://archive.ubuntu.com/ubuntu/pool/universe/o/openjade/openjade_1.4devel1-22.diff.gz
@@ -266,17 +288,18 @@ install_deps() {
     CURPLACE=$(pwd)
     if [ "$OS" == "rpm" ]
     then
-       # yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+        yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
         percona-release enable ppg-${PG_RELEASE} testing
-        yum -y install git wget
+        yum -y install epel-release git wget libtool bison flex byacc
         PKGLIST="percona-postgresql${PG_VER}-devel"
         PKGLIST+=" clang-devel git clang llvm-devel rpmdevtools vim wget"
         PKGLIST+=" perl binutils gcc gcc-c++"
-        PKGLIST+=" clang-devel llvm-devel git rpm-build rpmdevtools wget gcc make autoconf"
+        PKGLIST+=" clang-devel llvm-devel git rpmdevtools wget gcc make autoconf"
         PKGLIST+=" jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel libxslt"
         
 	if [[ "${RHEL}" -eq 8 ]]; then
             dnf config-manager --set-enabled powertools
+            dnf config-manager --set-enabled ol${RHEL}_codeready_builder
         fi
         if [ $RHEL -eq 9 ]; then
 	   dnf config-manager --set-enabled ol${RHEL}_codeready_builder
@@ -303,7 +326,7 @@ install_deps() {
         done
     else
         apt-get update
-        DEBIAN_FRONTEND=noninteractive apt-get -y install lsb-release gnupg git wget
+        DEBIAN_FRONTEND=noninteractive apt-get -y install lsb-release gnupg git wget curl
 
         wget https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb && dpkg -i percona-release_latest.$(lsb_release -sc)_all.deb
         percona-release enable ppg-${PG_RELEASE} testing
@@ -577,13 +600,15 @@ OS_NAME=
 ARCH=
 OS=
 REVISION=0
-BRANCH="4_4_4"
+BRANCH="V4_5_0"
 INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REPO="https://git.postgresql.org/git/pgpool2.git"
-VERSION="4.4.4"
-PG_RELEASE=15.5
+VERSION="4.5.0"
+PG_RELEASE=15.6
+GIT_BUILD_REPO="https://github.com/percona/postgres-packaging.git"
+BUILD_BRANCH=${PG_RELEASE}
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 PG_VER=$(echo ${PG_RELEASE} | awk -F'.' '{print $1}')
 check_workdir

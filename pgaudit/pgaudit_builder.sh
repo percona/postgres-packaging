@@ -81,7 +81,7 @@ add_percona_yum_repo(){
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-15.5 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-15.5 testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -132,10 +132,10 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgaudit/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgaudit/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgaudit/all.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgaudit/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit/rules
     mv all.patch debian/patches/
     rm -rf debian/control*
     echo "all.patch" > debian/patches/series
@@ -147,7 +147,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -225,7 +225,7 @@ install_deps() {
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
         percona-release enable tools testing
-        percona-release enable ppg-15.5 testing
+        percona-release enable ppg-${PG_VERSION} testing
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
@@ -295,7 +295,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/pgaudit.spec rpmbuild/SPECS
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/15.5/pgaudit/all.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit/all.patch
     mv all.patch rpmbuild/SOURCES
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
@@ -477,6 +477,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.7.0'
 RELEASE='7'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+PG_VERSION=15.6
 
 check_workdir
 get_system

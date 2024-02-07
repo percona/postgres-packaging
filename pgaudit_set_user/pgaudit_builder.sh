@@ -84,7 +84,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-16.1 experimental
+    percona-release enable ppg-${PG_VERSION} experimental
     return
 }
 
@@ -93,7 +93,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-16.1 experimental
+    percona-release enable ppg-${PG_VERSION} experimental
     return
 }
 
@@ -138,14 +138,14 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pgaudit_set_user/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pgaudit_set_user/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pgaudit_set_user/copyright
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pgaudit_set_user/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit_set_user/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit_set_user/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit_set_user/copyright
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit_set_user/rules
     cd ../ 
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pgaudit_set_user/percona-pgaudit16_set_user.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit_set_user/percona-pgaudit16_set_user.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -220,7 +220,7 @@ install_deps() {
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
         percona-release enable tools experimental
-        percona-release enable ppg-16.1 experimental
+        percona-release enable ppg-${PG_VERSION} experimental
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
@@ -461,6 +461,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='4.0.1'
 RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+PG_VERSION=16.2
 
 check_workdir
 get_system

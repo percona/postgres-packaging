@@ -1,6 +1,6 @@
 %global sname   percona-ppg-server
 %global pgmajorversion 16
-%global version 1
+%global version 2
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
@@ -13,10 +13,10 @@ Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 Epoch:		1
 Requires:       percona-postgresql%{pgmajorversion}-server
-Requires:       percona-postgresql-common >= 16.1
+Requires:       percona-postgresql-common >= 16.2
 Requires:       percona-postgresql%{pgmajorversion}-contrib
 Requires:       percona-pg-stat-monitor%{pgmajorversion}
-Requires:       percona-pgaudit16 >= 16.1
+Requires:       percona-pgaudit16 >= 16.2
 Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 
@@ -28,7 +28,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 16.1-1
+* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 16.2-1
 - Update version for ppg-server meta-package
-* Wed Jul 20 2022 Kai Wagner <kai.wagner@percona.com> 16.1-1
+* Wed Jul 20 2022 Kai Wagner <kai.wagner@percona.com> 16.2-1
 - Initial build

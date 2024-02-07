@@ -80,11 +80,8 @@ add_percona_yum_repo(){
       #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-16.1 experimental
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -92,7 +89,7 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-16.1 experimental
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -133,10 +130,10 @@ get_sources(){
       git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pg_repack/Makefile.patch
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pg_repack/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pg_repack/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pg_repack/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/Makefile.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/control.in
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian
@@ -145,14 +142,14 @@ get_sources(){
     mv ../control.in ./
     cd ../
     echo 16 > debian/pgversions
-    echo 9 > debian/compat
+    echo 10 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pg_repack/pg_repack-pg16-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/pg_repack.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/pg_repack-pg16-makefile-pgxs.patch
     cd ../
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/16.1/pg_repack/make.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/make.patch
     patch -p0 < make.patch
     rm -f make.patch
     cd ${WORKDIR}
@@ -211,27 +208,29 @@ install_deps() {
             sleep 1
         done
         yum -y install epel-release
-        INSTALL_LIST="percona-postgresql16 bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql16-devel percona-postgresql16-server  rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
+        yum install -y "Development Tools"
+        INSTALL_LIST="percona-postgresql16 bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql16-devel percona-postgresql16-server  rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
         yum -y install ${INSTALL_LIST}
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
+	yum -y install epel-release
+	dnf module -y disable postgresql
+	dnf config-manager --enable ol${RHEL}_codeready_builder
         if [ x"$RHEL" = x8 ]; then
-        	INSTALL_LIST="percona-postgresql16 clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel"
+                INSTALL_LIST="percona-postgresql16 clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
         	yum -y install ${INSTALL_LIST}
         	yum -y install binutils gcc gcc-c++
 	else
-		yum -y install epel-release
-		dnf config-manager --set-enabled ol9_codeready_builder
-		dnf module -y disable postgresql
 		yum -y install percona-postgresql16-devel
-		yum -y install zlib-devel libzstd-devel readline-devel lz4-devel clang rpmdevtools git openssl-devel openssl-libs
+		yum -y install zlib-devel libzstd-devel readline-devel lz4-devel clang rpmdevtools git openssl-devel openssl-libs lz4-devel
 	fi
       fi
     else
+      apt-get update
+      apt-get -y install wget gnupg2 lsb-release curl
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
       add_percona_apt_repo
       percona-release enable tools experimental
       apt-get update || true
@@ -395,7 +394,7 @@ build_source_deb(){
     rm -rf changelog
     echo "percona-pg-repack (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com>  $(date -R)" >> changelog
 
     cd ../
     
@@ -471,16 +470,17 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="ver_1.4.8"
+BRANCH="ver_1.5.0"
 REPO="https://github.com/reorg/pg_repack.git"
 PRODUCT=percona-pg_repack
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.4.8'
-RELEASE='2'
+VERSION='1.5.0'
+RELEASE='1'
+PG_VERSION=16.2
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

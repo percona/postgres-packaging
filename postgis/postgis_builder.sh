@@ -79,7 +79,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-12.17 testing
+    percona-release enable ppg-${PPG_VERSION} testing
     return 
 }
 
@@ -91,9 +91,9 @@ get_sources(){
         return 0
     fi
     PRODUCT=percona-postgis
-    PPG_VERSION=12.17
-    echo "PRODUCT=${PRODUCT}" > percona-postgis.properties
     VERSION=${POSTGIS_VERSION}
+    echo "PRODUCT=${PRODUCT}" > percona-postgis.properties
+
     PRODUCT_FULL=${PRODUCT}-${VERSION}.${RELEASE}
     echo "PRODUCT_FULL=${PRODUCT_FULL}" >> percona-postgis.properties
     echo "VERSION=${POSTGIS_VERSION}" >> percona-postgis.properties
@@ -254,7 +254,7 @@ install_deps() {
               echo "waiting"
               sleep 1
           done
-          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj72-devel protobuf-c-devel pkg-config"
+          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal33-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj72-devel protobuf-c-devel pkg-config"
           yum -y install ${INSTALL_LIST}
           source /opt/rh/devtoolset-7/enable
           source /opt/rh/llvm-toolset-7/enable
@@ -263,7 +263,7 @@ install_deps() {
 	     dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
          yum -y install llvm-toolset llvm-devel clang
-         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff16-devel proj90-devel protobuf-c-devel pkg-config"
+         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all
@@ -286,18 +286,20 @@ install_deps() {
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release enable-only tools testing
-      percona-release enable-only ppg-12.17 testing
+      percona-release enable-only ppg-${PPG_VERSION} testing
       apt-get update
       if [ "x${DEBIAN}" = "xbionic" ]; then
-        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools dblatex docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-12 protobuf-c-compiler rdfind xsltproc"
+        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-12 protobuf-c-compiler rdfind xsltproc"
       else
-        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git vim wget dctrl-tools dblatex docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-12 protobuf-c-compiler rdfind xsltproc"
+        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-12 protobuf-c-compiler rdfind xsltproc"
       fi
  
        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"
        done
+       apt-get install -y dblatex || true
+
        if [ "x${DEBIAN}" = "xbionic" ]; then
           install_sfcgal
        fi
@@ -367,7 +369,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.4.pdf
+    wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.5.pdf
     #wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis33.spec rpmbuild/SPECS
@@ -564,8 +566,9 @@ PRODUCT=percona-postgis
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION=${POSTGIS_VERSION}
-RELEASE='4'
+RELEASE='5'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+PPG_VERSION=12.18
 
 check_workdir
 get_system

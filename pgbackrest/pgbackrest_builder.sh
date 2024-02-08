@@ -239,7 +239,7 @@ install_deps() {
       export DEBIAN=$(lsb_release -sc)
       add_percona_apt_repo
       percona-release enable tools testing
-      percona-release enable ppg-${BRANCH} testing
+      percona-release enable ppg-${PG_VERSION} testing
       apt-get update || true
       INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-14 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev meson"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do

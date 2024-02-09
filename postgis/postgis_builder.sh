@@ -261,6 +261,9 @@ install_deps() {
 	     yum config-manager --enable PowerTools AppStream BaseOS *epel
 	     dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+         dnf module remove llvm-toolset:rhel8
+         dnf module install llvm-toolset:ol8
+         dnf update
          yum -y install llvm-toolset llvm-devel clang
          INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql13-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}

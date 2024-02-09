@@ -262,7 +262,9 @@ install_deps() {
 	     dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
          if [ x"$RHEL" = x8 ]; then
-	         dnf module -y disable llvm-toolset || true
+             dnf module remove llvm-toolset:rhel8
+             dnf module install llvm-toolset:ol8
+             dnf update
              yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
              yum -y install $(echo "llvm-toolset-$(yum list llvm-toolset --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
 	         dnf module -y enable llvm-toolset || true

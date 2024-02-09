@@ -259,10 +259,12 @@ install_deps() {
           source /opt/rh/devtoolset-7/enable
           source /opt/rh/llvm-toolset-7/enable
       else
-	     yum config-manager --enable PowerTools AppStream BaseOS *epel
-	     dnf module -y disable postgresql
+	 yum config-manager --enable PowerTools AppStream BaseOS *epel
+	 dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+         dnf module -y disable llvm-toolset || true
          dnf module remove llvm-toolset:rhel8
+         dnf module reset llvm-toolset:ol8
          dnf module install llvm-toolset:ol8
          dnf update
          yum -y install llvm-toolset llvm-devel clang

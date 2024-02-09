@@ -262,16 +262,15 @@ install_deps() {
 	     dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
          if [ x"$RHEL" = x8 ]; then
+             dnf module -y disable llvm-toolset || true
              dnf module remove llvm-toolset:rhel8
+             dnf module reset llvm-toolset:ol8
              dnf module install llvm-toolset:ol8
              dnf update
-             yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
-             yum -y install $(echo "llvm-toolset-$(yum list llvm-toolset --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
-	         dnf module -y enable llvm-toolset || true
-             yum -y install $(echo "clang-$(yum list clang --showduplicates | grep 12 | grep -v metadata | awk '{print $2}'| head -n1)")
-	     else
+	     yum -y install llvm-toolset llvm-devel clang
+	 else
              yum -y install llvm-toolset llvm-devel clang
-	     fi
+	 fi
          INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++

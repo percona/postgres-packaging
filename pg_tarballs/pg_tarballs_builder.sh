@@ -103,9 +103,9 @@ export CGAL_VERSION=5.6
 export SFCGAL_VERSION=1.5.0
 
 export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
-export PGBOUNCER_VERSION=1.21.0
+export PGBOUNCER_VERSION=1.22.0
 export PGPOOL_VERSION=4.5.0
-export HAPROXY_VERSION=2.6
+export HAPROXY_VERSION=2.8
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
 export PGBOUNCER_PREFIX=/opt/percona-pgbouncer
@@ -116,6 +116,16 @@ export PATRONI_PREFIX=/opt/percona-patroni
 export HAPROXY_PREFIX=/opt/percona-haproxy
 
 CWD=$(pwd)
+
+PGAUDIT_BRANCH=REL_${PG_MAJOR_VERSION}_STABLE
+SETUSER_BRANCH="REL4_0_1"
+PG_REPACK_BRANCH="ver_1.5.0"
+WAL2JSON_BRANCH="wal2json_2_5"
+PG_STAT_MONITOR_BRANCH="main"
+PGBACKREST_BRANCH="release/2.50"
+PGBADGER_BRANCH="v12.4"
+PATRONI_BRANCH="v3.2.2"
+HAPROXY_BRANCH="v2.8.5"
 
 create_build_environment(){
 
@@ -769,8 +779,14 @@ build_pgaudit(){
         mkdir -p /source
         cd /source
         git clone https://github.com/pgaudit/pgaudit.git
+
         cd pgaudit
-        git checkout REL_${PG_MAJOR_VERSION}_STABLE
+        if [ ! -z "${PGAUDIT_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PGAUDIT_BRANCH}"
+        fi
 
         export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
         make USE_PGXS=1 -j4
@@ -786,6 +802,13 @@ build_pgaudit_set_user(){
         git clone https://github.com/pgaudit/set_user.git
         cd set_user
 
+        if [ ! -z "${SETUSER_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${SETUSER_BRANCH}"
+        fi
+
         export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
         make USE_PGXS=1 -j4
         make USE_PGXS=1 -j4 install
@@ -799,6 +822,13 @@ build_pgrepack(){
         cd /source
         git clone https://github.com/reorg/pg_repack.git
         cd pg_repack
+
+	if [ ! -z "${PG_REPACK_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PG_REPACK_BRANCH}"
+        fi
 
         export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
         make USE_PGXS=1 -j4
@@ -814,6 +844,13 @@ build_wal2json(){
         git clone https://github.com/eulerto/wal2json.git
         cd wal2json
 
+        if [ ! -z "${WAL2JSON_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${WAL2JSON_BRANCH}"
+        fi
+
         export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
         make USE_PGXS=1 -j4
         make USE_PGXS=1 -j4 install
@@ -827,6 +864,13 @@ build_pg_stat_monitor(){
         cd /source
         git clone https://github.com/percona/pg_stat_monitor.git
         cd pg_stat_monitor
+
+        if [ ! -z "${PG_STAT_MONITOR_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PG_STAT_MONITOR_BRANCH}"
+        fi
 
         export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
         make USE_PGXS=1 -j4
@@ -856,6 +900,14 @@ build_pgbackrest(){
 
         git clone https://github.com/pgbackrest/pgbackrest.git
         cd pgbackrest
+
+        if [ ! -z "${PGBACKREST_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PGBACKREST_BRANCH}"
+        fi
+
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
 
         pushd src
@@ -896,6 +948,13 @@ build_pgbadger(){
         git clone https://github.com/darold/pgbadger.git
         cd pgbadger
 
+        if [ ! -z "${PGBADGER_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PGBADGER_BRANCH}"
+        fi
+
         perl Makefile.PL INSTALLDIRS=vendor
         make -j4
 
@@ -921,6 +980,13 @@ build_patroni(){
         git clone https://github.com/zalando/patroni.git
         cd patroni
 
+        if [ ! -z "${PATRONI_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PATRONI_BRANCH}"
+        fi
+
         python3 setup.py build
         python3 setup.py install --root ${PATRONI_PREFIX} -O1 --skip-build
 
@@ -941,6 +1007,14 @@ build_haproxy(){
         cd /source
 
         git clone http://git.haproxy.org/git/haproxy-${HAPROXY_VERSION}.git
+        cd haproxy-${HAPROXY_VERSION}
+
+        if [ ! -z "${HAPROXY_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${HAPROXY_BRANCH}"
+        fi
 
         ARCH=$(uname -m)
 
@@ -949,8 +1023,6 @@ build_haproxy(){
         if [ "$ARCH" = "x86_64" ]; then
                 regparm_opts="USE_REGPARM=1"
         fi
-
-        cd haproxy-${HAPROXY_VERSION}
 
         CFLAGS+="-I${DEPENDENCY_LIBS_PATH}/include"
         export PCRE2_CONFIG=${DEPENDENCY_LIBS_PATH}/bin/pcre2-config

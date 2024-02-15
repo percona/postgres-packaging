@@ -74,11 +74,6 @@ check_workdir(){
 }
 
 add_percona_yum_repo(){
-    if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
-    then
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      #mv -f percona-dev.repo /etc/yum.repos.d/
-    fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
     mv percona-release.sh /usr/bin/percona-release
@@ -207,8 +202,6 @@ install_deps() {
       fi
       yum -y install wget
       add_percona_yum_repo
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql

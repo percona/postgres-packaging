@@ -76,7 +76,7 @@ check_workdir(){
 add_percona_yum_repo(){
     if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
     then
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
+      wget http://jenkins.percona.com/yum-repo/percona-dev.repo || true
       #mv -f percona-dev.repo /etc/yum.repos.d/
     fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -194,7 +194,7 @@ install_deps() {
 
     if [ "x$OS" = "xrpm" ]; then
         yum -y install wget
-        add_percona_yum_repo
+        #add_percona_yum_repo
         yum clean all
         yum install -y epel-release
         yum -y install centos-release-scl

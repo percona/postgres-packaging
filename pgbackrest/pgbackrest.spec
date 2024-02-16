@@ -1,4 +1,6 @@
 %global debug_package %{nil}
+%global pgmajorversion 16
+%global pginstdir /usr/pgsql-16
 
 Summary:        Reliable PostgreSQL Backup & Restore
 Name:           percona-pgbackrest
@@ -12,7 +14,7 @@ Source1:        pgbackrest.conf
 Source2:	pgbackrest-tmpfiles.d
 Source3:	pgbackrest.logrotate
 Source4:	pgbackrest.service
-BuildRequires:	openssl-devel zlib-devel postgresql%{pgmajorversion}-devel
+BuildRequires:	openssl-devel zlib-devel percona-postgresql%{pgmajorversion}-devel
 BuildRequires:	libzstd-devel libxml2-devel libyaml-devel libssh2-devel
 
 %if 0%{?fedora} >= 37 || 0%{?rhel} >= 8

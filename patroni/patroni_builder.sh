@@ -79,11 +79,6 @@ switch_to_vault_repo() {
 }
 
 add_percona_yum_repo(){
-    if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
-    then
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      #mv -f percona-dev.repo /etc/yum.repos.d/
-    fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} testing
@@ -224,8 +219,6 @@ install_deps() {
       fi
       yum -y install epel-release wget
       add_percona_yum_repo
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} -gt 7 ]; then
@@ -284,9 +277,6 @@ install_deps() {
         python2.7 get-pip.py
         rm -rf /usr/bin/python2
         ln -s /usr/bin/python2.7 /usr/bin/python2
-        wget https://jenkins.percona.com/downloads/dh-virtualenv_1.0-1_all.deb
-        DEBIAN_FRONTEND=noninteractive apt-get -y install ./dh-virtualenv_1.0-1_all.deb
-        rm -f dh-virtualenv_1.0-1_all.deb
         pip install --upgrade sphinx sphinx-rtd-theme
         pip install sphinxcontrib.apidoc
         pip install pysyncobj

@@ -201,7 +201,7 @@ install_deps() {
             sleep 1
         done
         yum -y install epel-release
-        yum install -y "Development Tools"
+        yum groupinstall -y "Development Tools"
         INSTALL_LIST="percona-postgresql16 bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql16-devel percona-postgresql16-server  rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
         yum -y install ${INSTALL_LIST}
         source /opt/rh/devtoolset-7/enable

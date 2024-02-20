@@ -188,7 +188,7 @@ install_deps() {
     if [ "x$OS" = "xrpm" ]; then
       RHEL=$(rpm --eval %rhel)
       yum -y install wget
-      add_percona_yum_repo
+      #add_percona_yum_repo
       yum clean all
 
       if [ ${RHEL} = 8 ]; then

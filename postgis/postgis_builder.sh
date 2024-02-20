@@ -241,7 +241,7 @@ install_deps() {
 
     if [ "x$OS" = "xrpm" ]; then
       yum -y install wget
-      add_percona_yum_repo
+      #add_percona_yum_repo
       yum clean all
       yum -y install epel-release
       RHEL=$(rpm --eval %rhel)

@@ -134,9 +134,9 @@ get_sources(){
         mv $file "percona-$file"
     done
     rm -f control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/compat
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_PACKAGING_BRANCH}/pgbackrest/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_PACKAGING_BRANCH}/pgbackrest/compat
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_PACKAGING_BRANCH}/pgbackrest/rules.patch
     patch -p0 < rules.patch
     rm rules.patch
     cd ../
@@ -146,8 +146,11 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_PACKAGING_BRANCH}/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_PACKAGING_BRANCH}/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_PACKAGING_BRANCH}/pgbackrest/pgbackrest-tmpfiles.d
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_PACKAGING_BRANCH}/pgbackrest/pgbackrest.logrotate
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_PACKAGING_BRANCH}/pgbackrest/pgbackrest.service
     cd ${WORKDIR}
     #
     source pgbackrest.properties
@@ -495,6 +498,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.50'
 RELEASE='1'
 PG_VERSION=16.2
+PG_PACKAGING_BRANCH=16.2_fix
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

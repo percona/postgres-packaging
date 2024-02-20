@@ -74,17 +74,12 @@ check_workdir(){
 }
 
 add_percona_yum_repo(){
-    if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
-    then
-        wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-        #mv -f percona-dev.repo /etc/yum.repos.d/
-    fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
     mv percona-release.sh /usr/bin/percona-release
     chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} experimental
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -93,7 +88,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} experimental
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -197,8 +192,6 @@ install_deps() {
     if [ "x$OS" = "xrpm" ]; then
         yum -y install wget
         add_percona_yum_repo
-        wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-        #mv -f percona-dev.repo /etc/yum.repos.d/
         yum clean all
         RHEL=$(rpm --eval %rhel)
         if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
@@ -227,8 +220,8 @@ install_deps() {
 	apt-get -y update || true
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
-        percona-release enable tools experimental
-        percona-release enable ppg-${PG_VERSION} experimental
+        percona-release enable tools testing
+        percona-release enable ppg-${PG_VERSION} testing
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}

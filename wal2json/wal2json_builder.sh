@@ -74,17 +74,12 @@ check_workdir(){
 }
 
 add_percona_yum_repo(){
-    if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
-    then
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      #mv -f percona-dev.repo /etc/yum.repos.d/
-    fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
     mv percona-release.sh /usr/bin/percona-release
     chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} experimental
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -93,7 +88,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} experimental
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -207,8 +202,6 @@ install_deps() {
       fi
       yum -y install wget
       add_percona_yum_repo
-      wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-      #mv -f percona-dev.repo /etc/yum.repos.d/
       yum clean all
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
@@ -473,8 +466,8 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=2
-DEB_RELEASE=2
+RPM_RELEASE=7
+DEB_RELEASE=7
 REVISION=0
 BRANCH="wal2json_2_5"
 REPO="https://github.com/eulerto/wal2json.git"
@@ -482,7 +475,7 @@ PRODUCT=percona-wal2json
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.5'
-RELEASE='2'
+RELEASE='7'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 PG_VERSION=16.2
 

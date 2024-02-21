@@ -208,10 +208,10 @@ install_deps() {
             yum -y install binutils gcc gcc-c++
         fi
     else
-        export DEBIAN=$(lsb_release -sc)
         export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
 	apt-get -y update || true
         apt-get -y install lsb-release wget gnupg2 curl
+        export DEBIAN=$(lsb_release -sc)
         add_percona_apt_repo
         percona-release enable tools testing
         percona-release enable ppg-${PG_VERSION} testing

@@ -227,9 +227,10 @@ install_deps() {
       yum -y install lz4 || true
 
     else
-      export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
+      apt-get update || true
+      apt-get -y install lsb-release wget gnupg2 curl
+      export DEBIAN=$(lsb_release -sc)
       add_percona_apt_repo
       apt-get update || true
       INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-16 percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config"

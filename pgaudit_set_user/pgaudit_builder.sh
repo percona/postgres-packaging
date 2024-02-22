@@ -74,11 +74,6 @@ check_workdir(){
 }
 
 add_percona_yum_repo(){
-    if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
-    then
-        wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-        #mv -f percona-dev.repo /etc/yum.repos.d/
-    fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} testing
@@ -189,8 +184,6 @@ install_deps() {
     if [ "x$OS" = "xrpm" ]; then
         yum -y install wget
         add_percona_yum_repo
-        wget http://jenkins.percona.com/yum-repo/percona-dev.repo
-        #mv -f percona-dev.repo /etc/yum.repos.d/
         yum clean all
         RHEL=$(rpm --eval %rhel)
         if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
@@ -199,20 +192,23 @@ install_deps() {
                 sleep 1
             done
             yum -y install epel-release
-            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql14-devel percona-postgresql14-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel"
+            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql14-devel percona-postgresql14-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel make"
             yum -y install ${INSTALL_LIST}
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
         else
+            yum -y install epel-release
+            dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+            dnf module disable postgresql
             INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql14-devel percona-postgresql14-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
             yum -y install ${INSTALL_LIST}
             yum -y install binutils gcc gcc-c++
         fi
     else
-        export DEBIAN=$(lsb_release -sc)
         export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
 	apt-get -y update || true
-        apt-get -y install gnupg2 curl
+        apt-get -y install lsb-release wget gnupg2 curl
+        export DEBIAN=$(lsb_release -sc)
         add_percona_apt_repo
         percona-release enable tools testing
         percona-release enable ppg-${PG_VERSION} testing

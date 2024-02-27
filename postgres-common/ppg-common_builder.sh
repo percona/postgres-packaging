@@ -133,7 +133,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
 	sudo chmod +x supported-versions
-        patch -p0 < maintscripts-functions.patch
+        git apply maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
         rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch
 	rm -rf changelog
@@ -148,8 +148,8 @@ get_sources(){
 	echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
 	sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
     cd ../
-    sudo chmod +x pgcommon.sh
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/pgcommon.sh
+    sudo chmod +x pgcommon.sh
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
@@ -208,14 +208,16 @@ install_deps() {
       yum clean all
       RHEL=$(rpm --eval %rhel)
       yum -y install epel-release
-      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmbuild rpmdevtools wget perl-podlators"
+      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmbuild rpmdevtools wget perl-podlators sudo make"
       yum -y install ${INSTALL_LIST}
     else
+      apt-get update || true
+      apt-get -y install lsb-release
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get -y install gnupg2
       apt-get update || true
-      INSTALL_LIST="git wget debhelper libreadline-dev lsb-release rename devscripts"
+      INSTALL_LIST="git wget debhelper libreadline-dev lsb-release rename devscripts sudo"
       until DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"

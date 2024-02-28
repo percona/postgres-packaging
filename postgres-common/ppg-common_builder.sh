@@ -196,7 +196,7 @@ install_deps() {
       yum clean all
       RHEL=$(rpm --eval %rhel)
       yum -y install epel-release
-      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmbuild rpmdevtools wget perl-podlators sudo make"
+      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmdevtools wget perl-podlators sudo make"
       yum -y install ${INSTALL_LIST}
     else
       apt-get update || true

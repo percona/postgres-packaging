@@ -142,7 +142,7 @@ get_sources(){
     mkdir rpm
     cd rpm
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/pg_repack-pg16-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/pg_repack-pg12-makefile-pgxs.patch
     cd ../
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/make.patch
     patch -p0 < make.patch

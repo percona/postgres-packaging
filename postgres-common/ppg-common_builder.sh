@@ -124,7 +124,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
 	sudo chmod +x supported-versions
-        git apply maintscripts-functions.patch
+        patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
         rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch
 	rm -rf changelog

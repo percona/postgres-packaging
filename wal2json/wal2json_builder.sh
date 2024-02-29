@@ -202,6 +202,7 @@ install_deps() {
       yum clean all
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
+          yum -y install epel-release
           dnf config-manager --set-enabled ol${RHEL}_codeready_builder
           dnf clean all
           rm -r /var/cache/dnf

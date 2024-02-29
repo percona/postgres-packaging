@@ -218,7 +218,7 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql13-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
+      INSTALL_LIST="pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel percona-postgresql13-devel git rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 

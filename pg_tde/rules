@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+
+include /usr/share/postgresql-common/pgxs_debian_control.mk
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	rm -rf build
+
+override_dh_auto_configure:
+	cp /usr/bin/shtool .
+	./configure --prefix=/usr
+	#dh_auto_configure
+
+override_dh_auto_build:
+	make USE_PGXS=1
+
+override_dh_auto_install:
+	make USE_PGXS=1 install
+
+override_dh_auto_test:
+
+override_dh_installdocs:
+	dh_installdocs --all README.*
+
+#override_dh_builddeb:
+#	dh_builddeb -- -Zgzip

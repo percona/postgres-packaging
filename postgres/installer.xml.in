@@ -1,0 +1,2084 @@
+<project>
+    <!-- Package details -->
+    <shortName>postgresql</shortName>
+    <fullName>Percona PostgreSQL</fullName>
+    <version>PG_MAJOR_VERSION</version>
+    <!-- These options are used on Windows -->
+    <productDisplayName>${product_fullname} ${product_version}</productDisplayName>
+    <productComments>The PostgreSQL RDBMS, version ${product_version}, packaged by Percona</productComments>
+    <productUrlHelpLink>http://www.postgresql.org/docs</productUrlHelpLink>
+    <productUrlInfoAbout>http://www.postgresql.org/</productUrlInfoAbout>
+    <startMenuGroupName>${branding}</startMenuGroupName>
+    <vendor>PostgreSQL Global Development Group</vendor>
+    <!-- Installer Size -->
+    <width>550</width>
+    <height>400</height>
+
+    <!-- Misc package options -->
+    <enableRollback>0</enableRollback>
+    <outputDirectory>percona-build</outputDirectory>
+    <requireInstallationByRootUser>${admin_rights}</requireInstallationByRootUser>
+    <unattendedModeUI>minimal</unattendedModeUI>
+    <saveRelativePaths>1</saveRelativePaths>
+    <defaultUnixGroup>daemon</defaultUnixGroup>
+    <defaultUnixOwner>root</defaultUnixOwner>
+    <installationLogFile>${system_temp_directory}/install-${product_shortname}.log</installationLogFile>
+    <uninstallationLogFile>${system_temp_directory}/uninstall-${product_shortname}.log</uninstallationLogFile>
+    <allowWindowResize>1</allowWindowResize>
+    <overrideGtkButtonText>1</overrideGtkButtonText>
+    <windowsSoftwareRegistryPrefix></windowsSoftwareRegistryPrefix>
+    <replaceLockedFilesOnReboot>1</replaceLockedFilesOnReboot>    
+    <!-- set if it is a native windows 64 bit-->
+    <windows64bitMode>@@WIN64MODE@@</windows64bitMode>
+    <!-- macOS 64bit App -->
+    <!--<osxPlatforms>osx-arm64 osx-x86_64</osxPlatforms>-->
+
+    <!-- Images -->
+    <leftImage>resources/pg-side.png</leftImage>
+    <splashImage>resources/pg-splash.png</splashImage>
+
+    <!-- Languages allowed? -->
+    <!-- <allowLanguageSelection>1</allowLanguageSelection> -->
+    <allowedLanguages>en</allowedLanguages>
+    <defaultLanguage>auto</defaultLanguage>
+
+    <!-- i18n files for the UI -->
+    <customLanguageFileList>
+        <language>
+            <code>en</code>
+            <encoding>iso8859-1</encoding>
+            <file>i18n/en.lng</file>
+        </language>
+    </customLanguageFileList>
+
+    <!-- Custom functions -->
+    <functionDefinitionList>
+        <actionDefinition name="createTempDir">
+            <actionList>
+                <globalVariables names="random_number"/>
+                <!-- Unix -->
+                <actionGroup>
+                    <actionList>
+                        <setInstallerVariable name="iteration" value="0"/>
+                        <!-- Create a random number to use unique filenames -->
+                        <!-- If the tenporary directory already exist, then generate the random number again. Repeat it for 10 times and then exit if the directory still exists -->
+                        <while>
+                            <actionList>
+                                <generateRandomValue length="10" variable="random_number"/>
+                                <runProgram>
+                                    <program>sh</program>
+                                    <programArguments>-c &lt;&lt;EOF '
+                                                umask 0077
+                                                mkdir "${system_temp_directory}/${dirPrefix}_${random_number}"
+                                                if [ $? -ne 0 ];
+                                                then
+                                                    exit 100
+                                                fi
+                                                '
+EOF
+                                    </programArguments>
+                                </runProgram>
+                                <break>
+                                    <ruleList>
+                                        <compareText logic="equals" text="0" value="${program_exit_code}"/>
+                                    </ruleList>
+                                </break>
+                                <actionGroup>
+                                    <actionList>
+                                        <throwError text="${msg(cannot.create.tmp.dir)}" abortOnError="1">
+                                            <ruleList>
+                                                <compareValues value1="${iteration}" logic="equals" value2="9"/>
+                                            </ruleList>
+                                        </throwError>
+                                    </actionList>
+                                </actionGroup>
+                                <mathExpression text="${iteration}+1" variable="iteration"/>
+                           </actionList>
+                           <conditionRuleList>
+                                <compareValues value1="${iteration}" logic="less" value2="10"/>
+                           </conditionRuleList>
+                        </while>
+                        <setInstallerVariable name="random_number" value="${random_number}"/>
+                    </actionList>
+                    <ruleList>
+                        <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </actionGroup>
+                <!-- Windows -->
+                <!-- BUG #16341 Windows: System account -->
+                <setInstallerVariableFromScriptOutput>
+                <exec>${env(WINDIR)}\System32\whoami</exec>
+                <execArgs></execArgs>
+                <name>whoami</name>
+                    <ruleList>
+                        <compareText logic="equals" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </setInstallerVariableFromScriptOutput>
+                <actionGroup>
+                    <actionList>
+                        <generateRandomValue length="10" variable="random_number"/>
+                        <createDirectory path="${system_temp_directory}/${dirPrefix}_${random_number}"/>
+                        <runProgram>
+                          <program>${env(WINDIR)}\System32\icacls</program>
+                          <programArguments>"${system_temp_directory}/${dirPrefix}_${random_number}" /inheritance:r</programArguments>
+                          <showMessageOnError>1</showMessageOnError>
+                          <progressText></progressText>
+                        </runProgram>
+                        <runProgram>
+                          <program>${env(WINDIR)}\System32\icacls</program>
+                          <programArguments>"${system_temp_directory}/${dirPrefix}_${random_number}" /T /Q /grant "${whoami}:(OI)(CI)F"</programArguments>
+                          <showMessageOnError>1</showMessageOnError>
+                        </runProgram>
+                        <setInstallerVariable name="random_number" value="${random_number}"/>
+                    </actionList>
+                    <ruleList>
+                         <compareText logic="equals" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </actionGroup>
+            </actionList>
+            <parameterList>
+                <stringParameter name="dirPrefix" allowEmptyValue="0"/>
+            </parameterList>
+        </actionDefinition>
+        <!-- copyAcl: To copy ACLs from one directory and apply to another -->
+        <actionDefinition name="copyAcl">
+            <parameterList>
+                <stringParameter name="sourceDir" allowEmptyValue="0" />
+                <stringParameter name="destDir" allowEmptyValue="0" />
+            </parameterList>
+            <actionList>
+            <runProgram>
+                <program>${env(WINDIR)}\System32\icacls</program>
+                <programArguments>. /save "${system_temp_directory}/pg_installer_${random_number}/aclfile"</programArguments>
+                <progressText></progressText>
+                <workingDirectory>${sourceDir}</workingDirectory>
+            </runProgram>
+            <copyFile origin="${system_temp_directory}/pg_installer_${random_number}/aclfile" destination="${destDir}"/>
+            <!-- <deleteFile path="${sourceDir}/aclfile"/> -->
+            <runProgram>
+                <program>${env(WINDIR)}\System32\icacls</program>
+                <programArguments>. /restore "${system_temp_directory}/pg_installer_${random_number}/aclfile"</programArguments>
+                <progressText></progressText>
+                <workingDirectory>${destDir}</workingDirectory>
+            </runProgram>
+            <deleteFile path="${destDir}/aclfile"/>
+            <deleteFile path="${system_temp_directory}/pg_installer_${random_number}/aclfile"/>
+            </actionList>
+        </actionDefinition>
+        <actionDefinition name="validateInstallDir">
+            <parameterList>
+                <stringParameter name="installdir" allowEmptyValue="0" />
+            </parameterList>
+            <actionList>
+
+                <throwError text="${msg(error.install.directory.invalid)}">
+                    <ruleList>
+                        <regExMatch>
+                            <text>${installdir}</text>
+                            <logic>does_not_match</logic>
+                            <pattern>^([a-zA-Z]:)\\([0-9a-zA-Z_\\\s\.\-\(\)]*)$</pattern>
+                        </regExMatch>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </throwError>
+
+                <!-- WIN: if the installation directory is non-default and outside program files,
+                     exists and non-empty, then error -->
+                <throwError text="${msg(error.install.directory.nondefault)}">
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="equals" value="windows"/>
+                        <compareText text="${installdir}" logic="does_not_contain" value="${windows_folder_program_files}"/>
+                        <fileTest condition="exists" path="${installdir}"/>
+                        <fileTest condition="is_directory" path="${installdir}"/>
+                        <fileTest condition="is_not_empty" path="${installdir}"/>
+                    </ruleList>
+                </throwError>
+
+                <!-- WIN: if the installation directory is non-default and outside program files,
+                     exists and is empty then remove the directory  -->
+                <actionGroup>
+                    <actionList>
+                        <logMessage>
+                            <text>${msg(info.install.directory.nondefault)}</text>
+                        </logMessage>
+                        <deleteFile path="${installdir}"/>
+                    </actionList>
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="equals" value="windows"/>
+                        <compareText text="${installdir}" logic="does_not_contain" value="${windows_folder_program_files}"/>
+                        <fileTest condition="exists" path="${installdir}"/>
+                        <fileTest condition="is_directory" path="${installdir}"/>
+                        <fileTest condition="is_empty" path="${installdir}"/>
+                    </ruleList>
+                </actionGroup>
+
+                <!-- WIN: Create $installdir and copy the ACL from Program Files which is assumed
+                     to have the safe ACLs -->
+                <actionGroup>
+                    <actionList>
+                        <createDirectory path="${installdir}"
+                                         abortOnError="0"
+                                         showMessageOnError="1"
+                                         customErrorMessage="${msg(error.install.directory.not.writable)}">
+                            <onErrorActionList>
+                                <setInstallerVariable name="next_page" value="installdir"/>
+                            </onErrorActionList>
+                        </createDirectory>
+                        <copyAcl sourceDir="${windows_folder_program_files}" destDir="${installdir}"/>
+                    </actionList>
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="equals" value="windows"/>
+                        <compareText text="${installdir}" logic="does_not_contain" value="${windows_folder_program_files}"/>
+                        <fileTest path="${installdir}" condition="not_exists"/>
+                    </ruleList>
+                </actionGroup>
+
+                <!-- WIN: if the installation directory is non-default and outside program files,
+                     exists and is still non-empty then error out as hostile user may have created
+                     a file after createDirectory and before copyAcl is called -->
+                <throwError text="${msg(error.install.directory.nondefault)}">
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="equals" value="windows"/>
+                        <compareText text="${installdir}" logic="does_not_contain" value="${windows_folder_program_files}"/>
+                        <fileTest condition="exists" path="${installdir}"/>
+                        <fileTest condition="is_directory" path="${installdir}"/>
+                        <fileTest condition="is_not_empty" path="${installdir}"/>
+                    </ruleList>
+                </throwError>
+            </actionList>
+        </actionDefinition>
+    </functionDefinitionList>
+
+    <!-- Prebuild Actons-->
+    <preBuildActionList>
+        <setInstallerVariable name="originalplatform" value="${platform_name}"/>
+		<setInstallerVariable name="project.installerFilename" value="percona-postgresql-PG_PACKAGE_VERSION-windows-installer.exe">
+            <ruleList>
+                <compareText logic="equals" text="${platform_name}" value="windows"/>
+            </ruleList>
+        </setInstallerVariable>
+		
+    </preBuildActionList>
+
+    <preShowHelpActionList>
+        <!-- Set the default installation directory -->
+        <setInstallerVariable>
+            <name>default_installdir</name>
+            <persist>1</persist>
+            <value>${platform_install_prefix}\Percona\PostgreSQL\${product_version}</value>
+            <ruleList>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${platform_name}</text>
+                    <value>windows</value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+
+        <setInstallerVariable name="default_datadir" value="${default_installdir}\data" >
+            <ruleList>
+                <compareText logic="equals" text="${platform_name}" value="windows"/>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- Get a default port number - ideally 5432 -->
+        <getFreePort>
+            <variable>defaultport</variable>
+            <initialPort>5432</initialPort>
+            <finalPort>65535</finalPort>
+            <ruleList>
+                <isTrue value="${installer_is_root_install}"/>
+            </ruleList>
+        </getFreePort>
+
+        <!-- Set the default port value for non-root user -->   
+        <setInstallerVariable name="defaultport" value="5432" >
+            <ruleList>
+                <isFalse value="${installer_is_root_install}"/>
+            </ruleList>
+        </setInstallerVariable> 
+
+        <!-- Set the default password, to be used only in unnattended mode -->
+        <setInstallerVariable>
+            <name>defaultpassword</name>
+            <value>postgres</value>
+            <ruleList>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${installer_ui}</text>
+                    <value>unattended</value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+        <setInstallerVariable>
+            <name>defaultpassword</name>
+            <value></value>
+            <ruleList>
+                <compareText>
+                    <logic>does_not_equal</logic>
+                    <text>${installer_ui}</text>
+                    <value>unattended</value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+    </preShowHelpActionList>
+
+    <!-- Initialisation actions -->
+    <initializationActionList>
+        <setInstallerVariable name="win64_platform" value="0"/>
+        <setInstallerVariable name="win64_platform" value="1">
+            <ruleList>
+                <platformTest type="windows-x64"/>
+            </ruleList>
+        </setInstallerVariable>
+        <!-- In case of 32 bit installation on win64 append '-x64' in the service name-->
+        <setInstallerVariable name="service_suffix" persist="1" value=""/>
+        <setInstallerVariable name="service_suffix" persist="1" value="-x64">
+            <ruleList>
+                <isTrue value="${win64_platform}"/>
+                <compareValues value1="@@WINDIR@@" value2="windows-x64" logic="equals"/>
+            </ruleList>
+        </setInstallerVariable>
+
+        <setInstallerVariable name="project.parameter(create_shortcuts).ask" value="0"/>
+        <setInstallerVariable name="project.parameter(install_runtimes).ask" value="0"/>
+        <setInstallerVariable name="project.parameter(enable_aclcheck).ask" value="0"/>
+        <setInstallerVariable name="project.parameter(superaccount).ask" value="0" />
+        <setInstallerVariable name="project.parameter(serviceaccount).ask" value="0" />
+        <setInstallerVariable name="project.parameter(servicepassword).ask" value="0" />
+        <setInstallerVariable name="project.parameter(servicename).ask" value="0" />
+        <setInstallerVariable name="project.parameter(extract_mode).ask" value="0" />
+
+        <throwError customErrorMessage="${msg(platform.not.match64)}" text="Unknown Error">
+            <ruleList>
+                <compareValues value1="@@WINDIR@@" value2="windows-x64" logic="equals"/>
+                <isFalse value="${win64_platform}"/>
+            </ruleList>
+        </throwError>
+
+        <setInstallerVariable name="create_shortcuts" value="1" persist="1"/>
+        <setInstallerVariable name="iShortcut" value="" />
+
+        <!--<setInstallerVariable name="iDisableStackBuilder" value="0" />-->
+
+        <!-- PostgreSQL superuser account -->
+        <setInstallerVariable name ="superaccount" value="" />
+        <!-- OS Account to own postgres process -->
+        <setInstallerVariable name ="serviceaccount" value="" />
+        <setInstallerVariable name ="servicepassword" value="" />
+        <setInstallerVariable name="servicename" value="" />
+
+        <!-- Upgrading? -->
+        <setInstallerVariable>
+            <name>IsUpgrade</name>
+            <value>0</value>
+        </setInstallerVariable>
+
+        <!-- Set the uninstaller name -->
+        <setInstallerVariable>
+            <name>uninstallerName</name>
+            <persist>1</persist>
+            <value>uninstall-percona-postgresql</value>
+        </setInstallerVariable>
+
+        <!-- Set the default installation directory -->
+        <setInstallerVariable>
+            <name>default_installdir</name>
+            <persist>1</persist>
+            <value>${platform_install_prefix}\Percona\PostgreSQL\${product_version}</value>
+            <ruleList>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${platform_name}</text>
+                    <value>windows</value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+
+        <setInstallerVariable name="default_datadir" value="" />
+
+        <setInstallerVariable name="default_datadir" value="${default_installdir}\data" >
+            <ruleList>
+                <compareText logic="equals" text="${platform_name}" value="windows"/>
+                <compareText logic="equals" text="${installer_ui}" value="unattended"/>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- Get a default port number - ideally 5432 -->
+        <getFreePort>
+            <variable>defaultport</variable>
+            <initialPort>5432</initialPort>
+            <finalPort>65535</finalPort>
+            <ruleList>
+                <isTrue value="${installer_is_root_install}"/>
+            </ruleList>
+        </getFreePort>
+
+        <!-- Set the default password, to be used only in unnattended mode -->
+        <setInstallerVariable>
+            <name>defaultpassword</name>
+            <value>postgres</value>
+            <ruleList>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${installer_ui}</text>
+                    <value>unattended</value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+        <setInstallerVariable>
+            <name>defaultpassword</name>
+            <value></value>
+            <ruleList>
+                <compareText>
+                    <logic>does_not_equal</logic>
+                    <text>${installer_ui}</text>
+                    <value>unattended</value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- Catalog version -->
+        <setInstallerVariable>
+            <name>CatalogVersion</name>
+            <value>PG_CATALOG_VERSION</value>
+        </setInstallerVariable>
+
+        <!-- pg_control version number -->
+        <setInstallerVariable name="PgControlVersion" value="PG_CONTROL_VERSION"/>
+
+        <!-- Date/Time Setting -->
+        <setInstallerVariable>
+            <name>DateTimeSetting</name>
+            <value>@@PG_DATETIME_SETTING@@</value>
+            <ruleList>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${platform_name}</text>
+                    <value>windows</value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+        <setInstallerVariable name="server_installation_done" value="0" persist="1"/>
+
+        <setInstallerVariable name="slash" persist="1" value="\">
+            <ruleList>
+                <compareText logic="equals" text="${platform_name}" value="windows"/>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- Set variable for upgrade screen test -->
+        <setInstallerVariable name="test_filename" value="postgres"/>
+        <setInstallerVariable name="test_filename" value="postgres.exe">
+            <ruleList>
+                <compareText logic="equals" text="${platform_name}" value="windows"/>
+            </ruleList>
+        </setInstallerVariable>
+    </initializationActionList>
+
+    <installationAbortedActionList>
+        <deleteFile path="${system_temp_directory}/percona-pg_installer_${random_number}" abortOnError="0" showMessageOnError="0">
+            <ruleList>
+                <fileTest path="${system_temp_directory}/percona-pg_installer_${random_number}" condition="exists"/>
+            </ruleList>
+        </deleteFile>
+        <actionGroup>
+            <actionList>
+             <actionGroup>
+                 <actionList>
+                 <!-- WINDOWS: Unregister the event message DLL -->
+                 <registryDelete>
+                     <key>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\Application\PerconaPostgreSQL</key>
+                 </registryDelete>
+
+                 <registryDelete>
+                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                 </registryDelete>
+
+                <registryDelete>
+                    <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Services\postgresql${service_suffix}-${product_version}</key>
+                </registryDelete>
+              </actionList>
+              <ruleList>
+                  <compareText>
+                      <logic>equals</logic>
+                      <text>${platform_name}</text>
+                      <value>windows</value>
+                 </compareText>
+              </ruleList>
+            </actionGroup>
+         </actionList>
+         <ruleList>
+             <isFalse value="${IsUpgrade}"/>
+             <isFalse value="${extract_mode}"/>
+         </ruleList>
+       </actionGroup>
+    </installationAbortedActionList>
+
+
+    <!-- Preuninstallation actions -->
+    <preUninstallationActionList>
+        <createTempDir dirPrefix="pg_installer"/>
+        <!-- Abort uninstallation if not super-user/Administrator -->
+        <actionGroup>
+            <actionList>
+                <showWarning text="${msg(Installer.Warning.UninstallerAdministratorPrivileges)}"/>
+                <exit/>
+            </actionList>
+            <ruleList>
+                <isFalse value="${installer_is_root_install}"/>
+                <compareText logic="equals" text="${platform_name}" value="windows"/>
+            </ruleList>
+        </actionGroup>
+    </preUninstallationActionList>
+
+    <!-- Post-uninstall actions -->
+    <postUninstallationActionList>
+          <actionGroup>
+              <actionList>
+                  <registryGet>
+                      <name>Data Directory</name>
+                      <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                      <variable>server_data_dir</variable>
+                  </registryGet>
+              </actionList>
+              <ruleList>
+                  <compareText logic="equals" text="${platform_name}" value="windows"/>
+              </ruleList>
+          </actionGroup>
+
+        <createTempDir dirPrefix="pg_installer"/>
+        <!-- Delete the temp scripts directory -->
+        <deleteFile>
+            <path>${system_temp_directory}/pg_installer_${random_number}</path>
+            <abortOnError>0</abortOnError>
+            <showMessageOnError>0</showMessageOnError>
+        </deleteFile>
+
+        <showWarning>
+            <text>${msg(info.datadirectory.user.kept)}</text>
+            <ruleList>
+                <compareText text="${serviceaccount}" logic="does_not_equal" value="NT AUTHORITY\NetworkService" />
+                <isTrue  value="${component(server).selected}"/>
+            </ruleList>
+        </showWarning>
+        <showWarning>
+            <text>${msg(info.datadirectory.kept)}</text>
+            <ruleList>
+                <compareText text="${platform_name}" logic="equals" value="windows" />
+                <compareText text="${serviceaccount}" logic="equals" value="NT AUTHORITY\NetworkService" />
+                <isTrue  value="${component(server).selected}"/>
+            </ruleList>
+        </showWarning>
+        <deleteFile path="${installdir}${slash}installation_summary.log">
+            <ruleList>
+                <!--<compareText text="${clt_version}" logic="equals" value=""/>-->
+                <compareText text="${server_data_dir}" logic="equals" value=""/>
+            </ruleList>
+        </deleteFile>
+        <actionGroup>
+            <actionList>
+                <registryDelete>
+                    <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                 </registryDelete>
+            </actionList>
+            <ruleList>
+                <!--<compareText text="${clt_version}" logic="equals" value=""/>-->
+                <compareText text="${server_data_dir}" logic="equals" value=""/>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+         </actionGroup>
+    </postUninstallationActionList>
+
+    <readyToInstallActionList>
+        <setInstallerVariable name="branding" value="" persist="1">
+            <ruleList>
+                <isTrue value="${extract_mode}"/>
+            </ruleList>
+        </setInstallerVariable>
+        <setInstallerVariable name="create_shortcuts" value="0" persist="1">
+            <ruleList>
+                <isTrue value="${extract_mode}"/>
+            </ruleList>
+        </setInstallerVariable>
+
+    </readyToInstallActionList>
+
+    <preInstallationActionList>
+        <createTempDir dirPrefix="pg_installer"/>
+
+        <!-- prerun_check script -->
+        <unpackFile>
+            <component>default</component>
+            <destination>${system_temp_directory}/pg_installer_${random_number}</destination>
+            <folder>defaultwindows_x64</folder>
+            <origin>prerun_checks.vbs</origin>
+            <customErrorMessage>${msg(error.writing.temp)}</customErrorMessage>
+            <ruleList>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${platform_name}</text>
+                    <value>windows</value>
+                </compareText>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+        </unpackFile>
+
+         <actionGroup>
+            <actionList>
+                <runProgram>
+                <program>${env(WINDIR)}\System32\cscript</program>
+                <programArguments>//NoLogo "${system_temp_directory}\pg_installer_${random_number}\prerun_checks.vbs"</programArguments>
+                <abortOnError>0</abortOnError>
+                <showMessageOnError>0</showMessageOnError>
+                    <ruleList>
+                        <compareText logic="equals" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </runProgram>
+                <throwError>
+                    <text>${msg(prerunscript.command.line.error)}</text>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>1</text>
+                            <value>${program_exit_code}</value>
+                        </compareText>
+                    </ruleList>
+                </throwError>
+                <throwError>
+                    <text>${msg(prerunscript.command.line.execute.error)}</text>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>2</text>
+                            <value>${program_exit_code}</value>
+                        </compareText>
+                    </ruleList>
+                </throwError>
+            </actionList>
+            <ruleList>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+        </actionGroup>
+        <actionGroup>
+            <actionList>
+                <!-- Do not create shortcuts, if extract mode is enabled -->
+                <setInstallerVariable name="create_shortcuts" value="0"/>
+                <!-- Do not create uninstaller in case of extract-only mode -->
+                <setInstallerVariable name="createUninstaller" value="0"/>
+                <setInstallerVariable name="iBranding" value=""/>
+                <componentSelection select="extractonly"/>
+            </actionList>
+            <ruleList>
+                <isTrue value="${extract_mode}"/>
+            </ruleList>
+        </actionGroup>
+        <setInstallerVariable name="branding" value="">
+            <ruleList>
+                <isFalse value="${create_shortcuts}"/>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- WIN: Get existing directories & branding -->
+        <actionGroup>
+            <actionList>
+                <!-- Get the existing installation directory. -->
+                <registryGet>
+                    <name>Base Directory</name>
+                    <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                    <variable>iBaseDirectory</variable>
+                </registryGet>
+
+                <!-- Get the branding -->
+                <registryGet>
+                    <name>Branding</name>
+                    <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                    <variable>iBranding</variable>
+                </registryGet>
+
+                <!-- Get the version installed. We use this to figure out if we have a pre-branding installation -->
+                <registryGet>
+                    <name>Version</name>
+                    <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                    <variable>brandingVer</variable>
+                </registryGet>
+
+                <!-- Check whether menus were created, if its a re-install/upgrade -->
+                <registryGet>
+                    <name>Shortcuts</name>
+                    <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                    <variable>iShortcut</variable>
+                </registryGet>
+
+           </actionList>
+           <ruleList>
+               <compareText>
+                   <logic>equals</logic>
+                   <text>${platform_name}</text>
+                   <value>windows</value>
+               </compareText>
+               <isFalse value="${extract_mode}"/>
+           </ruleList>
+        </actionGroup>
+
+        <!-- If there appears to be an existing installation, with no Branding value. -->
+        <!-- force the default value. Otherwise, set the branding to whatever we read, -->
+        <!-- or, set the default -->
+
+        <!-- In case of 32 bit installation on win64 append (x86) in the branding-->
+        <setInstallerVariable name="branding_suffix" value=""/>
+        <setInstallerVariable name="branding_suffix" value=" (x86)">
+            <ruleList>
+                <isTrue value="${win64_platform}"/>
+                <compareValues value1="@@WINDIR@@" value2="windows-x64" logic="does_not_equal"/>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- In case of 32 bit installer being run on 64 bit machine, change display name to
+                     have suffix x86 for example in case of add or remove programs menu -->
+        <setInstallerVariable name="project.productDisplayName" value="${product_fullname} ${product_version} ${branding_suffix}"/>
+
+        <!-- Existing, old install (version, but no branding) -->
+        <setInstallerVariable>
+            <name>branding</name>
+            <persist>0</persist>
+            <value>Percona PostgreSQL ${product_version}${branding_suffix}</value>
+            <ruleList>
+                <isTrue value="${create_shortcuts}"/>
+                <isFalse value="${extract_mode}"/>
+                <compareText>
+                    <logic>does_not_equal</logic>
+                    <text>${brandingVer}</text>
+                    <value></value>
+                </compareText>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${iBranding}</text>
+                    <value></value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- Existing install, with branding -->
+        <setInstallerVariable>
+            <name>branding</name>
+            <persist>0</persist>
+            <value>${iBranding}</value>
+            <ruleList>
+                <isTrue value="${create_shortcuts}"/>
+                <isFalse value="${extract_mode}"/>
+                <compareText>
+                    <logic>does_not_equal</logic>
+                    <text>${iBranding}</text>
+                    <value></value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- New install, nothing set on the command line -->
+        <setInstallerVariable>
+            <name>branding</name>
+            <persist>0</persist>
+            <value>Percona PostgreSQL ${product_version}${branding_suffix}</value>
+            <ruleList>
+                <isTrue value="${create_shortcuts}"/>
+                <isFalse value="${extract_mode}"/>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${branding}</text>
+                    <value></value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+
+        <!-- Debugging -->
+        <logMessage>
+            <text>Using branding: ${branding}</text>
+        </logMessage>
+
+        <actionGroup>
+            <actionList>
+                <throwError>
+                    <text>${msg(no.component.selected.error)}</text>
+                    <ruleList>
+                        <componentTest name="server" logic="not_selected"/>
+                        <!--<componentTest name="commandlinetools" logic="not_selected"/>-->
+                    </ruleList>
+                </throwError>
+            </actionList>
+            <ruleList>
+                <isFalse value="${server_installation_done}"/>
+                <!--<isFalse value="${commandlinetools_installation_done}"/>-->
+                <compareText text="${installer_interactivity}" logic="does_not_equal" value="normal"/>
+            </ruleList>
+        </actionGroup>
+        <actionGroup>
+            <actionList>
+                <!-- Abort installation if not super-user and not running in extract-only mode-->
+                <!--<throwError text="${msg(Installer.Warning.RootPrivileges)}">
+                    <ruleList>
+                        <isFalse value="${installer_is_root_install}"/>
+                        <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </throwError>-->
+                <throwError text="${msg(Installer.Warning.AdministratorPrivileges)}">
+                    <ruleList>
+                        <isFalse value="${installer_is_root_install}"/>
+                        <compareText logic="equals" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </throwError>
+            </actionList>
+            <ruleList>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+        </actionGroup>
+
+        <actionGroup>
+            <actionList>
+                <!-- Do not allow component-selection in extract-only mode -->
+                <setInstallerVariable name="allowComponentSelection" value="0"/>
+                <!-- Do not create uninstaller in case of extract-only mode -->
+                <setInstallerVariable name="createUninstaller" value="0" persist="1"/>
+                <setInstallerVariable name="project.startMenuGroupName" value=""/>
+                <componentSelection select="extractonly"/>
+            </actionList>
+            <ruleList>
+                <isTrue value="${extract_mode}"/>
+            </ruleList>
+        </actionGroup>
+        <actionGroup>
+            <actionList>
+                <actionGroup>
+                    <actionList>
+                        <registryGet>
+                            <name>Data Directory</name>
+                            <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                            <variable>server_data_dir</variable>
+                        </registryGet>
+                    </actionList>
+                    <ruleList>
+                        <compareText logic="equals" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </actionGroup>
+                <actionGroup>
+                    <actionList>
+                        <componentSelection select="server"/>
+                        <setInstallerVariable name="component(server).canBeEdited" value="0"/>
+                    </actionList>
+                    <ruleList>
+                        <compareText text="${server_data_dir}" logic="does_not_equal" value=""/>
+                    </ruleList>
+                </actionGroup>
+            </actionList>
+            <ruleList>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+        </actionGroup>
+    </preInstallationActionList>
+
+    <postInstallationActionList>
+    <!-- Remove the pg_log directory in upgrademode -->
+        <actionGroup>
+           <actionList>
+               <deleteFile path="${installdir}/data/pg_log">
+                  <ruleList>
+                     <fileExists path="${installdir}/data/pg_log"/>
+                  </ruleList>
+               </deleteFile>
+           </actionList>
+        </actionGroup>
+        <actionGroup>
+            <actionList>
+            <!-- Log server description -->
+            <logMessage>
+                <text>Write the server description to the registry...</text>
+            </logMessage>
+            <registrySet>
+                <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Services\postgresql${service_suffix}-${product_version}</key>
+                <name>Display Name</name>
+                <value>${branding}</value>
+                <ruleList>
+			<compareText logic="equals" text="${platform_name}" value="windows"/>
+                </ruleList>
+            </registrySet>
+
+                <!-- Branding info -->
+                <logMessage>
+                    <text>Write the server branding to the registry...</text>
+                </logMessage>
+                <registrySet>
+                    <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
+                    <name>Branding</name>
+                    <value>${branding}</value>
+                    <ruleList>
+                        <compareText logic="equals" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </registrySet>
+             </actionList>
+             <ruleList>
+		<isFalse value="${extract_mode}"/>
+             </ruleList>
+           </actionGroup>
+        <!-- Allows individual components to be uninstalled -->
+        <setInstallerVariable name="project.allowAddRemoveComponents" value="1"/>
+        <setInstallerVariable name="component(server).canBeEdited" value="1"/>
+        <actionGroup>
+            <actionList>
+                <actionGroup>
+                    <actionList>
+                        <!-- set custom summary variables -->
+                        <!--<setInstallerVariable name="cltsummary" value=""/>-->
+                        <setInstallerVariable name="dbsummary" value=""/>
+                        <setInstallerVariable name="dbsummary" value="${msg(summary.server.installation.directory)}: ${installdir}&#10;${msg(summary.data.directory)}: ${datadir}&#10;${msg(summary.database.port)}: ${serverport}&#10;${msg(summary.database.superuser)}: ${superaccount}&#10;${msg(summary.serviceaccount)}: ${serviceaccount}&#10;${msg(summary.databaseservice)}: ${servicename}&#10;">
+                            <ruleList>
+                                <isTrue value="${component(server).selected}"/>
+                                <isFalse value="${IsUpgrade}"/>
+                            </ruleList>
+                        </setInstallerVariable>
+                        <setInstallerVariable name="dbsummary" value="${msg(summary.server.installation.directory)}: ${installdir}&#10;${msg(summary.data.directory)}: ${datadir}&#10;${msg(summary.database.port)}: ${serverport}&#10;${msg(summary.database.superuser)}: ${superaccount}&#10;${msg(summary.serviceaccount)}: ${serviceaccount}&#10;${msg(summary.databaseservice)}: ${servicename}&#10;">
+                            <ruleList>
+                                <isTrue value="${component(server).selected}"/>
+                                <isTrue value="${IsUpgrade}"/>
+                            </ruleList>
+                        </setInstallerVariable>
+                        <!--<setInstallerVariable name="cltsummary" value="${msg(summary.clt.installation.directory)}: ${installdir}&#10;">
+                            <ruleList>
+                                <isTrue value="${component(commandlinetools).selected}"/>
+                            </ruleList>
+                        </setInstallerVariable>-->
+
+                        <touchFile path="${installdir}${slash}installation_summary.log"/>
+                        <createTimeStamp format="%Y-%m-%d(YYYY-MM-DD) - %H:%M:%S(HH:MM:SS)" variable="timestamp"/>
+                        <addTextToFile file="${installdir}${slash}installation_summary.log" insertAt="end">
+                            <text>
+${msg(summary.installation.directory)}: ${installdir}
+${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
+===== Installation completed at: ${timestamp} =====
+                            </text>
+                            <ruleList>
+                               <fileTest path="${installdir}${slash}installation_summary.log" condition="exists" />
+                           </ruleList>
+                        </addTextToFile>
+                    </actionList>
+                </actionGroup>
+            </actionList>
+            <ruleList>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+        </actionGroup>
+    </postInstallationActionList>
+
+    <!-- Components. Most components will be separate packages, so expect just one entry here most of the time -->
+    <allowComponentSelection>0</allowComponentSelection>
+    <componentList>
+        <component>
+            <name>default</name>
+            <description>Default Component</description>
+            <canBeEdited>0</canBeEdited>
+            <selected>1</selected>
+            <show>0</show>
+            <folderList>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}/installer</destination>
+                    <name>defaultwindows_x64</name>
+                    <platforms>windows</platforms>
+                    <distributionFileList>
+                        <distributionDirectory>
+                            <origin>pg_staging/@@WINDIR@@/server/installer/prerun_checks.vbs</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>pg_staging/@@WINDIR@@/server/installer/vcredist_x64.exe</origin>
+                        </distributionDirectory>
+                    </distributionFileList>
+                    <shouldPackRuleList>
+                      <compareValues value1="@@WINDIR@@" value2="windows-x64" logic="equals"/>
+                    </shouldPackRuleList>
+                </folder>
+            </folderList>
+
+            <componentSelectionValidationActionList>
+                <actionGroup>
+                    <actionList>
+                        <throwError>
+                            <text>${msg(no.component.selected.error)}</text>
+                            <ruleList>
+                                <componentTest name="server" logic="not_selected"/>
+                                <!--<componentTest name="commandlinetools" logic="not_selected"/>-->
+                            </ruleList>
+                        </throwError>
+                    </actionList>
+                    <ruleList>
+                        <isFalse value="${server_installation_done}"/>
+                        <!--<isFalse value="${commandlinetools_installation_done}"/>-->
+                    </ruleList>
+                </actionGroup>
+            </componentSelectionValidationActionList>
+        </component>
+        <include file="pgserver-@@PLATFORM@@.xml"/>
+        <!--<include file="commandlinetools-@@PLATFORM@@.xml"/>-->
+    </componentList>
+
+    <parameterList>
+        <booleanParameter name="extract_mode" cliOptionName="extract-only" default="0" ask="1" cliOptionShow="1"/>
+        <booleanParameter name="admin_rights" cliOptionName="require-admin" default="0" ask="0"/>
+        <stringParameter name="originalplatform" ask="0" cliOptionShow="0"/>
+        <stringParameter name="branding" cliOptionName="branding" ask="0" cliOptionShow="0"/>
+
+        <stringParameter name="superaccount" ask="1" cliOptionShow="1" cliOptionName="superaccount" default="postgres"
+        description="${msg(superaccount.description)}" />
+        <stringParameter name="servicename" ask="1" cliOptionShow="1" cliOptionName="servicename" default=""
+        description="${msg(servicename.description)}" />
+        <stringParameter name="serviceaccount" ask="1" cliOptionShow="1" cliOptionName="serviceaccount" default=""
+        description="${msg(serviceaccount.description)}"/>
+        <passwordParameter name="servicepassword" ask="1" cliOptionShow="1" cliOptionName="servicepassword"
+        description="${msg(servicepassword.description)}" default="" >
+            <ruleList>
+               <compareText>
+                   <text>${platform_name}</text>
+                   <logic>equals</logic>
+                   <value>windows</value>
+               </compareText>
+            </ruleList>
+        </passwordParameter>
+        <!-- Whether to install runtimes -->
+        <booleanParameter>
+            <name>install_runtimes</name>
+            <description>${msg(install.runtimes.description)}</description>
+            <explanation/>
+            <value/>
+            <default>1</default>
+            <ask>yes</ask>
+            <cliOptionName>install_runtimes</cliOptionName>
+            <cliOptionShow>1</cliOptionShow>
+            <ruleList>
+               <compareText>
+                   <logic>equals</logic>
+                   <text>${platform_name}</text>
+                   <value>windows</value>
+               </compareText>
+               <isFalse value="${extract_mode}"/>
+            </ruleList>
+        </booleanParameter>
+
+        <!-- Whether to check/edit ACL -->
+        <booleanParameter>
+            <name>enable_aclcheck</name>
+            <description>${msg(acl.check.description)}</description>
+            <explanation/>
+            <value/>
+            <default>0</default>
+            <ask>yes</ask>
+            <cliOptionName>enable_acledit</cliOptionName>
+            <cliOptionShow>1</cliOptionShow>
+            <ruleList>
+               <compareText>
+                   <logic>equals</logic>
+                   <text>${platform_name}</text>
+                   <value>windows</value>
+               </compareText>
+               <isFalse value="${extract_mode}"/>
+            </ruleList>
+        </booleanParameter>
+
+        <!-- Whether to create shortcut menu -->
+        <booleanParameter>
+            <name>create_shortcuts</name>
+            <description>${msg(create.shortcut.description)}</description>
+            <explanation/>
+            <value/>
+            <default>1</default>
+            <ask>yes</ask>
+            <cliOptionName>create_shortcuts</cliOptionName>
+            <cliOptionShow>1</cliOptionShow>
+        </booleanParameter>
+
+        <!-- Installation directory. Only show if ${iBaseDirectory} is empty -->
+        <directoryParameter>
+            <preShowPageActionList>
+                <wow64FsRedirection action="enable" />
+            </preShowPageActionList>
+            <name>installdir</name>
+            <description>Installer.Parameter.installdir.description</description>
+            <explanation>Installer.Parameter.installdir.explanation</explanation>
+            <value></value>
+            <default>${default_installdir}</default>
+            <ask>yes</ask>
+            <cliOptionName>prefix</cliOptionName>
+            <width>30</width>
+            <mustBeWritable>yes</mustBeWritable>
+            <ruleList>
+			    <isTrue  value="${component(server).selected}"/>
+                <stringTest>
+                    <text>${iBaseDirectory}</text>
+                    <type>empty</type>
+                </stringTest>
+            </ruleList>
+
+            <validationActionList>
+                <validateInstallDir  installdir="${installdir}">
+                <ruleList>
+                   <isFalse value="${extract_mode}"/>
+                </ruleList>
+                </validateInstallDir>
+            </validationActionList>
+
+            <postShowPageActionList>
+			    <wow64FsRedirection action="disable" />
+                <actionGroup>
+                    <actionList>
+                        <actionGroup>
+                            <actionList>
+                                <showWarning text="${msg(error.install.directory.not.writable)}"/>
+                                <setInstallerVariable name="next_page" value="installdir"/>
+                            </actionList>
+                            <ruleList>
+                                <ruleGroup>
+                                    <ruleEvaluationLogic>or</ruleEvaluationLogic>
+                                    <ruleList>
+                                        <fileTest path="${installdir}" condition="not_writable"/>
+                                        <fileTest path="${installdir}" condition="is_not_directory"/>
+                                    </ruleList>
+                                </ruleGroup>
+                                <fileTest path="${installdir}" condition="exists"/>
+                            </ruleList>
+                        </actionGroup>
+
+                        <actionGroup>
+                            <actionList>
+                                <createDirectory path="${installdir}"
+                                                 abortOnError="0"
+                                                 showMessageOnError="1"
+                                                 customErrorMessage="${msg(error.install.directory.not.writable)}">
+                                    <onErrorActionList>
+                                        <setInstallerVariable name="next_page" value="installdir"/>
+                                    </onErrorActionList>
+                                </createDirectory>
+                            </actionList>
+                            <ruleList>
+                                <fileTest path="${installdir}" condition="not_exists"/>
+                            </ruleList>
+                        </actionGroup>
+                    </actionList>
+                    <ruleList>
+                        <isTrue value="${extract_mode}"/>
+                    </ruleList>
+                </actionGroup>
+
+                <setInstallerVariable name="datadir" value="${installdir}/data" >
+                    <ruleList>
+                        <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+                        <compareText logic="equals" text="${datadir}" value=""/>
+                    </ruleList>
+                </setInstallerVariable>
+                <setInstallerVariable name="datadir" value="${installdir}\data" >
+                    <ruleList>
+                        <compareText logic="equals" text="${platform_name}" value="windows"/>
+                        <compareText logic="equals" text="${datadir}" value=""/>
+                    </ruleList>
+                </setInstallerVariable>
+            </postShowPageActionList>
+        </directoryParameter>
+
+        <!-- Explain that we're using an existing installation directory -->
+        <labelParameter>
+            <name>upgrade</name>
+            <title>${msg(upgrade.existing.installation.title)}</title>
+            <description>${msg(upgrade.existing.installation.description)}</description>
+
+            <preShowPageActionList>
+                <!-- Set the installation directory to the existing location-->
+                <setInstallerVariable>
+                    <name>installdir</name>
+                    <persist>1</persist>
+                    <value>${iBaseDirectory}</value>
+                </setInstallerVariable>
+            </preShowPageActionList>
+            <ruleList>
+                <stringTest>
+                    <text>${iBaseDirectory}</text>
+                    <type>not_empty</type>
+                </stringTest>
+                <fileTest>
+                    <condition>exists</condition>
+                    <path>${iBaseDirectory}/bin/${test_filename}</path>
+                </fileTest>
+                <isFalse value="${extract_mode}"/>
+                <isTrue  value="${component(server).selected}"/>
+            </ruleList>
+        </labelParameter>
+
+        <!-- Data directory. Only show if not upgrading -->
+        <directoryParameter>
+            <preShowPageActionList>
+                <wow64FsRedirection action="enable" />
+            </preShowPageActionList>
+            <name>datadir</name>
+            <description>${msg(config.datadir.description)}</description>
+            <explanation>${msg(config.datadir.explanation)}</explanation>
+            <value></value>
+            <default>${default_datadir}</default>
+            <ask>yes</ask>
+            <cliOptionName>datadir</cliOptionName>
+            <width>30</width>
+            <mustBeWritable>yes</mustBeWritable>
+            <ruleList>
+                <stringTest>
+                    <text>${iDataDirectory}</text>
+                    <type>empty</type>
+                </stringTest>
+				<isTrue  value="${component(server).selected}"/>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+            <!-- Check the directory selected. If it's a valid data directory, change to upgrade mode -->
+
+            <!-- Note that this validation occurs in a postShowPageActionList due     -->
+            <!-- to some odd behaviour in InstallBuilder in the way <allowEmptyValue> -->
+            <!-- interacts with default values, on the advice of tech support         -->
+            <postShowPageActionList>
+			    <wow64FsRedirection action="disable" />
+                <!-- !WIN: Always check if the data directory path looks valid and is writeable -->
+                <actionGroup>
+                    <!-- We need this because this isn't a validateActionList> -->
+                    <abortOnError>0</abortOnError>
+                    <actionList>
+                        <setInstallerVariable name="next_page" value="datadir"/>
+                        <throwError>
+                            <text>${msg(error.data.directory.invalid)}</text>
+                        </throwError>
+                    </actionList>
+                    <ruleList>
+                        <regExMatch>
+                            <text>${datadir}</text>
+                            <logic>does_not_match</logic>
+                            <pattern>^/([0-9a-zA-Z_/\.\-]*)$</pattern>
+                        </regExMatch>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                         <isTrue  value="${component(server).selected}"/>
+                    </ruleList>
+                </actionGroup>
+
+                <!-- WIN: Always check if the data directory path looks valid and is writeable -->
+                <actionGroup>
+                    <!-- We need this because this isn't a validateActionList> -->
+                    <abortOnError>0</abortOnError>
+                    <actionList>
+                        <setInstallerVariable name="next_page" value="datadir"/>
+                        <throwError>
+                            <text>${msg(error.data.directory.invalid)}</text>
+                        </throwError>
+                    </actionList>
+                    <ruleList>
+                        <regExMatch>
+                            <text>${datadir}</text>
+                            <logic>does_not_match</logic>
+                            <pattern>^([a-zA-Z]:)\\([0-9a-zA-Z_\\\s\.\-\(\)]*)$</pattern>
+                        </regExMatch>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                         <isTrue  value="${component(server).selected}"/>
+                    </ruleList>
+                </actionGroup>
+
+                <!-- Build a regexp to test that the install dir is not a sub dir of the data dir -->
+                <!-- Remove trailing / from path -->
+
+                <setInstallerVariableFromRegEx>
+                    <text>${datadir}</text>
+                    <substitution></substitution>
+                    <name>_re</name>
+                    <pattern>\\$</pattern>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </setInstallerVariableFromRegEx>
+
+                <!-- Replace / with \/ or \ with \\ on windows -->
+                <actionGroup>
+                    <actionList>
+                        <setInstallerVariableFromRegEx>
+                            <text>${_re}</text>
+                            <substitution>\\\\</substitution>
+                            <name>_re</name>
+                            <pattern>\\</pattern>
+                        </setInstallerVariableFromRegEx>
+                        <setInstallerVariableFromRegEx>
+                            <text>${_re}</text>
+                            <substitution>\\(</substitution>
+                            <name>_re</name>
+                            <pattern>\(</pattern>
+                        </setInstallerVariableFromRegEx>
+                        <setInstallerVariableFromRegEx>
+                            <text>${_re}</text>
+                            <substitution>\\)</substitution>
+                            <name>_re</name>
+                            <pattern>\)</pattern>
+                        </setInstallerVariableFromRegEx>
+                    </actionList>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </actionGroup>
+
+                <!-- build the regexp -->
+                <setInstallerVariable>
+                    <name>_re</name>
+                    <value>^${_re}\\([0-9a-zA-Z_\\\s\.\-\(\)]*)</value>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </setInstallerVariable>
+
+                <!-- Check the data directory does not match the installation directory -->
+                <actionGroup>
+                    <!-- We need this because this isn't a validateActionList> -->
+                    <abortOnError>0</abortOnError>
+                    <actionList>
+                        <setInstallerVariable name="next_page" value="datadir"/>
+                        <throwError>
+                            <text>${msg(error.data.directory.matches.install)}</text>
+                        </throwError>
+                    </actionList>
+                    <ruleEvaluationLogic>or</ruleEvaluationLogic>
+                    <ruleList>
+                        <compareText>
+                            <text>${datadir}</text>
+                            <logic>equals</logic>
+                            <value>${installdir}</value>
+                        </compareText>
+                        <compareText>
+                            <text>${datadir}/</text>
+                            <logic>equals</logic>
+                            <value>${installdir}</value>
+                        </compareText>
+                        <compareText>
+                            <text>${datadir}\</text>
+                            <logic>equals</logic>
+                            <value>${installdir}</value>
+                        </compareText>
+                        <compareText>
+                            <text>${datadir}</text>
+                            <logic>equals</logic>
+                            <value>${installdir}/</value>
+                        </compareText>
+                        <compareText>
+                            <text>${datadir}</text>
+                            <logic>equals</logic>
+                            <value>${installdir}\</value>
+                        </compareText>
+                        <regExMatch>
+                            <text>${installdir}</text>
+                            <logic>matches</logic>
+                            <pattern>${_re}</pattern>
+                        </regExMatch>
+                    </ruleList>
+                </actionGroup>
+
+                <!-- Check an existing, non-empty data directory -->
+                <actionGroup>
+                    <!-- We need this because this isn't a validateActionList> -->
+                    <abortOnError>0</abortOnError>
+                    <actionList>
+                        <!-- Do we have a pg_control file? -->
+                        <actionGroup>
+                            <actionList>
+                                <setInstallerVariable name="next_page" value="datadir"/>
+                                <throwError>
+                                    <text>${msg(error.data.directory.existing.broken)}</text>
+                                </throwError>
+                            </actionList>
+                            <ruleList>
+                                <fileTest>
+                                    <path>${datadir}/global/pg_control</path>
+                                    <condition>not_exists</condition>
+                                </fileTest>
+                                 <isTrue  value="${component(server).selected}"/>
+                            </ruleList>
+                        </actionGroup>
+
+                        <!-- Do we have a valid catalog version? -->
+                        <runProgram>
+                            <program>${system_temp_directory}\pg_installer_${random_number}\pg_controldata.exe</program>
+                            <programArguments>"${datadir}"</programArguments>
+                            <abortOnError>0</abortOnError>
+                            <showMessageOnError>0</showMessageOnError>
+                            <ruleList>
+                                <compareText>
+                                    <logic>equals</logic>
+                                    <text>${platform_name}</text>
+                                    <value>windows</value>
+                                </compareText>
+                            </ruleList>
+                        </runProgram>
+
+                        <setInstallerVariableFromRegEx>
+                            <name>CurrentCatalogVersion</name>
+                            <text>${program_stdout}</text>
+                            <pattern>^.*Catalog version number:\s+([\d]+).*$</pattern>
+                            <substitution>\1</substitution>
+                        </setInstallerVariableFromRegEx>
+
+                        <setInstallerVariableFromRegEx>
+                            <name>CurrentDateTimeSettings</name>
+                            <text>${program_stdout}</text>
+                            <pattern>^.*Date/time type storage:\s+([\d\w\-]+\s+[\w]+).*$</pattern>
+                            <substitution>\1</substitution>
+                        </setInstallerVariableFromRegEx>
+
+                        <logMessage>
+                            <text>Existing cluster catalog version: ${CurrentCatalogVersion}, installer catalog version: ${CatalogVersion}</text>
+                        </logMessage>
+
+                        <logMessage>
+                            <text>Existing cluster Date/time settings: ${CurrentDateTimeSettings}, installer Date/time settings: ${DateTimeSetting}</text>
+                        </logMessage>
+
+                        <actionGroup>
+                            <actionList>
+                                <setInstallerVariable name="next_page" value="datadir"/>
+                                <throwError>
+                                    <text>${msg(error.data.directory.incompatible)}</text>
+                                </throwError>
+                            </actionList>
+                            <ruleList>
+                                <compareText>
+                                    <value>${CurrentCatalogVersion}</value>
+                                    <logic>does_not_equal</logic>
+                                    <text>${CatalogVersion}</text>
+                                </compareText>
+                            </ruleList>
+                        </actionGroup>
+
+                        <actionGroup>
+                            <actionList>
+                                <setInstallerVariable name="next_page" value="datadir"/>
+                                <throwError>
+                                    <text>${msg(error.data.directory.incompatible.datetime)}</text>
+                                </throwError>
+                            </actionList>
+                            <ruleList>
+                                <compareText>
+                                    <value>${CurrentDateTimeSettings}</value>
+                                    <logic>does_not_equal</logic>
+                                    <text>${DateTimeSetting}</text>
+                                </compareText>
+                            </ruleList>
+                        </actionGroup>
+                    <!--</actionList>-->
+                    <!-- Switch to upgrade mode -->
+                    <!--<actionList>-->
+                        <setInstallerVariable>
+                            <name>IsUpgrade</name>
+                            <value>1</value>
+                        </setInstallerVariable>
+                        <logMessage>
+                            <text>Switching to upgrade mode with cluster: ${datadir}</text>
+                        </logMessage>
+
+                        <!-- Read the port number from the config file -->
+                        <readFile>
+                            <path>${datadir}/postgresql.conf</path>
+                            <name>serverconfig</name>
+                        </readFile>
+                        <setInstallerVariableFromRegEx>
+                            <name>defaultport</name>
+                            <text>${serverconfig}</text>
+                            <pattern>^.*port\s*=\s*([\d]+)\s+.*$</pattern>
+                            <substitution>\1</substitution>
+                        </setInstallerVariableFromRegEx>
+                     </actionList>
+
+                     <!-- We only check the data directory if it exists and isn't empty -->
+                     <ruleList>
+                        <fileExists>
+                             <path>${datadir}</path>
+                        </fileExists>
+                        <fileTest>
+                            <path>${datadir}</path>
+                            <condition>is_not_empty</condition>
+                        </fileTest>
+                    </ruleList>
+                </actionGroup> <!-- End of data directory check -->
+
+                <!-- WIN: If data directory exists and is empty -->
+                <actionGroup>
+                    <actionList>
+                        <logMessage>
+                            <text>Data Directory exists and is empty. Removing it</text>
+                        </logMessage>
+                        <deleteFile path="${datadir}"/>
+                    </actionList>
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="equals" value="windows"/>
+                        <fileTest condition="exists" path="${datadir}"/>
+                        <fileTest condition="is_empty" path="${datadir}"/>
+                        <fileTest condition="is_directory" path="${datadir}"/>
+                    </ruleList>
+                </actionGroup>
+
+                <actionGroup>   
+                    <actionList>
+                        <setInstallerVariable>
+                            <name>IsUpgrade</name>
+                            <value>0</value>
+                        </setInstallerVariable>
+                    </actionList>
+                    <ruleList>
+                        <fileTest>
+                            <condition>not_exists</condition>
+                            <path>${datadir}/postgresql.conf</path>
+                        </fileTest>
+                        <isTrue  value="${component(server).selected}"/>
+                    </ruleList>
+                </actionGroup>
+            </postShowPageActionList>
+        </directoryParameter>
+
+        <!-- Explain that we're using an existing installation directory -->
+        <labelParameter>
+            <name>upgrade2</name>
+            <title>${msg(upgrade.existing.datadir.title)}</title>
+            <description>${msg(upgrade.existing.datadir.description)}</description>
+
+            <preShowPageActionList>
+                <!-- As we're upgrading, grab the port number from the existing config file -->
+                <actionGroup>
+                    <actionList>
+                        <logMessage>
+                            <text>Reading port number from ${datadir}/postgresql.conf</text>
+                        </logMessage>
+                        <readFile>
+                            <path>${datadir}/postgresql.conf</path>
+                            <name>serverconfig</name>
+                        </readFile>
+                        <setInstallerVariableFromRegEx>
+                            <name>serverport</name>
+                            <text>${serverconfig}</text>
+                            <pattern>^.*port\s*=\s*([\d]+)\s+.*$</pattern>
+                            <substitution>\1</substitution>
+                        </setInstallerVariableFromRegEx>
+                    </actionList>
+                    <ruleList>
+                        <isTrue  value="${component(server).selected}"/>
+                    </ruleList>
+                </actionGroup>
+            </preShowPageActionList>
+            <ruleList>
+                <isTrue value="${IsUpgrade}"/>
+                <isFalse value="${extract_mode}"/>
+                <isTrue  value="${component(server).selected}"/> 
+            </ruleList>
+        </labelParameter>
+
+        <!-- Superuser password. Show this if not an upgrade, unless this is Windows -->
+        <passwordParameter>
+            <name>superpassword</name>
+            <description>${msg(config.superpassword.description)}</description>
+            <explanation>${_explanation}</explanation>
+            <value></value>
+            <default>${defaultpassword}</default>
+            <allowEmptyValue>1</allowEmptyValue>
+            <ask>yes</ask>
+            <cliOptionName>superpassword</cliOptionName>
+            <descriptionRetype>${msg(config.superpassword.confirm)}</descriptionRetype>
+            <width>20</width>
+            <preShowPageActionList>
+                <setInstallerVariable>
+                    <name>_explanation</name>
+                    <value>${msg(config.superpassword.explanation)}</value>
+                </setInstallerVariable>
+
+                <!-- On Windows, we need a different explanation -->
+                <setInstallerVariable>
+                    <name>_explanation</name>
+                    <value>${msg(config.superpassword.explanation.windows)}</value>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </setInstallerVariable>
+
+                <!-- It's different again on Windows if a custom service account is used -->
+                <setInstallerVariable>
+                    <name>_explanation</name>
+                    <value>${msg(config.superpassword.explanation.custom.windows)}</value>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <nocase>1</nocase>
+                            <value>${serviceaccount}</value>
+                            <text>NT AUTHORITY\NetworkService</text>
+                        </compareText>
+                    </ruleList>
+                </setInstallerVariable>
+
+                <!-- On Windows, we need a different explanation if upgrade mode -->
+                <setInstallerVariable>
+                    <name>_explanation</name>
+                    <value>${msg(config.superpassword.explanation.upgrade.windows)}</value>
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="equals" value="windows" />
+                        <compareValues value1="${IsUpgrade}" logic="equals" value2="1" />
+                    </ruleList>
+                </setInstallerVariable>
+                <!-- On Windows, in update mode, superpassword should be equal to servicepassword if set on cli -->
+                <setInstallerVariable>
+                    <name>superpassword</name>
+                    <value>${servicepassword}</value>
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="equals" value="windows" />
+                        <compareValues value1="${IsUpgrade}" logic="equals" value2="1" />
+                        <stringTest text="${servicepassword}" type="not_empty" />
+                    </ruleList>
+                </setInstallerVariable>
+                <!-- On Windows, in unattended update mode, service password has to be specified. If it is
+                not specified then we should raise an error. set defaultpassword to '' in this case
+                so that error comes. Refer FB 16503 for more details -->
+                <setInstallerVariable>
+                    <name>defaultpassword</name>
+                    <value></value>
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="equals" value="windows" />
+                        <compareValues value1="${IsUpgrade}" logic="equals" value2="1" />
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${installer_ui}</text>
+                            <value>unattended</value>
+                        </compareText>
+                    </ruleList>
+                </setInstallerVariable>
+
+            </preShowPageActionList>
+
+            <validationActionList>
+                <throwError>
+                    <text>${msg(config.superpassword.no.password)}</text>
+                    <ruleList>
+                        <stringTest>
+                            <text>${superpassword}</text>
+                            <type>empty</type>
+                        </stringTest>
+                    </ruleList>
+                </throwError>
+                <throwError text="${msg(Installer.Warning.PasswordsDoNotMatch)}">
+                    <ruleList>
+                        <compareText logic="does_not_equal" text="${superpassword}" value="${project.parameter(superpassword).valueRetype}"/>
+                    </ruleList>
+                </throwError>
+
+                <actionGroup>
+                    <actionList>
+                        <!-- seperate out domain name from ${serviceaccount} and assign it to ${servicedomain}-->
+                        <setInstallerVariable>
+                            <name>servicedomain</name>
+                            <value>.</value>
+                        </setInstallerVariable>
+                        <setInstallerVariableFromRegEx>
+                            <name>servicedomain</name>
+                            <text>${serviceaccount}</text>
+                            <pattern>\\.*</pattern>
+                            <substitution></substitution>
+                            <ruleList>
+                                <compareText>
+                                    <text>${serviceaccount}</text>
+                                    <logic>contains</logic>
+                                    <value>\</value>
+                                </compareText>
+                            </ruleList>
+                        </setInstallerVariableFromRegEx>
+                        <!--we need serviceaccount without domain details -->
+                        <setInstallerVariable>
+                            <name>serviceaccount_wo_domain</name>
+                            <value>${serviceaccount}</value>
+                            <ruleList>
+                                <compareText>
+                                    <text>${servieaccount}</text>
+                                    <logic>does_not_contain</logic>
+                                    <value>\</value>
+                                </compareText>
+                            </ruleList>
+                        </setInstallerVariable>
+                        <setInstallerVariableFromRegEx>
+                            <name>serviceaccount_wo_domain</name>
+                            <text>${serviceaccount}</text>
+                            <pattern>^.*?\\</pattern>
+                            <substitution></substitution>
+                            <ruleList>
+                                <compareText>
+                                    <text>${serviceaccount}</text>
+                                    <logic>contains</logic>
+                                    <value>\</value>
+                                </compareText>
+                            </ruleList>
+                        </setInstallerVariableFromRegEx>
+
+                        <!--set the servicepassword to password which user has entered on this page, if servicepassword not set through CLI-->
+                        <setInstallerVariable>
+                            <name>servicepassword</name>
+                            <value>${superpassword}</value>
+                            <ruleList>
+                                <compareText>
+                                    <text>${cliServicePassword}</text>
+                                    <logic>equals</logic>
+                                    <value/>
+                                </compareText>
+                            </ruleList>
+                        </setInstallerVariable>
+
+                        <runProgram>
+                            <program>${system_temp_directory}\pg_installer_${random_number}\createuser.exe</program>
+                            <!-- The dot at the beginning of the arguments is the domain -->
+                            <programArguments>"${servicedomain}" "${serviceaccount_wo_domain}" "${servicepassword.password}"</programArguments>
+                            <abortOnError>0</abortOnError>
+                            <showMessageOnError>0</showMessageOnError>
+                            <ruleList>
+                                <compareText logic="does_not_equal" nocase="1" text="${serviceaccount}" value="NT AUTHORITY\NetworkService"/>
+                            </ruleList>
+                        </runProgram>
+
+                        <throwError>
+                            <text>${msg(script.command.line.error)}</text>
+                            <ruleList>
+                                <compareText>
+                                    <logic>equals</logic>
+                                    <text>127</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                            </ruleList>
+                        </throwError>
+                        <throwError>
+                            <text>${msg(error.could.not.create.user)}</text>
+                            <ruleList>
+                                <compareText>
+                                    <logic>does_not_equal</logic>
+                                    <text>2224</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                                <compareText>
+                                    <logic>does_not_equal</logic>
+                                    <text>2203</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                                <compareText>
+                                    <logic>does_not_equal</logic>
+                                    <text>2245</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                                <compareText>
+                                    <logic>does_not_equal</logic>
+                                    <text>0</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                            </ruleList>
+                        </throwError>
+                        <throwError>
+                            <text>${msg(config.superpassword.format.error.windows)}</text>
+                            <ruleEvaluationLogic>or</ruleEvaluationLogic>
+                            <ruleList>
+                                <compareText>
+                                    <logic>equals</logic>
+                                    <text>2203</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                                <compareText>
+                                    <logic>equals</logic>
+                                    <text>2245</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                            </ruleList>
+                        </throwError>
+                    </actionList>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                        <isFalse value="${extract_mode}"/>
+                    </ruleList>
+                </actionGroup>
+
+                <!-- On Windows we need to validate the password if the user account exists -->
+                <actionGroup>
+                    <actionList>
+                        <!-- seperate out domain name from ${serviceaccount} and assign it to ${servicedomain}-->
+                        <setInstallerVariable>
+                            <name>servicedomain</name>
+                            <value>.</value>
+                        </setInstallerVariable>
+
+                        <setInstallerVariableFromRegEx>
+                            <name>servicedomain</name>
+                            <text>${serviceaccount}</text>
+                            <pattern>\\.*</pattern>
+                            <substitution></substitution>
+                            <ruleList>
+                                <compareText>
+                                    <text>${serviceaccount}</text>
+                                    <logic>contains</logic>
+                                    <value>\</value>
+                                </compareText>
+                            </ruleList>
+                        </setInstallerVariableFromRegEx>
+
+                        <!--we need serviceaccount without domain details -->
+                        <setInstallerVariable>
+                            <name>serviceaccount_wo_domain</name>
+                            <value>${serviceaccount}</value>
+                            <ruleList>
+                                <compareText>
+                                    <text>${servieaccount}</text>
+                                    <logic>does_not_contain</logic>
+                                    <value>\</value>
+                                </compareText>
+                            </ruleList>
+                        </setInstallerVariable>
+
+                        <setInstallerVariableFromRegEx>
+                            <name>serviceaccount_wo_domain</name>
+                            <text>${serviceaccount}</text>
+                            <pattern>^.*?\\</pattern>
+                            <substitution></substitution>
+                            <ruleList>
+                                <compareText>
+                                    <text>${serviceaccount}</text>
+                                    <logic>contains</logic>
+                                    <value>\</value>
+                                </compareText>
+                            </ruleList>
+                        </setInstallerVariableFromRegEx>
+
+                        <!-- If upgrading, set the servicepassword to password which user has entered on this page -->
+                        <setInstallerVariable name="servicepassword" value="${superpassword}">
+                            <ruleList>
+                                <isTrue value="${IsUpgrade}"/>
+                            </ruleList>
+                        </setInstallerVariable>
+
+                        <!-- If not upgrading and servicepassword is not provided through command-line, set the servicepassword
+                        to password, which user has entered on this page -->
+                        <setInstallerVariable name="servicepassword" value="${superpassword}">
+                            <ruleList>
+                                <compareText logic="equals" text="${cliServicePassword}" value=""/>
+                                <isFalse value="${IsUpgrade}"/>
+                            </ruleList>
+                        </setInstallerVariable>
+
+                        <runProgram>
+                            <program>${system_temp_directory}\pg_installer_${random_number}\validateuser.exe</program>
+                            <!-- The dot at the beginning of the arguments is the domain -->
+                            <programArguments>"${servicedomain}" "${serviceaccount_wo_domain}" "${servicepassword.password}"</programArguments>
+                            <abortOnError>0</abortOnError>
+                            <showMessageOnError>0</showMessageOnError>
+                            <ruleList>
+                                <compareText logic="does_not_equal" nocase="1" text="${serviceaccount}" value="NT AUTHORITY\NetworkService"/>
+                            </ruleList>
+                        </runProgram>
+                        <throwError>
+                            <text>${msg(script.command.line.error)}</text>
+                            <ruleList>
+                                <compareText>
+                                    <logic>equals</logic>
+                                    <text>127</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                            </ruleList>
+                        </throwError>
+                        <throwError>
+                            <text>${msg(config.superpassword.incorrect.windows)}</text>
+                            <ruleList>
+                                <compareText>
+                                    <logic>equals</logic>
+                                    <text>1</text>
+                                    <value>${program_exit_code}</value>
+                                </compareText>
+                            </ruleList>
+                        </throwError>
+                    </actionList>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                        <isFalse value="${extract_mode}"/>
+                        <isTrue  value="${component(server).selected}"/>
+                    </ruleList>
+                </actionGroup>
+            </validationActionList>
+            <!-- Show the password dialogue when (!upgrade || (windows && !NetworkService)) && !extract -->
+            <ruleList>
+                <ruleGroup>
+                    <ruleEvaluationLogic>or</ruleEvaluationLogic>
+                    <ruleList>
+                        <isFalse value="${IsUpgrade}"/>
+                        <ruleGroup>
+                            <ruleList>
+                                <compareText logic="does_not_equal" nocase="1" value="${serviceaccount}" text="NT AUTHORITY\NetworkService" />
+                                <compareText logic="equals" text="${platform_name}" value="windows" />
+                            </ruleList>
+                        </ruleGroup>
+                    </ruleList>
+                </ruleGroup>
+                <isFalse value="${extract_mode}"/>
+                <isTrue  value="${component(server).selected}"/>
+            </ruleList>
+        </passwordParameter>
+
+        <!-- Port number. Only show if there is no data directory -->
+        <stringParameter>
+            <name>serverport</name>
+            <description>${msg(config.port.description)}</description>
+            <explanation>${msg(config.port.explanation)}</explanation>
+            <value></value>
+            <default>${defaultport}</default>
+            <allowEmptyValue>1</allowEmptyValue>
+            <ask>yes</ask>
+            <cliOptionName>serverport</cliOptionName>
+            <width>30</width>
+            <validationActionList>
+                <throwError>
+                    <text>${msg(config.port.invalid)}</text>
+                    <ruleList>
+                        <stringTest>
+                            <text>${serverport}</text>
+                            <type>not_digit</type>
+                        </stringTest>
+                    </ruleList>
+                </throwError>
+                <throwError>
+                    <text>${msg(config.port.invalid)}</text>
+                    <ruleList>
+                        <stringTest>
+                            <text>${serverport}</text>
+                            <type>empty</type>
+                        </stringTest>
+                    </ruleList>
+                </throwError>
+                <throwError>
+                    <text>${msg(config.port.invalid)}</text>
+                    <ruleEvaluationLogic>or</ruleEvaluationLogic>
+                    <ruleList>
+                        <compareValues>
+                            <value1>${serverport}</value1>
+                            <logic>less</logic>
+                            <value2>1024</value2>
+                        </compareValues>
+                        <compareValues>
+                            <value1>${serverport}</value1>
+                            <logic>greater</logic>
+                            <value2>65535</value2>
+                        </compareValues>
+                    </ruleList>
+                </throwError>
+                <throwError>
+                    <text>${msg(config.port.in.use)}</text>
+                    <ruleList>
+                        <portTest>
+                            <condition>cannot_bind</condition>
+                            <port>${serverport}</port>
+                        </portTest>
+                    </ruleList>
+                </throwError>
+            </validationActionList>
+            <ruleList>
+                <isFalse value="${IsUpgrade}"/>
+                <isFalse value="${extract_mode}"/>
+                <isTrue  value="${component(server).selected}"/> 
+            </ruleList>
+        </stringParameter>
+
+        <!-- Locale -->
+        <parameterGroup>
+            <name>advancedOptions</name>
+            <title>${msg(config.advancedoption.title)}</title>
+            <explanation/>
+            <parameterList>
+                <choiceParameter>
+                    <name>locale</name>
+                    <description>${msg(config.locale.description)}</description>
+                    <explanation>${msg(config.locale.explanation)}</explanation>
+                    <cliOptionName>locale</cliOptionName>
+                    <ask>yes</ask>
+                    <validationActionList>
+                        <throwError>
+                            <text>${msg(config.locale.no.locale)}</text>
+                            <ruleList>
+                                <stringTest>
+                                    <text>${locale}</text>
+                                    <type>empty</type>
+                                </stringTest>
+                            </ruleList>
+                        </throwError>
+                    </validationActionList>
+                </choiceParameter>
+            </parameterList>
+            <ruleList>
+                <isFalse value="${IsUpgrade}"/>
+                <isFalse value="${extract_mode}"/>
+                <isTrue  value="${component(server).selected}"/> 
+            </ruleList>
+        </parameterGroup>
+        <infoParameter>
+            <name>preinstallsummary</name>
+            <title>${msg(preinstall.summary)}</title>
+            <explanation>${msg(preinstall.exp)}:</explanation>
+            <value>${msg(summary.installation.directory)}: ${installdir}
+${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}</value>
+            <ruleList>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+            <preShowPageActionList>
+                <!-- set custom summary variables -->
+                <!--<setInstallerVariable name="cltsummary" value=""/>-->
+                <setInstallerVariable name="sbsummary" value=""/>
+                <setInstallerVariable name="dbsummary" value=""/>
+                <setInstallerVariable name="pgadminsummary" value=""/>
+                <setInstallerVariable name="Installationlogfile" value="${system_temp_directory}${slash}install-${product_shortname}.log"/>
+                <setInstallerVariable name="dbsummary" value="${msg(summary.server.installation.directory)}: ${installdir}&#10;${msg(summary.data.directory)}: ${datadir}&#10;${msg(summary.database.port)}: ${serverport}&#10;${msg(summary.database.superuser)}: ${superaccount}&#10;${msg(summary.serviceaccount)}: ${serviceaccount}&#10;${msg(summary.databaseservice)}: ${servicename}&#10;">
+                    <ruleList>
+                        <isTrue value="${component(server).selected}"/>
+                        <isFalse value="${IsUpgrade}"/>
+                    </ruleList>
+                </setInstallerVariable>
+                <setInstallerVariable name="dbsummary" value="${msg(summary.server.installation.directory)}: ${installdir}&#10;${msg(summary.data.directory)}: ${datadir}&#10;${msg(summary.database.port)}: ${serverport}&#10;${msg(summary.database.superuser)}: ${superaccount}&#10;${msg(summary.serviceaccount)}: ${serviceaccount}&#10;${msg(summary.databaseservice)}: ${servicename}&#10;">
+                    <ruleList>
+                        <isTrue value="${component(server).selected}"/>
+                        <isTrue value="${IsUpgrade}"/>
+                    </ruleList>
+                </setInstallerVariable>
+            </preShowPageActionList>
+        </infoParameter>
+    </parameterList>
+</project>

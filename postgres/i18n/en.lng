@@ -1,0 +1,122 @@
+default.locale=Default locale
+
+error.installing.runtimes=An error occured executing the Microsoft VC++ runtime installer.
+
+error.runtimes.does.not.meet.requirements=An error occured executing the Microsoft VC++ runtime installer.\nPlease ensure that Windows Installer 3.1 or later is installed.
+error.comspec=The environment variable COMSPEC does not seem to point to the cmd.exe or there is a trailing semicolon present. Please fix this variable and restart installation.
+
+error.writing.temp=system's temp folder is not writable by the current user.
+prerunscript.command.line.error=Unable to write inside TEMP environment variable path.
+prerunscript.command.line.execute.error=Unable to execute from TEMP environment variable path.
+
+upgrade.existing.installation.title=Existing installation
+upgrade.existing.installation.description=An existing PostgreSQL installation has been found at ${iBaseDirectory}. This installation will be upgraded.
+upgrade.existing.installation.description=An existing PostgreSQL installation has been found at ${iBaseDirectory}. This installation will be upgraded. \n\nIn order to upgrade, we may need to restart the server. All connections to the server will need to be reestablished after the completion of the installation process.
+
+upgrade.existing.datadir.title=Existing data directory
+upgrade.existing.datadir.description=An existing data directory has been found at ${datadir} set to use port ${serverport}. This directory and its configuration will be used for this installation.
+
+error.install.directory.invalid=The installation directory must be an absolute path, containing only letters, numbers and the characters '-', '/', '.' and '_', and must be writable.
+error.install.directory.invalid.linux=The installation directory cannot not be '/' or '/usr'.
+error.install.directory.not.writable=Permission denied to read/write to the installation directory.
+error.install.directory.nondefault=The chosen installation directory exists and is non-empty. Please choose a different directory
+info.install.directory.nondefault=The chosen installation directory exists and is empty. Removing it
+warning.install.directory.nondefault.osx=Please note that you have chosen to install into a non-default installation location. If you plan to compile extensions against the installation then it is recommended that you install in the default installation directory
+
+platform.not.match=You are trying to run a 32bit installer in a 64bit machine. The installer will exit now
+platform.not.match64=You are trying to run a 64bit installer in a 32bit machine. The installer will exit now
+error.data.directory.invalid=The data directory must be an absolute path, containing only letters, numbers and the characters '-', '/', '.', and '_', and must be writable.
+error.data.directory.matches.install=The data directory must not be a parent of or the same as the installation directory.
+error.data.directory.registered.broken=A data directory is registered in ${PostgreSqlIni} but is neither empty, or a recognisable data directory.
+error.data.directory.existing.broken=An existing data directory has been selected but is neither empty, or a recognisable data directory.
+error.data.directory.incompatible=The existing data directory (catalog version: ${CurrentCatalogVersion}) is not compatible with this server (catalog version: ${CatalogVersion}).
+error.data.directory.incompatible.datetime=The existing data directory (Date/time setting: ${CurrentDateTimeSettings}) is not compatible with this server (Date/time setting: ${DateTimeSetting}).
+
+warning.could.not.stop.server=The installed server could not be stopped.
+
+script.command.line.error=The script was called with an invalid command line
+
+progress.text.creating.user=Creating service user account...
+error.could.not.create.user=The service user account '${serviceaccount}' could not be created.
+
+progress.text.initialising.cluster=Initialising the database cluster (this may take a few minutes)...
+error.could.not.initialise.cluster=The database cluster initialisation failed.
+warning.during.cluster.initialisation=A non-fatal error occured during cluster initialisation. Please check the installation log in ${system_temp_directory} for details.
+
+progress.text.configuring.startup=Configuring database server startup...
+error.could.not.configure.startup=Failed to configure the database to auto-start at boot time.
+warning.during.startup.configuration=A non-fatal error occured during startup configuration. Please check the installation log in ${system_temp_directory} for details.
+
+progress.text.cleaning.libs=Configuring installation libs...
+progress.text.creating.shortcuts=Creating menu shortcuts...
+warning.could.not.create.shortcuts=A non-fatal error occur whilst creating menu shortcuts.
+
+progress.text.starting.server=Starting the database server...
+error.could.not.start.server=Failed to start the database server.
+
+progress.text.loading.modules=Loading additional SQL modules...
+error.could.not.load.modules=Failed to load SQL modules into the database cluster.
+warning.during.module.loading=A non-fatal error occured whilst loading database modules. Please check the installation log in ${system_temp_directory} for details.
+
+
+config.datadir.description=Data Directory
+config.datadir.explanation=Please select a directory under which to store your data.
+
+config.superpassword.description=Password
+config.superpassword.explanation=Please provide a password for the database superuser (${superaccount}). A locked Unix user account (${serviceaccount}) will be created if not present.
+config.superpassword.explanation.windows=Please provide a password for the database superuser (${superaccount}).
+config.superpassword.explanation.custom.windows=Please provide a password for the database superuser (${superaccount}) and service account (${serviceaccount}). If the service account already exists in Windows, you must enter the current password for the account. If the account does not exist, it will be created when you click 'Next'.
+config.superpassword.explanation.upgrade.windows=Please provide the password for service account (${serviceaccount}).
+config.superpassword.confirm=Retype password
+config.superpassword.no.password=You must enter a password to continue.
+config.superpassword.incorrect.windows=The password specified was incorrect. Please enter the correct password for the ${serviceaccount} windows user account.
+config.superpassword.format.error.windows=The password specified does not meet the local or domain policy. Check the minimum password length, password complexity and password history requirements.
+
+config.port.description=Port
+config.port.explanation=Please select the port number the server should listen on.
+config.port.invalid=The port number must be an integer between 1024 and 65535.
+config.port.in.use=The specified port number is not available. Please enter a different port.
+
+config.advancedoption.title=Advanced Options
+
+config.locale.description=Locale
+config.locale.explanation=Select the locale to be used by the new database cluster.
+config.locale.no.locale=You must select a locale to continue.
+
+plpgsql.install.description=Install pl/pgsql in template1 database?
+install.runtimes.description=Specifies whether or not install the Microsoft Visual C++ runtimes before the installation proceeds.
+create.shortcut.description=Specifies whether or not menu shortcuts should be created.
+
+info.datadirectory.user.kept=The data directory (${datadir}) and service user account (${serviceaccount}) have not been removed.
+info.datadirectory.kept=The data directory (${datadir}) has not been removed.
+locale.error=Locale specified is not supported.
+
+superaccount.description=Sets the user name of the database superuser. Defaults to 'postgres'.
+serviceaccount.description=Sets the operating system user account that owns the server process. Defaults to 'postgres'.
+servicepassword.description=Sets the password for the operating system user account that owns server process. Defaults to superuser password.
+servicename.description=Sets the name of the database service.
+
+servicename.not.valid='${servicename}' is not a valid service name.\n\nIt must match the following criteria:\n* Starts with an alphabet\n* Ends with alphanumeric\n* Allowed special characters are _(underscore), .(dot) and -(hyphen)\n* Minimum length: 6 characters & Maximum length: 50 characters
+servicename.already.exists.linux=A service (${servicename}) already exists in the '/etc/init.d' directory.\nPlease specify another name.
+servicename.already.exists.solaris=A service (${servicename}) already exists.\nPlease specify another name.
+servicename.already.exists.windows=A service (${servicename}) already exists.\nPlease specify another name.
+servicename.already.exists.osx=A service (com.percona.launchd.${servicename}.plist) already exists in the '/Library/LaunchDaemons' directory.\nPlease specify another name.
+pg.service.description=Provides relational database storage.
+cannot.create.tmp.dir=Unable to create temp directory in ${system_temp_directory}. Please remove all existing installer directories in ${system_temp_directory} to proceed.
+acl.check.description=Check and give the read permissions on the complete data directory path for the service account.
+
+dbserver.desc=PostgreSQL database server
+no.component.selected.error=You have to select at least one component.
+preinstall.summary=Pre Installation Summary
+preinstall.exp=The following settings will be used for the installation:
+summary.installation.directory=Installation Directory
+summary.server.installation.directory=Server Installation Directory
+summary.clt.installation.directory=Command Line Tools Installation Directory
+summary.data.directory=Data Directory
+summary.installation.logfile=Installation Log
+summary.database.port=Database Port
+summary.database.superuser=Database Superuser
+summary.serviceaccount=Operating System Account
+summary.databaseservice=Database Service
+info.openssl.remove=Removing OpenSSL 1.0.2 files from installdir if exist
+info.wxwidgets.remove=Removing Wxwidgets 3.1.3 files from installdir if exist

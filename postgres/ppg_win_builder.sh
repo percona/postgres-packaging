@@ -246,8 +246,8 @@ EOT
   mkdir -p createuser
   cp vc-build-x64.bat createuser/
   cd createuser/
-  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/createuser.vcproj
-  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/createuser.cpp
+  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/createuser/createuser.vcproj
+  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/createuser/createuser.cpp
 
   ./vc-build-x64.bat createuser.vcproj UPGRADE
   ./vc-build-x64.bat createuser.vcxproj Release
@@ -258,8 +258,8 @@ EOT
   mkdir -p validateuser
   cp vc-build-x64.bat validateuser/
   cd validateuser
-  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/validateuser.cpp
-  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/validateuser.vcproj
+  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/validateuser/validateuser.cpp
+  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/validateuser/validateuser.vcproj
 
   ./vc-build-x64.bat validateuser.vcproj UPGRADE
   ./vc-build-x64.bat validateuser.vcxproj Release
@@ -270,8 +270,8 @@ EOT
   mkdir -p getlocales
   cp vc-build-x64.bat getlocales/
   cd getlocales
-  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/getlocales.cpp
-  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/getlocales.vcproj
+  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/getlocales/getlocales.cpp
+  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/getlocales/getlocales.vcproj
 
   ./vc-build-x64.bat getlocales.vcproj UPGRADE
   ./vc-build-x64.bat getlocales.vcxproj Release
@@ -368,17 +368,19 @@ build_installer(){
   
   # Setup the installer scripts.
   mkdir -p $PG_STAGING_DIR/installer/server
-  cd $PG_STAGING_DIR/installer/server
+  cd $PG_STAGING_DIR/installer
   wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/prerun_checks.vbs
+  cd -
+  cd $PG_STAGING_DIR/installer/server
   wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/initcluster.vbs
   wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/startupcfg.vbs
   wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/createshortcuts_server.vbs
-  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/createshortcuts_clt.vb
+  wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/createshortcuts_clt.vbs
   wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/startserver.vbs
   wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/scripts/windows/loadmodules.vbs
   cd -
 
-  cd $PG_STGAING_DIR
+  cd $PG_STAGING_DIR
   wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/server_license.txt
   cd -
 

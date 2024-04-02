@@ -5,6 +5,9 @@ include /usr/share/postgresql-common/pgxs_debian_control.mk
 %:
 	dh $@
 
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
 override_dh_auto_clean:
 	rm -rf build
 

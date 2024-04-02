@@ -1,6 +1,6 @@
 pg_tde.so usr/lib/postgresql/16/lib/
-pg_tde.control usr/lib/postgresql/16/extension/
-pg_tde--1.0.sql usr/lib/postgresql/16/extension/
+pg_tde.control usr/share/postgresql/16/extension/
+pg_tde*.sql usr/share/postgresql/16/extension/
 src/encryption/enc_tde.bc usr/lib/postgresql/16/lib/bitcode/pg_tde/src/encryption/
 src/encryption/enc_aes.bc usr/lib/postgresql/16/lib/bitcode/pg_tde/src/encryption/
 src/access/pg_tde_io.bc usr/lib/postgresql/16/lib/bitcode/pg_tde/src/access/

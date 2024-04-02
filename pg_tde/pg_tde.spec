@@ -89,6 +89,6 @@ USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR
 %endif
 
 %changelog
-* Tue Mar 5 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> - 0.1-1
-- Initial build 0.1
+* Tue Apr 2 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> - 1.0.0-1
+- Initial build 1.0.0
 

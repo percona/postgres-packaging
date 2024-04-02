@@ -482,7 +482,7 @@ REPO="https://github.com/Percona-Lab/pg_tde.git"
 PRODUCT=percona-pg_tde_${PG_MAJOR_VERSION}
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='0.1'
+VERSION='1.0.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

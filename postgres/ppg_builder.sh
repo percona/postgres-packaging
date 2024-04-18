@@ -214,7 +214,7 @@ install_deps() {
       yum -y install docbook-xsl libxslt-devel
     else
       apt-get update || true
-      apt-get -y install gnupg2 curl wget lsb-release
+      apt-get -y install gnupg2 curl wget lsb-release quilt
       apt-get update || true
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
@@ -227,7 +227,7 @@ install_deps() {
       percona-release disable all
       percona-release enable ppg-${PG_VERSION} testing
       apt-get update
-      if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" -a "x${DEBIAN}" != "xbookworm" ]; then
+      if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" -a "x${DEBIAN}" != "xbookworm" -a "x${DEBIAN}" != "xnoble" ]; then
         INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec dh-systemd docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl pkg-config python python-dev python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang gdb liblz4-dev libipc-run-perl"
       else
         INSTALL_LIST="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext git krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim wget xsltproc zlib1g-dev rename clang gdb liblz4-dev libipc-run-perl"

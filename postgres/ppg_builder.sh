@@ -215,7 +215,7 @@ install_deps() {
       yum -y install docbook-xsl libxslt-devel
     else
       apt-get update || true
-      apt-get -y install gnupg2 curl wget lsb-release quilt
+      DEBIAN_FRONTEND=noninteractive apt-get -y install gnupg2 curl wget lsb-release quilt
       apt-get update || true
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')

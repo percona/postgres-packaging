@@ -129,7 +129,7 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server-ha/control
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server-ha/rules
     echo 9 > compat
-    echo "percona-ppg-server-ha-16 (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-ppg-server-ha-16 (${PG_VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
 

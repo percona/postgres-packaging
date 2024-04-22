@@ -131,6 +131,10 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pgvector/control
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pgvector/control.in
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pgvector/rules
+
+    patch -p1 <debian/patches/no-native
+    sed -i 's|no-native|#no-native|g' debian/patches/series
+
     rm -rf debian/control*
     mv control* debian/
     mv rules debian/

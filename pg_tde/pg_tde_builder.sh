@@ -386,6 +386,8 @@ build_source_deb(){
     cd ${BUILDDIR}
     rm -f .github/workflows/*.yml
     rm -f .github/workflows/*.yaml
+    rm -f .github/*.yml
+    rm -f documentation/_resource/.icons/percona/logo.svg
     cd debian
     rm -rf changelog
     mkdir -p source

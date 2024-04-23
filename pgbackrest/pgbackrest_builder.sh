@@ -139,10 +139,11 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/rules.patch
     patch -p0 < rules.patch
     rm rules.patch
+    sed -i 's|--prefix=/usr|-Dforce-release=true --prefix=/usr|g' rules
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
-    echo 9 > debian/compat
+    echo 10 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm

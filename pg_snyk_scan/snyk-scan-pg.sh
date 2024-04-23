@@ -192,6 +192,21 @@ WAL2JSON_REPO="https://github.com/eulerto/wal2json.git"
 WAL2JSON_VERSION=2.5
 WAL2JSON_BRANCH="wal2json_2_5"
 
+# pg_stat_monitor
+PG_STAT_MONITOR_REPO="https://github.com/percona/pg_stat_monitor.git"
+PG_STAT_MONITOR_VERSION=2.0.4
+PG_STAT_MONITOR_BRANCH="2.0.4"
+
+# haproxy
+HAPROXY_REPO="http://git.haproxy.org/git/haproxy-2.8.git"
+HAPROXY_VERSION=2.8.5
+HAPROXY_BRANCH="v2.8.5"
+
+# haproxy-packaging
+HAPROXY_PACKAGING_REPO="https://github.com/percona/haproxy-packaging.git"
+HAPROXY_PACKAGING_VERSION=2.8
+HAPROXY_PACKAGING_BRANCH="main"
+
 #############################################
 
 if [ -z "${SNYK_TOKEN}" ]; then
@@ -242,4 +257,8 @@ scan_product "postgres-packaging13" "${POSTGRES13_PACKAGING_VERSION}" "${POSTGRE
 scan_product "postgres-packaging12" "${POSTGRES12_PACKAGING_VERSION}" "${POSTGRES_PACKAGING_REPO}" "${POSTGRES12_PACKAGING_BRANCH}"
 #scan_product "psycopg2" "${PSYCOPG2_VERSION}" "${PSYCOPG2_REPO}" "${PSYCOPG2_BRANCH}"
 scan_product "wal2json" "${WAL2JSON_VERSION}" "${WAL2JSON_REPO}" "${WAL2JSON_BRANCH}"
+
+scan_product "pg_stat_monitor" "${PG_STAT_MONITOR_VERSION}" "${PG_STAT_MONITOR_REPO}" "${PG_STAT_MONITOR_BRANCH}"
+scan_product "haproxy" "${HAPROXY_VERSION}" "${HAPROXY_REPO}" "${HAPROXY_BRANCH}"
+scan_product "haproxy-packaging" "${HAPROXY_PACKAGING_VERSION}" "${HAPROXY_PACKAGING_REPO}" "${HAPROXY_PACKAGING_BRANCH}"
 

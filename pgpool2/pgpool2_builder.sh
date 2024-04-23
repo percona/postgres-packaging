@@ -329,7 +329,9 @@ install_deps() {
         apt-get update
         DEBIAN_FRONTEND=noninteractive apt-get -y install lsb-release gnupg git wget curl
 
-        wget https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb && dpkg -i percona-release_latest.$(lsb_release -sc)_all.deb
+        wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+        dpkg -i percona-release_latest.generic_all.deb
+        rm -f percona-release_latest.generic_all.deb
         percona-release enable ppg-${PG_RELEASE} testing
 
         PKGLIST="percona-postgresql-${PG_VER} percona-postgresql-common percona-postgresql-server-dev-all"

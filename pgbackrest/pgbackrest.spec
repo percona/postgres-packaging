@@ -15,14 +15,14 @@ Source2:	pgbackrest-tmpfiles.d
 Source3:	pgbackrest.logrotate
 Source4:	pgbackrest.service
 BuildRequires:	openssl-devel zlib-devel percona-postgresql%{pgmajorversion}-devel
-BuildRequires:	libzstd-devel libxml2-devel libyaml-devel libssh2-devel
+BuildRequires:	libzstd-devel libxml2-devel libyaml-devel libssh-devel
 
 %if 0%{?fedora} >= 37 || 0%{?rhel} >= 8
-Requires:	lz4-libs libzstd libssh2
+Requires:	lz4-libs libzstd libssh
 BuildRequires:	lz4-devel bzip2-devel
 %endif
 %if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:	lz4 libzstd libssh2
+Requires:	lz4 libzstd libssh
 BuildRequires:	lz4-devel bzip2-devel
 %endif
 %if 0%{?suse_version} && 0%{?suse_version} <= 1499

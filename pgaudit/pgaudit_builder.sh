@@ -471,7 +471,7 @@ REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION="${PG_VERSION}"
+VERSION="16.0"
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

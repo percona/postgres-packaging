@@ -702,6 +702,8 @@ build_postgres_server(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libk5crypto.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxml2.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libkeyutils.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxslt.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libuuid.so* ${POSTGRESQL_PREFIX}/lib/
 
 	chmod 755 ${POSTGRESQL_PREFIX}/lib/*.so*
 	build_status "ends" "PostgreSQL Server"
@@ -768,6 +770,7 @@ build_pgpool(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libldap.* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/liblber* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmemcached.* ${PGPOOL_PREFIX}/lib/
+	cp -rp ${PGPOOL_PREFIX}/lib/libpcp.so* ${POSTGRESQL_PREFIX}/lib/
 	chmod 755 ${PGPOOL_PREFIX}/lib/*.so*
 
 	build_status "ends" "pgPool-II"
@@ -925,6 +928,7 @@ build_pgbackrest(){
 	mkdir -p ${PGBACKREST_PREFIX}/lib
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libcrypto.* ${PGBACKREST_PREFIX}/lib/
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libssl.* ${PGBACKREST_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libldap.* ${PGBACKREST_PREFIX}/lib/
 	cp -rp ${POSTGRESQL_PREFIX}/lib/libpq.* ${PGBACKREST_PREFIX}/lib/
 	chmod 755 ${PGBACKREST_PREFIX}/lib/*.so*
 

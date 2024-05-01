@@ -106,6 +106,10 @@ export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 export PGBOUNCER_VERSION=1.22.0
 export PGPOOL_VERSION=4.5.0
 export HAPROXY_VERSION=2.8
+export PERL_VERSION=5.38.2
+export PERL_MAJOR_VERSION=5.0
+export PYTHON_VERSION=3.12.3
+export TCL_VERSION=8.6.14
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
 export PGBOUNCER_PREFIX=/opt/percona-pgbouncer
@@ -114,6 +118,8 @@ export PGBACKREST_PREFIX=/opt/percona-pgbackrest
 export PGBADGER_PREFIX=/opt/percona-pgbadger
 export PATRONI_PREFIX=/opt/percona-patroni
 export HAPROXY_PREFIX=/opt/percona-haproxy
+
+export PATH=${DEPENDENCY_LIBS_PATH}/bin:$PATH
 
 CWD=$(pwd)
 
@@ -659,6 +665,51 @@ build_pcre(){
 	build_status "ends" "pcre"
 }
 
+build_perl(){
+
+	build_status "start" "Perl"
+
+	mkdir -p /source
+        cd /source/
+	wget https://www.cpan.org/src/${PERL_MAJOR_VERSION}/perl-${PERL_VERSION}.tar.gz
+	tar -xvzf perl-${PERL_VERSION}.tar.gz
+	cd perl-${PERL_VERSION}
+	./Configure -des -Duseshrplib -Dprefix=${DEPENDENCY_LIBS_PATH}
+	make
+	make install
+	build_status "ends" "Perl"
+}
+
+build_python(){
+
+        build_status "start" "Python"
+
+        mkdir -p /source
+        cd /source/
+	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
+	tar xvf Python-${PYTHON_VERSION}.tar.xz
+        cd Python-${PYTHON_VERSION}
+        ./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes
+        make
+        make install
+        build_status "ends" "Python"
+}
+
+build_tcl(){
+
+        build_status "start" "Tcl"
+
+        mkdir -p /source
+        cd /source/
+        wget http://prdownloads.sourceforge.net/tcl/tcl${TCL_VERSION}-src.tar.gz
+        tar xvf tcl${TCL_VERSION}-src.tar.gz
+        cd tcl${TCL_VERSION}/unix
+        ./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes
+        make
+        make install
+        build_status "ends" "Tcl"
+}
+
 build_postgres_server(){
 
 	build_status "start" "PostgreSQL Server"
@@ -704,6 +755,10 @@ build_postgres_server(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libkeyutils.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxslt.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libuuid.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libtcl*.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libpython*.so* ${POSTGRESQL_PREFIX}/lib/
+	ARCH=$(uname -m)
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE/libperl.so* ${POSTGRESQL_PREFIX}/lib/
 
 	chmod 755 ${POSTGRESQL_PREFIX}/lib/*.so*
 	build_status "ends" "PostgreSQL Server"
@@ -991,8 +1046,9 @@ build_patroni(){
           git checkout "${PATRONI_BRANCH}"
         fi
 
-        python3 setup.py build
-        python3 setup.py install --root ${PATRONI_PREFIX} -O1 --skip-build
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH pip3 install setuptools
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH python3 setup.py build
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH python3 setup.py install --root ${PATRONI_PREFIX} -O1 --skip-build
 
         mkdir -p ${PATRONI_PREFIX}/share/doc/patroni
         cp postgres0.yml postgres1.yml ${PATRONI_PREFIX}/share/doc/patroni
@@ -1078,7 +1134,7 @@ build_haproxy(){
         for textfile in $(find ./ -type f -name '*.txt')
         do
                 mv $textfile $textfile.old
-                iconv --from-code ISO8859-1 --to-code UTF-8 --output $textfile $textfile.old
+                /usr/bin/iconv --from-code ISO8859-1 --to-code UTF-8 --output $textfile $textfile.old
                 rm -f $textfile.old
         done
 
@@ -1192,6 +1248,9 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	build_spatialite
 	build_cgal
 	build_sfcgal
+	build_perl
+	build_python
+	build_tcl
 else
 	# Check if the directory exists
 	if [ ! -d "${DEPENDENCY_LIBS_PATH}" ]; then

@@ -826,6 +826,7 @@ build_pgpool(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/liblber* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmemcached.* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${PGPOOL_PREFIX}/lib/libpcp.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmemcached.* ${POSTGRESQL_PREFIX}/lib/
 	chmod 755 ${PGPOOL_PREFIX}/lib/*.so*
 
 	build_status "ends" "pgPool-II"
@@ -984,6 +985,7 @@ build_pgbackrest(){
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libcrypto.* ${PGBACKREST_PREFIX}/lib/
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libssl.* ${PGBACKREST_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libldap.* ${PGBACKREST_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/liblber* ${PGBACKREST_PREFIX}/lib/
 	cp -rp ${POSTGRESQL_PREFIX}/lib/libpq.* ${PGBACKREST_PREFIX}/lib/
 	chmod 755 ${PGBACKREST_PREFIX}/lib/*.so*
 

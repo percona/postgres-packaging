@@ -88,6 +88,7 @@ ubuntu() {
         20.04|20.10) /bin/echo -e "14" ;;
         21.04|21.10) /bin/echo -e "14" ;;
         22.04|22.10) /bin/echo -e "14" ;;
+        24.04|24.10) /bin/echo -e "14" ;;
         *)
             echo "supported-versions: WARNING: Unknown Ubuntu release: $1" >&2
             /bin/echo -e "$DEFAULT" ;;

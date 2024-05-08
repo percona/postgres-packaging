@@ -25,6 +25,8 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
+* Wed May 08 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> 12.19-1
+- Update version for ppg-server-ha meta-package
 * Mon Oct 31 2022 Surabhi Bhat <surabhi.bhat> 12.18-1
 - Update version for ppg-server-ha meta-package
 * Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 12.18-1

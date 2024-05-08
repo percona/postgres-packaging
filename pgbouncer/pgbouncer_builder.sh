@@ -474,15 +474,15 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="pgbouncer_1_22_0"
+BRANCH="pgbouncer_1_22_1"
 REPO="https://github.com/pgbouncer/pgbouncer.git"
 PRODUCT=percona-pgbouncer
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.22.0'
+VERSION='1.22.1'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=12.18
+PG_VERSION=12.19
 
 check_workdir
 get_system

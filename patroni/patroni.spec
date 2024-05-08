@@ -8,7 +8,7 @@
 
 Summary:        A Template for PostgreSQL HA with ZooKeeper, etcd or Consul
 Name:           percona-patroni
-Version:        3.2.2
+Version:        3.3.0
 Release:        1%{?dist}
 License:        MIT
 Source0:        %{name}-%{version}.tar.gz

@@ -58,29 +58,29 @@ scan_product(){
 ################
 # PostgreSQL
 PG_REPO="git://git.postgresql.org/git/postgresql.git"
-PG16_VERSION=16.2
+PG16_VERSION=16.3
 PG16_BRANCH_VERSION=$(echo $PG16_VERSION | sed -e 's|\.|_|g')
 PG16_BRANCH="REL_${PG16_BRANCH_VERSION}"
 
-PG15_VERSION=15.6
+PG15_VERSION=15.7
 PG15_BRANCH_VERSION=$(echo $PG15_VERSION | sed -e 's|\.|_|g')
 PG15_BRANCH="REL_${PG15_BRANCH_VERSION}"
 
-PG14_VERSION=14.11
+PG14_VERSION=14.12
 PG14_BRANCH_VERSION=$(echo $PG14_VERSION | sed -e 's|\.|_|g')
 PG14_BRANCH="REL_${PG14_BRANCH_VERSION}"
 
-PG13_VERSION=13.14
+PG13_VERSION=13.15
 PG13_BRANCH_VERSION=$(echo $PG13_VERSION | sed -e 's|\.|_|g')
 PG13_BRANCH="REL_${PG13_BRANCH_VERSION}"
 
-PG12_VERSION=12.18
+PG12_VERSION=12.19
 PG12_BRANCH_VERSION=$(echo $PG12_VERSION | sed -e 's|\.|_|g')
 PG12_BRANCH="REL_${PG12_BRANCH_VERSION}"
 
 # Patroni
 PATRONI_REPO="https://github.com/zalando/patroni.git"
-PATRONI_VERSION=3.2.2
+PATRONI_VERSION=3.3.0
 PATRONI_BRANCH="v${PATRONI_VERSION}"
 
 # pg_cron
@@ -90,7 +90,7 @@ PG_CRON_BRANCH="main"
 
 # pg_gather
 PG_GATHER_REPO_NAME="support-snippets"
-PG_GATHER_VERSION=25
+PG_GATHER_VERSION=26
 PG_GATHER_BRANCH="master"
 
 # pg_repack
@@ -132,8 +132,8 @@ PG_SET_USER_BRANCH="REL4_0_1"
 
 # pgbackrest
 PGBACKREST_REPO="https://github.com/pgbackrest/pgbackrest.git"
-PGBACKREST_VERSION=2.50
-PGBACKREST_BRANCH="release/2.50"
+PGBACKREST_VERSION=2.51
+PGBACKREST_BRANCH="release/2.51"
 
 # pgbadger
 PGBADGER_REPO="https://github.com/darold/pgbadger.git"
@@ -142,13 +142,13 @@ PGBADGER_BRANCH="v12.4"
 
 # pgbouncer
 PGBOUNCER_REPO="https://github.com/pgbouncer/pgbouncer.git"
-PGBOUNCER_VERSION=1.22.0
-PGBOUNCER_BRANCH="pgbouncer_1_22_0"
+PGBOUNCER_VERSION=1.22.1
+PGBOUNCER_BRANCH="pgbouncer_1_22_1"
 
 # pgpool-II
 PGPOOL_REPO="https://git.postgresql.org/git/pgpool2.git"
-PGPOOL_VERSION=4.5.0
-PGPOOL_BRANCH="V4_5_0"
+PGPOOL_VERSION=4.5.1
+PGPOOL_BRANCH="V4_5_1"
 
 # pgvector
 PGVECTOR_REPO="https://github.com/pgvector/pgvector.git"
@@ -157,13 +157,13 @@ PGVECTOR_BRANCH="master"
 
 # postgis
 POSTGIS_REPO="https://github.com/postgis/postgis.git"
-POSTGIS_VERSION=3.3.5
+POSTGIS_VERSION=3.3.6
 POSTGIS_BRANCH="stable-3.3"
 
 # postgres-common
 PG_COMMON_REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
-PG_COMMON_VERSION=256
-PG_COMMON_BRANCH="debian/256"
+PG_COMMON_VERSION=259
+PG_COMMON_BRANCH="debian/259"
 
 # ppg-server-ha/ppg-server/postgres-packaging
 POSTGRES_PACKAGING_REPO="https://github.com/percona/postgres-packaging.git"
@@ -189,8 +189,8 @@ PSYCOPG2_BRANCH="2_9_5"
 
 # wal2json
 WAL2JSON_REPO="https://github.com/eulerto/wal2json.git"
-WAL2JSON_VERSION=2.5
-WAL2JSON_BRANCH="wal2json_2_5"
+WAL2JSON_VERSION=2.6
+WAL2JSON_BRANCH="wal2json_2_6"
 
 # pg_stat_monitor
 PG_STAT_MONITOR_REPO="https://github.com/percona/pg_stat_monitor.git"
@@ -199,8 +199,8 @@ PG_STAT_MONITOR_BRANCH="2.0.4"
 
 # haproxy
 HAPROXY_REPO="http://git.haproxy.org/git/haproxy-2.8.git"
-HAPROXY_VERSION=2.8.5
-HAPROXY_BRANCH="v2.8.5"
+HAPROXY_VERSION=2.8.9
+HAPROXY_BRANCH="v2.8.9"
 
 # haproxy-packaging
 HAPROXY_PACKAGING_REPO="https://github.com/percona/haproxy-packaging.git"

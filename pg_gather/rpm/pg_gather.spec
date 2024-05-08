@@ -1,5 +1,5 @@
 %global sname   percona-pg_gather
-%global version 25
+%global version 26
 %global pgmajorversion 15
 %global pginstdir /usr/pgsql-15
 

@@ -475,7 +475,7 @@ build_deb(){
         echo "cat <<'CALLHOME' > /tmp/call-home.sh" >> percona-postgresql-13.postinst
         cat call-home.sh >> percona-postgresql-13.postinst
         echo "CALLHOME" >> percona-postgresql-13.postinst
-        echo "bash +x /tmp/call-home.sh -f \"PRODUCT_FAMILY_POSTGRESQL\" -v \"${PG_VERSION}\" -d \"PACKAGE\" || :" >> percona-postgresql-13.postinst
+        echo "bash +x /tmp/call-home.sh -f \"PRODUCT_FAMILY_POSTGRESQL\" -v \"${PG_VERSION}-${DEB_RELEASE}\" -d \"PACKAGE\" || :" >> percona-postgresql-13.postinst
         echo "rm -rf /tmp/call-home.sh" >> percona-postgresql-13.postinst
         echo "exit 0" >> percona-postgresql-13.postinst
         rm -f call-home.sh

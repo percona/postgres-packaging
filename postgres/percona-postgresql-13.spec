@@ -1000,7 +1000,7 @@ export PGDATA
 chown postgres: /var/lib/pgsql/.bash_profile
 chmod 700 /var/lib/pgsql/.bash_profile
 cp %SOURCE999 /tmp/ 2>/dev/null || :
-bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "13.14" -d "PACKAGE" &>/dev/null || :
+bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "13.14-1" -d "PACKAGE" &>/dev/null || :
 rm -f /tmp/call-home.sh
 
 

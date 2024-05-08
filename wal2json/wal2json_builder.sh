@@ -470,15 +470,15 @@ INSTALL=0
 RPM_RELEASE=7
 DEB_RELEASE=7
 REVISION=0
-BRANCH="wal2json_2_5"
+BRANCH="wal2json_2_6"
 REPO="https://github.com/eulerto/wal2json.git"
 PRODUCT=percona-wal2json
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.5'
-RELEASE='7'
+VERSION='2.6'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=16.2
+PG_VERSION=16.3
 
 check_workdir
 get_system

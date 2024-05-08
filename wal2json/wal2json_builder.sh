@@ -464,18 +464,18 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=6
-DEB_RELEASE=6
+RPM_RELEASE=1
+DEB_RELEASE=1
 REVISION=0
-BRANCH="wal2json_2_5"
+BRANCH="wal2json_2_6"
 REPO="https://github.com/eulerto/wal2json.git"
 PRODUCT=percona-wal2json
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.5'
-RELEASE='6'
+VERSION='2.6'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=15.6
+PG_VERSION=15.7
 
 check_workdir
 get_system

@@ -14,7 +14,10 @@ TMP=$(CURDIR)/debian/tmp/
 %:
 	dh $@
 
-#override_dh_auto_build:
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
+override_dh_auto_build:
 	mkdir -p usr/bin
 
 override_dh_installman:

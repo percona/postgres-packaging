@@ -145,7 +145,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${PG_VERSION}/pgaudit/pgaudit.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit/pgaudit.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties

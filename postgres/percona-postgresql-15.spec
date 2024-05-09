@@ -1347,6 +1347,7 @@ fi
 %{pgbaseinstdir}/bin/pg_verifybackup
 %{pgbaseinstdir}/bin/postgres
 %{pgbaseinstdir}/bin/postmaster
+%{pgbaseinstdir}/share/fix-CVE-*.sql
 %{pgbaseinstdir}/share/man/man1/initdb.*
 %{pgbaseinstdir}/share/man/man1/pg_archivecleanup.1
 %{pgbaseinstdir}/share/man/man1/pg_checksums.*

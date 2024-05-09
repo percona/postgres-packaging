@@ -109,6 +109,7 @@ fi
 %attr (755,root,root) %{_bindir}/patronictl
 %attr (755,root,root) %{_bindir}/patroni_raft_controller
 %attr (755,root,root) %{_bindir}/patroni_aws
+%attr (755,root,root) %{_bindir}/patroni_barman
 %{_unitdir}/%{sname}.service
 %{python3_sitelib}/%{sname}*.egg-info
 %dir %{python3_sitelib}/%{sname}/

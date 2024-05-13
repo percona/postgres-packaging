@@ -1,6 +1,6 @@
 %global sname   percona-ppg-server
 %global pgmajorversion 16
-%global version 2
+%global version 3
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}

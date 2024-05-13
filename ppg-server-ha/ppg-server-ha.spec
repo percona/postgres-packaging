@@ -1,6 +1,6 @@
 %global sname   percona-ppg-server-ha
 %global pgmajorversion 13
-%global version 14
+%global version 15
 
 Summary:        Percona selection of PostgreSQL%{pgmajorversion} HA components
 Name:           %{sname}%{pgmajorversion}

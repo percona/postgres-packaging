@@ -805,7 +805,7 @@ build_postgres_server(){
 	cp -rp ${TCL_PREFIX}/lib/libtcl*.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${PYTHON_PREFIX}/lib/libpython*.so* ${POSTGRESQL_PREFIX}/lib/
 	ARCH=$(uname -m)
-	cp -rp ${PERL_PREFIX}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE/libperl.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE/libperl.so* ${POSTGRESQL_PREFIX}/lib/
 
 	chmod 755 ${POSTGRESQL_PREFIX}/lib/*.so*
 	build_status "ends" "PostgreSQL Server"
@@ -1224,22 +1224,22 @@ set_rpath_all_products(){
 
 	ARCH=$(uname -m)
 	# Set rpath of all binaries in tarball
-	set_rpath "${POSTGRESQL_PREFIX}/bin" "\${ORIGIN}/../lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE:${TCL_PREFIX}/lib"
+	set_rpath "${POSTGRESQL_PREFIX}/bin" "\${ORIGIN}/../lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE:${TCL_PREFIX}/lib"
 	set_rpath "${PGBOUNCER_PREFIX}/bin" "\${ORIGIN}/../lib"
 	set_rpath "${PGPOOL_PREFIX}/bin" "\${ORIGIN}/../lib"
 	set_rpath "${PGBACKREST_PREFIX}/bin" "\${ORIGIN}/../lib"
 	set_rpath "${HAPROXY_PREFIX}/sbin" "\${ORIGIN}/../lib"
 	set_rpath "${PYTHON_PREFIX}/bin" "\${ORIGIN}/../lib"
-	set_rpath "${PERL_PREFIX}/bin" "\${ORIGIN}/../lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE"
+	set_rpath "${PERL_PREFIX}/bin" "\${ORIGIN}/../lib/${PERL_VERSION}/${ARCH}-linux/CORE"
 	set_rpath "${TCL_PREFIX}/bin" "\${ORIGIN}/../lib"
 
-	set_rpath "${POSTGRESQL_PREFIX}/lib" "\${ORIGIN}:${PYTHON_PREFIX}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE:${TCL_PREFIX}/lib"
+	set_rpath "${POSTGRESQL_PREFIX}/lib" "\${ORIGIN}:${PYTHON_PREFIX}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE:${TCL_PREFIX}/lib"
         set_rpath "${PGBOUNCER_PREFIX}/lib" "\${ORIGIN}"
         set_rpath "${PGPOOL_PREFIX}/lib" "\${ORIGIN}"
         set_rpath "${PGBACKREST_PREFIX}/lib" "\${ORIGIN}"
         set_rpath "${HAPROXY_PREFIX}/lib" "\${ORIGIN}"
 	set_rpath "${PYTHON_PREFIX}/lib" "\${ORIGIN}"
-	set_rpath "${PERL_PREFIX}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE" "\${ORIGIN}"
+	set_rpath "${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE" "\${ORIGIN}"
 	set_rpath "${TCL_PREFIX}/lib" "\${ORIGIN}"
 }
 

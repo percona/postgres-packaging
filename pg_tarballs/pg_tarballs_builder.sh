@@ -142,7 +142,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel
+	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
 }
@@ -691,23 +691,26 @@ build_python(){
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-	./configure --enable-optimizations --prefix=${PYTHON_PREFIX} --enable-shared=yes
-	make altinstall
+	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --enable-shared --prefix=${PYTHON_PREFIX}
+	make
+	make install
+	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${LD_LIBRARY_PATH}
+
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 -m ensurepip
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 -m pip install --upgrade pip setuptools
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 -c "import _ctypes"
+	${PYTHON_PREFIX}/bin/python3 -m ensurepip
+	${PYTHON_PREFIX}/bin/python3 -m pip install --upgrade pip setuptools
+	${PYTHON_PREFIX}/bin/python3 -c "import _ctypes"
 
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install python-dateutil
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install urllib3
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install psycopg
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install psycopg2-binary
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install psutil
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install pyyaml
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install boto3
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install click
-	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install prettytable
+	${PYTHON_PREFIX}/bin/pip3 install python-dateutil
+	${PYTHON_PREFIX}/bin/pip3 install urllib3
+	${PYTHON_PREFIX}/bin/pip3 install psycopg
+	${PYTHON_PREFIX}/bin/pip3 install psycopg2-binary
+	${PYTHON_PREFIX}/bin/pip3 install psutil
+	${PYTHON_PREFIX}/bin/pip3 install pyyaml
+	${PYTHON_PREFIX}/bin/pip3 install boto3
+	${PYTHON_PREFIX}/bin/pip3 install click
+	${PYTHON_PREFIX}/bin/pip3 install prettytable
 
         build_status "ends" "Python"
 }

@@ -118,8 +118,10 @@ export PGBACKREST_PREFIX=/opt/percona-pgbackrest
 export PGBADGER_PREFIX=/opt/percona-pgbadger
 export PATRONI_PREFIX=/opt/percona-patroni
 export HAPROXY_PREFIX=/opt/percona-haproxy
-
-export PATH=${DEPENDENCY_LIBS_PATH}/bin:$PATH
+export PYTHON_PREFIX=/opt/percona-python3
+export PERL_PREFIX=/opt/percona-perl
+export TCL_PREFIX=/opt/percona-tcl
+export PATH=${DEPENDENCY_LIBS_PATH}/bin:${PYTHON_PREFIX}/bin:${PERL_PREFIX}/bin:${TCL_PREFIX}/bin:$PATH
 
 CWD=$(pwd)
 
@@ -674,7 +676,7 @@ build_perl(){
 	wget https://www.cpan.org/src/${PERL_MAJOR_VERSION}/perl-${PERL_VERSION}.tar.gz
 	tar -xvzf perl-${PERL_VERSION}.tar.gz
 	cd perl-${PERL_VERSION}
-	./Configure -des -Duseshrplib -Dprefix=${DEPENDENCY_LIBS_PATH}
+	./Configure -des -Duseshrplib -Dprefix=${PERL_PREFIX}
 	make
 	make install
 	build_status "ends" "Perl"
@@ -689,10 +691,55 @@ build_python(){
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-        ./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes
-        make
-        make install
+	./configure --enable-optimizations --prefix=${PYTHON_PREFIX} --enable-shared=yes
+	make altinstall
+	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
+	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 -m ensurepip
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 -m pip install --upgrade pip setuptools
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 -c "import _ctypes"
+
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install python-dateutil
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install urllib3
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install psycopg
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install psycopg2-binary
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install psutil
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install pyyaml
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install boto3
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install click
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/pip3 install prettytable
+
         build_status "ends" "Python"
+}
+
+build_ydiff(){
+
+	build_status "start" "ydiff"
+	mkdir -p /source
+	cd /source/
+	git clone https://github.com/ymattw/ydiff.git
+	cd ydiff/
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 setup.py build
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 setup.py install || true
+	cp -rp ydiff.egg-info ${PYTHON_PREFIX}/lib/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2)/site-packages/
+
+	build_status "ends" "ydiff"
+}
+
+build_pysyncobj(){
+
+	build_status "start" "pysyncobj"
+
+	mkdir -p /source
+	cd /source/
+	git clone https://github.com/bakwc/PySyncObj.git
+	cd PySyncObj/
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 setup.py build
+	LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:$LD_LIBRARY_PATH ${PYTHON_PREFIX}/bin/python3 setup.py install
+	cp -rp pysyncobj.egg-info ${PYTHON_PREFIX}/lib/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2)/site-packages/
+	cp -rp pysyncobj ${PYTHON_PREFIX}/lib/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2)/site-packages/
+
+	build_status "ends" "pysyncobj"
 }
 
 build_tcl(){
@@ -704,7 +751,7 @@ build_tcl(){
         wget http://prdownloads.sourceforge.net/tcl/tcl${TCL_VERSION}-src.tar.gz
         tar xvf tcl${TCL_VERSION}-src.tar.gz
         cd tcl${TCL_VERSION}/unix
-        ./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes
+        ./configure --prefix=${TCL_PREFIX} --enable-shared=yes
         make
         make install
         build_status "ends" "Tcl"
@@ -721,23 +768,23 @@ build_postgres_server(){
 
 	cd postgresql-${PG_VERSION}
 
-	CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make
+	CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make
 	cd src/backend
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH MAKELEVEL=0 make submake-generated-headers
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH MAKELEVEL=0 make submake-generated-headers
 	cd ../..
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH MAKELEVEL=0 make -j4 all
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make -j4 -C contrib all
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make -j4 -C contrib/uuid-ossp all
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH MAKELEVEL=0 make -j4 all
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make -j4 -C contrib all
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make -j4 -C contrib/uuid-ossp all
 	pushd doc/src
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make all
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make all
 	popd
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make install
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make install
 	pushd src/pl/plpython
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make install
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make install
 	popd
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make -C contrib install
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make -C contrib/uuid-ossp install
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make -C contrib install
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make -C contrib/uuid-ossp install
 
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libicuuc.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libldap.* ${POSTGRESQL_PREFIX}/lib/
@@ -755,10 +802,10 @@ build_postgres_server(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libkeyutils.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxslt.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libuuid.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libtcl*.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libpython*.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${TCL_PREFIX}/lib/libtcl*.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${PYTHON_PREFIX}/lib/libpython*.so* ${POSTGRESQL_PREFIX}/lib/
 	ARCH=$(uname -m)
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE/libperl.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${PERL_PREFIX}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE/libperl.so* ${POSTGRESQL_PREFIX}/lib/
 
 	chmod 755 ${POSTGRESQL_PREFIX}/lib/*.so*
 	build_status "ends" "PostgreSQL Server"
@@ -972,8 +1019,8 @@ build_pgbackrest(){
         pushd src
         export CPPFLAGS="-I${POSTGRESQL_PREFIX}/include"
         export PATH=${POSTGRESQL_PREFIX}/bin/:$PATH
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" ./configure --prefix=${PGBACKREST_PREFIX}
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH make
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" ./configure --prefix=${PGBACKREST_PREFIX}
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make
         make install
         popd
 
@@ -1048,15 +1095,20 @@ build_patroni(){
           git checkout "${PATRONI_BRANCH}"
         fi
 
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH pip3 install setuptools
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH python3 setup.py build
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH python3 setup.py install --root ${PATRONI_PREFIX} -O1 --skip-build
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH pip3 install setuptools
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH python3 setup.py build
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH python3 setup.py install --root ${PATRONI_PREFIX} -O1 --skip-build
 
-        mkdir -p ${PATRONI_PREFIX}/share/doc/patroni
-        cp postgres0.yml postgres1.yml ${PATRONI_PREFIX}/share/doc/patroni
-        cp LICENSE ${PATRONI_PREFIX}/patroni_license
-        cp -rp docs ${PATRONI_PREFIX}/share/doc/patroni
-        cp README.rst ${PATRONI_PREFIX}/share/doc/patroni
+	mkdir -p ${PATRONI_PREFIX}/share/doc/patroni
+	cp postgres0.yml postgres1.yml ${PATRONI_PREFIX}/share/doc/patroni
+	cp LICENSE ${PATRONI_PREFIX}/patroni_license
+	cp -rp docs ${PATRONI_PREFIX}/share/doc/patroni
+	cp README.rst ${PATRONI_PREFIX}/share/doc/patroni
+
+	cp -rp ${PATRONI_PREFIX}/${PYTHON_PREFIX}/lib/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2)/site-packages/patroni* ${PYTHON_PREFIX}/lib/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2)/site-packages/
+	mkdir -p ${PATRONI_PREFIX}/bin
+	mv ${PATRONI_PREFIX}/${PYTHON_PREFIX}/bin/patroni* ${PATRONI_PREFIX}/bin/
+	rm -rf ${PATRONI_PREFIX}/opt
 
 	build_status "ends" "Patroni"
 }
@@ -1170,18 +1222,25 @@ set_rpath(){
 
 set_rpath_all_products(){
 
+	ARCH=$(uname -m)
 	# Set rpath of all binaries in tarball
-	set_rpath "${POSTGRESQL_PREFIX}/bin" "\${ORIGIN}/../lib"
+	set_rpath "${POSTGRESQL_PREFIX}/bin" "\${ORIGIN}/../lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE:${TCL_PREFIX}/lib"
 	set_rpath "${PGBOUNCER_PREFIX}/bin" "\${ORIGIN}/../lib"
 	set_rpath "${PGPOOL_PREFIX}/bin" "\${ORIGIN}/../lib"
 	set_rpath "${PGBACKREST_PREFIX}/bin" "\${ORIGIN}/../lib"
 	set_rpath "${HAPROXY_PREFIX}/sbin" "\${ORIGIN}/../lib"
+	set_rpath "${PYTHON_PREFIX}/bin" "\${ORIGIN}/../lib"
+	set_rpath "${PERL_PREFIX}/bin" "\${ORIGIN}/../lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE"
+	set_rpath "${TCL_PREFIX}/bin" "\${ORIGIN}/../lib"
 
-	set_rpath "${POSTGRESQL_PREFIX}/lib" "\${ORIGIN}"
+	set_rpath "${POSTGRESQL_PREFIX}/lib" "\${ORIGIN}:${PYTHON_PREFIX}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE:${TCL_PREFIX}/lib"
         set_rpath "${PGBOUNCER_PREFIX}/lib" "\${ORIGIN}"
         set_rpath "${PGPOOL_PREFIX}/lib" "\${ORIGIN}"
         set_rpath "${PGBACKREST_PREFIX}/lib" "\${ORIGIN}"
         set_rpath "${HAPROXY_PREFIX}/lib" "\${ORIGIN}"
+	set_rpath "${PYTHON_PREFIX}/lib" "\${ORIGIN}"
+	set_rpath "${PERL_PREFIX}/lib/perl5/${PERL_VERSION}/${ARCH}-linux/CORE" "\${ORIGIN}"
+	set_rpath "${TCL_PREFIX}/lib" "\${ORIGIN}"
 }
 
 build_status(){
@@ -1238,20 +1297,22 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	build_libyaml
 	build_lua
 	build_pcre
-	build_geos
-	build_libtiff
-	build_proj
-	build_gdal
+	#build_geos
+	#build_libtiff
+	#build_proj
+	#build_gdal
 	build_gmp
 	build_mpfr
 	build_libboost
 	build_expat
 	build_freexl
-	build_spatialite
-	build_cgal
-	build_sfcgal
+	#build_spatialite
+	#build_cgal
+	#build_sfcgal
 	build_perl
 	build_python
+	build_ydiff
+	build_pysyncobj
 	build_tcl
 else
 	# Check if the directory exists

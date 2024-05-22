@@ -684,15 +684,24 @@ build_python(){
 
         build_status "start" "Python"
 
+	PYTHON_SSL_PATH=/usr/lib64
+	PYTHON_SSL_INCLUDE=/usr/include
+	if [ "$USE_SYSTEM_SSL" != "1" ]; then
+		yum install -y openssl3 openssl3-devel
+		PYTHON_SSL_PATH=/usr/lib64/openssl3
+		PYTHON_SSL_INCLUDE=/usr/include/openssl3
+		export PKG_CONFIG_PATH="/usr/lib64/pkgconfig"
+	fi
+
         mkdir -p /source
         cd /source/
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --with-openssl=${SSL_INSTALL_PATH} --enable-shared --prefix=${PYTHON_PREFIX}
+	CFLAGS="-fPIC -I${PYTHON_SSL_INCLUDE}" LDFLAGS="-fPIC -L${PYTHON_SSL_PATH}" ./configure --with-openssl=${PYTHON_SSL_PATH} --enable-shared --prefix=${PYTHON_PREFIX}
 	make
 	make install
-	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${SSL_INSTALL_PATH}/lib64:${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${SSL_INSTALL_PATH}:${LD_LIBRARY_PATH}
 
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3

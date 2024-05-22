@@ -55,6 +55,8 @@ if [ -z "$PG_VERSION" ]; then
 fi
 
 SSL_VERSION=ssl3
+export DEPENDENCY_LIBS_PATH=/opt/dependency-libs64
+
 if [ -n "$USE_SYSTEM_SSL" ]; then
 
 	if [ "$USE_SYSTEM_SSL" = "1" ]; then
@@ -64,9 +66,6 @@ if [ -n "$USE_SYSTEM_SSL" ]; then
 		SSL_INSTALL_PATH=${DEPENDENCY_LIBS_PATH}
 	fi
 fi
-
-export DEPENDENCY_LIBS_PATH=/opt/dependency-libs64
-
 
 export OPENSSL_VERSION=3.1.4
 export ZLIB_VERSION=1.3
@@ -142,7 +141,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel
+	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel texinfo
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
 }
@@ -682,6 +681,33 @@ build_perl(){
 	build_status "ends" "Perl"
 }
 
+build_libffi(){
+
+	build_status "start" "libffi"
+
+	mkdir -p /source
+	cd /source/
+
+	git clone https://github.com/libffi/libffi.git
+
+	cd libffi
+	git checkout v3.4.6
+	sed -i 's|2.71|2.69|g' configure.ac
+
+	# Generate the configure script
+	./autogen.sh
+	autoreconf -i
+
+	# Configure the build
+	./configure --prefix=${DEPENDENCY_LIBS_PATH}
+
+	# Compile and install libffi
+	make
+	make install
+
+	build_status "ends" "libffi"
+}
+
 build_python(){
 
         build_status "start" "Python"
@@ -691,7 +717,7 @@ build_python(){
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --enable-shared --prefix=${PYTHON_PREFIX}
+	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --with-openssl=${SSL_INSTALL_PATH} --enable-shared --prefix=${PYTHON_PREFIX}
 	make
 	make install
 	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${LD_LIBRARY_PATH}
@@ -1313,6 +1339,7 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	#build_cgal
 	#build_sfcgal
 	build_perl
+	#build_libffi
 	build_python
 	build_ydiff
 	build_pysyncobj

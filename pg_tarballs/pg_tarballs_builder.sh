@@ -691,7 +691,7 @@ build_python(){
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --enable-shared --prefix=${PYTHON_PREFIX}
+	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --without-ssl --enable-shared --prefix=${PYTHON_PREFIX}
 	make
 	make install
 	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${LD_LIBRARY_PATH}

@@ -55,18 +55,16 @@ if [ -z "$PG_VERSION" ]; then
 fi
 
 SSL_VERSION=ssl3
+export DEPENDENCY_LIBS_PATH=/opt/dependency-libs64
+SSL_INSTALL_PATH=${DEPENDENCY_LIBS_PATH}
+
 if [ -n "$USE_SYSTEM_SSL" ]; then
 
 	if [ "$USE_SYSTEM_SSL" = "1" ]; then
 		SSL_INSTALL_PATH=/usr
 		SSL_VERSION=ssl1.1
-	else
-		SSL_INSTALL_PATH=${DEPENDENCY_LIBS_PATH}
 	fi
 fi
-
-export DEPENDENCY_LIBS_PATH=/opt/dependency-libs64
-
 
 export OPENSSL_VERSION=3.1.4
 export ZLIB_VERSION=1.3
@@ -691,10 +689,10 @@ build_python(){
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --without-ssl --enable-shared --prefix=${PYTHON_PREFIX}
+	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --with-openssl=${SSL_INSTALL_PATH} --enable-shared --prefix=${PYTHON_PREFIX}
 	make
 	make install
-	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${SSL_INSTALL_PATH}/lib64:${LD_LIBRARY_PATH}
 
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3

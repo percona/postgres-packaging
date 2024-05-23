@@ -104,6 +104,7 @@ export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 export PGBOUNCER_VERSION=1.22.1
 export PGPOOL_VERSION=4.5.1
 export HAPROXY_VERSION=2.8
+export LIBFFI_VERSION=3.4.2
 export PERL_VERSION=5.38.2
 export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
@@ -140,7 +141,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel
+	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
 }
@@ -680,6 +681,24 @@ build_perl(){
 	build_status "ends" "Perl"
 }
 
+build_libffi() {
+
+	yum install -y make autoconf automake libtool
+
+	build_status "start" "libffi"
+
+        mkdir -p /source
+        cd /source/
+	wget https://github.com/libffi/libffi/releases/download/v${LIBFFI_VERSION}/libffi-${LIBFFI_VERSION}.tar.gz
+	tar -xzf libffi-${LIBFFI_VERSION}.tar.gz
+	cd libffi-${LIBFFI_VERSION}
+
+	./configure --prefix=${DEPENDENCY_LIBS_PATH}
+	make
+	make install
+	build_status "ends" "libffi"
+}
+
 build_python(){
 
         build_status "start" "Python"
@@ -705,6 +724,9 @@ build_python(){
 
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3
+
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libffi.so* ${PYTHON_PREFIX}/lib/
+
 	${PYTHON_PREFIX}/bin/python3 -m ensurepip
 	${PYTHON_PREFIX}/bin/python3 -m pip install --upgrade pip setuptools
 	${PYTHON_PREFIX}/bin/python3 -c "import _ctypes"
@@ -1320,6 +1342,7 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	#build_cgal
 	#build_sfcgal
 	build_perl
+	build_libffi
 	build_python
 	build_ydiff
 	build_pysyncobj

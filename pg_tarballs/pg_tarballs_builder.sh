@@ -719,8 +719,8 @@ build_python(){
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
 	CFLAGS="-fPIC -I/opt/libffi-build/include -I${PYTHON_SSL_INCLUDE}" LDFLAGS="-fPIC -L/opt/libffi-build/lib64 -L${PYTHON_SSL_PATH}" ./configure --with-openssl=/usr --enable-shared --prefix=${PYTHON_PREFIX}
-	LD_LIBRARY_PATH=/opt/libffi-build/lib64:${LD_LIBRARY_PATH} make
-	LD_LIBRARY_PATH=/opt/libffi-build/lib64:${LD_LIBRARY_PATH} make install
+	make
+	make install
 
 	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:/opt/libffi-build/lib64:${PYTHON_SSL_PATH}:${LD_LIBRARY_PATH}
 

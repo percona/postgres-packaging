@@ -55,18 +55,16 @@ if [ -z "$PG_VERSION" ]; then
 fi
 
 SSL_VERSION=ssl3
+export DEPENDENCY_LIBS_PATH=/opt/dependency-libs64
+SSL_INSTALL_PATH=${DEPENDENCY_LIBS_PATH}
+
 if [ -n "$USE_SYSTEM_SSL" ]; then
 
 	if [ "$USE_SYSTEM_SSL" = "1" ]; then
 		SSL_INSTALL_PATH=/usr
 		SSL_VERSION=ssl1.1
-	else
-		SSL_INSTALL_PATH=${DEPENDENCY_LIBS_PATH}
 	fi
 fi
-
-export DEPENDENCY_LIBS_PATH=/opt/dependency-libs64
-
 
 export OPENSSL_VERSION=3.1.4
 export ZLIB_VERSION=1.3
@@ -106,6 +104,7 @@ export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 export PGBOUNCER_VERSION=1.22.1
 export PGPOOL_VERSION=4.5.1
 export HAPROXY_VERSION=2.8
+export LIBFFI_VERSION=3.4.2
 export PERL_VERSION=5.38.2
 export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
@@ -682,22 +681,62 @@ build_perl(){
 	build_status "ends" "Perl"
 }
 
+build_libffi() {
+
+	yum install -y make autoconf automake libtool
+
+	build_status "start" "libffi"
+
+        mkdir -p /source
+        cd /source/
+	wget https://github.com/libffi/libffi/releases/download/v${LIBFFI_VERSION}/libffi-${LIBFFI_VERSION}.tar.gz
+	tar -xzf libffi-${LIBFFI_VERSION}.tar.gz
+	cd libffi-${LIBFFI_VERSION}
+
+	# Build libffi in a custom location to avoid conflict with other libraries
+	./configure --prefix=/opt/libffi-build
+	make
+	make install
+	build_status "ends" "libffi"
+}
+
 build_python(){
 
         build_status "start" "Python"
+
+	PYTHON_SSL_PATH=/usr/lib64
+	PYTHON_SSL_INCLUDE=/usr/include
+	if [ "$USE_SYSTEM_SSL" != "1" ]; then
+		yum install -y openssl3 openssl3-devel
+		PYTHON_SSL_PATH=/usr/lib64/openssl3
+		PYTHON_SSL_INCLUDE=/usr/include/openssl3
+		export PKG_CONFIG_PATH="/usr/lib64/pkgconfig"
+	fi
 
         mkdir -p /source
         cd /source/
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-	CFLAGS="-fPIC" LDFLAGS="-fPIC" ./configure --enable-shared --prefix=${PYTHON_PREFIX}
+	CFLAGS="-fPIC -I${PYTHON_SSL_INCLUDE}" LDFLAGS="-fPIC -L${PYTHON_SSL_PATH}" ./configure --with-openssl=/usr --enable-shared --prefix=${PYTHON_PREFIX}
 	make
 	make install
-	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${LD_LIBRARY_PATH}
+
+	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${PYTHON_SSL_PATH}:${LD_LIBRARY_PATH}
 
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3
+
+	# Copy libffi.so installed on system because python builds successfully with it.
+	cp -rp /usr/lib64/libffi.so* ${PYTHON_PREFIX}/lib/
+
+	# Set RPATH in _ctypes.cpython-312-x86_64-linux-gnu.so to libffi.so
+	cd ${PYTHON_PREFIX}/lib/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2)/lib-dynload/
+
+	ARCH=$(uname -m)
+	patchelf --force-rpath --set-rpath "${PYTHON_PREFIX}/lib" _ctypes.cpython-$(echo ${PYTHON_VERSION} | cut -d. -f1-2 | sed -e 's|\.||g')-${ARCH}-linux-gnu.so
+	cd -
+
 	${PYTHON_PREFIX}/bin/python3 -m ensurepip
 	${PYTHON_PREFIX}/bin/python3 -m pip install --upgrade pip setuptools
 	${PYTHON_PREFIX}/bin/python3 -c "import _ctypes"
@@ -1313,6 +1352,7 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	#build_cgal
 	#build_sfcgal
 	build_perl
+	#build_libffi
 	build_python
 	build_ydiff
 	build_pysyncobj

@@ -141,7 +141,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel
+	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
 }
@@ -693,7 +693,8 @@ build_libffi() {
 	tar -xzf libffi-${LIBFFI_VERSION}.tar.gz
 	cd libffi-${LIBFFI_VERSION}
 
-	./configure --prefix=${DEPENDENCY_LIBS_PATH}
+	# Build libffi in a custom location to avoid conflict with other libraries
+	./configure --prefix=/opt/libffi-build
 	make
 	make install
 	build_status "ends" "libffi"
@@ -717,10 +718,11 @@ build_python(){
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-	CFLAGS="-fPIC -I${PYTHON_SSL_INCLUDE}" LDFLAGS="-fPIC -L${PYTHON_SSL_PATH}" ./configure --with-openssl=/usr --enable-shared --prefix=${PYTHON_PREFIX}
-	make
-	make install
-	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${PYTHON_SSL_PATH}:${LD_LIBRARY_PATH}
+	CFLAGS="-fPIC -I/opt/libffi-build/include -I${PYTHON_SSL_INCLUDE}" LDFLAGS="-fPIC -L/opt/libffi-build/lib64 -L${PYTHON_SSL_PATH}" ./configure --with-openssl=/usr --enable-shared --prefix=${PYTHON_PREFIX}
+	LD_LIBRARY_PATH=/opt/libffi-build/lib64:${LD_LIBRARY_PATH} make
+	LD_LIBRARY_PATH=/opt/libffi-build/lib64:${LD_LIBRARY_PATH} make install
+
+	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:/opt/libffi-build/lib64:${PYTHON_SSL_PATH}:${LD_LIBRARY_PATH}
 
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3

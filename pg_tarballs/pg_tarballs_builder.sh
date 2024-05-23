@@ -141,7 +141,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel
+	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel patchelf
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
 }
@@ -727,7 +727,15 @@ build_python(){
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3
 
+	# Copy libffi.so installed on system because python builds successfully with it.
 	cp -rp /usr/lib64/libffi.so* ${PYTHON_PREFIX}/lib/
+
+	# Set RPATH in _ctypes.cpython-312-x86_64-linux-gnu.so to libffi.so
+	cd ${PYTHON_PREFIX}/lib/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2)/lib-dynload/
+
+	ARCH=$(uname -m)
+	patchelf --force-rpath --set-rpath "${PYTHON_PREFIX}/lib" _ctypes.cpython-$(echo ${PYTHON_VERSION} | cut -d. -f1-2 | sed -e 's|\.||g')-${ARCH}-linux-gnu.so
+	cd -
 
 	${PYTHON_PREFIX}/bin/python3 -m ensurepip
 	${PYTHON_PREFIX}/bin/python3 -m pip install --upgrade pip setuptools

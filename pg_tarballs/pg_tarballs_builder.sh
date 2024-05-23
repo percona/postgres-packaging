@@ -141,7 +141,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel
+	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
 }

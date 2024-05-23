@@ -141,7 +141,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel
+	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
 }
@@ -718,16 +718,16 @@ build_python(){
 	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
-	CFLAGS="-fPIC -I/opt/libffi-build/include -I${PYTHON_SSL_INCLUDE}" LDFLAGS="-fPIC -L/opt/libffi-build/lib64 -L${PYTHON_SSL_PATH}" ./configure --with-openssl=/usr --enable-shared --prefix=${PYTHON_PREFIX}
+	CFLAGS="-fPIC -I${PYTHON_SSL_INCLUDE}" LDFLAGS="-fPIC -L${PYTHON_SSL_PATH}" ./configure --with-openssl=/usr --enable-shared --prefix=${PYTHON_PREFIX}
 	make
 	make install
 
-	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:/opt/libffi-build/lib64:${PYTHON_SSL_PATH}:${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${PYTHON_SSL_PATH}:${LD_LIBRARY_PATH}
 
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3
 
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libffi.so* ${PYTHON_PREFIX}/lib/
+	cp -rp /usr/lib64/libffi.so* ${PYTHON_PREFIX}/lib/
 
 	${PYTHON_PREFIX}/bin/python3 -m ensurepip
 	${PYTHON_PREFIX}/bin/python3 -m pip install --upgrade pip setuptools
@@ -1344,7 +1344,7 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	#build_cgal
 	#build_sfcgal
 	build_perl
-	build_libffi
+	#build_libffi
 	build_python
 	build_ydiff
 	build_pysyncobj

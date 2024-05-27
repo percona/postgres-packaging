@@ -223,8 +223,9 @@ install_deps() {
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
-      dpkg -i percona-release_1.0-27.generic_all.deb
+      wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+      dpkg -i percona-release_latest.generic_all.deb
+      rm -f percona-release_latest.generic_all.deb
       percona-release disable all
       percona-release enable tools testing
       percona-release enable ppg-${PG_VERSION} testing

@@ -109,6 +109,7 @@ export PERL_VERSION=5.38.2
 export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
 export TCL_VERSION=8.6.14
+export ETCD_VERSION=3.5.13
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
 export PGBOUNCER_PREFIX=/opt/percona-pgbouncer
@@ -120,6 +121,7 @@ export HAPROXY_PREFIX=/opt/percona-haproxy
 export PYTHON_PREFIX=/opt/percona-python3
 export PERL_PREFIX=/opt/percona-perl
 export TCL_PREFIX=/opt/percona-tcl
+export ETCD_PREFIX=/opt/percona-etcd
 export PATH=${DEPENDENCY_LIBS_PATH}/bin:${PYTHON_PREFIX}/bin:${PERL_PREFIX}/bin:${TCL_PREFIX}/bin:$PATH
 
 CWD=$(pwd)
@@ -1237,6 +1239,28 @@ build_haproxy(){
 	build_status "ends" "HAProxy"
 }
 
+build_etcd(){
+
+	build_status "start" "etcd"
+	mkdir -p /source
+	mkdir -p ${ETCD_PREFIX}/bin
+	cd /source
+
+	ARCH=$(uname -m)
+
+	if [ "$ARCH" = "x86_64" ]; then
+		ARCH="amd64"
+	elif [ "$ARCH" = "aarch64" ]; then
+		ARCH="arm64"
+	fi
+
+	wget https://github.com/etcd-io/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-${ARCH}.tar.gz
+	tar -xvzf etcd-v${ETCD_VERSION}-linux-${ARCH}.tar.gz
+	cp -rp etcd-v${ETCD_VERSION}-linux-${ARCH}/etcd* ${ETCD_PREFIX}/bin
+
+	build_status "ends" "etcd"
+}
+
 set_rpath(){
 
         directory="$1"  # Change this to your target directory
@@ -1384,5 +1408,6 @@ build_pgbackrest
 build_pgbadger
 build_patroni
 build_haproxy
+build_etcd
 set_rpath_all_products
 create_tarball

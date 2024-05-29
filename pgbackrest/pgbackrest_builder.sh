@@ -80,6 +80,9 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
+    mv percona-release.sh /usr/bin/percona-release
+    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} experimental
     return
@@ -128,6 +131,10 @@ get_sources(){
     rm -fr debian rpm
 
     GIT_SSL_NO_VERIFY=true git clone https://salsa.debian.org/postgresql/pgbackrest.git deb_packaging
+    cd deb_packaging
+    git checkout ${DEB_PACKAGING_TAG}
+    cd -
+
     mv deb_packaging/debian ./
     cd debian/
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
@@ -491,6 +498,7 @@ RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
 BRANCH="release/2.51"
+DEB_PACKAGING_TAG="debian/2.51-1"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0

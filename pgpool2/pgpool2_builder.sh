@@ -289,7 +289,7 @@ install_deps() {
     if [ "$OS" == "rpm" ]
     then
         yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-        percona-release enable ppg-${PG_RELEASE} testing
+        percona-release enable ppg-${PG_RELEASE} experimental
         yum -y install epel-release git wget libtool bison flex byacc
         PKGLIST="percona-postgresql${PG_VER}-devel"
         PKGLIST+=" clang-devel git clang llvm-devel rpmdevtools vim wget"
@@ -331,7 +331,7 @@ install_deps() {
         wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
         dpkg -i percona-release_latest.generic_all.deb
         rm -f percona-release_latest.generic_all.deb
-        percona-release enable ppg-${PG_RELEASE} testing
+        percona-release enable ppg-${PG_RELEASE} experimental
 
         PKGLIST="percona-postgresql-${PG_VER} percona-postgresql-common percona-postgresql-server-dev-all"
 

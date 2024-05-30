@@ -165,7 +165,7 @@ get_sources(){
     mv all_packaging/RPM/* rpm/
     cd rpm
     rm -f patroni.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/patroni/patroni.spec
+    wget https://raw.githubusercontent.com/maqeel75/postgres-packaging/${PG_VERSION}/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     sed -i 's:/opt/patroni/bin:/usr/bin:' patroni.2.service
     sed -i 's:/opt/patroni/etc/:/etc/patroni/:' patroni.2.service

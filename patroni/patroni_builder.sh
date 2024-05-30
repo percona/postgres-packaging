@@ -81,7 +81,7 @@ switch_to_vault_repo() {
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
+    percona-release enable ppg-${PG_VERSION} experimental
     return
 }
 
@@ -90,7 +90,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
+    percona-release enable ppg-${PG_VERSION} experimental
     return
 }
 

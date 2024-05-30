@@ -271,7 +271,13 @@ get_openjade_devel() {
     cd openjade-1.4devel1/
     dpkg-buildpackage -rfakeroot -uc -us -b
     cd ../
-    sudo apt -y install ./openjade_1.4devel1-22_amd64.deb ./libostyle-dev_1.4devel1-22_amd64.deb ./libostyle1c2_1.4devel1-22_amd64.deb
+    ARCH=$(uname -m)
+    if [ "$ARCH" = "x86_64" ]; then
+        ARCH="amd64"
+    elif [ "$ARCH" = "aarch64" ]; then
+        ARCH="arm64"
+    fi
+    sudo apt -y install ./openjade_1.4devel1-22_${ARCH}.deb ./libostyle-dev_1.4devel1-22_${ARCH}.deb ./libostyle1c2_1.4devel1-22_${ARCH}.deb
     popd
 }
 

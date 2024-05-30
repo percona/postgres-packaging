@@ -79,7 +79,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-${BRANCH} experimental
+    percona-release enable ppg-${BRANCH} testing
     return
 }
 
@@ -87,7 +87,7 @@ add_percona_apt_repo(){
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
     dpkg -i percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-${BRANCH} experimental
+    percona-release enable ppg-${BRANCH} testing
     return
 }
 

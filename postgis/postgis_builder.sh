@@ -79,7 +79,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-${PPG_VERSION} testing
+    percona-release enable ppg-${PPG_VERSION} experimental
     return 
 }
 
@@ -294,7 +294,7 @@ install_deps() {
       wget https://repo.percona.com/apt/percona-release_1.0-27.generic_all.deb
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release enable-only tools testing
-      percona-release enable-only ppg-${PPG_VERSION} testing
+      percona-release enable-only ppg-${PPG_VERSION} experimental
       apt-get update
       if [ "x${DEBIAN}" = "xbionic" ]; then
         INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-16 protobuf-c-compiler rdfind xsltproc"

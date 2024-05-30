@@ -40,7 +40,7 @@ Requires:      python36-six python2-pyyaml python36-urllib3 python36-prettytable
 %endif
 Requires:      python3, libffi, postgresql-server, libyaml, python3-ydiff, ydiff, python3-pysyncobj
 Requires:      libffi, postgresql-server, libyaml, postgresql16-server
-BuildRequires: prelink libyaml-devel gcc
+BuildRequires: libyaml-devel gcc
 Provides:      patroni
 Epoch:         1
 Packager:       Percona Development Team <https://jira.percona.com>

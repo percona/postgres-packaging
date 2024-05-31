@@ -113,10 +113,18 @@ get_sources(){
 #        echo "There were some issues during repo cloning from github. Please retry one more time"
 #        exit 1
 #    fi
-    wget https://github.com/etcd-io/etcd/releases/download/v${VERSION}/etcd-v${VERSION}-linux-amd64.tar.gz
-    tar -xvzf etcd-v${VERSION}-linux-amd64.tar.gz
+
+    ARCH=$(uname -m)
+    if [ "$ARCH" = "x86_64" ]; then
+        ARCH="amd64"
+    elif [ "$ARCH" = "aarch64" ]; then
+        ARCH="arm64"
+    fi
+
+    wget https://github.com/etcd-io/etcd/releases/download/v${VERSION}/etcd-v${VERSION}-linux-${ARCH}.tar.gz
+    tar -xvzf etcd-v${VERSION}-linux-${ARCH}.tar.gz
     mkdir -p ${PRODUCT_FULL}
-    cp -rp etcd-v${VERSION}-linux-amd64/* ${PRODUCT_FULL}
+    cp -rp etcd-v${VERSION}-linux-${ARCH}/* ${PRODUCT_FULL}
     cd ${PRODUCT_FULL}
     rm -fr debian rpm
 

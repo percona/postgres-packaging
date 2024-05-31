@@ -80,6 +80,9 @@ switch_to_vault_repo() {
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
+    mv percona-release.sh /usr/bin/percona-release
+    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} testing
     return
@@ -225,17 +228,15 @@ install_deps() {
           yum config-manager --set-enabled PowerTools || yum config-manager --set-enabled powertools || true
       fi
       if [ ${RHEL} = 7 ]; then
-          INSTALL_LIST="git wget rpm-build python36-virtualenv prelink libyaml-devel gcc python36-psycopg2 python36-six"
+          INSTALL_LIST="git wget rpm-build python36-virtualenv libyaml-devel gcc python36-psycopg2 python36-six"
           yum -y install ${INSTALL_LIST}
       else
           dnf config-manager --set-enabled ol${RHEL}_codeready_builder
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          wget https://rpmfind.net/linux/centos/7/os/x86_64/Packages/prelink-0.5.0-9.el7.x86_64.rpm
           INSTALL_LIST="git wget rpm-build python3-virtualenv python3-setuptools libyaml-devel gcc python3-psycopg2"
           yum -y install ${INSTALL_LIST}
-          yum -y install prelink-0.5.0-9.el7.x86_64.rpm
 	      #ln -s /usr/bin/virtualenv-2 /usr/bin/virtualenv
       fi
     else

@@ -146,7 +146,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pgvector/pgvector.spec
+    wget https://raw.githubusercontent.com/maqeel75/postgres-packaging/${BRANCH}/pgvector/pgvector.spec
     cd ${WORKDIR}
     #
     source pgvector.properties

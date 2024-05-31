@@ -99,6 +99,7 @@ export SPATIALITE_VERSION=5.1.0
 
 export CGAL_VERSION=5.6
 export SFCGAL_VERSION=1.5.0
+export LIBXCRYPT_VERSION=4.4.36
 
 export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 export PGBOUNCER_VERSION=1.22.1
@@ -668,6 +669,24 @@ build_pcre(){
 	build_status "ends" "pcre"
 }
 
+build_libxcrypt(){
+
+        build_status "start" "libxcrypt"
+
+        mkdir -p /source
+        cd /source
+        wget https://github.com/besser82/libxcrypt/releases/download/v${LIBXCRYPT_VERSION}/libxcrypt-${LIBXCRYPT_VERSION}.tar.xz
+        tar -xf libxcrypt-${LIBXCRYPT_VERSION}.tar.xz
+        cd libxcrypt-${LIBXCRYPT_VERSION}
+
+        ./autogen.sh
+        ./configure --prefix=${DEPENDENCY_LIBS_PATH}
+        make
+        make install
+
+        build_status "ends" "libxcrypt"
+}
+
 build_perl(){
 
 	build_status "start" "Perl"
@@ -680,6 +699,13 @@ build_perl(){
 	./Configure -des -Duseshrplib -Dprefix=${PERL_PREFIX}
 	make
 	make install
+
+	ARCH=$(uname -m)
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcrypt.so* ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxcrypt.so* ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libowcrypt.so* ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE
+
+	chmod 755 ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE/*.so*
 	build_status "ends" "Perl"
 }
 
@@ -846,6 +872,9 @@ build_postgres_server(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libkeyutils.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxslt.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libuuid.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcrypt.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxcrypt.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libowcrypt.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${TCL_PREFIX}/lib/libtcl*.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${PYTHON_PREFIX}/lib/libpython*.so* ${POSTGRESQL_PREFIX}/lib/
 	ARCH=$(uname -m)
@@ -918,6 +947,9 @@ build_pgpool(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmemcached.* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${PGPOOL_PREFIX}/lib/libpcp.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmemcached.* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcrypt.so* ${PGPOOL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxcrypt.so* ${PGPOOL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libowcrypt.so* ${PGPOOL_PREFIX}/lib/
 	chmod 755 ${PGPOOL_PREFIX}/lib/*.so*
 
 	build_status "ends" "pgPool-II"
@@ -1205,6 +1237,9 @@ build_haproxy(){
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libcrypto.* ${HAPROXY_PREFIX}/lib/
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libssl.* ${HAPROXY_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libpcre2-* ${HAPROXY_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcrypt.so* ${HAPROXY_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxcrypt.so* ${HAPROXY_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libowcrypt.so* ${HAPROXY_PREFIX}/lib/
 	chmod 755 ${HAPROXY_PREFIX}/lib/*.so*
 
         wget https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/haproxy.cfg
@@ -1375,6 +1410,7 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	#build_spatialite
 	#build_cgal
 	#build_sfcgal
+	build_libxcrypt
 	build_perl
 	#build_libffi
 	build_python

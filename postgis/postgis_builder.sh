@@ -78,6 +78,9 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
+    mv percona-release.sh /usr/bin/percona-release
+    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PPG_VERSION} testing
     return 
@@ -245,7 +248,8 @@ install_deps() {
       yum clean all
       yum -y install epel-release
       RHEL=$(rpm --eval %rhel)
-      wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+      ARCH=$(uname -m)
+      wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
       yum -y install pgdg-redhat-repo-latest.noarch.rpm
       yum -y install pgdg-srpm-macros
       if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then

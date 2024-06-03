@@ -70,7 +70,7 @@ export OPENSSL_VERSION=3.1.4
 export ZLIB_VERSION=1.3
 export KRB5_VERSION=1.21.2
 export KEYUTILS_VERSION=1.6.1
-export NCURSES_VERSION=6.4
+export NCURSES_VERSION=6.5
 export LIBEDIT_VERSION=0.3
 export LIBUUID_VERSION=1.0.3
 export LIBXML2_VERSION=2.12.3
@@ -303,7 +303,7 @@ build_ldap(){
 	if [ "$USE_SYSTEM_SSL" != "1" ]; then
 		./configure --prefix=${DEPENDENCY_LIBS_PATH} \
 			CPPFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" \
-			LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
+			LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
 	else
 		./configure --prefix=${DEPENDENCY_LIBS_PATH} \
 			CPPFLAGS="-I/usr/local/include -I${DEPENDENCY_LIBS_PATH}/include" \
@@ -389,7 +389,16 @@ build_uuid(){
 	wget https://src.fedoraproject.org/repo/pkgs/uuid/uuid-${UUID_VERSION}.tar.gz/5db0d43a9022a6ebbbc25337ae28942f/uuid-${UUID_VERSION}.tar.gz
         tar -xvzf uuid-${UUID_VERSION}.tar.gz
         cd uuid-${UUID_VERSION}
-	./configure --prefix=${DEPENDENCY_LIBS_PATH}
+
+	ARCH=$(uname -m)
+
+	BUILD_TYPE=""
+
+	if [ "$ARCH" = "aarch64" ]; then
+		BUILD_TYPE="--build=aarch64-unknown-linux-gnu"
+	fi
+
+	./configure --prefix=${DEPENDENCY_LIBS_PATH} ${BUILD_TYPE}
         make
         make install
 	build_status "ends" "uuid"
@@ -509,19 +518,20 @@ build_mpfr(){
 
 build_libboost(){
 
-	build_status "start" "libboost"
-        mkdir -p /source
-        cd /source
-        wget https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}.tar.gz
-        tar -xvzf boost-${BOOST_VERSION}.tar.gz
-        cd boost-${BOOST_VERSION}
-        mkdir build
-        cd build/
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64"
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64"
+    build_status "start" "libboost"
+    mkdir -p /source
+    cd /source
 
-	build_status "ends" "libboost"
+    # Download Boost
+    wget https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}.tar.gz
+    tar -xvzf boost-${BOOST_VERSION}.tar.gz
+    cd boost-${BOOST_VERSION}
+
+    # Boost build and install using b2 instead of cmake
+    ./bootstrap.sh --prefix=${DEPENDENCY_LIBS_PATH}
+    ./b2 install --prefix=${DEPENDENCY_LIBS_PATH}
+
+    build_status "ends" "libboost"
 }
 
 build_expat(){
@@ -551,7 +561,22 @@ build_freexl(){
         wget https://www.gaia-gis.it/gaia-sins/freexl-${FREEXL_VERSION}.tar.gz
         tar -xvzf freexl-${FREEXL_VERSION}.tar.gz
         cd freexl-${FREEXL_VERSION}
-        CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include/" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -liconv" ./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes --enable-static=no
+	wget -O config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+	wget -O config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+	chmod +x config.sub config.guess
+
+        ARCH=$(uname -m)
+
+        if [[ "$ARCH" == "aarch64" ]]; then
+                HOST_ARG="--host=aarch64-linux-gnu"
+                BUILD_ARG="--build=aarch64-linux-gnu"
+        else
+                HOST_ARG=""
+                BUILD_ARG=""
+        fi
+
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include/" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -liconv" ./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes --enable-static=no ${HOST_ARG} ${BUILD_ARG}
+
         make
 	make install
 

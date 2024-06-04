@@ -376,7 +376,7 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    for file in 'dsc' 'orig.tar.gz' 'changes'
+    for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'
     do
         get_deb_sources $file
     done

@@ -1321,6 +1321,19 @@ build_etcd(){
 	build_status "ends" "etcd"
 }
 
+get_updated_patchelf(){
+
+        # Get patchelf latest build to avoid a bug in older version
+        ARCH=$(uname -m)
+        rm -rf /tmp/patchelf
+        mkdir -p /tmp/patchelf
+        cd /tmp/patchelf
+        wget https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-${ARCH}.tar.gz
+        tar -xvzf patchelf-0.18.0-${ARCH}.tar.gz
+        mv /tmp/patchelf/bin/patchelf /usr/bin/
+        cd -
+}
+
 set_rpath(){
 
         directory="$1"  # Change this to your target directory
@@ -1347,6 +1360,8 @@ set_rpath(){
 }
 
 set_rpath_all_products(){
+
+	get_updated_patchelf
 
 	ARCH=$(uname -m)
 	# Set rpath of all binaries in tarball

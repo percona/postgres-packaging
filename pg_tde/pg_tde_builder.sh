@@ -216,7 +216,17 @@ install_deps() {
             yum -y install epel-release
             dnf module -y disable postgresql
             dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-            INSTALL_LIST="json-c-devel libcurl-devel openssl-devel clang-devel gettext git clang llvm-devel percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpmdevtools vim wget"
+
+            if [ x"$RHEL" = x8 ];
+            then
+                clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+                yum install -y clang-devel-${clang_version} clang-${clang_version}
+                dnf module -y disable llvm-toolset
+            else
+                yum install -y clang-devel clang
+            fi
+
+            INSTALL_LIST="json-c-devel libcurl-devel openssl-devel gettext git llvm-devel percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpmdevtools vim wget"
             yum -y install ${INSTALL_LIST}
             yum -y install binutils make gcc gcc-c++
         fi

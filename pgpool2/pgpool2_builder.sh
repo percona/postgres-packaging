@@ -302,10 +302,20 @@ install_deps() {
         chmod 777 /usr/bin/percona-release
         percona-release enable ppg-${PG_RELEASE} testing
         yum -y install git libtool bison flex byacc
+
+        if [ x"$RHEL" = x8 ];
+        then
+                clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+                yum install -y clang-devel-${clang_version} clang-${clang_version}
+                dnf module -y disable llvm-toolset
+        else
+                yum install -y clang-devel clang
+        fi
+
         PKGLIST="percona-postgresql${PG_VER}-devel"
-        PKGLIST+=" clang-devel git clang llvm-devel rpmdevtools vim wget"
+        PKGLIST+=" git llvm-devel rpmdevtools vim wget"
         PKGLIST+=" perl binutils gcc gcc-c++"
-        PKGLIST+=" clang-devel llvm-devel git rpmdevtools wget gcc make autoconf"
+        PKGLIST+=" llvm-devel git rpmdevtools wget gcc make autoconf"
         PKGLIST+=" jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel libxslt"
         
 	if [[ "${RHEL}" -eq 8 ]]; then

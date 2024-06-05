@@ -191,7 +191,17 @@ install_deps() {
         source /opt/rh/llvm-toolset-7/enable
       else
 	dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-        INSTALL_LIST="clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
+
+        if [ x"$RHEL" = x8 ];
+        then
+            clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+            yum install -y clang-devel-${clang_version} clang-${clang_version}
+            dnf module -y disable llvm-toolset
+        else
+            yum install -y clang-devel clang
+        fi
+
+        INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
 	yum -y install rpmbuild || yum -y install rpm-build || true
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++

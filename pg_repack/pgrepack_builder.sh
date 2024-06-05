@@ -214,7 +214,11 @@ install_deps() {
 	dnf module -y disable postgresql
 	dnf config-manager --enable ol${RHEL}_codeready_builder
         if [ x"$RHEL" = x8 ]; then
-        	INSTALL_LIST="percona-postgresql12 clang-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel clang llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql12-devel percona-postgresql12-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
+                clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+                yum install -y clang-devel-${clang_version} clang-${clang_version}
+                dnf module -y disable llvm-toolset
+
+        	INSTALL_LIST="percona-postgresql12 python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql12-devel percona-postgresql12-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
         	yum -y install ${INSTALL_LIST}
         	yum -y install binutils gcc gcc-c++
 	else

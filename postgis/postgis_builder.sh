@@ -270,8 +270,17 @@ install_deps() {
          dnf module remove llvm-toolset:rhel8
          dnf module reset llvm-toolset:ol8
          dnf module install llvm-toolset:ol8
-         dnf update
-         yum -y install llvm-toolset llvm-devel clang
+
+         if [ x"$RHEL" = x8 ]; then
+             clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+             yum install -y clang-devel-${clang_version} clang-${clang_version}
+             dnf module -y disable llvm-toolset
+             dnf update
+             # Commenting following line because llvm must install from percona repo with percona-postgresql16-devel
+             #yum -y install llvm-toolset llvm-devel
+         else
+             yum -y install llvm-toolset llvm-devel clang
+         fi
          INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++

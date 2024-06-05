@@ -262,16 +262,21 @@ install_deps() {
           source /opt/rh/devtoolset-7/enable
           source /opt/rh/llvm-toolset-7/enable
       else
-	     yum config-manager --enable PowerTools AppStream BaseOS *epel
-	     dnf module -y disable postgresql
+	 yum config-manager --enable PowerTools AppStream BaseOS *epel
+	 dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
          if [ x"$RHEL" = x8 ]; then
              dnf module -y disable llvm-toolset || true
              dnf module remove llvm-toolset:rhel8
              dnf module reset llvm-toolset:ol8
              dnf module install llvm-toolset:ol8
+
+             clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+             yum install -y clang-devel-${clang_version} clang-${clang_version}
+             dnf module -y disable llvm-toolset
              dnf update
-	     yum -y install llvm-toolset llvm-devel clang
+             # Commenting following line because llvm must install from percona repo with percona-postgresql16-devel
+	     #yum -y install llvm-toolset llvm-devel
 	 else
              yum -y install llvm-toolset llvm-devel clang
 	 fi

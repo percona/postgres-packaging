@@ -106,7 +106,7 @@ install_deps() {
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          if [ ${RHEL} = 7 ]; then
+          if [ ${RHEL} = 9 ]; then
              yum install -y gcc-toolset-13-gdb
           fi
           INSTALL_LIST="git curl rpm-build rpmdevtools gcc gcc-c++ cmake ninja-build zlib-devel libffi-devel ncurses-devel python3-sphinx python3-recommonmark multilib-rpm-config binutils-devel valgrind-devel libedit-devel python3-devel libarchive pandoc clang python3-psutil rpmlint"

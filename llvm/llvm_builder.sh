@@ -120,6 +120,7 @@ get_srpm(){
         return;
     fi
 
+    cd $WORKDIR
     PRODUCT=llvm
     echo "PRODUCT=${PRODUCT}" > llvm.properties
     GIT_USER=$(echo ${REPO} | awk -F'/' '{print $4}')
@@ -130,7 +131,6 @@ get_srpm(){
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> llvm.properties
     echo "BUILD_ID=${BUILD_ID}" >> llvm.properties
 
-    cd $WORKDIR
     rm -fr rpmbuild
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}

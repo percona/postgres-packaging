@@ -134,6 +134,9 @@ get_srpm(){
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> llvm.properties
     echo "BUILD_ID=${BUILD_ID}" >> llvm.properties
 
+    source llvm.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BUILD_ID}" >> llvm.properties
+
     rm -fr rpmbuild
     #
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}

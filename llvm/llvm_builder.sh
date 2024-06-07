@@ -152,15 +152,23 @@ get_srpm(){
     llvm_version=$(echo ${latest_rpm} | cut -f2 -d'-' | cut -f1 -d'.')
     echo llvm_version=$llvm_version
 
-    cd rpmbuild/SRPMS/
+    cd ${WORKDIR}/rpmbuild/SRPMS/
     wget https://vault.almalinux.org/${RHEL_FULL_VERSION}/AppStream/Source/Packages/$latest_rpm
+
+    rpm -ivh $latest_rpm
+    rm -f $latest_rpm
+    cd /root/rpmbuild/SPECS
+    sed -i '/^%if %{with check}/,/^%endif/s/^/#/' llvm.spec
+    rpmbuild -bs llvm.spec
     cd -
+
+    cp /root/rpmbuild/SRPMS/*.src.rpm ${WORKDIR}/rpmbuild/SRPMS
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
-    cp llvm.properties ${CURDIR}/srpm
-    cp llvm.properties ${WORKDIR}/srpm
-    cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
-    cp rpmbuild/SRPMS/*.src.rpm ${WORKDIR}/srpm
+
+    ls -lrt /root/rpmbuild/SRPMS/*.src.rpm
+    cp /root/rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
+    cp /root/rpmbuild/SRPMS/*.src.rpm ${WORKDIR}/srpm
     return
 }
 

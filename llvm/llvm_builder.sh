@@ -161,6 +161,7 @@ get_srpm(){
     rpm -ivh $latest_rpm
     rm -f $latest_rpm
     cd /root/rpmbuild/SPECS
+    sed -i 's/\.alma\.[0-9]\+//' llvm.spec
     sed -i '/^%if %{with check}/,/^%endif/s/^/#/' llvm.spec
     rpmbuild -bs llvm.spec
     cd -

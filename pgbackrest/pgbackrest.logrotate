@@ -1,0 +1,11 @@
+/var/log/pgbackrest/*.log {
+        missingok
+        copytruncate
+        compress
+        notifempty
+        sharedscripts
+        create 0640 postgres postgres
+        nodateext
+        weekly
+        rotate 5
+}

@@ -143,6 +143,7 @@ Depends:
  ssl-cert,
  tzdata,
  curl,
+ percona-pg-telemetry16,
  ${misc:Depends},
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-16, postgresql-contrib-16 (= ${binary:Version}), postgresql-16 (= ${binary:Version})

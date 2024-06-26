@@ -1,0 +1,24 @@
+Source: percona-timescaledb
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com> 
+Build-Depends:
+ cmake,
+ percona-postgresql-all (>= 217~),
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/timescale/timescaledb
+
+Package: percona-postgresql-16-timescaledb
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${postgresql:Depends},
+ ${shlibs:Depends},
+Description: time-series SQL database optimized for fast ingest and complex queries
+ TimescaleDB is an open-source database designed to make SQL scalable for
+ time-series data. It is engineered up from PostgreSQL and packaged as a
+ PostgreSQL extension, providing automatic partitioning across time and space
+ (partitioning key), as well as full SQL support.
+ .
+ This package contains the Apache-licensed version of timescaledb.

@@ -1,0 +1,20 @@
+--- bootstrap.old	2021-03-01 15:37:51.392199663 -0500
++++ bootstrap	2021-03-01 15:38:04.083368903 -0500
+@@ -5,7 +5,7 @@
+ # ./bootstrap -DCMAKE_BUILD_TYPE="Debug"
+
+ ## Check to make cmake is installed
+-if ! command -v cmake >/dev/null 2>&1; then
++if ! command -v cmake3 >/dev/null 2>&1; then
+ 	echo "cmake is required to build TimescaleDB. Please install via your system's preferred method."
+ 	exit 1
+ fi
+@@ -36,7 +36,7 @@
+
+ mkdir -p ${BUILD_DIR} && \
+     cd ${BUILD_DIR} && \
+-    cmake ${SRC_DIR} "$@"
++    cmake3 ${SRC_DIR} "$@"
+
+ echo "TimescaleDB build system initialized in ${BUILD_DIR}. To compile, do:"
+ echo -e "\033[1mcd ${BUILD_DIR} && make\033[0m"

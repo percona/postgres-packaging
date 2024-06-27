@@ -1,0 +1,29 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	set -ex; for v in $(shell pg_buildext supported-versions); do \
+		dh_auto_configure -Bbuild-$$v -- \
+			-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+			-DPG_CONFIG=/usr/lib/postgresql/$$v/bin/pg_config \
+			-DSEND_TELEMETRY_DEFAULT=OFF \
+			-DUSE_TELEMETRY=OFF \
+			-DAPACHE_ONLY=1; \
+	done
+
+override_dh_auto_build:
+	+pg_buildext build build-%v
+
+override_dh_auto_install:
+	+pg_buildext install build-%v percona-postgresql-%v-timescaledb
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
+override_dh_installdocs:
+	dh_installdocs --all README.* NOTICE
+
+override_dh_pgxs_test:
+	# defer testing to autopkgtest

@@ -14,7 +14,7 @@
 %endif
 
 Name:		%{sname}
-Version:	0.5.1
+Version:	0.7.2
 Release:	1%{?dist}
 Summary:	Open-source vector similarity search for Postgres
 License:	PostgreSQL
@@ -85,6 +85,6 @@ USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR
 %endif
 
 %changelog
-* Mon Jan 1 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> - 0.5.1-1
-- Initial build 0.5.1
+* Thu Jun 27 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> - 0.7.2-1
+- Initial build 0.7.2
 

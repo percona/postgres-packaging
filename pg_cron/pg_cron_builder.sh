@@ -79,7 +79,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-${BRANCH} testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -88,7 +88,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-${BRANCH} testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -136,9 +136,9 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_cron/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_cron/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_cron/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_cron/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_cron/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_cron/rules
 
     rm -rf debian/control*
     #rm -rf debian/source/format
@@ -154,14 +154,14 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pg_cron/pg_cron.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_cron/pg_cron.spec
     cd ${WORKDIR}
     #
     source pg_cron.properties
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pg_cron.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PG_VERSION}/${REVISION}/${BUILD_ID}" >> pg_cron.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -240,7 +240,7 @@ install_deps() {
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
         percona-release enable tools testing
-        percona-release enable ppg-${BRANCH} testing
+        percona-release enable ppg-${PG_VERSION} testing
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
@@ -492,9 +492,9 @@ INSTALL=0
 RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
-BRANCH="master"
+BRANCH="v1.6.2"
 PG_MAJOR_VERSION=16
-BRANCH="16.3"
+PG_VERSION="16.3"
 REPO="https://github.com/citusdata/pg_cron.git"
 PRODUCT=percona-pg-cron_${PG_MAJOR_VERSION}
 DEBUG=0

@@ -79,7 +79,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-${BRANCH} testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -88,7 +88,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-${BRANCH} testing
+    percona-release enable ppg-${PG_VERSION} testing
     return
 }
 
@@ -131,9 +131,9 @@ get_sources(){
     git checkout debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pgvector/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pgvector/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pgvector/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgvector/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgvector/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgvector/rules
 
     patch -p1 <debian/patches/no-native
     sed -i 's|no-native|#no-native|g' debian/patches/series
@@ -146,7 +146,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${BRANCH}/pgvector/pgvector.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgvector/pgvector.spec
     cd ${WORKDIR}
     #
     source pgvector.properties
@@ -232,7 +232,7 @@ install_deps() {
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
         percona-release enable tools testing
-        percona-release enable ppg-${BRANCH} testing
+        percona-release enable ppg-${PG_VERSION} testing
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
@@ -474,14 +474,14 @@ INSTALL=0
 RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
-BRANCH="master"
+BRANCH="v0.7.2"
 PG_MAJOR_VERSION=14
-BRANCH="14.12"
+PG_VERSION="14.12"
 REPO="https://github.com/pgvector/pgvector.git"
 PRODUCT=percona-pgvector_${PG_MAJOR_VERSION}
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='0.5.1'
+VERSION='0.7.2'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

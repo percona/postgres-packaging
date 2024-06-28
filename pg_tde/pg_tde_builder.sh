@@ -160,7 +160,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PG_VERSION}/${REVISION}/${BUILD_ID}" >> pg_tde.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pg_tde.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -489,10 +489,9 @@ INSTALL=0
 RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
-BRANCH="main"
+BRANCH="1.0.0-beta"
 PG_VERSION=16.3
 PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
-BRANCH="main"
 REPO="https://github.com/Percona-Lab/pg_tde.git"
 PRODUCT=percona-pg_tde_${PG_MAJOR_VERSION}
 DEBUG=0

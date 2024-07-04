@@ -1,7 +1,7 @@
 %undefine _debugsource_packages
 %global postgismajorversion 3.3
 %global postgissomajorversion 3
-%global pgmajorversion 16
+%global pgmajorversion 17
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
 %global sname	postgis
 

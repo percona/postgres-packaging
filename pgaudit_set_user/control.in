@@ -1,4 +1,4 @@
-Source: percona-pgaudit16-set-user
+Source: percona-pgaudit17-set-user
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
@@ -11,7 +11,7 @@ Standards-Version: 3.9.8
 
 Package: percona-pgauditPGVERSION-set-user
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-PGVERSION (>= 16.3) | percona-postgresql-PGVERSION (>= 16.3)
+Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-PGVERSION (>= 17.0) | percona-postgresql-PGVERSION (>= 17.0)
 Provides: pgaudit-set-user, postgresql-PGVERSION-pgaudit-set-user
 Description: PostgreSQL Audit Set User Extension
   PostgreSQL is an advanced Object-Relational database management

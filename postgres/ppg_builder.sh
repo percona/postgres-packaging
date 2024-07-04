@@ -111,7 +111,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 16 remotes/origin/16
+        git checkout -b ${VERSION} remotes/origin/${VERSION}
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -120,19 +120,22 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/control
-        sed -i 's/postgresql-16/percona-postgresql-16/' percona-postgresql-16.templates
+        #wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/rules
+	cp /backup/rules .
+        #wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/control
+        cp /backup/control .
+	sed -i "s/postgresql-${VERSION}/percona-postgresql-${VERSION}/" percona-postgresql-${VERSION}.templates
 	echo "10" > compat
 	sed -i '14d' patches/series
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
-    mv pgrpms/rpm/redhat/main/non-common/postgresql-16/main/*   rpm/
+    mv pgrpms/rpm/redhat/main/non-common/postgresql-${VERSION}/main/*   rpm/
     rm -rf pgrpms
     cd rpm
-        rm postgresql-16.spec
-        wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/percona-postgresql-16.spec
+        rm postgresql-${VERSION}.spec
+        #wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/percona-postgresql-${VERSION}.spec
+	cp /backup/percona-postgresql-${VERSION}.spec .
     cd ../
     cd ${WORKDIR}
     #
@@ -140,7 +143,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-16/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-${VERSION}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -198,7 +201,7 @@ install_deps() {
         then
             clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
             yum install -y clang-devel-${clang_version} clang-${clang_version}
-            dnf module -y disable llvm-toolset
+            #dnf module -y disable llvm-toolset
         else
             yum install -y clang-devel clang
         fi
@@ -209,10 +212,10 @@ install_deps() {
         yum -y install binutils gcc gcc-c++
 	if [ x"$RHEL" = x8 ]; then
 	    yum -y install python2-devel
-            yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
+            #yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
         else
 	    yum -y install python-devel
-            yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 14 | awk '{print $2}'| head -n1)")
+            #yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 14 | awk '{print $2}'| head -n1)")
         fi
         yum clean all
         if [ ! -f  /usr/bin/llvm-config ]; then
@@ -316,9 +319,9 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/16/postgresql-16-A4.pdf
+    wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/${VERSION}/postgresql-${VERSION}-A4.pdf
     cd ../../
-    cp -av rpmbuild/SOURCES/percona-postgresql-16.spec rpmbuild/SPECS
+    cp -av rpmbuild/SOURCES/percona-postgresql-${VERSION}.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     if [ -f /opt/rh/devtoolset-7/enable ]; then
@@ -328,20 +331,20 @@ build_srpm(){
     wget https://raw.githubusercontent.com/Percona-Lab/telemetry-agent/phase-0/call-home.sh
     mv call-home.sh rpmbuild/SOURCES
     cd ${WORKDIR}/rpmbuild/SPECS
-    line_number=$(grep -n SOURCE999 percona-postgresql-16.spec | awk -F ':' '{print $1}')
+    line_number=$(grep -n SOURCE999 percona-postgresql-${VERSION}.spec | awk -F ':' '{print $1}')
     cp ../SOURCES/call-home.sh ./
-    awk -v n=$line_number 'NR <= n {print > "part1.txt"} NR > n {print > "part2.txt"}' percona-postgresql-16.spec
+    awk -v n=$line_number 'NR <= n {print > "part1.txt"} NR > n {print > "part2.txt"}' percona-postgresql-${VERSION}.spec
     head -n -1 part1.txt > temp && mv temp part1.txt
     echo "cat <<'CALLHOME' > /tmp/call-home.sh" >> part1.txt
     cat call-home.sh >> part1.txt
     echo "CALLHOME" >> part1.txt
     cat part2.txt >> part1.txt
     rm -f call-home.sh part2.txt
-    mv part1.txt percona-postgresql-16.spec
+    mv part1.txt percona-postgresql-${VERSION}.spec
     cd ${WORKDIR}
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "pgmajorversion 16" --define "pginstdir /usr/pgsql-16"  --define "pgpackageversion 16" \
-        rpmbuild/SPECS/percona-postgresql-16.spec
+        --define "pgmajorversion ${VERSION}" --define "pginstdir /usr/pgsql-${VERSION}"  --define "pgpackageversion ${VERSION}" \
+        rpmbuild/SPECS/percona-postgresql-${VERSION}.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -389,7 +392,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion 16" --define "pginstdir /usr/pgsql-16" --define "pgpackageversion 16" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion ${VERSION}" --define "pginstdir /usr/pgsql-${VERSION}" --define "pgpackageversion ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -428,7 +431,7 @@ build_source_deb(){
 
     cd debian
     rm -rf changelog
-    echo "percona-postgresql-16 (${VERSION}.${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgresql-${VERSION} (${VERSION}.${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
@@ -483,13 +486,13 @@ build_deb(){
     unset $(locale|cut -d= -f1)
         cd debian/
         wget https://raw.githubusercontent.com/Percona-Lab/telemetry-agent/phase-0/call-home.sh
-        sed -i 's:exit 0::' percona-postgresql-16.postinst
-        echo "cat <<'CALLHOME' > /tmp/call-home.sh" >> percona-postgresql-16.postinst
-        cat call-home.sh >> percona-postgresql-16.postinst
-        echo "CALLHOME" >> percona-postgresql-16.postinst
-        echo "bash +x /tmp/call-home.sh -f \"PRODUCT_FAMILY_POSTGRESQL\" -v \"${PG_VERSION}-${DEB_RELEASE}\" -d \"PACKAGE\" || :" >> percona-postgresql-16.postinst
-        echo "rm -rf /tmp/call-home.sh" >> percona-postgresql-16.postinst
-        echo "exit 0" >> percona-postgresql-16.postinst
+        sed -i 's:exit 0::' percona-postgresql-${VERSION}.postinst
+        echo "cat <<'CALLHOME' > /tmp/call-home.sh" >> percona-postgresql-${VERSION}.postinst
+        cat call-home.sh >> percona-postgresql-${VERSION}.postinst
+        echo "CALLHOME" >> percona-postgresql-${VERSION}.postinst
+        echo "bash +x /tmp/call-home.sh -f \"PRODUCT_FAMILY_POSTGRESQL\" -v \"${PG_VERSION}-${DEB_RELEASE}\" -d \"PACKAGE\" || :" >> percona-postgresql-${VERSION}.postinst
+        echo "rm -rf /tmp/call-home.sh" >> percona-postgresql-${VERSION}.postinst
+        echo "exit 0" >> percona-postgresql-${VERSION}.postinst
         rm -f call-home.sh
     cd ../
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -520,13 +523,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_16_3"
+BRANCH="REL_17_BETA2"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='16'
-RELEASE='3'
+VERSION='17'
+RELEASE='0'
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

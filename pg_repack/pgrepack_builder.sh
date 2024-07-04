@@ -139,13 +139,13 @@ get_sources(){
     mv ../control ./
     mv ../control.in ./
     cd ../
-    echo 16 > debian/pgversions
+    echo ${PG_MAJOR_VERSION} > debian/pgversions
     echo 10 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/pg_repack.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/pg_repack-pg16-makefile-pgxs.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/pg_repack-pg${PG_MAJOR_VERSION}-makefile-pgxs.patch
     cd ../
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/make.patch
     patch -p0 < make.patch
@@ -205,7 +205,7 @@ install_deps() {
         done
         yum -y install epel-release
         yum groupinstall -y "Development Tools"
-        INSTALL_LIST="percona-postgresql16 bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql16-devel percona-postgresql16-server  rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
+        INSTALL_LIST="percona-postgresql${PG_MAJOR_VERSION} bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server  rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
         yum -y install ${INSTALL_LIST}
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
@@ -218,11 +218,11 @@ install_deps() {
                 yum install -y clang-devel-${clang_version} clang-${clang_version}
                 dnf module -y disable llvm-toolset
 
-                INSTALL_LIST="percona-postgresql16 python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
+                INSTALL_LIST="percona-postgresql${PG_MAJOR_VERSION} python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
         	yum -y install ${INSTALL_LIST}
         	yum -y install binutils gcc gcc-c++
 	else
-		yum -y install percona-postgresql16-devel
+		yum -y install percona-postgresql${PG_MAJOR_VERSION}-devel
 		yum -y install zlib-devel libzstd-devel readline-devel lz4-devel clang rpmdevtools git openssl-devel openssl-libs lz4-devel
 	fi
       fi
@@ -234,7 +234,7 @@ install_deps() {
       add_percona_apt_repo
       percona-release enable tools testing
       apt-get update || true
-      INSTALL_LIST="dpkg-dev build-essential percona-postgresql-16 debconf debhelper devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+      INSTALL_LIST="dpkg-dev build-essential percona-postgresql-${PG_MAJOR_VERSION} debconf debhelper devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     return;
@@ -480,7 +480,8 @@ DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.5.0'
 RELEASE='1'
-PG_VERSION=16.3
+PG_VERSION=17.0
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

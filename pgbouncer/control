@@ -14,7 +14,7 @@ Build-Depends:
  libpq-dev,
  pkg-config,
  pandoc,
- percona-postgresql-16,
+ percona-postgresql-17,
  python3
 Homepage: https://www.pgbouncer.org/
 

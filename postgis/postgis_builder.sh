@@ -134,13 +134,13 @@ get_sources(){
         rm -f rules* control* percona-postgis.install 
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3-scripts.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3-scripts.lintian-overrides
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3-scripts.postinst
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3-scripts.prerm
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-${PG_MAJOR_VERSION}-postgis-3-scripts.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-${PG_MAJOR_VERSION}-postgis-3-scripts.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-${PG_MAJOR_VERSION}-postgis-3-scripts.postinst
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-${PG_MAJOR_VERSION}-postgis-3-scripts.prerm
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-${PG_MAJOR_VERSION}-postgis-3.install
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgis.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3.lintian-overrides
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-${PG_MAJOR_VERSION}-postgis-3.lintian-overrides
 	cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
@@ -224,7 +224,7 @@ install_sfcgal(){
     cd $CURDIR/SFCGAL-v1.3.10
     cmake . && make && make install
     chmod 777 /usr/local/lib/libSFCGAL.*
-    cp /usr/local/lib/libSFCGAL.* /usr/lib/postgresql/16/lib
+    cp /usr/local/lib/libSFCGAL.* /usr/lib/postgresql/${PG_MAJOR_VERSION}/lib
     ldconfig -v | grep -i sfcgal
     ln /usr/local/bin/sfcgal-config /usr/bin/sfcgal-config
 }
@@ -257,7 +257,7 @@ install_deps() {
               echo "waiting"
               sleep 1
           done
-          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal33-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj72-devel protobuf-c-devel pkg-config"
+          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql${PG_MAJOR_VERSION}-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal33-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj72-devel protobuf-c-devel pkg-config"
           yum -y install ${INSTALL_LIST}
           source /opt/rh/devtoolset-7/enable
           source /opt/rh/llvm-toolset-7/enable
@@ -275,12 +275,12 @@ install_deps() {
              yum install -y clang-devel-${clang_version} clang-${clang_version}
              dnf module -y disable llvm-toolset
              dnf update
-             # Commenting following line because llvm must install from percona repo with percona-postgresql16-devel
+             # Commenting following line because llvm must install from percona repo with percona-postgresql${PG_MAJOR_VERSION}-devel
 	     #yum -y install llvm-toolset llvm-devel
 	 else
              yum -y install llvm-toolset llvm-devel clang
 	 fi
-         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
+         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql${PG_MAJOR_VERSION}-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all
@@ -306,9 +306,9 @@ install_deps() {
       percona-release enable-only ppg-${PPG_VERSION} testing
       apt-get update
       if [ "x${DEBIAN}" = "xbionic" ]; then
-        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-16 protobuf-c-compiler rdfind xsltproc"
+        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-${PG_MAJOR_VERSION} protobuf-c-compiler rdfind xsltproc"
       else
-        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-16 protobuf-c-compiler rdfind xsltproc"
+        INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-${PG_MAJOR_VERSION} protobuf-c-compiler rdfind xsltproc"
       fi
 
        until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
@@ -398,7 +398,7 @@ build_srpm(){
         source /opt/rh/llvm-toolset-7/enable
     fi
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" --define "pginstdir /usr/pgsql-16"  \
+        --define "version ${VERSION}" --define "pginstdir /usr/pgsql-${PG_MAJOR_VERSION}"  \
         rpmbuild/SPECS/percona-postgis33.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -447,7 +447,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --define "pginstdir /usr/pgsql-16" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --define "pginstdir /usr/pgsql-${PG_MAJOR_VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -586,7 +586,8 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION=${POSTGIS_VERSION}
 RELEASE='6'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PPG_VERSION=16.3
+PPG_VERSION=17.0
+PG_MAJOR_VERSION=$(echo $PPG_VERSION | cut -f1, -d'.')
 
 check_workdir
 get_system

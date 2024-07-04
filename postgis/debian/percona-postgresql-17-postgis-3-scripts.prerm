@@ -3,7 +3,7 @@
 set -eu
 
 MAJOR_VERSION="3"
-PGVERSION="16"
+PGVERSION="17"
 DIR="/usr/share/postgresql/$PGVERSION/extension"
 
 case $1 in

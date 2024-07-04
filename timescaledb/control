@@ -9,7 +9,7 @@ Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Homepage: https://github.com/timescale/timescaledb
 
-Package: percona-postgresql-16-timescaledb
+Package: percona-postgresql-17-timescaledb
 Architecture: any
 Depends:
  ${misc:Depends},

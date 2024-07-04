@@ -1,8 +1,8 @@
 %global _default_patch_fuzz 2
 %global debug_package %{nil}
 %global sname   percona-pg_repack
-%global pgmajorversion 16
-%global pginstdir /usr/pgsql-16
+%global pgmajorversion 17
+%global pginstdir /usr/pgsql-17
 
 Summary:        Reorganize tables in PostgreSQL databases without any locks
 Name:           %{sname}%{pgmajorversion}

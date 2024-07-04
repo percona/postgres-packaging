@@ -1,7 +1,7 @@
 %global sname   percona-pg_gather
 %global version 26
-%global pgmajorversion 16
-%global pginstdir /usr/pgsql-16
+%global pgmajorversion 17
+%global pginstdir /usr/pgsql-17
 
 Summary:        sql-only script to gather performance and configuration data from PostgreSQL databases
 Name:           percona-pg_gather

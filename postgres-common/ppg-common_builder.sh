@@ -157,7 +157,7 @@ get_sources(){
     #
 
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-16/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-${PG_MAJOR_VERSION}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
@@ -452,7 +452,8 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='259'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
-PG_VERSION=16.3
+PG_VERSION=17.0
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
 
 check_workdir
 get_system

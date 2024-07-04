@@ -210,10 +210,10 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="percona-postgresql16-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
+      INSTALL_LIST="percona-postgresql${PG_MAJOR_VERSION}-devel git rpm-build rpmdevtools systemd systemd-devel wget python3-devel python3-setuptools gcc postgresql-devel"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
-      ln -s /usr/pgsql-16/bin/pg_config /usr/bin/pg_config
+      ln -s /usr/pgsql-${PG_MAJOR_VERSION}/bin/pg_config /usr/bin/pg_config
     else
       export DEBIAN=$(lsb_release -sc)
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
@@ -226,7 +226,7 @@ install_deps() {
           echo "waiting"
       done
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install percona-postgresql-16 python3-setuptools python3-pip
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install percona-postgresql-${PG_MAJOR_VERSION} python3-setuptools python3-pip
       if [ -f /usr/bin/python2.7 ]; then
           update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1;
       else
@@ -305,7 +305,7 @@ build_srpm(){
     cp -av rpm/python-psycopg2.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-16" --define "dist .generic" \
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-${PG_MAJOR_VERSION}" --define "dist .generic" \
         --define "version ${VERSION}" rpmbuild/SPECS/python-psycopg2.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -354,9 +354,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    export LIBPQ_DIR=/usr/pgsql-16/
-    export LIBRARY_PATH=/usr/pgsql-16/lib/:/usr/pgsql-16/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-16" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR_VERSION}/
+    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR_VERSION}/lib/:/usr/pgsql-${PG_MAJOR_VERSION}/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-${PG_MAJOR_VERSION}" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -476,7 +476,8 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.9.5'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=16.3
+PG_VERSION=17.0
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
 
 check_workdir
 get_system

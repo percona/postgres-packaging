@@ -335,9 +335,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    export LIBPQ_DIR=/usr/pgsql-16/
-    export LIBRARY_PATH=/usr/pgsql-16/lib/:/usr/pgsql-16/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-16" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR_VERSION}/
+    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR_VERSION}/lib/:/usr/pgsql-${PG_MAJOR_VERSION}/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-${PG_MAJOR_VERSION}" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -462,8 +462,9 @@ PRODUCT=etcd
 DEBUG=0
 VERSION='3.5.13'
 RELEASE='1'
-PG_VERSION=16.3
+PG_VERSION=17.0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

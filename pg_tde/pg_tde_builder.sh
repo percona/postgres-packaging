@@ -405,7 +405,7 @@ build_source_deb(){
     rm -rf changelog
     mkdir -p source
     echo "3.0 (quilt)" > source/format
-    echo 16 > pgversions
+    echo ${PG_MAJOR_VERSION} > pgversions
     echo 10 > compat
     echo "percona-pg-tde (${VERSION}-${RELEASE}) unstable; urgency=low" > changelog
     echo "  * Initial Release." >> changelog
@@ -490,7 +490,7 @@ RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
 BRANCH="1.0.0-beta"
-PG_VERSION=16.3
+PG_VERSION=17.0
 PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 REPO="https://github.com/Percona-Lab/pg_tde.git"
 PRODUCT=percona-pg_tde_${PG_MAJOR_VERSION}

@@ -99,7 +99,7 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-pgaudit16_set_user
+    PRODUCT=percona-pgaudit${PG_MAJOR_VERSION}_set_user
     echo "PRODUCT=${PRODUCT}" > pgaudit.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
@@ -127,9 +127,9 @@ get_sources(){
     cd debian/
     mkdir source
     echo "3.0 (quilt)" > source/format
-    echo 16 > pgversions
+    echo ${PG_MAJOR_VERSION} > pgversions
     echo 9 > compat
-    echo "percona-pgaudit16-set-user (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-pgaudit${PG_MAJOR_VERSION}-set-user (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     
@@ -140,7 +140,7 @@ get_sources(){
     cd ../ 
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit_set_user/percona-pgaudit16_set_user.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgaudit_set_user/percona-pgaudit${PG_MAJOR_VERSION}_set_user.spec
     cd ${WORKDIR}
     #
     source pgaudit.properties
@@ -195,7 +195,7 @@ install_deps() {
                 sleep 1
             done
             yum -y install epel-release
-            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel make"
+            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel make"
             yum -y install ${INSTALL_LIST}
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
@@ -213,7 +213,7 @@ install_deps() {
                 yum install -y clang-devel clang
             fi
 
-            INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
+            INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
             yum -y install ${INSTALL_LIST}
             yum -y install binutils gcc gcc-c++
         fi
@@ -293,11 +293,11 @@ build_srpm(){
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpm/percona-pgaudit16_set_user.spec rpmbuild/SPECS
+    cp -av rpm/percona-pgaudit${PG_MAJOR_VERSION}_set_user.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/percona-pgaudit16_set_user.spec
+        --define "version ${VERSION}" rpmbuild/SPECS/percona-pgaudit${PG_MAJOR_VERSION}_set_user.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -345,7 +345,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pgmajorversion 16" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pgmajorversion ${PG_MAJOR_VERSION}" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -378,7 +378,7 @@ build_source_deb(){
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
-    PRODUCT_DEB="percona-pgaudit16-set-user"
+    PRODUCT_DEB="percona-pgaudit${PG_MAJOR_VERSION}-set-user"
     mv ${TARFILE} ${PRODUCT_DEB}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
@@ -426,7 +426,7 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd percona-pgaudit16-set-user-${VERSION}
+    cd percona-pgaudit${PG_MAJOR_VERSION}-set-user-${VERSION}
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -459,13 +459,14 @@ DEB_RELEASE=2
 REVISION=0
 BRANCH="REL4_0_1"
 REPO="https://github.com/pgaudit/set_user.git"
-PRODUCT=percona-pgaudit16_set_user
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='4.0.1'
 RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=16.3
+PG_VERSION=17.0
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
+PRODUCT=percona-pgaudit${PG_MAJOR_VERSION}_set_user
 
 check_workdir
 get_system

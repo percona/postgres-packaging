@@ -170,10 +170,10 @@ get_sources(){
     sed -i "s:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:g" debian/control.in
     sed -i '/Uploaders/{N;N;N;d;}' debian/control.in
     sed -i "0,/pgpool2/ s/pgpool2.*/percona-pgpool2 (${VERSION}-${DEB_RELEASE}) stable; urgency=medium/" debian/changelog
-    sed -i "84s:${PG_RELEASE}:16:" debian/control.in
-    sed -i "90s:${PG_RELEASE}:16:" debian/control
-    sed -i '84s:postgresql-16:postgresql-16|percona-postgresql-16:' debian/control.in
-    sed -i '90s:postgresql-16:postgresql-16|percona-postgresql-16:' debian/control
+    sed -i "84s:${PG_RELEASE}:${PG_VER}:" debian/control.in
+    sed -i "90s:${PG_RELEASE}:${PG_VER}:" debian/control
+    sed -i "84s:postgresql-${PG_VER}:postgresql-${PG_VER}|percona-postgresql-${PG_VER}:" debian/control.in
+    sed -i "90s:postgresql-${PG_VER}:postgresql-${PG_VER}|percona-postgresql-${PG_VER}:" debian/control
     #sed -i 's:debhelper-compat (= 13):debhelper-compat:' debian/control
     #sed -i 's:debhelper-compat (= 13):debhelper-compat:' debian/control.in
 
@@ -628,7 +628,7 @@ RPM_RELEASE=1
 DEB_RELEASE=1
 REPO="https://git.postgresql.org/git/pgpool2.git"
 VERSION="4.5.1"
-PG_RELEASE=16.3
+PG_RELEASE=17.0
 GIT_BUILD_REPO="https://github.com/percona/postgres-packaging.git"
 BUILD_BRANCH=${PG_RELEASE}
 parse_arguments PICK-ARGS-FROM-ARGV "$@"

@@ -1,6 +1,6 @@
 %global sname   percona-ppg-server-ha
-%global pgmajorversion 16
-%global version 3
+%global pgmajorversion 17
+%global version 0
 
 Summary:        Percona selection of PostgreSQL%{pgmajorversion} HA components
 Name:           %{sname}%{pgmajorversion}
@@ -18,16 +18,12 @@ Requires:       percona-patroni
 Requires:       percona-haproxy
 
 %description
-Essential / key PostgreSQL16 high availability components
+Essential / key PostgreSQL17 high availability components
 Percona Distribution for PostgreSQL features core components, tools and add-ons
 from the community, tested to work together in demanding enterprise environments
 
 %files
 
 %changelog
-* Wed May 08 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> 16.3-1
-- Update version for ppg-server-ha meta-package
-* Thu Oct 27 2022 Surabhi Bhat <surabhi.bhat> 16.2-1
-- Update version for ppg-server-ha meta-package
-* Mon Aug 08 2022 Kai Wagner <kai.wagner@percona.com> 16.2-1
+* Wed Jul 03 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> 17.0-1
 - Initial build

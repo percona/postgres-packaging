@@ -9,7 +9,7 @@ Standards-Version: 4.6.2
 Rules-Requires-Root: no
 Homepage: https://github.com/Percona-Lab/pg_tde.git
 
-Package: percona-postgresql-16-pg-tde
+Package: percona-postgresql-17-pg-tde
 Architecture: any
 Depends:
  ${misc:Depends},

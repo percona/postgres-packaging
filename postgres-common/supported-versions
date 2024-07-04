@@ -49,7 +49,7 @@ else
     . /usr/share/postgresql-common/pgcommon.sh
 fi
 
-DEFAULT="16"
+DEFAULT="17"
 
 # functions
 
@@ -83,12 +83,12 @@ ubuntu() {
         14.04) /bin/echo -e "9.3" ;;
         16.14|16.10) /bin/echo -e "9.5" ;;
         17.04|17.10) /bin/echo -e "9.6" ;;
-        18.04|18.10) /bin/echo -e "16" ;;
-        19.04|19.10) /bin/echo -e "16" ;;
-        20.04|20.10) /bin/echo -e "16" ;;
-        21.04|21.10) /bin/echo -e "16" ;;
-        22.04|22.10) /bin/echo -e "16" ;;
-        24.04|24.10) /bin/echo -e "16" ;;
+        18.04|18.10) /bin/echo -e "17" ;;
+        19.04|19.10) /bin/echo -e "17" ;;
+        20.04|20.10) /bin/echo -e "17" ;;
+        21.04|21.10) /bin/echo -e "17" ;;
+        22.04|22.10) /bin/echo -e "17" ;;
+        24.04|24.10) /bin/echo -e "17" ;;
         *)
             echo "supported-versions: WARNING: Unknown Ubuntu release: $1" >&2
             /bin/echo -e "$DEFAULT" ;;
@@ -101,10 +101,10 @@ debian() {
         6.0*)  /bin/echo -e "8.4" ;; # Squeeze
         7|7.*) /bin/echo -e "9.1" ;; # Wheezy
         8|8.*) /bin/echo -e "9.4" ;; # Jessie
-        9|9.*) /bin/echo -e "16" ;; # Stretch
-        10|10.*) /bin/echo -e "16" ;; # Buster
-        11|11.*) /bin/echo -e "16" ;; # Bullseye
-        12|12.*) /bin/echo -e "16" ;; # Bookworm
+        9|9.*) /bin/echo -e "17" ;; # Stretch
+        10|10.*) /bin/echo -e "17" ;; # Buster
+        11|11.*) /bin/echo -e "17" ;; # Bullseye
+        12|12.*) /bin/echo -e "17" ;; # Bookworm
         testing | unstable)
             /bin/echo -e "$DEFAULT" ;;
         *)
@@ -119,10 +119,10 @@ debian_backports() {
         6.0*)  /bin/echo -e "8.4\n9.1" ;; # Squeeze
         7|7.*) /bin/echo -e "9.1\n9.4" ;; # Wheezy
         8|8.*) /bin/echo -e "9.4\n9.6" ;; # Jessie
-        9|9.*) /bin/echo -e "16" ;; # Stretch
-        10|10.*) /bin/echo -e "16" ;; # Buster
-        11|11.*) /bin/echo -e "16" ;; # Bullseye
-        12|12.*) /bin/echo -e "16" ;; # Bookworm
+        9|9.*) /bin/echo -e "17" ;; # Stretch
+        10|10.*) /bin/echo -e "17" ;; # Buster
+        11|11.*) /bin/echo -e "17" ;; # Bullseye
+        12|12.*) /bin/echo -e "17" ;; # Bookworm
         testing | unstable)
             /bin/echo -e "$DEFAULT" ;;
         *)
@@ -140,6 +140,7 @@ pgdg() {
 	14
 	15
 	16
+	17
 	EOF
 }
 

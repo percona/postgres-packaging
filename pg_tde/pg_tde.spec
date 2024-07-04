@@ -1,4 +1,4 @@
-%define pgmajorversion 16
+%define pgmajorversion 17
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global pname pg_tde
 %global sname percona-pg_tde_%{pgmajorversion}

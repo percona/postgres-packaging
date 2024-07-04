@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 # The PostgreSQL server packages include this in their debian/rules file.
-MAJOR_VER = 16
+MAJOR_VER = 17
 ifndef MAJOR_VER
 $(error MAJOR_VER must be defined before including this file)
 endif
@@ -93,7 +93,7 @@ ifeq ($(call version_ge,11),y)
   TEMP_CONFIG = TEMP_CONFIG=$(AUX_MK_DIR)/test-with-jit.conf
 endif
 
-ifeq ($(call version_ge,16),y)
+ifeq ($(call version_ge,17),y)
   CONFIGURE_FLAGS += --with-lz4
 endif
 
@@ -150,6 +150,7 @@ override_dh_auto_build-arch:
 	$(MAKE) -C build/contrib all
 	# build tutorial stuff
 	$(MAKE) -C build/src/tutorial NO_PGXS=1
+	$(MAKE) -C build/src/tools/pg_bsd_indent
 
 override_dh_auto_install-arch:
 	$(MAKE) -C build/doc/src/sgml install-man DESTDIR=$(CURDIR)/debian/tmp
@@ -160,6 +161,9 @@ override_dh_auto_install-arch:
 	mkdir -p debian/postgresql-$(MAJOR_VER)/usr/share/doc/postgresql-$(MAJOR_VER)
 	mkdir -p debian/postgresql-$(MAJOR_VER)/usr/share/doc/postgresql-$(MAJOR_VER)/examples/extension/
 	mv -f debian/tmp/usr/share/doc/postgresql-doc-$(MAJOR_VER)/extension/* debian/postgresql-$(MAJOR_VER)/usr/share/doc/postgresql-$(MAJOR_VER)/examples/extension/
+	$(MAKE) -C build/src/tools/pg_bsd_indent install DESTDIR=$(CURDIR)/debian/tmp
+	install -m755 src/tools/pgindent/pgindent $(CURDIR)/debian/tmp/usr/lib/postgresql/$(MAJOR_VER)/bin
+	install -m644 src/tools/pgindent/typedefs.list $(CURDIR)/debian/tmp/usr/share/postgresql/$(MAJOR_VER)
 
 override_dh_auto_install-indep:
 	$(MAKE) -C build/doc install DESTDIR=$(CURDIR)/debian/tmp
@@ -186,7 +190,7 @@ override_dh_install-arch:
 	ln -s ../percona-postgresql-common/README.Debian.gz debian/percona-postgresql-$(MAJOR_VER)/usr/share/doc/postgresql-$(MAJOR_VER)/README.Debian.gz
 
 	# assemble perl version of pg_config in libpq-dev
-	cp debian/percona-postgresql-client-16/usr/lib/postgresql/16/bin/pg_config debian/libpq-dev/usr/bin/
+	cp debian/percona-postgresql-client-17/usr/lib/postgresql/17/bin/pg_config debian/libpq-dev/usr/bin/
 	sed -ne '1,/__DATA__/p' debian/libpq-dev/usr/bin/pg_config
 	LC_ALL=C debian/percona-postgresql-client-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/bin/pg_config >> debian/libpq-dev/usr/bin/pg_config
 	LC_ALL=C debian/percona-postgresql-client-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/bin/pg_config --help >> debian/libpq-dev/usr/bin/pg_config
@@ -238,6 +242,7 @@ ifeq (, $(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 	    done; \
 	    $(TEST_FAIL_COMMAND); \
 	fi
+	$(MAKE) -C build/src/tools/pg_bsd_indent test DESTDIR=$(CURDIR)/debian/tmp
 endif
 
 override_dh_installdeb-arch:

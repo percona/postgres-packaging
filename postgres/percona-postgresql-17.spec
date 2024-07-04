@@ -1,11 +1,11 @@
 %undefine _package_note_file
 
 # These are macros to be used with find_lang and other stuff
-%global packageversion 160
-%global pgpackageversion 16
-%global prevmajorversion 15
+%global packageversion 170
+%global pgpackageversion 17
+%global prevmajorversion 16
 %global sname postgresql
-%global vname postgresql16
+%global vname postgresql17
 %global pgbaseinstdir	/usr/pgsql-%{pgmajorversion}
 
 %global beta 0
@@ -64,14 +64,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        16.3
+Version:        17.0
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-16.3.tar.gz
+Source0:        percona-postgresql-17.0.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -797,7 +797,7 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 %endif
 
 # Create the directory for sockets.
-%{__install} -d -m 755 %{buildroot}/var/run/%{sname}
+%{__install} -d -m 755 %{buildroot}%{_rundir}/%{sname}
 # ... and make a tmpfiles script to recreate it at reboot.
 %{__mkdir} -p %{buildroot}/%{_tmpfilesdir}
 %{__install} -m 0644 %{SOURCE19} %{buildroot}/%{_tmpfilesdir}/%{sname}-%{pgmajorversion}.conf
@@ -876,6 +876,7 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 %find_lang pg_basebackup-%{pgmajorversion}
 %find_lang pg_checksums-%{pgmajorversion}
 %find_lang pg_config-%{pgmajorversion}
+%find_lang pg_combinebackup-%{pgmajorversion}
 %find_lang pg_controldata-%{pgmajorversion}
 %find_lang pg_ctl-%{pgmajorversion}
 %find_lang pg_dump-%{pgmajorversion}
@@ -886,6 +887,7 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 %find_lang pg_upgrade-%{pgmajorversion}
 %find_lang pg_verifybackup-%{pgmajorversion}
 %find_lang pg_waldump-%{pgmajorversion}
+%find_lang pg_walsummary-%{pgmajorversion}
 %find_lang pgscripts-%{pgmajorversion}
 %if %plperl
 %find_lang plperl-%{pgmajorversion}
@@ -906,7 +908,7 @@ cat pltcl-%{pgmajorversion}.lang > pg_pltcl.lst
 cat pg_amcheck-%{pgmajorversion}.lang > pg_contrib.lst
 cat libpq5-%{pgmajorversion}.lang > pg_libpq5.lst
 cat pg_config-%{pgmajorversion}.lang ecpg-%{pgmajorversion}.lang ecpglib6-%{pgmajorversion}.lang > pg_devel.lst
-cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
+cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang pg_combinebackup-%{pgmajorversion}.lang pg_walsummary-%{pgmajorversion}.lang > pg_main.lst
 cat postgres-%{pgmajorversion}.lang pg_resetwal-%{pgmajorversion}.lang pg_checksums-%{pgmajorversion}.lang pg_verifybackup-%{pgmajorversion}.lang pg_controldata-%{pgmajorversion}.lang plpgsql-%{pgmajorversion}.lang pg_test_timing-%{pgmajorversion}.lang pg_test_fsync-%{pgmajorversion}.lang pg_archivecleanup-%{pgmajorversion}.lang pg_waldump-%{pgmajorversion}.lang pg_rewind-%{pgmajorversion}.lang pg_upgrade-%{pgmajorversion}.lang > pg_server.lst
 %endif
 
@@ -941,7 +943,7 @@ export PGDATA
 chown postgres: /var/lib/pgsql/.bash_profile
 chmod 700 /var/lib/pgsql/.bash_profile
 cp %SOURCE999 /tmp/ 2>/dev/null || :
-bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "16.3-1" -d "PACKAGE" &>/dev/null || :
+bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "17.0-1" -d "PACKAGE" &>/dev/null || :
 rm -f /tmp/call-home.sh
 
 
@@ -969,9 +971,12 @@ fi
 %{_sbindir}/update-alternatives --install %{_bindir}/dropdb pgsql-dropdb %{pgbaseinstdir}/bin/dropdb %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_bindir}/dropuser pgsql-dropuser %{pgbaseinstdir}/bin/dropuser %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_bindir}/pg_basebackup pgsql-pg_basebackup %{pgbaseinstdir}/bin/pg_basebackup %{packageversion}0
+%{_sbindir}/update-alternatives --install %{_bindir}/pg_combinebackup pgsql-pg_combinebackup %{pgbaseinstdir}/bin/pg_combinebackup %{packageversion}0
+%{_sbindir}/update-alternatives --install %{_bindir}/pg_createsubscriber pgsql-pg_createsubscriber %{pgbaseinstdir}/bin/pg_createsubscriber %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_bindir}/pg_dump pgsql-pg_dump %{pgbaseinstdir}/bin/pg_dump %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_bindir}/pg_dumpall pgsql-pg_dumpall %{pgbaseinstdir}/bin/pg_dumpall %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_bindir}/pg_restore pgsql-pg_restore %{pgbaseinstdir}/bin/pg_restore %{packageversion}0
+%{_sbindir}/update-alternatives --install %{_bindir}/pg_walsummary pgsql-pg_walsummary %{pgbaseinstdir}/bin/pg_walsummary %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_bindir}/reindexdb pgsql-reindexdb %{pgbaseinstdir}/bin/reindexdb %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_bindir}/vacuumdb pgsql-vacuumdb %{pgbaseinstdir}/bin/vacuumdb %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/clusterdb.1 pgsql-clusterdbman %{pgbaseinstdir}/share/man/man1/clusterdb.1 %{packageversion}0
@@ -980,9 +985,12 @@ fi
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/dropdb.1 pgsql-dropdbman %{pgbaseinstdir}/share/man/man1/dropdb.1 %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/dropuser.1 pgsql-dropuserman %{pgbaseinstdir}/share/man/man1/dropuser.1 %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/pg_basebackup.1 pgsql-pg_basebackupman %{pgbaseinstdir}/share/man/man1/pg_basebackup.1 %{packageversion}0
+%{_sbindir}/update-alternatives --install %{_mandir}/man1/pg_combinebackup.1 pgsql-pg_combinebackupman %{pgbaseinstdir}/share/man/man1/pg_combinebackup.1 %{packageversion}0
+%{_sbindir}/update-alternatives --install %{_mandir}/man1/pg_createsubscriber.1 pgsql-pg_createsubscriberman %{pgbaseinstdir}/share/man/man1/pg_createsubscriber.1 %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/pg_dump.1 pgsql-pg_dumpman %{pgbaseinstdir}/share/man/man1/pg_dump.1 %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/pg_dumpall.1 pgsql-pg_dumpallman %{pgbaseinstdir}/share/man/man1/pg_dumpall.1 %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/pg_restore.1 pgsql-pg_restoreman %{pgbaseinstdir}/share/man/man1/pg_restore.1 %{packageversion}0
+%{_sbindir}/update-alternatives --install %{_mandir}/man1/pg_walsummary.1 pgsql-pg_walsummaryman %{pgbaseinstdir}/share/man/man1/pg_walsummary.1 %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/psql.1 pgsql-psqlman %{pgbaseinstdir}/share/man/man1/psql.1 %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/reindexdb.1 pgsql-reindexdbman %{pgbaseinstdir}/share/man/man1/reindexdb.1 %{packageversion}0
 %{_sbindir}/update-alternatives --install %{_mandir}/man1/vacuumdb.1 pgsql-vacuumdbman %{pgbaseinstdir}/share/man/man1/vacuumdb.1 %{packageversion}0
@@ -995,31 +1003,36 @@ fi
 %postun
 if [ "$1" -eq 0 ]
   then
-        # Only remove these links if the package is completely removed from the system (vs.just being upgraded)
-        %{_sbindir}/update-alternatives --remove pgsql-psql             %{pgbaseinstdir}/bin/psql
-        %{_sbindir}/update-alternatives --remove pgsql-clusterdb        %{pgbaseinstdir}/bin/clusterdb
-        %{_sbindir}/update-alternatives --remove pgsql-clusterdbman     %{pgbaseinstdir}/share/man/man1/clusterdb.1
-        %{_sbindir}/update-alternatives --remove pgsql-createdb         %{pgbaseinstdir}/bin/createdb
-        %{_sbindir}/update-alternatives --remove pgsql-createdbman      %{pgbaseinstdir}/share/man/man1/createdb.1
-        %{_sbindir}/update-alternatives --remove pgsql-createuser       %{pgbaseinstdir}/bin/createuser
-        %{_sbindir}/update-alternatives --remove pgsql-createuserman    %{pgbaseinstdir}/share/man/man1/createuser.1
-        %{_sbindir}/update-alternatives --remove pgsql-dropdb           %{pgbaseinstdir}/bin/dropdb
-        %{_sbindir}/update-alternatives --remove pgsql-dropdbman        %{pgbaseinstdir}/share/man/man1/dropdb.1
-        %{_sbindir}/update-alternatives --remove pgsql-dropuser         %{pgbaseinstdir}/bin/dropuser
-        %{_sbindir}/update-alternatives --remove pgsql-dropuserman      %{pgbaseinstdir}/share/man/man1/dropuser.1
-        %{_sbindir}/update-alternatives --remove pgsql-pg_basebackup    %{pgbaseinstdir}/bin/pg_basebackup
-        %{_sbindir}/update-alternatives --remove pgsql-pg_dump          %{pgbaseinstdir}/bin/pg_dump
-        %{_sbindir}/update-alternatives --remove pgsql-pg_dumpall       %{pgbaseinstdir}/bin/pg_dumpall
-        %{_sbindir}/update-alternatives --remove pgsql-pg_dumpallman    %{pgbaseinstdir}/share/man/man1/pg_dumpall.1
-        %{_sbindir}/update-alternatives --remove pgsql-pg_basebackupman %{pgbaseinstdir}/share/man/man1/pg_basebackup.1
-        %{_sbindir}/update-alternatives --remove pgsql-pg_dumpman       %{pgbaseinstdir}/share/man/man1/pg_dump.1
-        %{_sbindir}/update-alternatives --remove pgsql-pg_restore       %{pgbaseinstdir}/bin/pg_restore
-        %{_sbindir}/update-alternatives --remove pgsql-pg_restoreman    %{pgbaseinstdir}/share/man/man1/pg_restore.1
-        %{_sbindir}/update-alternatives --remove pgsql-psqlman          %{pgbaseinstdir}/share/man/man1/psql.1
-        %{_sbindir}/update-alternatives --remove pgsql-reindexdb        %{pgbaseinstdir}/bin/reindexdb
-        %{_sbindir}/update-alternatives --remove pgsql-reindexdbman     %{pgbaseinstdir}/share/man/man1/reindexdb.1
-        %{_sbindir}/update-alternatives --remove pgsql-vacuumdb         %{pgbaseinstdir}/bin/vacuumdb
-        %{_sbindir}/update-alternatives --remove pgsql-vacuumdbman      %{pgbaseinstdir}/share/man/man1/vacuumdb.1
+	# Only remove these links if the package is completely removed from the system (vs.just being upgraded)
+	%{_sbindir}/update-alternatives --remove pgsql-psql		%{pgbaseinstdir}/bin/psql
+	%{_sbindir}/update-alternatives --remove pgsql-clusterdb	%{pgbaseinstdir}/bin/clusterdb
+	%{_sbindir}/update-alternatives --remove pgsql-clusterdbman	%{pgbaseinstdir}/share/man/man1/clusterdb.1
+	%{_sbindir}/update-alternatives --remove pgsql-createdb		%{pgbaseinstdir}/bin/createdb
+	%{_sbindir}/update-alternatives --remove pgsql-createdbman	%{pgbaseinstdir}/share/man/man1/createdb.1
+	%{_sbindir}/update-alternatives --remove pgsql-createuser	%{pgbaseinstdir}/bin/createuser
+	%{_sbindir}/update-alternatives --remove pgsql-createuserman	%{pgbaseinstdir}/share/man/man1/createuser.1
+	%{_sbindir}/update-alternatives --remove pgsql-dropdb		%{pgbaseinstdir}/bin/dropdb
+	%{_sbindir}/update-alternatives --remove pgsql-dropdbman	%{pgbaseinstdir}/share/man/man1/dropdb.1
+	%{_sbindir}/update-alternatives --remove pgsql-dropuser		%{pgbaseinstdir}/bin/dropuser
+	%{_sbindir}/update-alternatives --remove pgsql-dropuserman	%{pgbaseinstdir}/share/man/man1/dropuser.1
+	%{_sbindir}/update-alternatives --remove pgsql-pg_basebackup	%{pgbaseinstdir}/bin/pg_basebackup
+	%{_sbindir}/update-alternatives --remove pgsql-pg_combinebackup	%{pgbaseinstdir}/bin/pg_combinebackup
+	%{_sbindir}/update-alternatives --remove pgsql-pg_createsubscriber	%{pgbaseinstdir}/bin/pg_createsubscriber
+	%{_sbindir}/update-alternatives --remove pgsql-pg_dump		%{pgbaseinstdir}/bin/pg_dump
+	%{_sbindir}/update-alternatives --remove pgsql-pg_dumpall	%{pgbaseinstdir}/bin/pg_dumpall
+	%{_sbindir}/update-alternatives --remove pgsql-pg_dumpallman	%{pgbaseinstdir}/share/man/man1/pg_dumpall.1
+	%{_sbindir}/update-alternatives --remove pgsql-pg_basebackupman	%{pgbaseinstdir}/share/man/man1/pg_basebackup.1
+	%{_sbindir}/update-alternatives --remove pgsql-pg_combinebackupman	%{pgbaseinstdir}/share/man/man1/pg_combinebackup.1
+	%{_sbindir}/update-alternatives --remove pgsql-pg_createsubscriberman	%{pgbaseinstdir}/share/man/man1/pg_createsubscriber.1
+	%{_sbindir}/update-alternatives --remove pgsql-pg_dumpman	%{pgbaseinstdir}/share/man/man1/pg_dump.1
+	%{_sbindir}/update-alternatives --remove pgsql-pg_restore	%{pgbaseinstdir}/bin/pg_restore
+	%{_sbindir}/update-alternatives --remove pgsql-pg_restoreman	%{pgbaseinstdir}/share/man/man1/pg_restore.1
+	%{_sbindir}/update-alternatives --remove pgsql-pg_walsummary	%{pgbaseinstdir}/bin/pg_walsummary
+	%{_sbindir}/update-alternatives --remove pgsql-psqlman		%{pgbaseinstdir}/share/man/man1/psql.1
+	%{_sbindir}/update-alternatives --remove pgsql-reindexdb	%{pgbaseinstdir}/bin/reindexdb
+	%{_sbindir}/update-alternatives --remove pgsql-reindexdbman	%{pgbaseinstdir}/share/man/man1/reindexdb.1
+	%{_sbindir}/update-alternatives --remove pgsql-vacuumdb		%{pgbaseinstdir}/bin/vacuumdb
+	%{_sbindir}/update-alternatives --remove pgsql-vacuumdbman	%{pgbaseinstdir}/share/man/man1/vacuumdb.1
   fi
 
 %postun libs
@@ -1051,13 +1064,16 @@ fi
 %{pgbaseinstdir}/bin/dropuser
 %{pgbaseinstdir}/bin/pgbench
 %{pgbaseinstdir}/bin/pg_basebackup
+%{pgbaseinstdir}/bin/pg_combinebackup
 %{pgbaseinstdir}/bin/pg_config
+%{pgbaseinstdir}/bin/pg_createsubscriber
 %{pgbaseinstdir}/bin/pg_dump
 %{pgbaseinstdir}/bin/pg_dumpall
 %{pgbaseinstdir}/bin/pg_isready
 %{pgbaseinstdir}/bin/pg_receivewal
 %{pgbaseinstdir}/bin/pg_restore
 %{pgbaseinstdir}/bin/pg_waldump
+%{pgbaseinstdir}/bin/pg_walsummary
 %{pgbaseinstdir}/bin/psql
 %{pgbaseinstdir}/bin/reindexdb
 %{pgbaseinstdir}/bin/vacuumdb
@@ -1069,11 +1085,14 @@ fi
 %{pgbaseinstdir}/share/man/man1/dropuser.*
 %{pgbaseinstdir}/share/man/man1/pgbench.1
 %{pgbaseinstdir}/share/man/man1/pg_basebackup.*
+%{pgbaseinstdir}/share/man/man1/pg_combinebackup.*
 %{pgbaseinstdir}/share/man/man1/pg_config.*
+%{pgbaseinstdir}/share/man/man1/pg_createsubscriber.*
 %{pgbaseinstdir}/share/man/man1/pg_dump.*
 %{pgbaseinstdir}/share/man/man1/pg_dumpall.*
 %{pgbaseinstdir}/share/man/man1/pg_isready.*
 %{pgbaseinstdir}/share/man/man1/pg_restore.*
+%{pgbaseinstdir}/share/man/man1/pg_walsummary.*
 %{pgbaseinstdir}/share/man/man1/psql.*
 %{pgbaseinstdir}/share/man/man1/reindexdb.*
 %{pgbaseinstdir}/share/man/man1/vacuumdb.*
@@ -1091,7 +1110,6 @@ fi
 %defattr(-,root,root)
 %doc %{pgbaseinstdir}/doc/extension/*.example
 %{pgbaseinstdir}/lib/_int.so
-%{pgbaseinstdir}/lib/adminpack.so
 %{pgbaseinstdir}/lib/amcheck.so
 %{pgbaseinstdir}/lib/auth_delay.so
 %{pgbaseinstdir}/lib/autoinc.so
@@ -1122,7 +1140,6 @@ fi
 %{pgbaseinstdir}/lib/lo.so
 %{pgbaseinstdir}/lib/ltree.so
 %{pgbaseinstdir}/lib/moddatetime.so
-%{pgbaseinstdir}/lib/old_snapshot.so
 %{pgbaseinstdir}/lib/pageinspect.so
 %{pgbaseinstdir}/lib/passwordcheck.so
 %{pgbaseinstdir}/lib/pgcrypto.so
@@ -1158,7 +1175,6 @@ fi
 %if %uuid
 %{pgbaseinstdir}/lib/uuid-ossp.so
 %endif
-%{pgbaseinstdir}/share/extension/adminpack*
 %{pgbaseinstdir}/share/extension/amcheck*
 %{pgbaseinstdir}/share/extension/autoinc*
 %{pgbaseinstdir}/share/extension/bloom*
@@ -1185,7 +1201,6 @@ fi
 %{pgbaseinstdir}/share/extension/ltree.control
 %{pgbaseinstdir}/share/extension/ltree--*.sql
 %{pgbaseinstdir}/share/extension/moddatetime*
-%{pgbaseinstdir}/share/extension/old_snapshot*
 %{pgbaseinstdir}/share/extension/pageinspect*
 %{pgbaseinstdir}/share/extension/pg_buffercache*
 %{pgbaseinstdir}/share/extension/pg_freespacemap*
@@ -1256,7 +1271,6 @@ fi
 %{pgbaseinstdir}/bin/pg_upgrade
 %{pgbaseinstdir}/bin/pg_verifybackup
 %{pgbaseinstdir}/bin/postgres
-%{pgbaseinstdir}/share/fix-CVE-*.sql
 %{pgbaseinstdir}/share/man/man1/initdb.*
 %{pgbaseinstdir}/share/man/man1/pg_archivecleanup.1
 %{pgbaseinstdir}/share/man/man1/pg_checksums.*
@@ -1298,7 +1312,8 @@ fi
 %attr(700,postgres,postgres) %dir /var/lib/pgsql/%{pgmajorversion}
 %attr(700,postgres,postgres) %dir /var/lib/pgsql/%{pgmajorversion}/data
 %attr(700,postgres,postgres) %dir /var/lib/pgsql/%{pgmajorversion}/backups
-%attr(755,postgres,postgres) %dir /var/run/%{sname}
+%attr(755,postgres,postgres) %dir %{_rundir}/%{sname}
+
 %{pgbaseinstdir}/lib/*_and_*.so
 %{pgbaseinstdir}/share/information_schema.sql
 %{pgbaseinstdir}/share/snowball_create.sql

@@ -1,6 +1,6 @@
-%define pginstdir /usr/pgsql-16/
+%define pginstdir /usr/pgsql-17/
 
-Name:           percona-pgaudit16
+Name:           percona-pgaudit17
 Version:        16.0
 Release:        2%{?dist}
 Summary:        PostgreSQL Audit Extension
@@ -14,15 +14,15 @@ Source0:        percona-pgaudit-%{version}.tar.gz
 Patch0:		all.patch
 
 BuildRequires:  gcc
-BuildRequires:  percona-postgresql16-server
-BuildRequires:  percona-postgresql16-devel
+BuildRequires:  percona-postgresql17-server
+BuildRequires:  percona-postgresql17-devel
 BuildRequires:  openssl-devel 
 
-Requires:       postgresql16
-Requires:       postgresql16-libs
-Requires:       postgresql16-server
+Requires:       postgresql17
+Requires:       postgresql17-libs
+Requires:       postgresql17-server
 
-Provides:       pgaudit pgaudit16
+Provides:       pgaudit pgaudit17
 %description
 The PostgreSQL Audit extension (pgaudit) provides detailed session
 and/or object audit logging via the standard PostgreSQL logging
@@ -43,7 +43,7 @@ trail or audit log. The term audit log is used in this documentation.
 %patch0
 
 %build
-sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-16/bin/pg_config:' Makefile
+sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-17/bin/pg_config:' Makefile
 %{__make} USE_PGXS=1 %{?_smp_mflags}
 
 

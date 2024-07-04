@@ -140,7 +140,7 @@ get_sources(){
     echo "alternative_regression_outputs.patch" >> debian/patches/series
     mv control* debian/
     mv rules debian/
-    echo 16 > debian/pgversions
+    echo ${PG_MAJOR_VERSION} > debian/pgversions
     echo 9 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
@@ -200,7 +200,7 @@ install_deps() {
                 sleep 1
             done
             yum -y install epel-release
-            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel make gcc gcc-c++"
+            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel make gcc gcc-c++"
             yum -y install ${INSTALL_LIST}
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
@@ -218,7 +218,7 @@ install_deps() {
                 yum install -y clang-devel clang
             fi
 
-            INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
+            INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
             yum -y install ${INSTALL_LIST}
             yum -y install binutils gcc gcc-c++
         fi
@@ -475,7 +475,7 @@ RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
 BRANCH="master"
-PG_VERSION=16.3
+PG_VERSION=17.0
 BRANCH="${PG_VERSION}"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
@@ -483,6 +483,7 @@ DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION="16.0"
 RELEASE='1'
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

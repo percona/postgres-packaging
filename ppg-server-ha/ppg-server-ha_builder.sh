@@ -101,7 +101,7 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-ppg-server-ha-16
+    PRODUCT=percona-ppg-server-ha-${PG_MAJOR_VERSION}
     echo "PRODUCT=${PRODUCT}" > ppg-server-ha.properties
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
@@ -132,7 +132,7 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server-ha/control
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server-ha/rules
     echo 9 > compat
-    echo "percona-ppg-server-ha-16 (${PG_VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-ppg-server-ha-${PG_MAJOR_VERSION} (${PG_VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
 
@@ -331,8 +331,8 @@ build_rpm(){
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    export LIBPQ_DIR=/usr/pgsql-16/
-    export LIBRARY_PATH=/usr/pgsql-16/lib/:/usr/pgsql-16/include/
+    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR_VERSION}/
+    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR_VERSION}/lib/:/usr/pgsql-${PG_MAJOR_VERSION}/include/
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -442,14 +442,15 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-PG_VERSION=16.3
+PG_VERSION=17.0
 BRANCH="v${PG_VERSION}"
 REPO="https://github.com/percona/postgres-packaging.git"
-PRODUCT=percona-ppg-server-ha-16
 DEBUG=0
 VERSION="ppg-${PG_VERSION}"
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 RELEASE='1'
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
+PRODUCT=percona-ppg-server-ha-${PG_MAJOR_VERSION}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

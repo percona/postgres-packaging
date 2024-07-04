@@ -105,7 +105,6 @@ EOF
                     </ruleList>
                 </actionGroup>
                 <!-- Windows -->
-                <!-- BUG #16341 Windows: System account -->
                 <setInstallerVariableFromScriptOutput>
                 <exec>${env(WINDIR)}\System32\whoami</exec>
                 <execArgs></execArgs>
@@ -1664,7 +1663,6 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
                 </setInstallerVariable>
                 <!-- On Windows, in unattended update mode, service password has to be specified. If it is
                 not specified then we should raise an error. set defaultpassword to '' in this case
-                so that error comes. Refer FB 16503 for more details -->
                 <setInstallerVariable>
                     <name>defaultpassword</name>
                     <value></value>

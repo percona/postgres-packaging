@@ -1,6 +1,6 @@
 %global debug_package %{nil}
-%global pgmajorversion 16
-%global pginstdir /usr/pgsql-16
+%global pgmajorversion 17
+%global pginstdir /usr/pgsql-17
 
 Summary:        Reliable PostgreSQL Backup & Restore
 Name:           percona-pgbackrest

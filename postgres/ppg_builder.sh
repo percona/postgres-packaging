@@ -120,10 +120,8 @@ get_sources(){
             mv $file "percona-$file"
         done
 	rm -f rules control
-        #wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/rules
-	cp /backup/rules .
-        #wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/control
-        cp /backup/control .
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/rules
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/control
 	sed -i "s/postgresql-${VERSION}/percona-postgresql-${VERSION}/" percona-postgresql-${VERSION}.templates
 	echo "10" > compat
 	sed -i '14d' patches/series
@@ -134,8 +132,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-${VERSION}.spec
-        #wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/percona-postgresql-${VERSION}.spec
-	cp /backup/percona-postgresql-${VERSION}.spec .
+        wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/percona-postgresql-${VERSION}.spec
     cd ../
     cd ${WORKDIR}
     #

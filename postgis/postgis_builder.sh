@@ -587,7 +587,7 @@ VERSION=${POSTGIS_VERSION}
 RELEASE='6'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 PPG_VERSION=17.0
-PG_MAJOR_VERSION=$(echo $PPG_VERSION | cut -f1, -d'.')
+PG_MAJOR_VERSION=$(echo $PPG_VERSION | cut -f1 -d'.')
 
 check_workdir
 get_system

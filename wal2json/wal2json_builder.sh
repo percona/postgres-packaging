@@ -488,7 +488,7 @@ VERSION='2.6'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 PG_VERSION=17.0
-PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 
 check_workdir
 get_system

@@ -474,16 +474,16 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="master"
+BRANCH="17beta1"
 PG_VERSION=17.0
 BRANCH="${PG_VERSION}"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION="16.0"
+VERSION="17.0"
 RELEASE='1'
-PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

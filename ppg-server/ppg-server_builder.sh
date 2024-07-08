@@ -451,7 +451,7 @@ DEBUG=0
 VERSION="ppg-${PG_VERSION}"
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 RELEASE='1'
-PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 PRODUCT=percona-ppg-server-${PG_MAJOR_VERSION}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

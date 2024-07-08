@@ -465,7 +465,7 @@ VERSION='4.0.1'
 RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 PG_VERSION=17.0
-PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1, -d'.')
+PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 PRODUCT=percona-pgaudit${PG_MAJOR_VERSION}_set_user
 
 check_workdir

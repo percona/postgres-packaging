@@ -1,8 +1,8 @@
 %define pginstdir /usr/pgsql-17/
 
 Name:           percona-pgaudit17
-Version:        16.0
-Release:        2%{?dist}
+Version:        17.0
+Release:        1%{?dist}
 Summary:        PostgreSQL Audit Extension
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
@@ -40,7 +40,7 @@ trail or audit log. The term audit log is used in this documentation.
 
 %prep
 %setup -q -n percona-pgaudit-%{version}
-%patch0
+#%%patch0
 
 %build
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-17/bin/pg_config:' Makefile
@@ -60,7 +60,7 @@ sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-17/bin/pg_config:' Makefi
 %defattr(-,root,root,-)
 %doc %{pginstdir}/doc/extension/README-pgaudit.md
 %{pginstdir}/lib/pgaudit.so
-%{pginstdir}/share/extension/pgaudit--16.*.sql
+%{pginstdir}/share/extension/pgaudit--17.*.sql
 %{pginstdir}/lib/bitcode/pgaudit*.bc
 %{pginstdir}/lib/bitcode/pgaudit/pgaudit*.bc
 %{pginstdir}/share/extension/pgaudit.control

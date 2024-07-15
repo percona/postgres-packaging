@@ -18,6 +18,7 @@ override_dh_installdocs:
 	dh_installdocs --all doc/*
 
 override_dh_auto_install:
+	sed -i 's|\$$(libpq)|-lpgcommon -lpgport \$$(libpq)|g' bin/Makefile
 	+pg_buildext loop percona-postgresql-%v-repack
 	# Install an alternative for /usr/bin/pg_repack. We could wrap this
 	# using pg_wrapper, but it doesn't matter which binary gets used (it

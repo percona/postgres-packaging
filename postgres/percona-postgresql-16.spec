@@ -64,14 +64,14 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        16.3
+Version:        16.4
 Release:        1%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-16.3.tar.gz
+Source0:        percona-postgresql-16.4.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
@@ -941,7 +941,7 @@ export PGDATA
 chown postgres: /var/lib/pgsql/.bash_profile
 chmod 700 /var/lib/pgsql/.bash_profile
 cp %SOURCE999 /tmp/ 2>/dev/null || :
-bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "16.3-1" -d "PACKAGE" &>/dev/null || :
+bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "16.4-1" -d "PACKAGE" &>/dev/null || :
 rm -f /tmp/call-home.sh
 
 

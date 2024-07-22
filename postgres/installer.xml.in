@@ -1664,7 +1664,7 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
                 </setInstallerVariable>
                 <!-- On Windows, in unattended update mode, service password has to be specified. If it is
                 not specified then we should raise an error. set defaultpassword to '' in this case
-                so that error comes. Refer FB 16503 for more details -->
+                so that error comes. -->
                 <setInstallerVariable>
                     <name>defaultpassword</name>
                     <value></value>

@@ -219,7 +219,7 @@ install_deps() {
 
             if [ x"$RHEL" = x8 ];
             then
-                clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+                clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
                 yum install -y clang-devel-${clang_version} clang-${clang_version}
                 dnf module -y disable llvm-toolset
             else
@@ -490,7 +490,7 @@ RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
 BRANCH="1.0.0-beta"
-PG_VERSION=16.3
+PG_VERSION=16.4
 PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 REPO="https://github.com/Percona-Lab/pg_tde.git"
 PRODUCT=percona-pg_tde_${PG_MAJOR_VERSION}

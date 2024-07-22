@@ -170,8 +170,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-16, percona-postgresql-doc-16
 Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-16 (= ${binary:Version})
-Conflicts: postgresql-server-dev-16 (<< 16.3-1~)
-Replaces: postgresql-server-dev-16 (<< 16.3-1~)
+Conflicts: postgresql-server-dev-16 (<< 16.4-1~)
+Replaces: postgresql-server-dev-16 (<< 16.4-1~)
 Description: front-end programs for PostgreSQL 16
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and

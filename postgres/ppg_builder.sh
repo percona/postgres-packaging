@@ -196,7 +196,7 @@ install_deps() {
 
         if [ x"$RHEL" = x8 ];
         then
-            clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+            clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
             yum install -y clang-devel-${clang_version} clang-${clang_version}
             dnf module -y disable llvm-toolset
         else
@@ -520,13 +520,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_16_3"
+BRANCH="REL_16_4"
 REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='16'
-RELEASE='3'
+RELEASE='4'
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

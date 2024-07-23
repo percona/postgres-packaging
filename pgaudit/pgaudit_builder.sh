@@ -211,7 +211,7 @@ install_deps() {
 
             if [ x"$RHEL" = x8 ];
             then
-                clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+                clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
                 yum install -y clang-devel-${clang_version} clang-${clang_version}
                 dnf module -y disable llvm-toolset
             else
@@ -474,7 +474,6 @@ INSTALL=0
 RPM_RELEASE=7
 DEB_RELEASE=7
 REVISION=0
-BRANCH="master"
 BRANCH="1.7.0"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
@@ -483,7 +482,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.7.0'
 RELEASE='7'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=15.7
+PG_VERSION=15.8
 
 check_workdir
 get_system

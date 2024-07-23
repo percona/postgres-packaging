@@ -169,8 +169,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-14, percona-postgresql-doc-14
 Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-14 (= ${binary:Version})
-Conflicts: postgresql-server-dev-14 (<< 14.12-1~)
-Replaces: postgresql-server-dev-14 (<< 14.12-1~)
+Conflicts: postgresql-server-dev-14 (<< 14.13-1~)
+Replaces: postgresql-server-dev-14 (<< 14.13-1~)
 Description: front-end programs for PostgreSQL 14
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and

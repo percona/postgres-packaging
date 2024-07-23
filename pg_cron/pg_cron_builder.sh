@@ -227,7 +227,7 @@ install_deps() {
 
             if [ x"$RHEL" = x8 ];
             then
-                clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+                clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
                 yum install -y clang-devel-${clang_version} clang-${clang_version}
                 dnf module -y disable llvm-toolset
             else
@@ -501,7 +501,7 @@ DEB_RELEASE=2
 REVISION=0
 BRANCH="v1.6.2"
 PG_MAJOR_VERSION=12
-PG_VERSION="12.19"
+PG_VERSION="12.20"
 REPO="https://github.com/citusdata/pg_cron.git"
 PRODUCT=percona-pg-cron_${PG_MAJOR_VERSION}
 DEBUG=0

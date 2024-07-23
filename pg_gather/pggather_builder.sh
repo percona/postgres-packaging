@@ -425,7 +425,7 @@ GIT_REPO="https://github.com/percona/postgres-packaging"
 PRODUCT=percona-pg_gather
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='26'
+VERSION='27'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

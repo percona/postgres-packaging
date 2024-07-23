@@ -272,11 +272,11 @@ install_deps() {
          dnf module install llvm-toolset:ol8
 
          if [ x"$RHEL" = x8 ]; then
-             clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+             clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
              yum install -y clang-devel-${clang_version} clang-${clang_version}
              dnf module -y disable llvm-toolset
              dnf update
-             # Commenting following line because llvm must install from percona repo with percona-postgresql16-devel
+             # Commenting following line because llvm must install from percona repo with percona-postgresql12-devel
              #yum -y install llvm-toolset llvm-devel
          else
              yum -y install llvm-toolset llvm-devel clang
@@ -587,7 +587,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION=${POSTGIS_VERSION}
 RELEASE='6'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PPG_VERSION=12.19
+PPG_VERSION=12.20
 
 check_workdir
 get_system

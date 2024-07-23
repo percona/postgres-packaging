@@ -143,11 +143,11 @@ get_srpm(){
     rpmdev-setuptree
 
     if [ ${RHEL} = 9 ]; then
-        # RHEL repository version that carries llvm 16 src rpm
-        RHEL_FULL_VERSION=9.3
+        # RHEL repository version that carries llvm 17 src rpm
+        RHEL_FULL_VERSION=9.4
     elif [ ${RHEL} = 8 ]; then
-        # RHEL repository version that carries llvm 16 src rpm
-        RHEL_FULL_VERSION=8.9
+        # RHEL repository version that carries llvm 17 src rpm
+        RHEL_FULL_VERSION=8.10
     fi
 
     latest_rpm=$(curl -s https://vault.almalinux.org/${RHEL_FULL_VERSION}/AppStream/Source/Packages/ | grep -o 'llvm-[1-9][1-9].*\.src.rpm' | sort -V | tail -n 1 | awk -F'>' '{print $2}')
@@ -244,9 +244,9 @@ REVISION=0
 PRODUCT=llvm
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='16.0'
+VERSION='17.0'
 RELEASE='1'
-PG_VERSION=12.19
+PG_VERSION=12.20
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 
 check_workdir

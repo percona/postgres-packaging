@@ -271,7 +271,7 @@ install_deps() {
              dnf module reset llvm-toolset:ol8
              dnf module install llvm-toolset:ol8
 
-             clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+             clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
              yum install -y clang-devel-${clang_version} clang-${clang_version}
              dnf module -y disable llvm-toolset
              dnf update

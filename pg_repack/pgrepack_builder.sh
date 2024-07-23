@@ -214,7 +214,7 @@ install_deps() {
 	dnf module -y disable postgresql
 	dnf config-manager --enable ol${RHEL}_codeready_builder
         if [ x"$RHEL" = x8 ]; then
-		clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+		clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
                 yum install -y clang-devel-${clang_version} clang-${clang_version}
                 dnf module -y disable llvm-toolset
 

@@ -304,7 +304,7 @@ install_deps() {
 
 	if [ x"$RHEL" = x8 ];
 	then
-		clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+		clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
 		yum install -y clang-devel-${clang_version} clang-${clang_version}
 		dnf module -y disable llvm-toolset
 	else
@@ -622,12 +622,12 @@ OS_NAME=
 ARCH=
 OS=
 REVISION=0
-BRANCH="V4_5_1"
+BRANCH="V4_5_2"
 INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REPO="https://git.postgresql.org/git/pgpool2.git"
-VERSION="4.5.1"
+VERSION="4.5.2"
 PG_RELEASE=17.0
 GIT_BUILD_REPO="https://github.com/percona/postgres-packaging.git"
 BUILD_BRANCH=${PG_RELEASE}

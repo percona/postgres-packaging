@@ -2,7 +2,7 @@ Source: percona-pg-gather
 Maintainer: Percona Development Team <info@percona.com>
 Section: misc
 Priority: optional
-Standards-Version: 26
+Standards-Version: 27
 
 
 Package: percona-pg-gather

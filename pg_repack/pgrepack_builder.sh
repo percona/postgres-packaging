@@ -214,7 +214,7 @@ install_deps() {
 	dnf module -y disable postgresql
 	dnf config-manager --enable ol${RHEL}_codeready_builder
         if [ x"$RHEL" = x8 ]; then
-		clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+		clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
                 yum install -y clang-devel-${clang_version} clang-${clang_version}
                 dnf module -y disable llvm-toolset
         	INSTALL_LIST="percona-postgresql15 python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql15-devel percona-postgresql15-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel libzstd-devel lz4-devel"
@@ -479,7 +479,7 @@ DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.5.0'
 RELEASE='1'
-PG_VERSION=15.7
+PG_VERSION=15.8
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

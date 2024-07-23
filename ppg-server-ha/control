@@ -2,7 +2,7 @@ Source: percona-ppg-server-ha-13
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 13.15.0
+Standards-Version: 13.16.0
 Homepage: www.percona.com
 
 Package: percona-ppg-server-ha-13

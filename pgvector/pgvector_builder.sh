@@ -219,7 +219,7 @@ install_deps() {
 
             if [ x"$RHEL" = x8 ];
             then
-                clang_version=$(yum list --showduplicates clang-devel | grep "16.0" | awk '{print $2}' | head -n 1)
+                clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | awk '{print $2}' | head -n 1)
                 yum install -y clang-devel-${clang_version} clang-${clang_version}
                 dnf module -y disable llvm-toolset
             else
@@ -483,7 +483,7 @@ DEB_RELEASE=2
 REVISION=0
 BRANCH="v0.7.2"
 PG_MAJOR_VERSION=13
-PG_VERSION="13.15"
+PG_VERSION="13.16"
 REPO="https://github.com/pgvector/pgvector.git"
 PRODUCT=percona-pgvector_${PG_MAJOR_VERSION}
 DEBUG=0

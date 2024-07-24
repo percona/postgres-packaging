@@ -158,7 +158,7 @@ get_srpm(){
 
     cd ${WORKDIR}/rpmbuild/SRPMS/
     wget https://vault.almalinux.org/${RHEL_FULL_VERSION}/AppStream/Source/Packages/$latest_rpm
-
+    latest_rpm=$(find . | grep llvm | grep src.rpm | cut -f2 -d'/')
     rpm -ivh $latest_rpm
     rm -f $latest_rpm
     cd /root/rpmbuild/SPECS

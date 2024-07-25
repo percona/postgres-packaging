@@ -244,7 +244,7 @@ install_deps() {
       percona-release enable tools testing
       percona-release enable ppg-${PG_VERSION} testing
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-15 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev meson"
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-15 percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev meson python3-setuptools"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"

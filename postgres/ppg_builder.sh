@@ -89,7 +89,7 @@ get_sources(){
     echo "VERSION=${PSM_VER}" >> percona-postgresql.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgresql.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgresql.properties
-    git clone "$REPO"
+    git clone "$REPO" postgresql
     retval=$?
     if [ $retval != 0 ]
     then
@@ -520,8 +520,8 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_17_BETA2"
-REPO="git://git.postgresql.org/git/postgresql.git"
+BRANCH="TDE_REL_17_STABLE"
+REPO="https://github.com/Percona-Lab/postgres.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"

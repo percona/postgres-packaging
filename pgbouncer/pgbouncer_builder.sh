@@ -221,7 +221,7 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       fi
-      INSTALL_LIST="pandoc libtool libevent-devel python3 python3-psycopg2 openssl-devel pam-devel  percona-postgresql${PG_MAJOR_VERSION}-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libevent-devel libtool pandoc"
+      INSTALL_LIST="pandoc libtool libevent-devel python3 python3-psycopg2 openssl-devel pam-devel git rpm-build rpmdevtools systemd systemd-devel wget libxml2-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libevent-devel libtool pandoc"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 
@@ -232,7 +232,7 @@ install_deps() {
       export DEBIAN=$(lsb_release -sc)
       add_percona_apt_repo
       apt-get update || true
-      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-${PG_MAJOR_VERSION} percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config"
+      INSTALL_LIST="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec git wget libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libevent-dev libssl-dev libc-ares-dev pandoc pkg-config"
       until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
         sleep 1
         echo "waiting"

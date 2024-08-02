@@ -482,7 +482,7 @@ REPO="https://github.com/pgbouncer/pgbouncer.git"
 PRODUCT=percona-pgbouncer
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.23.0'
+VERSION='1.23.1'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 PG_VERSION=17.0

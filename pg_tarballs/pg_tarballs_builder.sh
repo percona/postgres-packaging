@@ -102,7 +102,7 @@ export SFCGAL_VERSION=1.5.0
 export LIBXCRYPT_VERSION=4.4.36
 
 export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
-export PGBOUNCER_VERSION=1.23.0
+export PGBOUNCER_VERSION=1.23.1
 export PGPOOL_VERSION=4.5.2
 export HAPROXY_VERSION=2.8
 export LIBFFI_VERSION=3.4.2
@@ -803,6 +803,7 @@ build_python(){
 	${PYTHON_PREFIX}/bin/pip3 install boto3
 	${PYTHON_PREFIX}/bin/pip3 install click
 	${PYTHON_PREFIX}/bin/pip3 install prettytable
+	${PYTHON_PREFIX}/bin/pip3 install python-etcd
 
         build_status "ends" "Python"
 }

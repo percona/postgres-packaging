@@ -123,6 +123,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/control
         sed -i 's/postgresql-15/percona-postgresql-15/' percona-postgresql-15.templates
 	echo "10" > compat
+	sed -i 's:focal-arm64-outline-atomics::' patches/series
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm

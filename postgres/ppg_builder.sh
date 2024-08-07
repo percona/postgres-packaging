@@ -196,22 +196,20 @@ install_deps() {
         if [ x"$RHEL" = x8 ];
         then
             clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
-            yum install -y clang-devel-${clang_version} clang-${clang_version}
+            yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${clang_version}
             dnf module -y disable llvm-toolset
         else
             yum install -y clang-devel clang
         fi
 
-        INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
+        INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
 	yum -y install rpmbuild || yum -y install rpm-build || true
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
 	if [ x"$RHEL" = x8 ]; then
 	    yum -y install python2-devel
-            yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 12 | awk '{print $2}'| head -n1)")
         else
 	    yum -y install python-devel
-            yum -y install $(echo "llvm-devel-$(yum list llvm-devel --showduplicates | grep 14 | awk '{print $2}'| head -n1)")
         fi
         yum clean all
         if [ ! -f  /usr/bin/llvm-config ]; then

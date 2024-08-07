@@ -68,11 +68,11 @@ fi
 
 export OPENSSL_VERSION=3.1.4
 export ZLIB_VERSION=1.3
-export KRB5_VERSION=1.21.2
+export KRB5_VERSION=1.21.3
 export KEYUTILS_VERSION=1.6.1
 export NCURSES_VERSION=6.5
 export LIBEDIT_VERSION=0.3
-export LIBUUID_VERSION=1.0.3
+export LIBUUID_VERSION=1.0.2
 export LIBXML2_VERSION=2.12.3
 export LIBXSLT_VERSION=1.1.39
 export LIBICONV_VERSION=1.17
@@ -135,7 +135,7 @@ PG_STAT_MONITOR_BRANCH="2.0.4"
 PGBACKREST_BRANCH="release/2.53"
 PGBADGER_BRANCH="v12.4"
 PATRONI_BRANCH="v3.3.2"
-HAPROXY_BRANCH="v2.8.9"
+HAPROXY_BRANCH="v2.8.10"
 
 create_build_environment(){
 
@@ -195,7 +195,7 @@ build_keyutils(){
 
 	build_status "start" "keyutils"
         cd /source
-        wget https://people.redhat.com/~dhowells/keyutils/keyutils-${KEYUTILS_VERSION}.tar.bz2
+        wget --no-check-certificate https://people.redhat.com/~dhowells/keyutils/keyutils-${KEYUTILS_VERSION}.tar.bz2
         tar -xvf keyutils-${KEYUTILS_VERSION}.tar.bz2
         cd keyutils-${KEYUTILS_VERSION}
         #./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -844,7 +844,7 @@ build_tcl(){
 
         mkdir -p /source
         cd /source/
-        wget http://prdownloads.sourceforge.net/tcl/tcl${TCL_VERSION}-src.tar.gz
+        wget https://fossies.org/linux/misc/tcl${TCL_VERSION}-src.tar.gz
         tar xvf tcl${TCL_VERSION}-src.tar.gz
         cd tcl${TCL_VERSION}/unix
         ./configure --prefix=${TCL_PREFIX} --enable-shared=yes

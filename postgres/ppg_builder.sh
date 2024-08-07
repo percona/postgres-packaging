@@ -198,7 +198,7 @@ install_deps() {
             yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${clang_version}
             dnf module -y disable llvm-toolset
         else
-            yum install -y clang-devel clang
+            yum install -y clang-devel clang llvm-devel
         fi
 
         INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"

@@ -111,7 +111,7 @@ get_sources(){
 
     git clone https://salsa.debian.org/postgresql/postgresql.git deb_packaging
     cd deb_packaging
-        git checkout -b 12 debian/${PG_VERSION}-1
+        git checkout -b 12 remotes/origin/12
     cd ../
     mv deb_packaging/debian ./
     rm -rf deb_packaging

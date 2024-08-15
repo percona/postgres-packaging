@@ -326,6 +326,7 @@ Summary:        The programs needed to create and run a PostgreSQL server
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
 Requires(pre):  /usr/sbin/useradd /usr/sbin/groupadd
+Requires:       percona-pg-telemetry%{pgmajorversion}
 # for /sbin/ldconfig
 Requires(post):         glibc
 Requires(postun):       glibc
@@ -1001,6 +1002,8 @@ chown postgres: /var/lib/pgsql/.bash_profile
 chmod 700 /var/lib/pgsql/.bash_profile
 cp %SOURCE999 /tmp/ 2>/dev/null || :
 bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "14.13-1" -d "PACKAGE" &>/dev/null || :
+chgrp percona-telemetry /usr/local/percona/telemetry_uuid &>/dev/null || :
+chmod 664 /usr/local/percona/telemetry_uuid &>/dev/null || :
 rm -f /tmp/call-home.sh
 
 

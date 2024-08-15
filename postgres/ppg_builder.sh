@@ -487,6 +487,8 @@ build_deb(){
         cat call-home.sh >> percona-postgresql-13.postinst
         echo "CALLHOME" >> percona-postgresql-13.postinst
         echo "bash +x /tmp/call-home.sh -f \"PRODUCT_FAMILY_POSTGRESQL\" -v \"${PG_VERSION}-${DEB_RELEASE}\" -d \"PACKAGE\" || :" >> percona-postgresql-13.postinst
+	echo "chgrp percona-telemetry /usr/local/percona/telemetry_uuid &>/dev/null || :" >> percona-postgresql-13.postinst
+        echo "chmod 664 /usr/local/percona/telemetry_uuid &>/dev/null || :" >> percona-postgresql-13.postinst
         echo "rm -rf /tmp/call-home.sh" >> percona-postgresql-13.postinst
         echo "exit 0" >> percona-postgresql-13.postinst
         rm -f call-home.sh

@@ -142,6 +142,7 @@ Depends:
  percona-postgresql-common (>= 182~),
  ssl-cert,
  tzdata,
+ percona-pg-telemetry14,
  ${misc:Depends},
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-14, postgresql-contrib-14 (= ${binary:Version}), postgresql-14 (= ${binary:Version})

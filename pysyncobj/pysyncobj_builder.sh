@@ -115,7 +115,7 @@ get_sources(){
     mv python3-pysyncobj/debian ./
     mkdir rpm
     cd rpm
-    wget https://github.com/Percona-Lab/python3-pysyncobj/raw/master/rpm/SPECS/python3-pysyncobj.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pysyncobj/python3-pysyncobj.spec
     cd ../
     rm -rf python3-pysyncobj
     cd ../

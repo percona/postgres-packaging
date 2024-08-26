@@ -78,7 +78,7 @@ getent passwd %{name} >/dev/null || useradd -r -g %{name} -d %{_sharedstatedir}/
 %files
 %defattr(-,root,root,-)
 %doc README*
-%dir %attr(750, root, root) %{_sysconfdir}/%{name}
+%dir %attr(755, root, root) %{_sysconfdir}/%{name}
 %dir %attr(750, etcd, etcd) %{_var}/lib/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf.yaml
 %{_unitdir}/%{name}.service

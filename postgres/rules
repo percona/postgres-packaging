@@ -139,6 +139,10 @@ override_dh_auto_configure:
 	# remove pre-built documentation
 	rm -fv doc/src/sgml/*-stamp
 
+	cd contrib/pg_tde; \
+		./configure; \
+		cd -
+
 override_dh_auto_build-indep:
 	$(MAKE) -C build/doc all # build man + html
 

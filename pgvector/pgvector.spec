@@ -14,7 +14,7 @@
 %endif
 
 Name:		%{sname}
-Version:	0.7.2
+Version:	0.7.4
 Release:	1%{?dist}
 Summary:	Open-source vector similarity search for Postgres
 License:	PostgreSQL

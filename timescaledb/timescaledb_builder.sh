@@ -486,12 +486,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="2.15.3"
+BRANCH="2.16.1"
 REPO="https://github.com/timescale/timescaledb.git"
 PRODUCT=percona-timescaledb
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.15.3'
+VERSION='2.16.1'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 PG_VERSION=12.20

@@ -473,12 +473,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="ver_1.5.0"
+BRANCH="ver_1.5.1"
 REPO="https://github.com/reorg/pg_repack.git"
 PRODUCT=percona-pg_repack
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.5.0'
+VERSION='1.5.1'
 RELEASE='1'
 PG_VERSION=17.0
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')

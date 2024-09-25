@@ -304,6 +304,7 @@ install_deps() {
       dpkg -i percona-release_1.0-27.generic_all.deb
       percona-release enable-only tools testing
       percona-release enable-only ppg-${PPG_VERSION} testing
+      percona-release enable telemetry testing
       apt-get update
       if [ "x${DEBIAN}" = "xbionic" ]; then
         INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-${PG_MAJOR_VERSION} protobuf-c-compiler rdfind xsltproc"
@@ -386,8 +387,8 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/postgis-3.3.6.pdf
-    #wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.6.pdf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/postgis-3.3.7.pdf
+    #wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.7.pdf
     #wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis33.spec rpmbuild/SPECS

@@ -165,6 +165,8 @@ get_sources(){
     sed -i "s:PGVERSION:${PG_VER}:g" debian/control.in
     sed -i "s:Source\: pgpool2:Source\: percona-pgpool2:g" debian/control.in
     sed -i "s:Package\: pgpool2:Package\: percona-pgpool2:g" debian/control.in
+    sed -i '/architecture-is-64-bit/d' debian/control.in
+    sed -i '/architecture-is-64-bit/d' debian/control
     sed -i "/Vcs-Git/d" debian/control.in
     sed -i "/Vcs-Browser/d" debian/control.in
     sed -i "s:Debian PostgreSQL Maintainers <team+postgresql@tracker.debian.org>:Percona Development Team <info@percona.com>:g" debian/control.in

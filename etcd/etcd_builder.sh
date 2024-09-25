@@ -460,7 +460,7 @@ REVISION=0
 REPO="https://github.com/etcd-io/etcd.git"
 PRODUCT=etcd
 DEBUG=0
-VERSION='3.5.15'
+VERSION='3.5.16'
 RELEASE='1'
 PG_VERSION=17.0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"

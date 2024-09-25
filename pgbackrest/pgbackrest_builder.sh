@@ -497,13 +497,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.53"
-DEB_PACKAGING_TAG="debian/2.52-1"
+BRANCH="release/2.53.1"
+DEB_PACKAGING_TAG="debian/2.53.1-1"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.53'
+VERSION='2.53.1'
 RELEASE='1'
 PG_VERSION=17.0
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')

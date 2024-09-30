@@ -522,10 +522,10 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-#BRANCH="TDE_REL_17_STABLE"
-#REPO="https://github.com/Percona-Lab/postgres.git"
-BRANCH="REL_17_0"
-REPO="git://git.postgresql.org/git/postgresql.git"
+BRANCH="TDE_REL_17_STABLE"
+REPO="https://github.com/Percona-Lab/postgres.git"
+#BRANCH="REL_17_0"
+#REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"

@@ -103,7 +103,7 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
-        git submodule update --init
+        #git submodule update --init
 	sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
     fi
     REVISION=$(git rev-parse --short HEAD)
@@ -522,8 +522,10 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="TDE_REL_17_STABLE"
-REPO="https://github.com/Percona-Lab/postgres.git"
+#BRANCH="TDE_REL_17_STABLE"
+#REPO="https://github.com/Percona-Lab/postgres.git"
+BRANCH="REL_17_0"
+REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"

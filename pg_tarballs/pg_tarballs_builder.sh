@@ -287,7 +287,7 @@ build_libiconv(){
 
 	build_status "start" "libiconv"
 	cd /source
-	wget https://ftp.gnu.org/gnu/libiconv/libiconv-${LIBICONV_VERSION}.tar.gz
+	wget https://mirror.freedif.org/GNU/libiconv/libiconv-${LIBICONV_VERSION}.tar.gz
 	tar -xvzf libiconv-${LIBICONV_VERSION}.tar.gz
 	cd libiconv-${LIBICONV_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -879,7 +879,6 @@ build_postgres_server(){
 			git clean -xdf
 			git checkout "${PG_SERVER_BRANCH}"
 	#		git submodule update --init
-			sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
 		fi
 	#	cd contrib/pg_tde
 	#	./configure
@@ -1458,7 +1457,7 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	build_mpfr
 	build_libboost
 	build_expat
-	build_freexl
+	#build_freexl
 	#build_spatialite
 	#build_cgal
 	#build_sfcgal

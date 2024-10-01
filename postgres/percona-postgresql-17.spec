@@ -621,7 +621,6 @@ export CFLAGS
         --datadir=%{pgbaseinstdir}/share \
         --libdir=%{pgbaseinstdir}/lib \
         --with-lz4 \
-        --with-extra-version=" - Percona Distribution" \
 %if 0%{?rhel} || 0%{?suse_version} >= 1499 || 0%{?fedora}
 	--with-zstd \
 %endif

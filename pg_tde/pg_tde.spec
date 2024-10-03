@@ -81,6 +81,7 @@ USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR
    %{pginstdir}/lib/bitcode/%{pname}*.bc
    %{pginstdir}/lib/bitcode/%{pname}/src/*.bc
    %{pginstdir}/lib/bitcode/%{pname}/src/access/*.bc
+   %{pginstdir}/lib/bitcode/%{pname}/src17/access/*.bc
    %{pginstdir}/lib/bitcode/%{pname}/src/catalog/*.bc
    %{pginstdir}/lib/bitcode/%{pname}/src/common/*.bc
    %{pginstdir}/lib/bitcode/%{pname}/src/encryption/*.bc

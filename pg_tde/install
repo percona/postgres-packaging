@@ -2,6 +2,7 @@ pg_tde.so usr/lib/postgresql/17/lib/
 pg_tde.control usr/share/postgresql/17/extension/
 pg_tde*.sql usr/share/postgresql/17/extension/
 src/encryption/*.bc usr/lib/postgresql/17/lib/bitcode/pg_tde/src/encryption/
+src17/access/*.bc usr/lib/postgresql/17/lib/bitcode/pg_tde/src17/access/
 src/access/*.bc usr/lib/postgresql/17/lib/bitcode/pg_tde/src/access/
 src/transam/*.bc usr/lib/postgresql/17/lib/bitcode/pg_tde/src/transam/
 src/keyring/*.bc usr/lib/postgresql/17/lib/bitcode/pg_tde/src/keyring/

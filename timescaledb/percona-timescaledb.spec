@@ -3,7 +3,7 @@
 
 Summary:	PostgreSQL based time-series database
 Name:		percona-%{sname}_%{pgmajorversion}
-Version:	2.16.1
+Version:	2.17.1
 Release:	1%{?dist}
 License:	Apache
 Source0:	percona-%{sname}-%{version}.tar.gz	

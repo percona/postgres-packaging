@@ -10,7 +10,7 @@ Usage: $0 [OPTIONS]
     The following options may be given :
         --version               PostgreSQL version
         --help) usage ;;
-Example $0 --version=17.0
+Example $0 --version=17.1
 EOF
         exit 1
 }
@@ -45,7 +45,7 @@ parse_arguments() {
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 
 if [ -z "$PG_VERSION" ]; then
-    echo "Error: Please specify Postgresql version as <PG MAJOR VERSION>.<PG_MINOR_VERSION>. For example --version=17.0"
+    echo "Error: Please specify Postgresql version as <PG MAJOR VERSION>.<PG_MINOR_VERSION>. For example --version=17.1"
     usage
     exit 1
 fi
@@ -454,7 +454,7 @@ PLATFORM_TOOLSET=v143
 MSVC_TOOLSET_VERSION=14.39.33519
 INSTALLBUILDER_BIN=/c/installbuilder/bin/builder
 VCREDIST_VERSION=14.0.24247
-#PG_VERSION=17.0
+#PG_VERSION=17.1
 PG_BUILD_NUMBBER=1
 PG_PACKAGE_VERSION=$PG_VERSION-$PG_BUILD_NUMBBER
 

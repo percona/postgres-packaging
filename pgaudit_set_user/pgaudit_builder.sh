@@ -457,15 +457,15 @@ INSTALL=0
 RPM_RELEASE=4
 DEB_RELEASE=4
 REVISION=0
-BRANCH="REL4_0_1"
+BRANCH="REL4_1_0"
 REPO="https://github.com/pgaudit/set_user.git"
 PRODUCT=percona-pgaudit12_set_user
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='4.0.1'
+VERSION='4.1.0'
 RELEASE='4'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=12.20
+PG_VERSION=12.21
 
 check_workdir
 get_system

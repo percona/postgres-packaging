@@ -2,7 +2,7 @@
 %define pginstdir /usr/pgsql-15/
 
 Name:		percona-%{sname}
-Version:	4.0.1
+Version:	4.1.0
 Release:	4%{?dist}
 Epoch:      1
 Provides:	pgaudit15_set_user = %{version}-%{release}

@@ -386,8 +386,8 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/postgis-3.3.6.pdf
-    #wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.6.pdf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/postgis-3.3.7.pdf
+    #wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.7.pdf
     #wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis33.spec rpmbuild/SPECS
@@ -584,9 +584,9 @@ PRODUCT=percona-postgis
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION=${POSTGIS_VERSION}
-RELEASE='6'
+RELEASE='7'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PPG_VERSION=14.13
+PPG_VERSION=14.14
 
 check_workdir
 get_system

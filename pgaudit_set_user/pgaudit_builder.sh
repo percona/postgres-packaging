@@ -462,7 +462,7 @@ REPO="https://github.com/pgaudit/set_user.git"
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='4.1.0'
-RELEASE='2'
+RELEASE='3'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 PG_VERSION=17.1
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')

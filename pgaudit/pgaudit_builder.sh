@@ -482,7 +482,7 @@ PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION="17.0"
-RELEASE='1'
+RELEASE='2'
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

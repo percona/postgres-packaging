@@ -107,6 +107,9 @@ get_sources(){
 	sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
 	if [ -d "contrib/pg_tde" ]; then
             WITH_TDE=1
+            cd contrib/pg_tde
+            git pull origin main
+            cd -
         else
             WITH_TDE=0
         fi
@@ -129,7 +132,7 @@ get_sources(){
 	rm -f rules control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/rules
         if [ "$WITH_TDE" -eq 1 ]; then
-            sed -i "s|#cd contrib/pg_tde;|cd contrib/pg_tde; \\\ \n\tgit pull origin main;|g" rules
+            sed -i "s|#cd contrib/pg_tde;|cd contrib/pg_tde;|g" rules
             sed -i "s|#[[:space:]]*./configure;|./configure;|g" rules
             sed -i "s|#[[:space:]]*cd -|cd -|g" rules
             sed -i "s|#cp contrib/pg_tde/Makefile build/contrib/pg_tde|cp contrib/pg_tde/Makefile build/contrib/pg_tde|g" rules
@@ -147,7 +150,7 @@ get_sources(){
     rm postgresql-${VERSION}.spec
     wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/percona-postgresql-${VERSION}.spec
     if [ "$WITH_TDE" -eq 1 ]; then
-        sed -i "s|#cd contrib/pg_tde|cd contrib/pg_tde\ngit pull origin main|g" percona-postgresql-${VERSION}.spec
+        sed -i "s|#cd contrib/pg_tde|cd contrib/pg_tde|g" percona-postgresql-${VERSION}.spec
         sed -i "s|#./configure|./configure|g" percona-postgresql-${VERSION}.spec
         sed -i "s|#cd ../..|cd ../..|g" percona-postgresql-${VERSION}.spec
         sed -i "s|#%%{pgbaseinstdir}/lib/pg_tde.so|%{pgbaseinstdir}/lib/pg_tde.so|g" percona-postgresql-${VERSION}.spec

@@ -105,15 +105,6 @@ get_sources(){
         git checkout "$BRANCH"
         #git submodule update --init
 	sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
-	if [ -d "contrib/pg_tde" ]; then
-            WITH_TDE=1
-            cd contrib/pg_tde
-            git pull origin ${TDE_BRANCH}
-            cd -
-        else
-            WITH_TDE=0
-        fi
-        echo "WITH_TDE=$WITH_TDE"
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgresql.properties
@@ -131,12 +122,6 @@ get_sources(){
         done
 	rm -f rules control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/rules
-        if [ "$WITH_TDE" -eq 1 ]; then
-            sed -i "s|#cd contrib/pg_tde;|cd contrib/pg_tde;|g" rules
-            sed -i "s|#[[:space:]]*./configure;|./configure;|g" rules
-            sed -i "s|#[[:space:]]*cd -|cd -|g" rules
-            sed -i "s|#cp contrib/pg_tde/Makefile build/contrib/pg_tde|cp contrib/pg_tde/Makefile build/contrib/pg_tde|g" rules
-        fi
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/control
 	sed -i "s/postgresql-${VERSION}/percona-postgresql-${VERSION}/" percona-postgresql-${VERSION}.templates
 	echo "10" > compat
@@ -149,14 +134,6 @@ get_sources(){
     cd rpm
     rm postgresql-${VERSION}.spec
     wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/percona-postgresql-${VERSION}.spec
-    if [ "$WITH_TDE" -eq 1 ]; then
-        sed -i "s|#cd contrib/pg_tde|cd contrib/pg_tde|g" percona-postgresql-${VERSION}.spec
-        sed -i "s|#./configure|./configure|g" percona-postgresql-${VERSION}.spec
-        sed -i "s|#cd ../..|cd ../..|g" percona-postgresql-${VERSION}.spec
-        sed -i "s|#%%{pgbaseinstdir}/lib/pg_tde.so|%{pgbaseinstdir}/lib/pg_tde.so|g" percona-postgresql-${VERSION}.spec
-        sed -i "s|#%%{pgbaseinstdir}/share/extension/pg_tde.control|%{pgbaseinstdir}/share/extension/pg_tde.control|g" percona-postgresql-${VERSION}.spec
-        sed -i "s|#%%{pgbaseinstdir}/share/extension/pg_tde--*.sql|%{pgbaseinstdir}/share/extension/pg_tde--*.sql|g" percona-postgresql-${VERSION}.spec
-    fi
     cd ../
     cd ${WORKDIR}
     #
@@ -554,7 +531,6 @@ DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='17'
 RELEASE='0'
-TDE_BRANCH=main
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

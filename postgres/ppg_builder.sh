@@ -108,7 +108,7 @@ get_sources(){
 	if [ -d "contrib/pg_tde" ]; then
             WITH_TDE=1
             cd contrib/pg_tde
-            git pull origin main
+            git pull origin ${TDE_BRANCH}
             cd -
         else
             WITH_TDE=0
@@ -554,6 +554,7 @@ DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='17'
 RELEASE='1'
+TDE_BRANCH=main
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

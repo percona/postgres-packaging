@@ -145,11 +145,11 @@ get_srpm(){
     if [ ${RHEL} = 9 ]; then
         # RHEL repository version that carries llvm 17 src rpm
         RHEL_FULL_VERSION=9.4
-        latest_rpm=$(curl -s https://vault.almalinux.org/${RHEL_FULL_VERSION}/AppStream/Source/Packages/ | grep -o 'llvm-[1-9][1-9].*\.src.rpm' | sort -V | tail -n 1 | awk -F'>' '{print $2}')
+        latest_rpm=$(curl -s https://vault.almalinux.org/${RHEL_FULL_VERSION}/AppStream/Source/Packages/ | grep -o 'llvm-[1-9][1-9].*\.src.rpm' | sort -V | grep ${VERSION} | tail -n 1 | awk -F'>' '{print $2}')
     elif [ ${RHEL} = 8 ]; then
         # RHEL repository version that carries llvm 17 src rpm
         RHEL_FULL_VERSION=8.10
-        latest_rpm=$(curl -s https://vault.almalinux.org/${RHEL_FULL_VERSION}/AppStream/Source/Packages/ | grep -o 'llvm-[1-9][1-9].*\.src.rpm' | sort -V | tail -n 1)
+        latest_rpm=$(curl -s https://vault.almalinux.org/${RHEL_FULL_VERSION}/AppStream/Source/Packages/ | grep -o 'llvm-[1-9][1-9].*\.src.rpm' | sort -V | grep ${VERSION} | tail -n 1)
     fi
 
     echo latest_rpm=$latest_rpm

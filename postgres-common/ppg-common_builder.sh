@@ -452,7 +452,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='265'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
-PG_VERSION=17.1
+PG_VERSION=17.2
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 
 check_workdir

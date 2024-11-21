@@ -271,7 +271,8 @@ install_deps() {
              dnf module reset llvm-toolset:ol8
              dnf module install llvm-toolset:ol8
              clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
-             yum install -y clang-devel-${clang_version} clang-${clang_version}
+             llvm_version=$(yum list --showduplicates llvm-devel | grep "17.0" | grep llvm | awk '{print $2}' | head -n 1)
+             yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${llvm_version}
              dnf module -y disable llvm-toolset
              dnf update
              # Commenting following line because llvm must install from percona repo with percona-postgresql15-devel

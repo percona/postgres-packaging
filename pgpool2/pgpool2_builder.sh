@@ -305,17 +305,18 @@ install_deps() {
 
         if [ x"$RHEL" = x8 ];
         then
-                clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
-                yum install -y clang-devel-${clang_version} clang-${clang_version}
+		clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
+                llvm_version=$(yum list --showduplicates llvm-devel | grep "17.0" | grep llvm | awk '{print $2}' | head -n 1)
+                yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${llvm_version}
                 dnf module -y disable llvm-toolset
         else
-                yum install -y clang-devel clang
+                yum install -y clang-devel clang llvm-devel
         fi
 
         PKGLIST="percona-postgresql${PG_VER}-devel"
-        PKGLIST+=" git llvm-devel rpmdevtools vim wget"
+        PKGLIST+=" git rpmdevtools vim wget"
         PKGLIST+=" perl binutils gcc gcc-c++"
-        PKGLIST+=" llvm-devel git rpmdevtools wget gcc make autoconf"
+        PKGLIST+=" git rpmdevtools wget gcc make autoconf"
         PKGLIST+=" jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel libxslt"
         
 	if [[ "${RHEL}" -eq 8 ]]; then

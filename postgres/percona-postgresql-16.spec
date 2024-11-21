@@ -579,6 +579,7 @@ benchmarks.
 %patch3 -p0
 %patch5 -p0
 %patch6 -p0
+%patch7 -p1
 
 %{__cp} -p %{SOURCE12} .
 

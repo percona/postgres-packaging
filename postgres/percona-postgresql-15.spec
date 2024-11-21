@@ -107,6 +107,7 @@ Patch1:         %{sname}-%{pgmajorversion}-rpm-pgsql.patch
 Patch3:         %{sname}-%{pgmajorversion}-conf.patch
 Patch5:         %{sname}-%{pgmajorversion}-var-run-socket.patch
 Patch6:         %{sname}-%{pgmajorversion}-perl-rpath.patch
+Patch7:         llvm_static_linking.patch
 
 BuildRequires:  perl glibc-devel bison flex >= 2.5.31
 BuildRequires:  perl(ExtUtils::MakeMaker)
@@ -405,22 +406,22 @@ Summary:        PostgreSQL development header files and libraries
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
-%if %llvm
-%if 0%{?rhel} && 0%{?rhel} == 7
+#%%if %%llvm
+#%%if 0%%{?rhel} && 0%%{?rhel} == 7
 # Packages come from EPEL and SCL:
-Requires:       llvm5.0-devel >= 5.0
-%endif
-%if 0%{?rhel} && 0%{?rhel} >= 8
+#Requires:       llvm5.0-devel >= 5.0
+#%%endif
+#%%if 0%%{?rhel} && 0%%{?rhel} >= 8
 # Packages come from EPEL and SCL:
-Requires:       llvm-devel >= 6.0.0
-%endif
-%if 0%{?fedora}
-Requires:       llvm-devel >= 5.0 clang-devel >= 5.0
-%endif
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-Requires:       llvm6-devel clang6-devel
-%endif
-%endif
+#Requires:       llvm-devel >= 6.0.0
+#%%endif
+#%%if 0%%{?fedora}
+#Requires:       llvm-devel >= 5.0 clang-devel >= 5.0
+#%%endif
+#%%if 0%%{?suse_version} >= 1315 && 0%%{?suse_version} <= 1499
+#Requires:       llvm6-devel clang6-devel
+#%%endif
+#%%endif
 %if %icu
 Requires:       libicu-devel
 %endif
@@ -464,19 +465,19 @@ to develop applications which will interact with a PostgreSQL server.
 %package llvmjit
 Summary:        Just-in-time compilation support for PostgreSQL
 Requires:       %{name}-server >= %{version}-%{release}
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch aarch64
-Requires:       llvm-toolset-7.0-llvm >= 7.0.1
-%else
-Requires:       llvm5.0 >= 5.0
-%endif
-%endif
-%if 0%{?suse_version} == 1315
-Requires:       llvm
-%endif
-%if 0%{?fedora} || 0%{?rhel} >= 8
-Requires:       llvm => 5.0
-%endif
+#%%if 0%%{?rhel} && 0%%{?rhel} == 7
+#%%ifarch aarch64
+#Requires:       llvm-toolset-7.0-llvm >= 7.0.1
+#%%else
+#Requires:       llvm5.0 >= 5.0
+#%%endif
+#%%endif
+#%%if 0%%{?suse_version} == 1315
+#Requires:       llvm
+#%%endif
+#%%if 0%%{?fedora} || 0%%{?rhel} >= 8
+#Requires:       llvm => 5.0
+#%%endif
 
 Provides:       postgresql-llvmjit >= %{version}-%{release}
 Provides:       %{vname}-llvmjit = %{epoch}:%{version}-%{release}
@@ -610,6 +611,7 @@ benchmarks.
 %patch3 -p0
 %patch5 -p0
 %patch6 -p0
+%patch7 -p1
 
 %{__cp} -p %{SOURCE12} .
 

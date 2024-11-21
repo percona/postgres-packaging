@@ -211,14 +211,15 @@ install_deps() {
 
             if [ x"$RHEL" = x8 ];
             then
-                clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
-                yum install -y clang-devel-${clang_version} clang-${clang_version}
+		clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
+                llvm_version=$(yum list --showduplicates llvm-devel | grep "17.0" | grep llvm | awk '{print $2}' | head -n 1)
+                yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${llvm_version}
                 dnf module -y disable llvm-toolset
             else
-                yum install -y clang-devel clang
+                yum install -y clang-devel clang llvm-devel
             fi
 
-            INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
+            INSTALL_LIST="python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql16-devel percona-postgresql16-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
             yum -y install ${INSTALL_LIST}
             yum -y install binutils gcc gcc-c++
         fi
@@ -476,7 +477,6 @@ DEB_RELEASE=1
 REVISION=0
 BRANCH="16.0"
 PG_VERSION=16.6
-BRANCH="${PG_VERSION}"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0

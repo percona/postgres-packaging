@@ -477,7 +477,6 @@ DEB_RELEASE=1
 REVISION=0
 BRANCH="17.0"
 PG_VERSION=17.2
-BRANCH="${PG_VERSION}"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0

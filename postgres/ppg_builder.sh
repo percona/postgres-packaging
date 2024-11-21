@@ -133,6 +133,7 @@ get_sources(){
     cd rpm
         rm postgresql-12.spec
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/percona-postgresql-12.spec
+	wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/llvm_static_linking.patch
     cd ../
     cd ${WORKDIR}
     #

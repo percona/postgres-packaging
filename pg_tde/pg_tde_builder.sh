@@ -219,14 +219,15 @@ install_deps() {
 
             if [ x"$RHEL" = x8 ];
             then
-                clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
-                yum install -y clang-devel-${clang_version} clang-${clang_version}
+		clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
+                llvm_version=$(yum list --showduplicates llvm-devel | grep "17.0" | grep llvm | awk '{print $2}' | head -n 1)
+                yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${llvm_version}
                 dnf module -y disable llvm-toolset
             else
-                yum install -y clang-devel clang
+                yum install -y clang-devel clang llvm-devel
             fi
 
-            INSTALL_LIST="json-c-devel libcurl-devel openssl-devel gettext git llvm-devel percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpmdevtools vim wget"
+            INSTALL_LIST="json-c-devel libcurl-devel openssl-devel gettext git percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpmdevtools vim wget"
             yum -y install ${INSTALL_LIST}
             yum -y install binutils make gcc gcc-c++
         fi

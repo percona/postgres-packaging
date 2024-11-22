@@ -249,6 +249,7 @@ install_deps() {
       yum -y install epel-release
       RHEL=$(rpm --eval %rhel)
       ARCH=$(uname -m)
+      yum -y install SFCGAL SFCGAL-devel gdal35-devel
       wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
       yum -y install pgdg-redhat-repo-latest.noarch.rpm
       yum -y install pgdg-srpm-macros
@@ -257,7 +258,7 @@ install_deps() {
               echo "waiting"
               sleep 1
           done
-          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal33-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj72-devel protobuf-c-devel pkg-config"
+          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj72-devel protobuf-c-devel pkg-config"
           yum -y install ${INSTALL_LIST}
           source /opt/rh/devtoolset-7/enable
           source /opt/rh/llvm-toolset-7/enable
@@ -281,7 +282,7 @@ install_deps() {
 	 else
              yum -y install llvm-toolset llvm-devel clang
 	 fi
-         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal35-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
+         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all

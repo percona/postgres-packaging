@@ -278,7 +278,7 @@ get_openjade_devel() {
     elif [ "$ARCH" = "aarch64" ]; then
         ARCH="arm64"
     fi
-    sudo apt -y install ./openjade_1.4devel1-22_${ARCH}.deb ./libostyle-dev_1.4devel1-22_${ARCH}.deb ./libostyle1c2_1.4devel1-22_${ARCH}.deb
+    sudo apt -y --allow-downgrades install ./openjade_1.4devel1-22_${ARCH}.deb ./libostyle-dev_1.4devel1-22_${ARCH}.deb ./libostyle1c2_1.4devel1-22_${ARCH}.deb
     popd
 }
 
@@ -551,6 +551,9 @@ build_source_deb(){
 
     mv ${TARFILE} percona-pgpool2_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
+    sed -i '/architecture-is-64-bit/d' debian/control
+    sed -i '/architecture-is-64-bit/d' debian/control.in
+    rm -rf .pc
     DEBEMAIL="info@percona.com"
     dch -D unstable --force-distribution -v "${VERSION}-${DEB_RELEASE}" "Update to new percona-pgpool2 pg${PG_RELEASE} version ${VERSION}"
     pg_buildext updatecontrol

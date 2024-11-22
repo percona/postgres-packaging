@@ -550,6 +550,9 @@ build_source_deb(){
 
     mv ${TARFILE} percona-pgpool2_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
+    sed -i '/architecture-is-64-bit/d' debian/control
+    sed -i '/architecture-is-64-bit/d' debian/control.in
+    rm -rf .pc
     DEBEMAIL="info@percona.com"
     dch -D unstable --force-distribution -v "${VERSION}-${DEB_RELEASE}" "Update to new percona-pgpool2 pg${PG_RELEASE} version ${VERSION}"
     pg_buildext updatecontrol

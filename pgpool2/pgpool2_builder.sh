@@ -278,7 +278,7 @@ get_openjade_devel() {
     elif [ "$ARCH" = "aarch64" ]; then
         ARCH="arm64"
     fi
-    sudo apt -y install ./openjade_1.4devel1-22_${ARCH}.deb ./libostyle-dev_1.4devel1-22_${ARCH}.deb ./libostyle1c2_1.4devel1-22_${ARCH}.deb
+    sudo apt -y --allow-downgrades install ./openjade_1.4devel1-22_${ARCH}.deb ./libostyle-dev_1.4devel1-22_${ARCH}.deb ./libostyle1c2_1.4devel1-22_${ARCH}.deb
     popd
 }
 

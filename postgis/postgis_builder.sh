@@ -250,16 +250,15 @@ install_deps() {
       yum -y install epel-release
       RHEL=$(rpm --eval %rhel)
       ARCH=$(uname -m)
-      yum -y install SFCGAL SFCGAL-devel gdal35-devel
-      wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
-      yum -y install pgdg-redhat-repo-latest.noarch.rpm
-      yum -y install pgdg-srpm-macros
       if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
           until yum -y install centos-release-scl; do
               echo "waiting"
               sleep 1
           done
-          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj72-devel protobuf-c-devel pkg-config"
+          wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
+          yum -y install pgdg-redhat-repo-latest.noarch.rpm
+          yum -y install pgdg-srpm-macros
+          INSTALL_LIST="git rpm-build autoconf libtool flex rpmdevtools wget llvm-toolset-7 devtoolset-7 rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel SFCGAL SFCGAL-devel gdal33-devel gdal34-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj72-devel protobuf-c-devel pkg-config"
           yum -y install ${INSTALL_LIST}
           source /opt/rh/devtoolset-7/enable
           source /opt/rh/llvm-toolset-7/enable
@@ -267,6 +266,10 @@ install_deps() {
 	 yum config-manager --enable PowerTools AppStream BaseOS *epel
 	 dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+         yum -y install SFCGAL SFCGAL-devel gdal35-devel
+         wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
+         yum -y install pgdg-redhat-repo-latest.noarch.rpm
+         yum -y install pgdg-srpm-macros
          dnf module -y disable llvm-toolset || true
          dnf module remove llvm-toolset:rhel8
          dnf module reset llvm-toolset:ol8

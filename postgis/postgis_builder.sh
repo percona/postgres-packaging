@@ -275,18 +275,7 @@ install_deps() {
          dnf module reset llvm-toolset:ol8
          dnf module install llvm-toolset:ol8
 
-         if [ x"$RHEL" = x8 ]; then
-             clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
-             llvm_version=$(yum list --showduplicates llvm-devel | grep "17.0" | grep llvm | awk '{print $2}' | head -n 1)
-             yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${llvm_version}
-             dnf module -y disable llvm-toolset
-             dnf update
-             # Commenting following line because llvm must install from percona repo with percona-postgresql12-devel
-             #yum -y install llvm-toolset llvm-devel
-         else
-             yum -y install llvm-toolset llvm-devel clang
-         fi
-         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
+         INSTALL_LIST="clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql12-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all

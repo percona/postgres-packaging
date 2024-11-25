@@ -191,16 +191,7 @@ install_deps() {
           rm -r /var/cache/dnf
           dnf -y upgrade
 
-	  if [ x"$RHEL" = x8 ];
-          then
-	      clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
-              llvm_version=$(yum list --showduplicates llvm-devel | grep "17.0" | grep llvm | awk '{print $2}' | head -n 1)
-              yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${llvm_version}
-              dnf module -y disable llvm-toolset
-          else
-              yum install -y clang llvm-devel
-          fi
-          yum -y install perl lz4-libs c-ares-devel
+          yum -y install clang llvm-deve perl lz4-libs c-ares-devel
       else
         until yum -y install centos-release-scl; do
             echo "waiting"

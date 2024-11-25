@@ -269,23 +269,7 @@ install_deps() {
          wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-srpm-macros
-         if [ x"$RHEL" = x8 ]; then
-             dnf module -y disable llvm-toolset || true
-             dnf module remove llvm-toolset:rhel8
-             dnf module reset llvm-toolset:ol8
-             dnf module install llvm-toolset:ol8
-
-             clang_version=$(yum list --showduplicates clang-devel | grep "17.0" | grep clang | awk '{print $2}' | head -n 1)
-             llvm_version=$(yum list --showduplicates llvm-devel | grep "17.0" | grep llvm | awk '{print $2}' | head -n 1)
-             yum install -y clang-devel-${clang_version} clang-${clang_version} llvm-devel-${llvm_version}
-             dnf module -y disable llvm-toolset
-             dnf update
-             # Commenting following line because llvm must install from percona repo with percona-postgresql${PG_MAJOR_VERSION}-devel
-	     #yum -y install llvm-toolset llvm-devel
-	 else
-             yum -y install llvm-toolset llvm-devel clang
-	 fi
-         INSTALL_LIST="git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql${PG_MAJOR_VERSION}-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
+         INSTALL_LIST="llvm-toolset llvm-devel clang git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql${PG_MAJOR_VERSION}-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all

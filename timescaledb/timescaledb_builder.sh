@@ -212,7 +212,7 @@ install_deps() {
           dnf -y upgrade
 	  switch_to_vault_repo
 
-          yum -y install clang llvm-devel cmake
+          yum -y install clang-devel clang llvm-devel cmake
       else
         until yum -y install centos-release-scl; do
             echo "waiting"

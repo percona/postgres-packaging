@@ -191,7 +191,7 @@ install_deps() {
           rm -r /var/cache/dnf
           dnf -y upgrade
 
-          yum -y install clang llvm-deve perl lz4-libs c-ares-devel
+          yum -y install clang-devel clang llvm-deve perl lz4-libs c-ares-devel
       else
         until yum -y install centos-release-scl; do
             echo "waiting"

@@ -201,24 +201,24 @@ The %{name}-utils package provides the utilities for PostGIS.
 %package llvmjit
 Summary:	Just-in-time compilation support for postgis33
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch aarch64
-Requires:	llvm-toolset-7.0-llvm >= 7.0.1
-%else
-Requires:	llvm5.0 >= 5.0
-%endif
-%endif
+#%%if 0%%{?rhel} && 0%%{?rhel} == 7
+#%%ifarch aarch64
+#Requires:	llvm-toolset-7.0-llvm >= 7.0.1
+#%%else
+#Requires:	llvm5.0 >= 5.0
+#%%endif
+#%%endif
 %if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
 BuildRequires:  llvm6-devel clang6-devel
-Requires:	llvm6
+#Requires:	llvm6
 %endif
 %if 0%{?suse_version} >= 1500
 BuildRequires:  llvm13-devel clang13-devel
-Requires:	llvm13
+#Requires:	llvm13
 %endif
-%if 0%{?fedora} || 0%{?rhel} >= 8
-Requires:	llvm => 12.0
-%endif
+#%%if 0%%{?fedora} || 0%%{?rhel} >= 8
+#Requires:	llvm => 12.0
+#%%endif
 
 %description llvmjit
 This packages provides JIT support for postgis33

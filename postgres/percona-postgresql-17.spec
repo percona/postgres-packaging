@@ -615,7 +615,7 @@ export CFLAGS
         export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %endif
 
-%if 0%{?rhel} == 9
+%if 0%{?rhel} && 0%{?rhel} == 9
 	source /opt/rh/gcc-toolset-14/enable
 %endif
 

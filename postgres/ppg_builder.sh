@@ -213,6 +213,10 @@ install_deps() {
       yum -y install cmake cyrus-sasl-devel make openssl-devel zlib-devel libcurl-devel || true
       yum -y install perl-IPC-Run perl-Test-Simple
       yum -y install docbook-xsl libxslt-devel
+
+      if [ x"$RHEL" = x9 ]; then
+           yum -y install gcc-toolset-14
+      fi
     else
       apt-get update || true
       DEBIAN_FRONTEND=noninteractive apt-get -y install gnupg2 curl wget lsb-release quilt

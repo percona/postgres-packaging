@@ -221,6 +221,9 @@ install_deps() {
 		yum -y install percona-postgresql16-devel
 		yum -y install zlib-devel libzstd-devel readline-devel lz4-devel clang rpmdevtools git openssl-devel openssl-libs lz4-devel
 	fi
+	if [ x"$RHEL" = x9 ]; then
+		yum -y install gcc-toolset-14
+	fi
       fi
     else
       apt-get update

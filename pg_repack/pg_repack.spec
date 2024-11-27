@@ -32,6 +32,9 @@ The module is developed to be a better alternative of CLUSTER and VACUUM FULL.
 %patch0 -p0
 
 %build
+%if 0%{?rhel} && 0%{?rhel} == 9
+        source /opt/rh/gcc-toolset-14/enable
+%endif
 USE_PGXS=1 make %{?_smp_mflags}
 
 %install

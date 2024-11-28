@@ -260,7 +260,7 @@ build_libxml2(){
 	build_status "start" "libxml2"
 	cd /source
 	wget https://download.gnome.org/sources/libxml2/${LIBXML2_MAJOR_VERSION}/libxml2-${LIBXML2_VERSION}.tar.xz
-	tar -xvzf libxml2-${LIBXML2_VERSION}.tar.gz
+	tar -Jxvf libxml2-${LIBXML2_VERSION}.tar.xz
 	cd libxml2-${LIBXML2_VERSION}
 	#vim configure.ac           # Correct version to 1.16.1 for RHEL8 and 1.13.4 for RHEL7
 	sed -i 's|1.16.3|1.16.1|g' configure.ac

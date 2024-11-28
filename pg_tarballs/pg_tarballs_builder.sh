@@ -280,8 +280,8 @@ build_libxslt(){
 	tar -Jxvf libxslt-${LIBXSLT_VERSION}.tar.xz
 	cd libxslt-${LIBXSLT_VERSION}
 	sed -i 's|1.16.3|1.16.1|g' configure.ac
-	./autogen.sh --prefix=${DEPENDENCY_LIBS_PATH} --with-libxml-prefix=${DEPENDENCY_LIBS_PATH}
-	#./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-libxml-prefix=${DEPENDENCY_LIBS_PATH}
+	#./autogen.sh --prefix=${DEPENDENCY_LIBS_PATH} --with-libxml-prefix=${DEPENDENCY_LIBS_PATH}
+	./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-libxml-prefix=${DEPENDENCY_LIBS_PATH}
 	make
 	make install
 	build_status "ends" "libxslt"

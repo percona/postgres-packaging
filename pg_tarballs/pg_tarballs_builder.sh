@@ -76,6 +76,7 @@ export LIBUUID_VERSION=1.0.2
 export LIBXML2_VERSION=2.13.5
 export LIBXML2_MAJOR_VERSION=$(echo ${LIBXML2_VERSION}|  cut -f1,2 -d'.')
 export LIBXSLT_VERSION=1.1.42
+export LIBXSLT_MAJOR_VERSION=$(echo ${LIBXSLT_VERSION}|  cut -f1,2 -d'.')
 export LIBICONV_VERSION=1.17
 export OPENLDAP_VERSION=2.6.6
 export CYRUS_SASL_VERSION=2.1.28
@@ -275,9 +276,9 @@ build_libxslt(){
 
 	build_status "start" "libxslt"
 	cd /source
-	wget https://gitlab.gnome.org/GNOME/libxslt/-/archive/v${LIBXSLT_VERSION}/libxslt-v${LIBXSLT_VERSION}.tar.gz
-	tar -xvzf libxslt-v${LIBXSLT_VERSION}.tar.gz
-	cd libxslt-v${LIBXSLT_VERSION}
+	wget https://download.gnome.org/sources/libxslt/${LIBXSLT_MAJOR_VERSION}/libxslt-${LIBXSLT_VERSION}.tar.xz
+	tar -Jxvf libxslt-${LIBXSLT_VERSION}.tar.xz
+	cd libxslt-${LIBXSLT_VERSION}
 	sed -i 's|1.16.3|1.16.1|g' configure.ac
 	./autogen.sh --prefix=${DEPENDENCY_LIBS_PATH} --with-libxml-prefix=${DEPENDENCY_LIBS_PATH}
 	#./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-libxml-prefix=${DEPENDENCY_LIBS_PATH}

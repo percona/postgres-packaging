@@ -1526,6 +1526,8 @@ build_pgbadger
 build_patroni
 build_haproxy
 build_etcd
-build_pgvector
+if [ "${PG_MAJOR_VERSION}" -ne 12 ]; then
+    build_pgvector
+fi
 set_rpath_all_products
 create_tarball

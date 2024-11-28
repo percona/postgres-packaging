@@ -66,20 +66,21 @@ if [ -n "$USE_SYSTEM_SSL" ]; then
 	fi
 fi
 
-export OPENSSL_VERSION=3.1.4
+export OPENSSL_VERSION=3.1.7
 export ZLIB_VERSION=1.3
 export KRB5_VERSION=1.21.3
 export KEYUTILS_VERSION=1.6.1
 export NCURSES_VERSION=6.5
 export LIBEDIT_VERSION=0.3
 export LIBUUID_VERSION=1.0.2
-export LIBXML2_VERSION=2.12.3
-export LIBXSLT_VERSION=1.1.39
+export LIBXML2_VERSION=2.13.5
+export LIBXSLT_VERSION=1.1.42
 export LIBICONV_VERSION=1.17
 export OPENLDAP_VERSION=2.6.6
 export CYRUS_SASL_VERSION=2.1.28
 export CURL_VERSION=8.5.0
 export ICU_VERSION=73-2
+export LIBEVENT_VERSION=2.1.12
 export LIBMEMCACHED_VERSION=1.0.18
 export LIBMEMCACHED_MAJOR_VERSION=$(echo ${LIBMEMCACHED_VERSION} | cut -f1,2 -d'.')
 export UUID_VERSION=1.6.2
@@ -109,7 +110,7 @@ export LIBFFI_VERSION=3.4.2
 export PERL_VERSION=5.38.2
 export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
-export TCL_VERSION=8.6.14
+export TCL_VERSION=8.6.15
 export ETCD_VERSION=3.5.16
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
@@ -140,6 +141,7 @@ PGBACKREST_BRANCH="release/2.54.0"
 PGBADGER_BRANCH="v12.4"
 PATRONI_BRANCH="v4.0.3"
 HAPROXY_BRANCH="v2.8.11"
+PGVECTOR_BRANCH="v0.8.0"
 
 create_build_environment(){
 
@@ -362,9 +364,9 @@ build_libevent(){
 
 	build_status "start" "libevent"
 	cd /source
-	wget https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
-        tar -xvzf libevent-2.1.12-stable.tar.gz
-        cd libevent-2.1.12-stable
+        wget https://github.com/libevent/libevent/releases/download/release-${LIBEVENT_VERSION}-stable/libevent-${LIBEVENT_VERSION}-stable.tar.gz
+        tar -xvzf libevent-${LIBEVENT_VERSION}-stable.tar.gz
+        cd libevent-${LIBEVENT_VERSION}-stable
         PKG_CONFIG_PATH=${DEPENDENCY_LIBS_PATH}/lib64/pkgconfig ./configure --prefix=${DEPENDENCY_LIBS_PATH}
         make
         make install
@@ -1347,6 +1349,27 @@ build_etcd(){
 	build_status "ends" "etcd"
 }
 
+build_pgvector(){
+
+        build_status "start" "pgvector"
+        mkdir -p /source
+        cd /source
+        git clone https://github.com/pgvector/pgvector.git
+        cd pgvector
+
+        if [ ! -z "${PGVECTOR_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PGVECTOR_BRANCH}"
+        fi
+
+        export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
+        make USE_PGXS=1 -j4
+        make USE_PGXS=1 -j4 install
+        build_status "ends" "pgvector"
+}
+
 set_rpath(){
 
         directory="$1"  # Change this to your target directory
@@ -1496,5 +1519,6 @@ build_pgbadger
 build_patroni
 build_haproxy
 build_etcd
+build_pgvector
 set_rpath_all_products
 create_tarball

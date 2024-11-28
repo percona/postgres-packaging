@@ -74,6 +74,7 @@ export NCURSES_VERSION=6.5
 export LIBEDIT_VERSION=0.3
 export LIBUUID_VERSION=1.0.2
 export LIBXML2_VERSION=2.13.5
+export LIBXML2_MAJOR_VERSION=$(echo ${LIBXML2_VERSION}|  cut -f1,2 -d'.')
 export LIBXSLT_VERSION=1.1.42
 export LIBICONV_VERSION=1.17
 export OPENLDAP_VERSION=2.6.6
@@ -258,9 +259,9 @@ build_libxml2(){
 
 	build_status "start" "libxml2"
 	cd /source
-	wget https://gitlab.gnome.org/GNOME/libxml2/-/archive/v${LIBXML2_VERSION}/libxml2-v${LIBXML2_VERSION}.tar.gz
-	tar -xvzf libxml2-v${LIBXML2_VERSION}.tar.gz 
-	cd libxml2-v${LIBXML2_VERSION}
+	wget https://download.gnome.org/sources/libxml2/${LIBXML2_MAJOR_VERSION}/libxml2-${LIBXML2_VERSION}.tar.xz
+	tar -xvzf libxml2-${LIBXML2_VERSION}.tar.gz
+	cd libxml2-${LIBXML2_VERSION}
 	#vim configure.ac           # Correct version to 1.16.1 for RHEL8 and 1.13.4 for RHEL7
 	sed -i 's|1.16.3|1.16.1|g' configure.ac
 	./autogen.sh 

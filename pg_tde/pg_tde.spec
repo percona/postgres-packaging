@@ -59,7 +59,7 @@ This packages provides JIT support for pg_tde
 %setup -q -n %{sname}-%{version}
 
 %build
-%configure
+#%%configure
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgmajorversion}/bin/pg_config:' Makefile
 USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} #%{?_smp_mflags}
 

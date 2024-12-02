@@ -87,6 +87,7 @@ USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR
    %{pginstdir}/lib/bitcode/%{pname}/src/keyring/*.bc
    %{pginstdir}/lib/bitcode/%{pname}/src/transam/*.bc
    %{pginstdir}/lib/bitcode/%{pname}/src/smgr/*.bc
+   %{pginstdir}/lib/bitcode/%{pname}/src/libkmip/libkmip/src/*.bc
 %endif
 
 %changelog

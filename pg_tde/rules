@@ -13,7 +13,7 @@ override_dh_auto_clean:
 
 override_dh_auto_configure:
 	cp /usr/bin/shtool .
-	./configure --prefix=/usr
+	#./configure --prefix=/usr
 	#dh_auto_configure
 
 override_dh_auto_build:

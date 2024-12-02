@@ -113,7 +113,7 @@ get_sources(){
     echo "VERSION=${VERSION}" >> pg_tde.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pg_tde.properties
     echo "BUILD_ID=${BUILD_ID}" >> pg_tde.properties
-    git clone "$REPO" ${PRODUCT_FULL}
+    git clone --recursive "$REPO" ${PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then

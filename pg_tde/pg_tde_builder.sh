@@ -17,6 +17,7 @@ Usage: $0 [OPTIONS]
         --install_deps      Install build dependencies(root privilages are required)
         --branch            Branch for build
         --repo              Repo for build
+        --nightly           If it is set - it will be nightly build
         --help) usage ;;
 Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
 EOF
@@ -47,6 +48,7 @@ parse_arguments() {
             --branch=*) BRANCH="$val" ;;
             --repo=*) REPO="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
+            --nightly=*) NIGHTLY="$val" ;;
             --help) usage ;;
             *)
                 if test -n "$pick_args"
@@ -316,7 +318,7 @@ build_srpm(){
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/pg_tde.spec
+        --define "version ${VERSION}" --define "release ${BUILD_RELEASE}" rpmbuild/SPECS/pg_tde.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -364,7 +366,7 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --define "release ${BUILD_RELEASE}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -403,6 +405,8 @@ build_source_deb(){
     rm -f .github/workflows/*.yml
     rm -f .github/workflows/*.yaml
     rm -f .github/*.yml
+    rm -rf .github
+    find . | grep yml | xargs rm -f
     rm -f documentation/_resource/.icons/percona/logo.svg
     cd debian
     rm -rf changelog
@@ -416,7 +420,7 @@ build_source_deb(){
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pg-tde version ${VERSION}"
+    dch -D unstable --force-distribution -v "${VERSION}-${BUILD_RELEASE}" "Update to new pg-tde version ${VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -462,7 +466,7 @@ build_deb(){
     #
     PRODUCT=percona-pg-tde
     cd ${PRODUCT}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${BUILD_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -492,7 +496,7 @@ INSTALL=0
 RPM_RELEASE=2
 DEB_RELEASE=2
 REVISION=0
-BRANCH="1.0.0-beta"
+BRANCH="1.0.0-beta2"
 PG_VERSION=17.0
 PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 REPO="https://github.com/Percona-Lab/pg_tde.git"
@@ -502,6 +506,14 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.0.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+
+if [ ${NIGHTLY} = 1 ]
+then
+   NIGHTLY_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+   BUILD_RELEASE=${NIGHTLY_TIMESTAMP}.${RELEASE}
+else
+   BUILD_RELEASE=${RELEASE}
+fi
 
 check_workdir
 get_system

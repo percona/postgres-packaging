@@ -15,7 +15,7 @@
 
 Name:		%{sname}
 Version:	%{version}
-Release:	1%{?dist}
+Release:	%{release}%{?dist}
 Summary:	PostgreSQL extension for transparent data encryption.
 License:	PostgreSQL
 URL:		https://github.com/%{sname}/%{sname}/

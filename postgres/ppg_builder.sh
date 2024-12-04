@@ -17,6 +17,7 @@ Usage: $0 [OPTIONS]
         --install_deps      Install build dependencies(root privilages are required)
         --branch            Branch for build
         --repo              Repo for build
+        --nightly           If it is set - it will be nightly build
         --help) usage ;;
 Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
 EOF
@@ -47,6 +48,7 @@ parse_arguments() {
             --branch=*) BRANCH="$val" ;;
             --repo=*) REPO="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
+            --nightly=*) NIGHTLY="$val" ;;
             --help) usage ;;
             *)
               if test -n "$pick_args"
@@ -341,7 +343,7 @@ build_srpm(){
     cd ${WORKDIR}
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
         --define "pgmajorversion ${VERSION}" --define "pginstdir /usr/pgsql-${VERSION}"  --define "pgpackageversion ${VERSION}" \
-        rpmbuild/SPECS/percona-postgresql-${VERSION}.spec
+        --define "release ${BUILD_RELEASE}" rpmbuild/SPECS/percona-postgresql-${VERSION}.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -389,7 +391,8 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion ${VERSION}" --define "pginstdir /usr/pgsql-${VERSION}" --define "pgpackageversion ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion ${VERSION}" --define "pginstdir /usr/pgsql-${VERSION}" --define "pgpackageversion ${VERSION}" \
+    --define "release ${BUILD_RELEASE}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -434,7 +437,7 @@ build_source_deb(){
 
     cd ../
     quilt refresh
-    dch -D unstable --force-distribution -v "${VERSION}.${RELEASE}-${DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}.${RELEASE}-${DEB_RELEASE}"
+    dch -D unstable --force-distribution -v "${VERSION}.${RELEASE}-${BUILD_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${VERSION}.${RELEASE}-${BUILD_RELEASE}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -479,7 +482,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PRODUCT}-${VERSION}-${VERSION}.${RELEASE}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${VERSION}.${RELEASE}-${BUILD_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
         cd debian/
         wget https://raw.githubusercontent.com/Percona-Lab/telemetry-agent/phase-0/call-home.sh
@@ -533,6 +536,22 @@ VERSION='17'
 RELEASE='1'
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
+
+if [ ${NIGHTLY} = 1 ]
+then
+   NIGHTLY_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+   if [ "x$OS" = "xrpm" ] then
+      BUILD_RELEASE=${NIGHTLY_TIMESTAMP}.${RPM_RELEASE}
+   else
+      BUILD_RELEASE=${NIGHTLY_TIMESTAMP}.${DEB_RELEASE}
+   fi
+else
+   if [ "x$OS" = "xrpm" ] then
+      BUILD_RELEASE=${RPM_RELEASE}
+   else
+      BUILD_RELEASE=${DEB_RELEASE}
+   fi
+fi
 
 check_workdir
 get_system

@@ -889,9 +889,10 @@ build_postgres_server(){
 			git checkout "${PG_SERVER_BRANCH}"
 			git submodule update --init --recursive
 		fi
-	#	cd contrib/pg_tde
-	#	./configure
-	#	cd -
+		cd contrib/pg_tde
+		git fetch
+		git reset --hard origin/main
+		cd -
 	else
 		wget https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG_VERSION}.tar.gz
 		tar -xvzf postgresql-${PG_VERSION}.tar.gz

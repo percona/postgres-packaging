@@ -537,16 +537,15 @@ RELEASE='1'
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
-if [ ${NIGHTLY} = 1 ]
-then
+if [ ${NIGHTLY} = 1 ]; then
    NIGHTLY_TIMESTAMP=$(date +%Y%m%d%H%M%S)
-   if [ "x$OS" = "xrpm" ] then
+   if [ "x$OS" = "xrpm" ]; then
       BUILD_RELEASE=${NIGHTLY_TIMESTAMP}.${RPM_RELEASE}
    else
       BUILD_RELEASE=${NIGHTLY_TIMESTAMP}.${DEB_RELEASE}
    fi
 else
-   if [ "x$OS" = "xrpm" ] then
+   if [ "x$OS" = "xrpm" ]; then
       BUILD_RELEASE=${RPM_RELEASE}
    else
       BUILD_RELEASE=${DEB_RELEASE}

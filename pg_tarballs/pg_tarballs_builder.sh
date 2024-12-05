@@ -887,7 +887,7 @@ build_postgres_server(){
 			git reset --hard
 			git clean -xdf
 			git checkout "${PG_SERVER_BRANCH}"
-	#		git submodule update --init --recursive
+			git submodule update --init --recursive
 		fi
 	#	cd contrib/pg_tde
 	#	./configure

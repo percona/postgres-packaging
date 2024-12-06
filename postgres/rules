@@ -149,7 +149,7 @@ override_dh_auto_build-arch:
 	MAKELEVEL=0 $(MAKE) -C build/src all
 	$(MAKE) -C build/doc man # build man only
 	$(MAKE) -C build/config all
-	cp contrib/pg_tde/Makefile build/contrib/pg_tde
+	find contrib/pg_tde/ -name \*.o -type f -delete
 	$(MAKE) -C build/contrib all
 	# build tutorial stuff
 	$(MAKE) -C build/src/tutorial NO_PGXS=1

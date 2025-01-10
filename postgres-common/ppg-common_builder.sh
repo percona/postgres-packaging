@@ -123,6 +123,8 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.templates.patch
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
+	cp postgresql-common.tmpfiles postgresql-common.conf
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch

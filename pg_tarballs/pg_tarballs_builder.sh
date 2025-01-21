@@ -73,7 +73,8 @@ export KEYUTILS_VERSION=1.6.1
 export NCURSES_VERSION=6.5
 export LIBEDIT_VERSION=0.3
 export LIBUUID_VERSION=1.0.2
-export LIBXML2_VERSION=2.13.5
+#export LIBXML2_VERSION=2.13.5   # Latest version deprecated xmlNanoHTTPCleanup symbol required for SPATIALITE and GDAL
+export LIBXML2_VERSION=2.12.9
 export LIBXML2_MAJOR_VERSION=$(echo ${LIBXML2_VERSION}|  cut -f1,2 -d'.')
 export LIBXSLT_VERSION=1.1.42
 export LIBXSLT_MAJOR_VERSION=$(echo ${LIBXSLT_VERSION}|  cut -f1,2 -d'.')
@@ -88,10 +89,21 @@ export LIBMEMCACHED_MAJOR_VERSION=$(echo ${LIBMEMCACHED_VERSION} | cut -f1,2 -d'
 export UUID_VERSION=1.6.2
 export LUA_VERSION=5.3.5
 export PCRE2_VERSION=10.42
+export LIBMD_VERSION=1.1.0
+export LIBBSD_VERSION=0.12.2
+export MINIZIP_VERSION=2.5.0
 export GEOS_VERSION=3.12.1
 export LIBTIFF_VERSION=4.6.0
 export LIBPROJ_VERSION=9.3.1
-export GDAL_VERSION=3.8.2
+export LIBGEOTIFF_VERSION=1.7.3
+export LIBPNG_VERSION=1.6.45
+export LIBJPEG_VERSION=3.1.0
+export LIBQHULL_VERSION=2020.2
+export SQLITE_VERSION=3480000
+export JSONC_VERSION=0.18
+export GDAL_VERSION=3.10.1
+export PROTOBUF_VERSION=29.3
+export PROTOBUF_C_VERSION=1.5.0
 export GMP_VERSION=6.3.0
 export MPFR_VERSION=4.2.1
 export BOOST_VERSION=1.84.0
@@ -99,7 +111,6 @@ export EXPAT_VERSION=2.5.0
 export EXPAT_HYPHEN_VERSION=$(echo ${EXPAT_VERSION} | sed -e 's|\.|_|g')
 export FREEXL_VERSION=2.0.0
 export SPATIALITE_VERSION=5.1.0
-
 export CGAL_VERSION=5.6
 export SFCGAL_VERSION=1.5.0
 export LIBXCRYPT_VERSION=4.4.36
@@ -114,6 +125,7 @@ export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
 export TCL_VERSION=8.6.15
 export ETCD_VERSION=3.5.16
+export POSTGIS_VERSION=3.3.7
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
 export PGBOUNCER_PREFIX=/opt/percona-pgbouncer
@@ -157,9 +169,10 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel
+	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
+
 }
 
 build_openssl(){
@@ -431,6 +444,56 @@ build_libyaml(){
 	build_status "ends" "libyaml"
 }
 
+build_libmd(){
+
+	build_status "start" "libmd"
+	cd /source
+
+	wget https://libbsd.freedesktop.org/releases/libmd-${LIBMD_VERSION}.tar.xz
+	tar -xvf libmd-${LIBMD_VERSION}.tar.xz
+	cd libmd-${LIBMD_VERSION}
+	./configure --prefix=${DEPENDENCY_LIBS_PATH}
+	make
+	make install
+	build_status "ends" "libmd"
+}
+
+build_libbsd(){
+
+	build_status "start" "libbsd"
+	cd /source
+	wget https://libbsd.freedesktop.org/releases/libbsd-${LIBBSD_VERSION}.tar.xz
+	tar -xf libbsd-${LIBBSD_VERSION}.tar.xz
+	cd libbsd-${LIBBSD_VERSION}
+
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH ./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared --disable-static LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib -lmd" CPPFLAGS="-I${DEPENDENCY_LIBS_PATH}/include"
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make install
+
+	rm -f ${DEPENDENCY_LIBS_PATH}/lib/libbsd.so
+	ln -s ${DEPENDENCY_LIBS_PATH}/lib/libbsd.so.0 ${DEPENDENCY_LIBS_PATH}/lib/libbsd.so
+
+	build_status "ends" "libbsd"
+}
+
+build_minizip(){
+
+	build_status "start" "minizip"
+	mkdir -p /source
+	cd /source
+	wget https://github.com/nmoinvaz/minizip/archive/refs/tags/${MINIZIP_VERSION}.tar.gz -O minizip-${MINIZIP_VERSION}.tar.gz
+
+	tar -xvzf minizip-${MINIZIP_VERSION}.tar.gz
+	cd minizip-ng-${MINIZIP_VERSION}
+	mkdir build
+	cd build/
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DBUILD_SHARED_LIBS=ON -DCMAKE_C_FLAGS="-L${DEPENDENCY_LIBS_PATH}/lib -lbsd" -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
+
+	build_status "ends" "minizip"
+}
+
 build_geos(){
 
 	build_status "start" "geos"
@@ -469,36 +532,176 @@ build_libtiff(){
 build_proj(){
 
 	build_status "start" "proj"
-        mkdir -p /source
-        cd /source
-        wget https://download.osgeo.org/proj/proj-${LIBPROJ_VERSION}.tar.gz
+	mkdir -p /source
+	cd /source
+	wget https://download.osgeo.org/proj/proj-${LIBPROJ_VERSION}.tar.gz
 
-        tar -xvzf proj-${LIBPROJ_VERSION}.tar.gz
-        cd proj-${LIBPROJ_VERSION}
-        mkdir build
-        cd build/
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DTIFF_LIBRARY=${DEPENDENCY_LIBS_PATH}/lib/libtiff.so -DTIFF_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DCURL_LIBRARY=${DEPENDENCY_LIBS_PATH}/lib/libcurl.so -DCURL_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . -DTIFF_LIBRARY=${DEPENDENCY_LIBS_PATH}/lib/libtiff.so -DTIFF_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DCURL_LIBRARY=${DEPENDENCY_LIBS_PATH}/lib/libcurl.so -DCURL_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64"
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install -DTIFF_LIBRARY=${DEPENDENCY_LIBS_PATH}/lib/libtiff.so -DTIFF_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DCURL_LIBRARY=${DEPENDENCY_LIBS_PATH}/lib/libcurl.so -DCURL_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64"
+	tar -xvzf proj-${LIBPROJ_VERSION}.tar.gz
+	cd proj-${LIBPROJ_VERSION}
+	mkdir build
+	cd build/
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
 
 	build_status "ends" "proj"
+}
+
+build_libgeotiff(){
+
+	build_status "start" "libgeotiff"
+	mkdir -p /source
+	cd /source
+	wget https://download.osgeo.org/geotiff/libgeotiff/libgeotiff-${LIBGEOTIFF_VERSION}.tar.gz
+
+	tar -xvzf libgeotiff-${LIBGEOTIFF_VERSION}.tar.gz
+	cd "libgeotiff-${LIBGEOTIFF_VERSION}"
+	mkdir build
+	cd build/
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
+
+	build_status "ends" "libgeotiff"
+}
+
+build_libpng(){
+
+        build_status "start" "libpng"
+        mkdir -p /source
+        cd /source
+        wget https://download.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.gz
+
+        tar -xvzf libpng-${LIBPNG_VERSION}.tar.gz
+        cd "libpng-${LIBPNG_VERSION}"
+        mkdir build
+        cd build/
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
+
+        build_status "ends" "libpng"
+}
+
+build_libjpeg(){
+
+        build_status "start" "libjpeg"
+        mkdir -p /source
+        cd /source
+        wget https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/${LIBJPEG_VERSION}.tar.gz -O "libjpeg-turbo-${LIBJPEG_VERSION}.tar.gz"
+
+        tar -xvzf libjpeg-turbo-${LIBJPEG_VERSION}.tar.gz
+        cd "libjpeg-turbo-${LIBJPEG_VERSION}"
+        mkdir build
+        cd build/
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
+
+        build_status "ends" "libjpeg"
+}
+
+build_libqhull(){
+
+        build_status "start" "libqhull"
+        mkdir -p /source
+        cd /source
+        wget https://github.com/qhull/qhull/archive/refs/tags/${LIBQHULL_VERSION}.tar.gz -O "qhull-${LIBQHULL_VERSION}.tar.gz"
+
+        tar -xvzf qhull-${LIBQHULL_VERSION}.tar.gz
+        cd "qhull-${LIBQHULL_VERSION}"
+        mkdir build
+        cd build/
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
+
+        build_status "ends" "libqhull"
+}
+
+build_sqlite(){
+
+	build_status "start" "sqlite"
+	cd /source
+	rm -rf sqlite-autoconf-${SQLITE_VERSION}*
+	wget https://sqlite.org/2025/sqlite-autoconf-${SQLITE_VERSION}.tar.gz
+	tar -xvzf sqlite-autoconf-${SQLITE_VERSION}.tar.gz
+	cd sqlite-autoconf-${SQLITE_VERSION}
+	./configure --prefix=${DEPENDENCY_LIBS_PATH}
+	make
+	make install
+	build_status "ends" "sqlite"
+}
+
+build_jsonc(){
+
+        build_status "start" "jsonc"
+        mkdir -p /source
+        cd /source
+        wget https://s3.amazonaws.com/json-c_releases/releases/json-c-${JSONC_VERSION}.tar.gz
+
+        tar -xvzf json-c-${JSONC_VERSION}.tar.gz
+        cd "json-c-${JSONC_VERSION}"
+        mkdir build
+        cd build/
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
+
+        build_status "ends" "jsonc"
 }
 
 build_gdal(){
 
 	build_status "start" "gdal"
-        mkdir -p /source
-        cd /source
-        wget https://github.com/OSGeo/gdal/releases/download/v${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz
-        tar -xvzf gdal-${GDAL_VERSION}.tar.gz
-        cd gdal-${GDAL_VERSION}
-        mkdir build
-        cd build/
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64"
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64"
+	mkdir -p /source
+	cd /source
+	wget https://github.com/OSGeo/gdal/releases/download/v${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz
+	tar -xvzf gdal-${GDAL_VERSION}.tar.gz
+	cd gdal-${GDAL_VERSION}
+	mkdir build
+	cd build/
+	if [ "$USE_SYSTEM_SSL" != "1" ]; then
+		LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" -DOPENSSL_ROOT_DIR=${DEPENDENCY_LIBS_PATH} -DOPENSSL_LIBRARIES=${DEPENDENCY_LIBS_PATH}/lib64 -DOPENSSL_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DSQLite3_LIBRARY=${DEPENDENCY_LIBS_PATH}/lib/libsqlite3.so -DSQLite3_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DACCEPT_MISSING_SQLITE3_MUTEX_ALLOC=ON ..
+	else
+		LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" -DOPENSSL_ROOT_DIR=/usr -DOPENSSL_LIBRARIES=/usr/lib64 -DSQLite3_LIBRARY=${DEPENDENCY_LIBS_PATH}/lib/libsqlite3.so -DSQLite3_INCLUDE_DIR=${DEPENDENCY_LIBS_PATH}/include -DACCEPT_MISSING_SQLITE3_MUTEX_ALLOC=ON ..
+	fi
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
 
 	build_status "ends" "gdal"
+}
+
+build_protobuf(){
+
+	build_status "start" "protobuf"
+	mkdir -p /source
+	cd /source
+	wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-${PROTOBUF_VERSION}.tar.gz
+	tar -xvzf protobuf-${PROTOBUF_VERSION}.tar.gz
+	cd protobuf-${PROTOBUF_VERSION}
+	mkdir build
+	cd build/
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
+
+	build_status "ends" "protobuf"
+}
+
+build_protobuf_c(){
+
+	build_status "start" "protobuf_c"
+	mkdir -p /source
+	cd /source
+	wget https://github.com/protobuf-c/protobuf-c/releases/download/v${PROTOBUF_C_VERSION}/protobuf-c-${PROTOBUF_C_VERSION}.tar.gz
+	tar -xvzf protobuf-c-${PROTOBUF_C_VERSION}.tar.gz
+	cd protobuf-c-${PROTOBUF_C_VERSION}
+	PATH=${DEPENDENCY_LIBS_PATH}/bin:$PATH ./configure --prefix=${DEPENDENCY_LIBS_PATH}
+	make
+	make install
+
+	build_status "ends" "protobuf_c"
 }
 
 build_gmp(){
@@ -574,9 +777,10 @@ build_freexl(){
         wget https://www.gaia-gis.it/gaia-sins/freexl-${FREEXL_VERSION}.tar.gz
         tar -xvzf freexl-${FREEXL_VERSION}.tar.gz
         cd freexl-${FREEXL_VERSION}
-	wget -O config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
-	wget -O config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
-	chmod +x config.sub config.guess
+	# Commenting server is down but checked building fine without these files.
+	#wget -O config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+	#wget -O config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+	#chmod +x config.sub config.guess
 
         ARCH=$(uname -m)
 
@@ -599,24 +803,26 @@ build_freexl(){
 build_spatialite(){
 
 	build_status "start" "spatialite"
-        mkdir -p /source
-        cd /source
+	mkdir -p /source
+	cd /source
 
-        wget https://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-${SPATIALITE_VERSION}.tar.gz
-        tar -xvzf libspatialite-${SPATIALITE_VERSION}.tar.gz
+	wget https://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-${SPATIALITE_VERSION}.tar.gz
+	tar -xvzf libspatialite-${SPATIALITE_VERSION}.tar.gz
 
-        cd libspatialite-${SPATIALITE_VERSION}
+	cd libspatialite-${SPATIALITE_VERSION}
 
 	#cp /backup/config.h.in /source/libspatialite-5.1.0/
 	#cp /backup/configure.ac /source/libspatialite-5.1.0/
 
 	#aclocal && autoconf
 
-        PKG_CONFIG_PATH=${DEPENDENCY_LIBS_PATH}/lib64/pkgconfig LIBXML2_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include/ -I${DEPENDENCY_LIBS_PATH}/include/libxml2" LIBXML2_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -lxml2" LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -liconv" CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --prefix=${DEPENDENCY_LIBS_PATH} \
-		    --disable-proj --disable-freexl --disable-rttopo --disable-gcp \
-                    --with-geosconfig=${DEPENDENCY_LIBS_PATH}/bin/geos-config
-        CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" make
-        CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" make install
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH PKG_CONFIG_PATH=${DEPENDENCY_LIBS_PATH}/lib64/pkgconfig LIBXML2_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include/ -I${DEPENDENCY_LIBS_PATH}/include/libxml2" LIBXML2_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -lxml2" LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -liconv" CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --prefix=${DEPENDENCY_LIBS_PATH} \
+			--disable-proj --disable-freexl --disable-rttopo --disable-gcp \
+			--with-geosconfig=${DEPENDENCY_LIBS_PATH}/bin/geos-config
+	#sed -i 's|examples||g' Makefile
+
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" make
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" make install
 
 	build_status "ends" "spatialite"
 }
@@ -624,22 +830,17 @@ build_spatialite(){
 build_cgal(){
 
 	build_status "start" "cgal"
-        mkdir -p /source
-        cd /source
-        wget https://github.com/CGAL/cgal/archive/refs/tags/v${CGAL_VERSION}.tar.gz -O cgal-${CGAL_VERSION}.tar.gz
-        tar -xvzf cgal-${CGAL_VERSION}.tar.gz
-        cd cgal-${CGAL_VERSION}
-        mkdir build
-        cd build/
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_BUILD_TYPE=Release ..
+	mkdir -p /source
+	cd /source
+	wget https://github.com/CGAL/cgal/archive/refs/tags/v${CGAL_VERSION}.tar.gz -O cgal-${CGAL_VERSION}.tar.gz
+	tar -xvzf cgal-${CGAL_VERSION}.tar.gz
+	cd cgal-${CGAL_VERSION}
+	mkdir build
+	cd build/
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_BUILD_TYPE=Release ..
 
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make
-	make install
-	cp -rp /usr/local/lib64/cmake/CGAL ${DEPENDENCY_LIBS_PATH}/lib64/cmake/
-	#cp -rp /source/cgal-${CGAL_VERSION}/Installation/include/CGAL ${DEPENDENCY_LIBS_PATH}/include/
-	#cp -rp /source/cgal-${CGAL_VERSION}/Installation/lib/cmake ${DEPENDENCY_LIBS_PATH}/lib
-	#cp -rp /source/cgal-${CGAL_VERSION}/Installation/cmake ${DEPENDENCY_LIBS_PATH}/
-	#cp -rp /source/cgal-${CGAL_VERSION}/Kernel_23/include/CGAL/* ${DEPENDENCY_LIBS_PATH}/include/CGAL/
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
 
 	build_status "ends" "cgal"
 }
@@ -647,16 +848,16 @@ build_cgal(){
 build_sfcgal(){
 
 	build_status "start" "sfcgal"
-        mkdir -p /source
-        cd /source
-        wget https://gitlab.com/SFCGAL/SFCGAL/-/archive/v${SFCGAL_VERSION}/SFCGAL-v${SFCGAL_VERSION}.tar.gz
-        tar -xvzf SFCGAL-v${SFCGAL_VERSION}.tar.gz
-        cd SFCGAL-v${SFCGAL_VERSION}
-        mkdir build
-        cd build/
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64"
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64"
+	mkdir -p /source
+	cd /source
+	wget https://gitlab.com/SFCGAL/SFCGAL/-/archive/v${SFCGAL_VERSION}/SFCGAL-v${SFCGAL_VERSION}.tar.gz
+	tar -xvzf SFCGAL-v${SFCGAL_VERSION}.tar.gz
+	cd SFCGAL-v${SFCGAL_VERSION}
+	mkdir -p build
+	cd build/
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build . --target install
 
 	build_status "ends" "sfcgal"
 }
@@ -760,7 +961,7 @@ build_libffi() {
 	cd libffi-${LIBFFI_VERSION}
 
 	# Build libffi in a custom location to avoid conflict with other libraries
-	./configure --prefix=/opt/libffi-build
+	./configure --prefix=${DEPENDENCY_LIBS_PATH}
 	make
 	make install
 	build_status "ends" "libffi"
@@ -1378,6 +1579,56 @@ build_pgvector(){
         build_status "ends" "pgvector"
 }
 
+build_postgis(){
+
+	build_status "start" "postgis"
+	mkdir -p /source
+	cd /source
+	wget "https://download.osgeo.org/postgis/source/postgis-${POSTGIS_VERSION}.tar.gz"
+	tar -xvzf postgis-${POSTGIS_VERSION}.tar.gz
+	cd postgis-${POSTGIS_VERSION}
+
+	export PATH=${POSTGRESQL_PREFIX}/bin:${DEPENDENCY_LIBS_PATH}/bin:$PATH
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib -L${DEPENDENCY_LIBS_PATH}/lib64" ./configure --with-pgconfig=${POSTGRESQL_PREFIX}/bin/pg_config \
+		--enable-lto \
+		--with-projdir=${DEPENDENCY_LIBS_PATH} \
+		--with-sfcgal=${DEPENDENCY_LIBS_PATH}/bin/sfcgal-config \
+		--with-gui \
+		--with-protobuf \
+		--with-geosconfig=${DEPENDENCY_LIBS_PATH}/bin/geos-config \
+		--with-gdalconfig=${DEPENDENCY_LIBS_PATH}/bin/gdal-config
+
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH make USE_PGXS=1 -j4
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH make USE_PGXS=1 -j4 install
+
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeos_c*.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libproj.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libSFCGAL.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libiconv.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeos.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libsqlite3* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libtiff.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmpfr* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libgmp* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libqhull_r* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libjpeg.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeotiff* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libpng16* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libpcre2-* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libspatialit* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libfreexl* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libjson-c* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libprotobuf-c* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcurl* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libboost_* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgdal.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libminizip.* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmd.* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libbsd* ${POSTGRESQL_PREFIX}/lib/
+
+	build_status "ends" "postgis"
+}
+
 set_rpath(){
 
         directory="$1"  # Change this to your target directory
@@ -1480,21 +1731,32 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	build_libyaml
 	build_lua
 	build_pcre
-	#build_geos
-	#build_libtiff
-	#build_proj
-	#build_gdal
+	build_libmd
+	build_libbsd
+	uild_minizip
+	build_geos
+	build_libtiff
+	build_proj
+	build_libgeotiff
+	build_libpng
+	build_libjpeg
+	build_libqhull
+	build_sqlite
+	build_jsonc
 	build_gmp
 	build_mpfr
 	build_libboost
 	build_expat
-	#build_freexl
-	#build_spatialite
-	#build_cgal
-	#build_sfcgal
+	build_freexl
+	#build_protobuf
+	build_protobuf_c
+	build_spatialite
+	build_gdal
+	build_cgal
+	build_sfcgal
 	build_libxcrypt
 	build_perl
-	#build_libffi
+	build_libffi
 	build_python
 	build_ydiff
 	build_pysyncobj
@@ -1530,5 +1792,6 @@ build_etcd
 if [ "${PG_MAJOR_VERSION}" -ne 12 ]; then
     build_pgvector
 fi
+build_postgis
 set_rpath_all_products
 create_tarball

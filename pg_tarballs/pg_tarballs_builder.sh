@@ -123,7 +123,7 @@ export LIBFFI_VERSION=3.4.2
 export PERL_VERSION=5.38.2
 export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
-export TCL_VERSION=8.6.15
+export TCL_VERSION=8.6.16
 export ETCD_VERSION=3.5.16
 export POSTGIS_VERSION=3.3.7
 
@@ -309,7 +309,7 @@ build_libiconv(){
 
 	build_status "start" "libiconv"
 	cd /source
-	wget https://mirror.freedif.org/GNU/libiconv/libiconv-${LIBICONV_VERSION}.tar.gz
+	wget https://ftp.gnu.org/gnu/libiconv/libiconv-${LIBICONV_VERSION}.tar.gz
 	tar -xvzf libiconv-${LIBICONV_VERSION}.tar.gz
 	cd libiconv-${LIBICONV_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -1733,7 +1733,7 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 	build_pcre
 	build_libmd
 	build_libbsd
-	uild_minizip
+	build_minizip
 	build_geos
 	build_libtiff
 	build_proj

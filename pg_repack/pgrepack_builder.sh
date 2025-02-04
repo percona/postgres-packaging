@@ -125,7 +125,7 @@ get_sources(){
     rm -fr debian rpm
     git clone https://salsa.debian.org/postgresql/pg-repack.git deb_packaging
     cd deb_packaging
-      git checkout -b percona-pg_repack debian/1.5.0-1
+      git checkout -b percona-pg_repack debian/${VERSION}-${RELEASE}
     cd ../
     mv deb_packaging/debian ./
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pg_repack/Makefile.patch
@@ -474,14 +474,14 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="ver_1.5.1"
+BRANCH="ver_1.5.2"
 REPO="https://github.com/reorg/pg_repack.git"
 PRODUCT=percona-pg_repack
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.5.1'
-RELEASE='2'
-PG_VERSION=17.2
+VERSION='1.5.2'
+RELEASE='1'
+PG_VERSION=17.3
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

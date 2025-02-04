@@ -463,14 +463,14 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="v12.4"
+BRANCH="v13.0"
 REPO="https://github.com/darold/pgbadger.git"
 PRODUCT=percona-pgbadger
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='12.4'
-RELEASE='2'
-PG_VERSION=16.6
+VERSION='13.0'
+RELEASE='1'
+PG_VERSION=16.7
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

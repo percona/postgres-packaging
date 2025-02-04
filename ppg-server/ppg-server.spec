@@ -1,6 +1,6 @@
 %global sname   percona-ppg-server
 %global pgmajorversion 17
-%global version 2
+%global version 3
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
@@ -13,10 +13,10 @@ Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 Epoch:		1
 Requires:       percona-postgresql%{pgmajorversion}-server
-Requires:       percona-postgresql-common >= 17.2
+Requires:       percona-postgresql-common >= 17.3
 Requires:       percona-postgresql%{pgmajorversion}-contrib
 Requires:       percona-pg-stat-monitor%{pgmajorversion}
-Requires:       percona-pgaudit17 >= 17.2
+Requires:       percona-pgaudit17 >= 17.3
 Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 
@@ -28,6 +28,8 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
+* Thu Feb 13 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 17.3-1
+- Update version for ppg-server meta-package
 * Thu Nov 21 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> 17.2-1
 - Update version for ppg-server meta-package
 * Thu Nov 14 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> 17.1-1

@@ -472,14 +472,14 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="ver_1.5.1"
+BRANCH="ver_1.5.2"
 REPO="https://github.com/reorg/pg_repack.git"
 PRODUCT=percona-pg_repack
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.5.1'
+VERSION='1.5.2'
 RELEASE='1'
-PG_VERSION=15.10
+PG_VERSION=15.11
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

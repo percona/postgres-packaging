@@ -13,7 +13,7 @@
 %endif
 
 Name:		etcd
-Version:	3.5.16
+Version:	3.5.18
 Release:	1%{?dist}
 Summary:	Distributed reliable key-value store
 License:	ASL 2.0

@@ -249,23 +249,81 @@ EOF
                     </ruleList>
                 </throwError>
             </actionList>
-        </actionDefinition>
+    	</actionDefinition>
+	<include file="scripts/determineLinuxInitSystem.xml"/>
+	<include file="scripts/linuxServiceAction.xml"/>
     </functionDefinitionList>
 
     <!-- Prebuild Actons-->
     <preBuildActionList>
+	<setInstallerVariable name="originalplatform" value="${platform_name}"/>
+	<setInstallerVariable name="originalplatform" value="linux-x32">
+	   <ruleList>
+	      <compareText text="${platform_name}" value="linux"/>
+	   </ruleList>
+	</setInstallerVariable>
+	<setInstallerVariable name="project.parameter(install_runtimes).ask" value="0">
+	   <ruleList>
+	      <compareText>
+	         <logic>does_not_equal</logic>
+	         <text>${platform_name}</text>
+		 <value>windows</value>
+	      </compareText>
+	   </ruleList>
+	</setInstallerVariable>
+	<setInstallerVariable name="project.parameter(enable_aclcheck).ask" value="0">
+	   <ruleList>
+	      <compareText>
+	         <logic>does_not_equal</logic>
+		 <text>${platform_name}</text>
+		 <value>windows</value>
+	      </compareText>
+	   </ruleList>
+	</setInstallerVariable>
+	<setInstallerVariable name="project.parameter(servicepassword).ask" value="0">
+	   <ruleList>
+	      <compareText>
+		 <logic>does_not_equal</logic>
+		 <text>${platform_name}</text>
+		 <value>windows</value>
+	      </compareText>
+	   </ruleList>
+	</setInstallerVariable>
         <setInstallerVariable name="originalplatform" value="${platform_name}"/>
-		<setInstallerVariable name="project.installerFilename" value="percona-postgresql-PG_PACKAGE_VERSION-windows-installer.exe">
+	<setInstallerVariable name="project.installerFilename" value="percona-postgresql-PG_PACKAGE_VERSION-windows-installer.exe">
             <ruleList>
                 <compareText logic="equals" text="${platform_name}" value="windows"/>
             </ruleList>
-        </setInstallerVariable>
-		
+    	</setInstallerVariable>
+	<setInstallerVariable name="originalplatform" value="${platform_name}"/>
+	<setInstallerVariable name="project.installerFilename" value="percona-postgresql-PG_PACKAGE_VERSION-${platform_name}.run">
+	    <ruleList>
+		<compareText logic="contains" text="${platform_name}" value="linux"/>
+	    </ruleList>
+	</setInstallerVariable>
     </preBuildActionList>
 
     <preShowHelpActionList>
         <!-- Set the default installation directory -->
-        <setInstallerVariable>
+	<setInstallerVariable>
+	   <name>default_installdir</name>
+	   <persist>1</persist>
+	   <value>${platform_install_prefix}/Percona/PostgreSQL/${product_version}</value>
+	   <ruleEvaluationLogic>or</ruleEvaluationLogic>
+	   <ruleList>
+	      <compareText>
+		 <logic>contains</logic>
+		 <text>${platform_name}</text>
+		 <value>solaris</value>
+	      </compareText>
+	      <compareText>
+		 <logic>contains</logic>
+		 <text>${platform_name}</text>
+		 <value>linux</value>
+	      </compareText>
+	   </ruleList>
+	</setInstallerVariable>
+	<setInstallerVariable>
             <name>default_installdir</name>
             <persist>1</persist>
             <value>${platform_install_prefix}\Percona\PostgreSQL\${product_version}</value>
@@ -278,6 +336,11 @@ EOF
             </ruleList>
         </setInstallerVariable>
 
+	<setInstallerVariable name="default_datadir" value="${default_installdir}/data" >
+	    <ruleList>
+		<compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+	    </ruleList>
+	</setInstallerVariable>
         <setInstallerVariable name="default_datadir" value="${default_installdir}\data" >
             <ruleList>
                 <compareText logic="equals" text="${platform_name}" value="windows"/>
@@ -351,6 +414,16 @@ EOF
         <setInstallerVariable name="project.parameter(servicepassword).ask" value="0" />
         <setInstallerVariable name="project.parameter(servicename).ask" value="0" />
         <setInstallerVariable name="project.parameter(extract_mode).ask" value="0" />
+	
+	<!-- Abort Installation as trying to  run a 32-bit installer on 64-bit machine -->
+	<throwError>
+	  <customErrorMessage>${msg(platform.not.match)}</customErrorMessage>
+	  <text>Unknown Error</text>
+	     <ruleList>
+		<platformTest type="linux-x64"/>
+		<compareText text="${originalplatform}" value="linux-x32"/>
+	     </ruleList>
+	</throwError>
 
         <throwError customErrorMessage="${msg(platform.not.match64)}" text="Unknown Error">
             <ruleList>
@@ -361,8 +434,6 @@ EOF
 
         <setInstallerVariable name="create_shortcuts" value="1" persist="1"/>
         <setInstallerVariable name="iShortcut" value="" />
-
-        <!--<setInstallerVariable name="iDisableStackBuilder" value="0" />-->
 
         <!-- PostgreSQL superuser account -->
         <setInstallerVariable name ="superaccount" value="" />
@@ -384,6 +455,25 @@ EOF
             <value>uninstall-percona-postgresql</value>
         </setInstallerVariable>
 
+	<setInstallerVariable>
+	   <name>default_installdir</name>
+	   <persist>1</persist>
+	   <value>${platform_install_prefix}/Percona/PostgreSQL/${product_version}</value>
+	   <ruleEvaluationLogic>or</ruleEvaluationLogic>
+	   <ruleList>
+	      <compareText>
+		 <logic>contains</logic>
+		 <text>${platform_name}</text>
+		 <value>solaris</value>
+	      </compareText>
+	      <compareText>
+		 <logic>contains</logic>
+		 <text>${platform_name}</text>
+		 <value>linux</value>
+	      </compareText>
+	   </ruleList>
+	</setInstallerVariable>
+
         <!-- Set the default installation directory -->
         <setInstallerVariable>
             <name>default_installdir</name>
@@ -399,6 +489,13 @@ EOF
         </setInstallerVariable>
 
         <setInstallerVariable name="default_datadir" value="" />
+
+	<setInstallerVariable name="default_datadir" value="${default_installdir}/data" >
+	   <ruleList>
+	      <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+	      <compareText logic="equals" text="${installer_ui}" value="unattended"/>
+	   </ruleList>
+	</setInstallerVariable>
 
         <setInstallerVariable name="default_datadir" value="${default_installdir}\data" >
             <ruleList>
@@ -450,18 +547,32 @@ EOF
         <!-- pg_control version number -->
         <setInstallerVariable name="PgControlVersion" value="PG_CONTROL_VERSION"/>
 
-        <!-- Date/Time Setting -->
-        <setInstallerVariable>
-            <name>DateTimeSetting</name>
-            <value>@@PG_DATETIME_SETTING@@</value>
-            <ruleList>
-                <compareText>
-                    <logic>equals</logic>
-                    <text>${platform_name}</text>
-                    <value>windows</value>
-                </compareText>
-            </ruleList>
-        </setInstallerVariable>
+	<!-- Date/Time Setting -->
+	<setInstallerVariable>
+	   <name>DateTimeSetting</name>
+	   <value>@@PG_DATETIME_SETTING@@</value>
+	</setInstallerVariable>
+
+	<actionGroup>
+	   <actionList>
+	      <!-- Set the ini filename -->
+	      <setInstallerVariable>
+		 <name>PostgreSqlIni</name>
+		 <persist>1</persist>
+		 <value>/etc/percona-postgres-reg.ini</value>
+	      </setInstallerVariable>
+	      <logMessage>
+		 <text>Using ini file: ${PostgreSqlIni}</text>
+	      </logMessage>
+	   </actionList>
+	   <ruleList>
+	      <compareText>
+		 <logic>does_not_equal</logic>
+		 <text>${platform_name}</text>
+		 <value>windows</value>
+	      </compareText>
+	   </ruleList>
+	</actionGroup>
         <setInstallerVariable name="server_installation_done" value="0" persist="1"/>
 
         <setInstallerVariable name="slash" persist="1" value="\">
@@ -469,6 +580,11 @@ EOF
                 <compareText logic="equals" text="${platform_name}" value="windows"/>
             </ruleList>
         </setInstallerVariable>
+	<setInstallerVariable name="slash" persist="1" value="/">
+	   <ruleList>
+	      <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+	   </ruleList>
+	</setInstallerVariable>
 
         <!-- Set variable for upgrade screen test -->
         <setInstallerVariable name="test_filename" value="postgres"/>
@@ -480,14 +596,113 @@ EOF
     </initializationActionList>
 
     <installationAbortedActionList>
-        <deleteFile path="${system_temp_directory}/percona-pg_installer_${random_number}" abortOnError="0" showMessageOnError="0">
+        <deleteFile path="${system_temp_directory}/pg_installer_${random_number}" abortOnError="0" showMessageOnError="0">
             <ruleList>
-                <fileTest path="${system_temp_directory}/percona-pg_installer_${random_number}" condition="exists"/>
+                <fileTest path="${system_temp_directory}/pg_installer_${random_number}" condition="exists"/>
             </ruleList>
         </deleteFile>
-        <actionGroup>
-            <actionList>
-             <actionGroup>
+	<actionGroup>
+	   <actionList>
+	    <actionGroup>
+		 <actionList>
+		    <!-- Version -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>Version</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!-- Installation directory -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>InstallationDirectory</key>
+		       <value></value>
+		    </iniFileSet>
+		    
+		    <!-- Description -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>Description</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!-- ServiceID -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>ServiceID</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!-- Branding -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>Branding</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!-- Superuser -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>Superuser</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!-- DataDirectory -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>DataDirectory</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!-- Port -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>Port</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!--Serviceaccount -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>Serviceaccount</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!--Locale -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>Locale</key>
+		       <value></value>
+		    </iniFileSet>
+
+		    <!--Shortcuts -->
+		    <iniFileSet>
+		       <file>${PostgreSqlIni}</file>
+		       <section>Percona/PostgreSQL/${product_version}</section>
+		       <key>Shortcuts</key>
+		       <value></value>
+		    </iniFileSet>
+		</actionList>
+		<ruleList>
+		   <compareText>
+		     <logic>does_not_equal</logic>
+		     <text>${platform_name}</text>
+		     <value>windows</value>
+		   </compareText>
+		   <fileTest condition="exists" path="${PostgreSqlIni}"/>
+		</ruleList>
+	    </actionGroup>
+            <actionGroup>
                  <actionList>
                  <!-- WINDOWS: Unregister the event message DLL -->
                  <registryDelete>
@@ -510,18 +725,18 @@ EOF
                  </compareText>
               </ruleList>
             </actionGroup>
-         </actionList>
-         <ruleList>
+          </actionList>
+          <ruleList>
              <isFalse value="${IsUpgrade}"/>
              <isFalse value="${extract_mode}"/>
-         </ruleList>
+          </ruleList>
        </actionGroup>
     </installationAbortedActionList>
 
 
     <!-- Preuninstallation actions -->
     <preUninstallationActionList>
-        <createTempDir dirPrefix="pg_installer"/>
+	    <!--<createTempDir dirPrefix="pg_installer"/>-->
         <!-- Abort uninstallation if not super-user/Administrator -->
         <actionGroup>
             <actionList>
@@ -532,11 +747,35 @@ EOF
                 <isFalse value="${installer_is_root_install}"/>
                 <compareText logic="equals" text="${platform_name}" value="windows"/>
             </ruleList>
-        </actionGroup>
+    	</actionGroup>
+	<actionGroup>
+	    <actionList>
+		<showWarning text="${msg(Installer.Warning.UninstallerRootPrivileges)}"/>
+		<exit/>
+	    </actionList>
+	    <ruleList>
+		<isFalse value="${installer_is_root_install}"/>
+		<compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+	    </ruleList>
+	</actionGroup>
     </preUninstallationActionList>
 
     <!-- Post-uninstall actions -->
     <postUninstallationActionList>
+       <actionGroup>
+	  <actionList>
+	     <iniFileGet>
+		<file>${PostgreSqlIni}</file>
+		<key>DataDirectory</key>
+		<section>Percona/PostgreSQL/${product_version}</section>
+		<variable>server_data_dir</variable>
+	     </iniFileGet>
+	  </actionList>
+	  <ruleList>
+	     <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+	     <fileTest path="${PostgreSqlIni}" condition="readable"/>
+	  </ruleList>
+	  </actionGroup>
           <actionGroup>
               <actionList>
                   <registryGet>
@@ -550,13 +789,22 @@ EOF
               </ruleList>
           </actionGroup>
 
-        <createTempDir dirPrefix="pg_installer"/>
+	  <!--<createTempDir dirPrefix="pg_installer"/>-->
         <!-- Delete the temp scripts directory -->
-        <deleteFile>
+	<deleteFile>
             <path>${system_temp_directory}/pg_installer_${random_number}</path>
             <abortOnError>0</abortOnError>
             <showMessageOnError>0</showMessageOnError>
-        </deleteFile>
+	</deleteFile>
+
+	<deleteFile>
+	   <path>${installdir}/.cache</path>
+	   <abortOnError>0</abortOnError>
+	   <showMessageOnError>0</showMessageOnError>
+	   <ruleList>
+	      <compareText text="${platform_name}" logic="contains" value="linux" />
+	   </ruleList>
+	</deleteFile>
 
         <showWarning>
             <text>${msg(info.datadirectory.user.kept)}</text>
@@ -611,7 +859,22 @@ EOF
         <createTempDir dirPrefix="pg_installer"/>
 
         <!-- prerun_check script -->
-        <unpackFile>
+	<unpackFile>
+   	    <component>default</component>
+	    <destination>${system_temp_directory}/pg_installer_${random_number}</destination>
+	    <folder>defaultlinux_x64</folder>
+	    <origin>prerun_checks.sh</origin>
+	    <customErrorMessage>${msg(error.writing.temp)}</customErrorMessage>
+	    <ruleList>
+		<compareText>
+		    <logic>equals</logic>
+		    <text>${platform_name}</text>
+		    <value>linux-x64</value>
+		</compareText>
+		<isFalse value="${extract_mode}"/>
+	    </ruleList>
+	</unpackFile>
+	<unpackFile>
             <component>default</component>
             <destination>${system_temp_directory}/pg_installer_${random_number}</destination>
             <folder>defaultwindows_x64</folder>
@@ -638,7 +901,12 @@ EOF
                         <compareText logic="equals" text="${platform_name}" value="windows"/>
                     </ruleList>
                 </runProgram>
-                <throwError>
+		<runProgram program="${system_temp_directory}/pg_installer_${random_number}/prerun_checks.sh">
+		    <ruleList>
+			<compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+		    </ruleList>
+		</runProgram>
+		<throwError>
                     <text>${msg(prerunscript.command.line.error)}</text>
                     <ruleList>
                         <compareText>
@@ -683,7 +951,82 @@ EOF
         </setInstallerVariable>
 
         <!-- WIN: Get existing directories & branding -->
-        <actionGroup>
+	<actionGroup>
+	    <actionList>
+		<!-- Check whether menus were created, if its a re-install/upgrade -->
+		<iniFileGet>
+		    <file>${PostgreSqlIni}</file>
+		    <key>Shortcuts</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+		    <variable>iShortcut</variable>
+		    <ruleList>
+		        <fileTest>
+			    <condition>readable</condition>
+			    <path>${PostgreSqlIni}</path>
+			</fileTest>
+		    </ruleList>
+		</iniFileGet>
+
+		<!-- Get the branding. -->
+		<iniFileGet>
+		     <file>${PostgreSqlIni}</file>
+		     <key>Branding</key>
+		     <section>Percona/PostgreSQL/${product_version}</section>
+		     <variable>iBranding</variable>
+		     <ruleList>
+			 <fileTest>
+			     <condition>readable</condition>
+			     <path>${PostgreSqlIni}</path>
+			 </fileTest>
+		     </ruleList>
+		</iniFileGet>
+		<setInstallerVariable>
+		    <name>iBranding</name>
+		    <persist>0</persist>
+		    <value></value>
+		    <ruleList>
+			<fileTest>
+			    <condition>not_readable</condition>
+			    <path>${PostgreSqlIni}</path>
+			</fileTest>
+		    </ruleList>
+		</setInstallerVariable>
+
+		<!-- Get the version installed. We use this to figure out if we have a pre-branding installation -->
+		<iniFileGet>
+		    <file>${PostgreSqlIni}</file>
+		    <key>Version</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+		    <variable>brandingVer</variable>
+		    <ruleList>
+			<fileTest>
+			    <condition>readable</condition>
+			    <path>${PostgreSqlIni}</path>
+			</fileTest>
+		    </ruleList>
+		</iniFileGet>
+		<setInstallerVariable>
+		    <name>brandingVer</name>
+		    <persist>0</persist>
+		    <value></value>
+		    <ruleList>
+			<fileTest>
+			    <condition>not_readable</condition>
+			    <path>${PostgreSqlIni}</path>
+			</fileTest>
+		    </ruleList>
+		</setInstallerVariable>
+	   </actionList>
+	   <ruleList>
+	       <compareText>
+		   <logic>does_not_equal</logic>
+	           <text>${platform_name}</text>
+	           <value>windows</value>
+	       </compareText>
+	       <isFalse value="${extract_mode}"/>
+	   </ruleList>
+	</actionGroup>
+	<actionGroup>
             <actionList>
                 <!-- Get the existing installation directory. -->
                 <registryGet>
@@ -818,12 +1161,12 @@ EOF
         <actionGroup>
             <actionList>
                 <!-- Abort installation if not super-user and not running in extract-only mode-->
-                <!--<throwError text="${msg(Installer.Warning.RootPrivileges)}">
+                <throwError text="${msg(Installer.Warning.RootPrivileges)}">
                     <ruleList>
                         <isFalse value="${installer_is_root_install}"/>
                         <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
                     </ruleList>
-                </throwError>-->
+                </throwError>
                 <throwError text="${msg(Installer.Warning.AdministratorPrivileges)}">
                     <ruleList>
                         <isFalse value="${installer_is_root_install}"/>
@@ -835,6 +1178,14 @@ EOF
                 <isFalse value="${extract_mode}"/>
             </ruleList>
         </actionGroup>
+
+	<!-- Creates the ini file if not exists -->
+	<touchFile path="${PostgreSqlIni}">
+	    <ruleList>
+		<compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+		<isFalse value="${extract_mode}"/>
+	    </ruleList>
+	</touchFile>
 
         <actionGroup>
             <actionList>
@@ -850,7 +1201,21 @@ EOF
             </ruleList>
         </actionGroup>
         <actionGroup>
-            <actionList>
+	    <actionList>
+		<actionGroup>
+		    <actionList>
+			<iniFileGet>
+			    <file>${PostgreSqlIni}</file>
+			    <key>DataDirectory</key>
+			    <section>Percona/PostgreSQL/${product_version}</section>
+			    <variable>server_data_dir</variable>
+			</iniFileGet>
+		    </actionList>
+		    <ruleList>
+			<compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+			<fileTest path="${PostgreSqlIni}" condition="readable"/>
+		    </ruleList>
+		</actionGroup>
                 <actionGroup>
                     <actionList>
                         <registryGet>
@@ -896,7 +1261,20 @@ EOF
             <logMessage>
                 <text>Write the server description to the registry...</text>
             </logMessage>
-            <registrySet>
+	    <iniFileSet>
+		<file>${PostgreSqlIni}</file>
+		<section>Percona/PostgreSQL/${product_version}</section>
+		<key>Description</key>
+		<value>${branding}</value>
+		<ruleList>
+		    <compareText>
+			<logic>does_not_equal</logic>
+			<text>${platform_name}</text>
+			<value>windows</value>
+		    </compareText>
+		</ruleList>
+	    </iniFileSet>
+	    <registrySet>
                 <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Services\postgresql${service_suffix}-${product_version}</key>
                 <name>Display Name</name>
                 <value>${branding}</value>
@@ -908,7 +1286,20 @@ EOF
                 <!-- Branding info -->
                 <logMessage>
                     <text>Write the server branding to the registry...</text>
-                </logMessage>
+	    	</logMessage>
+		<iniFileSet>
+		    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+		    <key>Branding</key>
+		    <value>${branding}</value>
+		    <ruleList>
+			<compareText>
+			    <logic>does_not_equal</logic>
+			    <text>${platform_name}</text>
+			    <value>windows</value>
+			</compareText>
+		    </ruleList>
+		</iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
                     <name>Branding</name>
@@ -926,7 +1317,7 @@ EOF
         <setInstallerVariable name="project.allowAddRemoveComponents" value="1"/>
         <setInstallerVariable name="component(server).canBeEdited" value="1"/>
         <actionGroup>
-            <actionList>
+	    <actionList>
                 <actionGroup>
                     <actionList>
                         <!-- set custom summary variables -->
@@ -963,7 +1354,12 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
                            </ruleList>
                         </addTextToFile>
                     </actionList>
-                </actionGroup>
+	    	</actionGroup>
+		<deleteFile path="${system_temp_directory}/pg_installer_${random_number}" abortOnError="0" showMessageOnError="0">
+            	    <ruleList>
+                	<fileTest path="${system_temp_directory}/pg_installer_${random_number}" condition="exists"/>
+		    </ruleList>
+		</deleteFile>
             </actionList>
             <ruleList>
                 <isFalse value="${extract_mode}"/>
@@ -980,7 +1376,52 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
             <canBeEdited>0</canBeEdited>
             <selected>1</selected>
             <show>0</show>
-            <folderList>
+	    <folderList>
+		<folder>
+		    <description>Program Files</description>
+		    <destination>${installdir}/installer/server</destination>
+		    <name>defaultlinux_x64</name>
+		    <platforms>linux-x64</platforms>
+		    <distributionFileList>
+		        <distributionDirectory>
+			    <origin>pg_staging/linux-x64/server/installer/prerun_checks.sh</origin>
+			</distributionDirectory>
+		 	<distributionDirectory>
+			    <origin>pg_staging/linux-x64/server/scripts</origin>
+			</distributionDirectory>
+		    </distributionFileList>
+		    <ruleList>
+			<compareText>
+			    <logic>contains</logic>
+			    <text>${platform_name}</text>
+			    <value>linux-x64</value>
+			</compareText>
+		    </ruleList>
+	    	</folder>
+		<folder>
+                    <description>Percona Languages</description>
+		    <destination>/opt/Percona/percona-languages</destination>
+                    <name>percona_languages_x64</name>
+                    <platforms>linux-x64</platforms>
+                    <distributionFileList>
+                        <distributionDirectory>
+                            <origin>pg_staging/linux-x64/percona-languages/percona-python3</origin>
+		    	</distributionDirectory>
+			<distributionDirectory>
+                            <origin>pg_staging/linux-x64/percona-languages/percona-perl</origin>
+		    	</distributionDirectory>
+			<distributionDirectory>
+                            <origin>pg_staging/linux-x64/percona-languages/percona-tcl</origin>
+                        </distributionDirectory>
+                    </distributionFileList>
+                    <ruleList>
+                        <compareText>
+                            <logic>contains</logic>
+                            <text>${platform_name}</text>
+                            <value>linux-x64</value>
+                        </compareText>
+                    </ruleList>
+		</folder>
                 <folder>
                     <description>Program Files</description>
                     <destination>${installdir}/installer</destination>
@@ -1111,7 +1552,7 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
             <width>30</width>
             <mustBeWritable>yes</mustBeWritable>
             <ruleList>
-			    <isTrue  value="${component(server).selected}"/>
+		<isTrue  value="${component(server).selected}"/>
                 <stringTest>
                     <text>${iBaseDirectory}</text>
                     <type>empty</type>
@@ -1127,7 +1568,7 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
             </validationActionList>
 
             <postShowPageActionList>
-			    <wow64FsRedirection action="disable" />
+		<wow64FsRedirection action="disable" />
                 <actionGroup>
                     <actionList>
                         <actionGroup>
@@ -1292,6 +1733,19 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
 
                 <!-- Build a regexp to test that the install dir is not a sub dir of the data dir -->
                 <!-- Remove trailing / from path -->
+		<setInstallerVariableFromRegEx>
+		    <text>${datadir}</text>
+		    <substitution></substitution>
+		    <name>_re</name>
+		    <pattern>\/$</pattern>
+		    <ruleList>
+		        <compareText>
+			    <logic>does_not_equal</logic>
+			    <text>${platform_name}</text>
+			    <value>windows</value>
+			</compareText>
+		    </ruleList>
+	    	</setInstallerVariableFromRegEx>
 
                 <setInstallerVariableFromRegEx>
                     <text>${datadir}</text>
@@ -1308,7 +1762,21 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
                 </setInstallerVariableFromRegEx>
 
                 <!-- Replace / with \/ or \ with \\ on windows -->
-                <actionGroup>
+		<setInstallerVariableFromRegEx>
+		    <text>${_re}</text>
+		    <substitution>\/</substitution>
+		    <name>_re</name>
+		    <pattern>\/</pattern>
+		    <ruleList>
+			<compareText>
+			    <logic>does_not_equal</logic>
+			    <text>${platform_name}</text>
+			    <value>windows</value>
+			</compareText>
+		    </ruleList>
+		</setInstallerVariableFromRegEx>
+
+		<actionGroup>
                     <actionList>
                         <setInstallerVariableFromRegEx>
                             <text>${_re}</text>
@@ -1338,7 +1806,19 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
                     </ruleList>
                 </actionGroup>
 
-                <!-- build the regexp -->
+		<!-- build the regexp -->
+		<setInstallerVariable>
+		    <name>_re</name>
+		    <value>^${_re}\/([0-9a-zA-Z_/\.\-]*)</value>
+		    <ruleList>
+			<compareText>
+			    <logic>does_not_equal</logic>
+			    <text>${platform_name}</text>
+			    <value>windows</value>
+			</compareText>
+		    </ruleList>
+		</setInstallerVariable>
+
                 <setInstallerVariable>
                     <name>_re</name>
                     <value>^${_re}\\([0-9a-zA-Z_\\\s\.\-\(\)]*)</value>
@@ -1418,7 +1898,27 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
                             </ruleList>
                         </actionGroup>
 
-                        <!-- Do we have a valid catalog version? -->
+			<!-- Do we have a valid catalog version? -->
+			<runProgram>
+			    <program>${system_temp_directory}/pg_installer_${random_number}/runpgcontroldata.sh</program>
+			    <programArguments>${system_temp_directory}/pg_installer_${random_number} "${datadir}"</programArguments>
+			    <abortOnError>0</abortOnError>
+			    <showMessageOnError>0</showMessageOnError>
+			    <ruleEvaluationLogic>or</ruleEvaluationLogic>
+			    <ruleList>
+				<compareText>
+				    <logic>contains</logic>
+				    <text>${platform_name}</text>
+				    <value>solaris</value>
+				</compareText>
+				<compareText>
+				    <logic>contains</logic>
+				    <text>${platform_name}</text>
+				    <value>linux</value>
+				</compareText>
+			    </ruleList>
+			</runProgram>
+			
                         <runProgram>
                             <program>${system_temp_directory}\pg_installer_${random_number}\pg_controldata.exe</program>
                             <programArguments>"${datadir}"</programArguments>
@@ -1662,7 +2162,7 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}
                     </ruleList>
                 </setInstallerVariable>
                 <!-- On Windows, in unattended update mode, service password has to be specified. If it is
-                not specified then we should raise an error. set defaultpassword to '' in this case
+		not specified then we should raise an error. set defaultpassword to '' in this case -->
                 <setInstallerVariable>
                     <name>defaultpassword</name>
                     <value></value>
@@ -2062,7 +2562,6 @@ ${dbsummary}${msg(summary.installation.logfile)}: ${Installationlogfile}</value>
                 <!--<setInstallerVariable name="cltsummary" value=""/>-->
                 <setInstallerVariable name="sbsummary" value=""/>
                 <setInstallerVariable name="dbsummary" value=""/>
-                <setInstallerVariable name="pgadminsummary" value=""/>
                 <setInstallerVariable name="Installationlogfile" value="${system_temp_directory}${slash}install-${product_shortname}.log"/>
                 <setInstallerVariable name="dbsummary" value="${msg(summary.server.installation.directory)}: ${installdir}&#10;${msg(summary.data.directory)}: ${datadir}&#10;${msg(summary.database.port)}: ${serverport}&#10;${msg(summary.database.superuser)}: ${superaccount}&#10;${msg(summary.serviceaccount)}: ${serviceaccount}&#10;${msg(summary.databaseservice)}: ${servicename}&#10;">
                     <ruleList>

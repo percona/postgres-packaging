@@ -1,0 +1,251 @@
+<actionDefinition name="determineLinuxInitSystem">
+
+  <parameterList>
+    <!-- Temp directory, where you want to create the temporary directory for
+         doing some operation to determine the init system -->
+    <!-- DEFAULT: ${system_temp_directory} -->
+    <stringParameter name="tmpDir" allowEmptyValue="0"
+      default="${system_temp_directory}"/>
+
+    <stringParameter name="isSystemd" allowEmptyValue="1"
+      default="is_init_systemd" value="is_init_systemd"/>
+
+    <stringParameter name="isUpstart" allowEmptyValue="1"
+      default="is_init_upstart" value="is_init_upstart"/>
+
+    <stringParameter name="isSysVInit" allowEmptyValue="1"
+      default="is_init_sysvinit" value="is_init_sysvinit"/>
+
+  </parameterList>
+
+  <actionList>
+    <globalVariables names="linux_init_system ${isSystemd} ${isUpstart} ${isSysVInit}"/>
+    <actionGroup>
+      <ruleList>
+        <compareText logic="contains" text="${platform_name}" value="linux"/>
+      </ruleList>
+      <actionList>
+
+        <setInstallerVariable name="usageDir" value=""/>
+        <setInstallerVariable name="linux_init_system" value="" persist="1"/>
+        <setInstallerVariable name="${isSystemd}" value="" persist="1">
+          <ruleList>
+            <compareText logic="does_not_equal" text="${isSystemd}" value=""/>
+          </ruleList>
+        </setInstallerVariable>
+        <setInstallerVariable name="${isUpstart}" value="" persist="1">
+          <ruleList>
+            <compareText logic="does_not_equal" text="${isUpstart}" value=""/>
+          </ruleList>
+        </setInstallerVariable>
+        <setInstallerVariable name="${isSysVInit}" value="" persist="1">
+          <ruleList>
+            <compareText logic="does_not_equal" text="${isSysVInit}" value=""/>
+          </ruleList>
+        </setInstallerVariable>
+
+        <setInstallerVariable name="foundNonExists" value="false"/>
+        <setInstallerVariable name="random" value=""/>
+        <setInstallerVariable name="prefix" value=".pg_comp"/>
+
+        <!-- Check if given temp directory exists or not -->
+        <throwError text="${msg(error.not.exist.temp.dir)}">
+          <ruleList>
+            <fileTest condition="not_exists" path="${tmpDir}"/>
+          </ruleList>
+        </throwError>
+
+        <!-- Check if the given temp directory is actual a directory -->
+        <throwError text="${msg(error.temp.dir.not.a.directory)}">
+          <ruleList>
+            <fileTest condition="is_not_directory" path="${tmpDir}"/>
+          </ruleList>
+        </throwError>
+
+        <!-- Check if the given temp directory is writable -->
+        <throwError text="${msg(error.temp.dir.not.writable)}">
+          <ruleList>
+            <fileTest condition="not_writable" path="${tmpDir}"/>
+          </ruleList>
+        </throwError>
+
+        <while>
+          <actionList>
+            <!-- Get a random number -->
+            <generateRandomValue length="10" variable="random"/>
+
+            <!-- This could be our temporary directory -->
+            <setInstallerVariable name="usageDir"
+              value="${tmpDir}/${prefix}-${random}"/>
+
+            <!-- This directory must not be exist -->
+            <setInstallerVariable name="foundNonExists" value="true">
+              <ruleList>
+                <fileTest condition="not_exists" path="${usageDir}"/>
+              </ruleList>
+            </setInstallerVariable>
+          </actionList>
+          <conditionRuleList>
+            <isFalse value="${foundNonExists}"/>
+          </conditionRuleList>
+        </while>
+
+        <runProgram program="sh"
+          customErrorMessage="${msg(error.creating.installer.tempdir)}"
+          programArguments="-c &quot;umask 0077; mkdir &quot;&quot;${usageDir}&quot;&quot; || exit 100;&quot;"/>
+
+        <addTextToFile file="${usageDir}/t.sh" text="
+#!/bin/sh&#10;
+&#10;
+if [ -f /usr/bin/pkg-config ]&#10;
+        then&#10;
+         /usr/bin/pkg-config --exists systemd 2>/dev/null&#10;
+elif [ -f /usr/bin/dpkg ]&#10;
+        then&#10;
+         dpkg -l | grep -c systemd > /dev/null&#10;
+fi&#10;
+
+if [ $? -eq 0 ]; then&#10;
+	SYSTEMD_INSTALLED=1&#10;
+        if [ -f /usr/bin/pkg-config ]&#10;
+        then&#10;
+          SYSTEMD_PATH=`/usr/bin/pkg-config --variable=prefix systemd`&#10;
+          # On Ubuntu, even if systemd prefix is /usr, systemd-notify is present in /bin and not /usr/bin&#10;
+          if uname -a | grep -i ubuntu > /dev/null&#10;
+          then&#10;
+            SYSTEMD_PATH=&#10;
+          fi&#10;
+        else&#10;
+          SYSTEMD_PATH=&#10;
+        fi&#10;
+	$SYSTEMD_PATH/bin/systemd-notify --booted&#10;
+	if [ $? -eq 0 ]; then&#10;
+		SYSTEMD_BOOTED=1&#10;
+		echo 2;&#10;
+	        exit 0;&#10;
+	else&#10;
+		SYSTEMD_BOOTED=0&#10;
+	fi&#10;
+else&#10;
+	SYSTEMD_INSTALLED=0&#10;
+fi&#10;
+&#10;
+if [ $SYSTEMD_INSTALLED -eq 0 ] || [ $SYSTEMD_BOOTED -eq 0 ]; then&#10;
+	if [ -f /sbin/init ]; then&#10;
+		INIT_SYSTEM=/sbin/init&#10;
+		if [ -L /sbin/init ]; then&#10;
+	        	INIT_SYSTEM=`/usr/bin/readlink -f /sbin/init 2&gt;/dev/null`&#10;
+		fi&#10;
+	else&#10;
+	        PATH=/sbin:/usr/sbin:$PATH INIT_SYSTEM=`which init 2&gt;/dev/null`&#10;
+	fi&#10;
+&#10;
+	if [ ! -z &quot;$INIT_SYSTEM&quot; ]; then&#10;
+	        INIT_VERSION=`$INIT_SYSTEM --version 2&gt;/dev/null`&#10;
+	        INIT_VERSION_ERROR=$?&#10;
+	&#10;
+	        if [ -z &quot;$INIT_VERSION_ERROR&quot; ]; then&#10;
+	                echo 0;&#10;
+	        elif [ $INIT_VERSION_ERROR -ne 0 ]; then&#10;
+	                echo 0;&#10;
+	        else&#10;
+	                IS_UPSTART=`echo $INIT_VERSION | grep upstart 2&gt;/dev/null &gt;/dev/null &amp;&amp; echo 1 || echo 0`&#10;
+	                if [ $IS_UPSTART -eq 1 ]; then&#10;
+	                        echo 1;&#10;
+	                fi&#10;
+	        fi&#10;
+	        exit 0;&#10;
+	fi&#10;
+	exit 1;&#10;
+fi&#10;
+&#10;
+exit 1;"/>
+
+        <runProgram program="sh"
+          programArguments="&quot;${usageDir}/t.sh&quot;"
+          showMessageOnError="0" abortOnError="0">
+          <onErrorActionList>
+            <logMessage text="Couldn't determine the init system..."/>
+            <setInstallerVariable name="program_stdout" value="0"/>
+          </onErrorActionList>
+        </runProgram>
+
+        <if>
+          <conditionRuleList>
+            <compareText logic="equals" text="${program_stdout}" value="0"/>
+          </conditionRuleList>
+          <actionList>
+            <!-- It is a SysVInit init system -->
+            <setInstallerVariable name="linux_init_system" value="SysVInit" persist="1"/>
+            <setInstallerVariable name="${isSystemd}" value="false" persist="1">
+              <ruleList>
+                <compareText logic="does_not_equal" text="${isSystemd}" value=""/>
+              </ruleList>
+            </setInstallerVariable>
+            <setInstallerVariable name="${isUpstart}" value="false" persist="1">
+              <ruleList>
+                <compareText logic="does_not_equal" text="${isUpstart}" value=""/>
+              </ruleList>
+            </setInstallerVariable>
+            <setInstallerVariable name="${isSysVInit}" value="true" persist="1">
+              <ruleList>
+                <compareText logic="does_not_equal" text="${isSysVInit}" value=""/>
+              </ruleList>
+            </setInstallerVariable>
+          </actionList>
+          <elseActionList>
+            <if>
+              <conditionRuleList>
+                <compareText logic="equals" text="${program_stdout}" value="1"/>
+              </conditionRuleList>
+              <actionList>
+                <!-- It is a Upstart init system -->
+                <setInstallerVariable name="linux_init_system"
+                  value="upstart" persist="1"/>
+                <setInstallerVariable name="${isSystemd}" value="false" persist="1">
+                  <ruleList>
+                    <compareText logic="does_not_equal" text="${isSystemd}" value=""/>
+                  </ruleList>
+                </setInstallerVariable>
+                <setInstallerVariable name="${isUpstart}" value="true" persist="1">
+                  <ruleList>
+                    <compareText logic="does_not_equal" text="${isUpstart}" value=""/>
+                  </ruleList>
+                </setInstallerVariable>
+                <setInstallerVariable name="${isSysVInit}" value="false" persist="1">
+                  <ruleList>
+                    <compareText logic="does_not_equal" text="${isSysVInit}" value=""/>
+                  </ruleList>
+                </setInstallerVariable>
+              </actionList>
+              <elseActionList>
+                <!-- It is a sytemd init system -->
+                <setInstallerVariable name="linux_init_system"
+                  value="systemd" persist="1"/>
+                <setInstallerVariable name="${isSystemd}" value="true" persist="1">
+                  <ruleList>
+                    <compareText logic="does_not_equal" text="${isSystemd}" value=""/>
+                  </ruleList>
+                </setInstallerVariable>
+                <setInstallerVariable name="${isUpstart}" value="false" persist="1">
+                  <ruleList>
+                    <compareText logic="does_not_equal" text="${isUpstart}" value=""/>
+                  </ruleList>
+                </setInstallerVariable>
+                <setInstallerVariable name="${isSysVInit}" value="false" persist="1">
+                  <ruleList>
+                    <compareText logic="does_not_equal" text="${isSysVInit}" value=""/>
+                  </ruleList>
+                </setInstallerVariable>
+              </elseActionList>
+            </if>
+          </elseActionList>
+        </if>
+        <deleteFile path="${usageDir}"/>
+	<logMessage text="==> Determined linux init system: ${linux_init_system}"/>
+
+      </actionList>
+    </actionGroup>
+
+  </actionList>
+</actionDefinition>

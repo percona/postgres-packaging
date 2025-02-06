@@ -1,6 +1,6 @@
 <component>
     <name>server</name>
-    <description>PostgreSQL Server</description>
+    <description>Percona PostgreSQL Server</description>
     <canBeEdited>1</canBeEdited>
     <detailedDescription>${msg(dbserver.desc)}</detailedDescription>
     <selected>1</selected>
@@ -42,6 +42,42 @@
                 </distributionFile>
             </distributionFileList>
         </folder>
+        <!-- LINUX_X64: Program files -->
+	<folder>
+	    <description>Program Files</description>
+	    <destination>${installdir}</destination>
+	    <name>programfileslinux_x64</name>
+	    <platforms>linux-x64</platforms>
+	    <distributionFileList>
+		<distributionDirectory>
+		    <origin>pg_staging/linux-x64/server/bin</origin>
+	    	</distributionDirectory>
+		<distributionDirectory>
+		    <origin>pg_staging/linux-x64/server/lib</origin>
+		</distributionDirectory>
+		<distributionDirectory>
+		    <origin>pg_staging/linux-x64/server/doc</origin>
+		</distributionDirectory>
+		<distributionDirectory>
+		    <origin>pg_staging/linux-x64/server/include</origin>
+		</distributionDirectory>
+		<distributionDirectory>
+		    <origin>pg_staging/linux-x64/server/installer</origin>
+		</distributionDirectory>
+		<distributionDirectory>
+		    <origin>pg_staging/linux-x64/server/scripts</origin>
+		</distributionDirectory>
+		<distributionDirectory>
+		    <origin>pg_staging/linux-x64/server/share</origin>
+		</distributionDirectory>
+		<distributionDirectory>
+		    <origin>pg_staging/linux-x64/server/etc</origin>
+		</distributionDirectory>
+		<distributionFile>
+		    <origin>pg_staging/linux-x64/server/server_license.txt</origin>
+		</distributionFile>
+	    </distributionFileList>
+	</folder>
     </folderList>
     <!-- WIN: Start Menu -->
     <startMenuShortcutList>
@@ -442,6 +478,15 @@
                 <compareText logic ="contains" text="${platform_name}" value="windows" />
             </ruleList>
         </actionGroup>
+	<!-- LINUX: Stop the server -->
+	<linuxServiceAction
+		name="${servicename}" action="stop" systemdBooted="${is_init_systemd}"
+		abortOnError="0" showMessageOnError="0">
+	    <ruleList>
+	       <compareText logic ="contains" text="${platform_name}" value="linux" />
+	       <isFalse value="${extract_mode}"/>
+	    </ruleList>
+        </linuxServiceAction>
     </readyToInstallActionList>
 
     <!-- Preinstallation actions -->
@@ -453,6 +498,21 @@
                 <compareText>
                     <text>${platform_name}</text>
                     <logic>equals</logic>
+                    <value>windows</value>
+                </compareText>
+                <compareText>
+                    <text>${serviceaccount}</text>
+                    <logic>equals</logic>
+                    <value></value>
+                </compareText>
+            </ruleList>
+        </setInstallerVariable>
+
+	<setInstallerVariable name="serviceaccount" value="postgres" >
+            <ruleList>
+                <compareText>
+                    <text>${platform_name}</text>
+                    <logic>does_not_equal</logic>
                     <value>windows</value>
                 </compareText>
                 <compareText>
@@ -508,7 +568,183 @@
         <setInstallerVariable name="iBaseDirectory" value=""/>
 
         <!-- WIN: Get existing directories & branding -->
-        <actionGroup>
+	<actionGroup>
+            <actionList>
+            <!-- Get the existing data directory. -->
+                <iniFileGet>
+                    <file>${PostgreSqlIni}</file>
+                    <key>DataDirectory</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <variable>iDataDirectory</variable>
+                    <ruleList>
+                        <fileTest>
+                            <condition>readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </iniFileGet>
+                <setInstallerVariable>
+                    <name>iDataDirectory</name>
+                    <persist>0</persist>
+                    <value></value>
+                    <ruleList>
+                        <fileTest>
+                            <condition>not_readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </setInstallerVariable>
+
+                <!-- Get the base installation path. Any previous package could have set this. -->
+                <iniFileGet>
+                    <file>${PostgreSqlIni}</file>
+                    <key>InstallationDirectory</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <variable>iBaseDirectory</variable>
+                    <ruleList>
+                        <fileTest>
+                            <condition>readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+	    </iniFileGet>
+	    <setInstallerVariable>
+                    <name>iBaseDirectory</name>
+                    <persist>0</persist>
+                    <value></value>
+                    <ruleList>
+                        <fileTest>
+                            <condition>not_readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </setInstallerVariable>
+
+                <!-- Check whether menus were created, if its a re-install/upgrade -->
+                <iniFileGet>
+                    <file>${PostgreSqlIni}</file>
+                    <key>Shortcuts</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <variable>iShortcut</variable>
+                    <ruleList>
+                        <fileTest>
+                            <condition>readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </iniFileGet>
+
+                <!-- Get the servicename -->
+                <iniFileGet>
+                    <file>${PostgreSqlIni}</file>
+                    <key>ServiceID</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <variable>iServiceName</variable>
+                    <ruleList>
+                        <fileTest>
+                            <condition>readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </iniFileGet>
+                <setInstallerVariable>
+                    <name>iServiceName</name>
+                    <persist>0</persist>
+                    <value></value>
+                    <ruleList>
+                        <fileTest>
+                            <condition>not_readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+	    </setInstallerVariable>
+	    <!-- Get the serviceaccount (OS User) -->
+                <iniFileGet>
+                    <file>${PostgreSqlIni}</file>
+                    <key>Serviceaccount</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <variable>iServiceAccount</variable>
+                    <ruleList>
+                        <fileTest>
+                            <condition>readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </iniFileGet>
+                <setInstallerVariable>
+                    <name>iServiceAccount</name>
+                    <persist>0</persist>
+                    <value></value>
+                    <ruleList>
+                        <fileTest>
+                            <condition>not_readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </setInstallerVariable>
+
+                <!-- Get the superuser -->
+                <iniFileGet>
+                    <file>${PostgreSqlIni}</file>
+                    <key>Superuser</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <variable>iSuperuser</variable>
+                    <ruleList>
+                        <fileTest>
+                            <condition>readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </iniFileGet>
+                <setInstallerVariable>
+                    <name>iSuperuser</name>
+                    <persist>0</persist>
+                    <value></value>
+                    <ruleList>
+                        <fileTest>
+                            <condition>not_readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+	    </setInstallerVariable>
+	    <!-- Get the version installed. We use this to figure out if we have a pre-branding installation -->
+                <iniFileGet>
+                    <file>${PostgreSqlIni}</file>
+                    <key>Version</key>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <variable>brandingVer</variable>
+                    <ruleList>
+                        <fileTest>
+                            <condition>readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </iniFileGet>
+                <setInstallerVariable>
+                    <name>brandingVer</name>
+                    <persist>0</persist>
+                    <value></value>
+                    <ruleList>
+                        <fileTest>
+                            <condition>not_readable</condition>
+                            <path>${PostgreSqlIni}</path>
+                        </fileTest>
+                    </ruleList>
+                </setInstallerVariable>
+
+            </actionList>
+            <ruleList>
+                <compareText>
+                    <logic>does_not_equal</logic>
+                    <text>${platform_name}</text>
+                    <value>windows</value>
+                </compareText>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+	</actionGroup>
+
+	<!-- WIN: Get existing directories & branding -->
+	<actionGroup>
             <actionList>
                 <!-- save the service-password in cliServicePassword variable to make sure -
                      we'll use this password, while verifying/creating the user on windows -->
@@ -567,12 +803,6 @@
                     <name>Shortcuts</name>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
                     <variable>iShortcut</variable>
-                </registryGet>
-
-                <registryGet>
-                    <name>DisableStackBuilder</name>
-                    <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
-                    <variable>iDisableStackBuilder</variable>
                 </registryGet>
 
             </actionList>
@@ -724,6 +954,13 @@
             </ruleList>
         </actionGroup>
 
+	<!-- SECTION: START: ServiceName -->
+        <determineLinuxInitSystem>
+            <ruleList>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+        </determineLinuxInitSystem>
+
         <actionGroup>
             <actionList>
                 <!--
@@ -776,6 +1013,25 @@
                     </ruleList>
                 </actionGroup>
 
+		<!-- lin/lin-x64 -->
+                <throwError>
+                    <customErrorMessage>${msg(servicename.already.exists.linux)}</customErrorMessage>
+                    <text>duplicate service exists</text>
+                    <ruleList>
+                        <compareText logic="contains" text="${platform_name}" value="linux"/>
+                        <fileExists path="/etc/init.d/${servicename}"/>
+                        <isTrue value="${is_sysvinit}"/>
+                    </ruleList>
+                </throwError>
+                <throwError>
+                    <customErrorMessage>${msg(servicename.already.exists.linux)}</customErrorMessage>
+                    <text>duplicate service exists</text>
+                    <ruleList>
+                        <compareText logic="contains" text="${platform_name}" value="linux"/>
+                        <fileExists path="/usr/lib/systemd/system/${servicename}.service"/>
+                        <isTrue value="${is_init_systemd}"/>
+                    </ruleList>
+                </throwError>
             </actionList>
             <!-- New installation and got the service-name through the command-line -->
             <ruleList>
@@ -853,6 +1109,21 @@
         <logMessage text="Using Super User: ${superaccount} and Service Account: ${serviceaccount}" />
         <logMessage text="Using Service Name: ${servicename}"/>
 
+	<unpackFile>
+            <component>server</component>
+            <destination>${system_temp_directory}/pg_installer_${random_number}/getlocales</destination>
+            <folder>programfileslinux_x64</folder>
+            <origin>installer/server/getlocales</origin>
+            <ruleList>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${platform_name}</text>
+                    <value>linux-x64</value>
+                </compareText>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+    	</unpackFile>
+
         <unpackFile>
             <component>server</component>
             <destination>${system_temp_directory}/pg_installer_${random_number}/getlocales.exe</destination>
@@ -867,6 +1138,31 @@
                 <isFalse value="${extract_mode}"/>
             </ruleList>
         </unpackFile>
+
+	<actionGroup>
+            <actionList>
+                <unpackFile>
+                    <component>server</component>
+                    <destination>${system_temp_directory}/pg_installer_${random_number}/pg_controldata</destination>
+                    <folder>programfileslinux_x64</folder>
+                    <origin>bin/pg_controldata</origin>
+                </unpackFile>
+                <unpackFile>
+                    <component>server</component>
+                    <destination>${system_temp_directory}/pg_installer_${random_number}/runpgcontroldata.sh</destination>
+                    <folder>programfileslinux_x64</folder>
+                    <origin>installer/server/runpgcontroldata.sh</origin>
+                </unpackFile>
+            </actionList>
+            <ruleList>
+                <compareText>
+                    <logic>equals</logic>
+                    <text>${platform_name}</text>
+                    <value>linux-x64</value>
+                </compareText>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+    	</actionGroup>
 
         <actionGroup>
             <actionList>
@@ -1175,6 +1471,12 @@
                     </ruleList>
                 </addChoiceOptions>
 
+		<runProgram program="${system_temp_directory}/pg_installer_${random_number}/getlocales">
+                    <ruleList>
+                        <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+                    </ruleList>
+	    	</runProgram>
+
                 <runProgram>
                     <program>${system_temp_directory}\pg_installer_${random_number}\getlocales.exe</program>
                     <ruleList>
@@ -1345,7 +1647,16 @@
                 <isFalse value="${IsUpgrade}"/>
                 <isFalse value="${extract_mode}"/>
             </ruleList>
-        </actionGroup>
+    	</actionGroup>
+	<actionGroup>
+	   <actionList>
+		<deleteFile path="${system_temp_directory}/pg_installer_${random_number}" abortOnError="0" showMessageOnError="0">
+		   <ruleList>
+		       <fileTest path="${system_temp_directory}/pg_installer_${random_number}" condition="exists"/>
+		   </ruleList>
+		</deleteFile>
+           </actionList>
+	</actionGroup>
     </preInstallationActionList>
 
     <!-- Preuninstallation actions -->
@@ -1363,6 +1674,189 @@
             <serviceName>${servicename}</serviceName>
             <abortOnError>0</abortOnError>
         </deleteWindowsService>
+
+	<!-- Remove shortcuts -->
+        <actionGroup>
+            <actionList>
+                <runProgram>
+                        <program>${installdir}/installer/server/removeshortcuts_server.sh</program>
+                        <programArguments>"${installdir}" ${product_version} "${branding}" "${system_temp_directory}/pg_installer_${random_number}"</programArguments>
+		</runProgram>
+		<runProgram>
+                    <program>${installdir}/installer/server/removeshortcuts_clt.sh</program>
+                    <programArguments>"${installdir}" ${product_version} "${branding}" "${system_temp_directory}/pg_installer_${random_number}"</programArguments>
+                </runProgram>
+            </actionList>
+            <ruleList>
+                <compareText>
+                    <logic>contains</logic>
+                    <text>${platform_name}</text>
+                    <value>linux</value>
+                </compareText>
+            </ruleList>
+    	</actionGroup>
+
+	<actionGroup>
+            <actionList>
+                <!-- Version -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Version</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!-- Installation directory -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>InstallationDirectory</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!-- Description -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Description</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!-- ServiceID -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>ServiceID</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!-- Branding -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Branding</key>
+                    <value></value>
+                </iniFileSet>
+
+	    <!-- Superuser -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Superuser</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!-- DataDirectory -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>DataDirectory</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!-- Port -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Port</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!--Serviceaccount -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Serviceaccount</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!--Locale -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Locale</key>
+                    <value></value>
+                </iniFileSet>
+
+                <!--Shortcuts -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Shortcuts</key>
+                    <value></value>
+                </iniFileSet>
+	    </actionList>
+	    <ruleList>
+                <compareText>
+                    <logic>does_not_equal</logic>
+                    <text>${platform_name}</text>
+                    <value>windows</value>
+                </compareText>
+            </ruleList>
+    	</actionGroup>
+	<!-- LINUX: Remove the startup item -->
+        <actionGroup>
+            <actionList>
+                <!-- Attempt to remove any runlevel config with chkconfig -->
+                <runProgram>
+                    <program>/sbin/chkconfig</program>
+                    <programArguments>--del ${servicename}</programArguments>
+                    <abortOnError>0</abortOnError>
+                    <showMessageOnError>0</showMessageOnError>
+                    <ruleList>
+                        <isTrue value="${is_init_sysvinit}"/>
+                    </ruleList>
+                </runProgram>
+
+                <!-- Remove the startup script -->
+                <deleteFile>
+                    <path>/etc/init.d/${servicename}</path>
+                    <ruleList>
+                        <isFalse value="${is_init_systemd}"/>
+                    </ruleList>
+                </deleteFile>
+                <deleteFile path="/usr/lib/systemd/system/${servicename}.service">
+                    <ruleList>
+                        <isTrue value="${is_init_systemd}"/>
+                    </ruleList>
+                </deleteFile>
+
+                <!-- Attempt to remove any runlevel config with update-rc.d -->
+                <runProgram>
+                    <program>/usr/sbin/update-rc.d</program>
+                    <programArguments>-f ${servicename} remove</programArguments>
+                    <abortOnError>0</abortOnError>
+                    <showMessageOnError>0</showMessageOnError>
+                    <ruleList>
+                        <isTrue value="${is_init_upstart}"/>
+                    </ruleList>
+                </runProgram>
+
+                <!-- Delete the dynamic loader config -->
+                <deleteFile>
+                    <path>/etc/ld.so.conf.d/postgresql-${product_version}.conf</path>
+                    <abortOnError>0</abortOnError>
+                    <showMessageOnError>0</showMessageOnError>
+	    	</deleteFile>
+		<substitute>
+                    <substitutionList>
+                        <substitution>
+                            <pattern>${installdir}/lib</pattern>
+                            <value></value>
+                        </substitution>
+                    </substitutionList>
+                    <type>exact</type>
+                    <files>/etc/ld.so.conf</files>
+                </substitute>
+            </actionList>
+            <ruleList>
+                <compareText>
+                    <logic>contains</logic>
+                    <text>${platform_name}</text>
+                    <value>linux</value>
+                </compareText>
+            </ruleList>
+    	</actionGroup>
 
         <!-- WINDOWS: Unregister the event message DLL -->
         <actionGroup>
@@ -1420,6 +1914,13 @@
             </ruleList>
         </deleteFile>
 
+	<!-- Removing the environment variable script -->
+	 <deleteFile>
+	     <path>${installdir}/pg_env.sh</path>
+	     <ruleList>
+		 <fileExists path="${installdir}/pg_env.sh" />
+	     </ruleList>
+	</deleteFile>
         <createTimeStamp format="%Y-%m-%d(YYYY-MM-DD) - %H:%M:%S(HH:MM:SS)" variable="timestamp"/>
         <addTextToFile file="${installdir}${slash}installation_summary.log" insertAt="end">
             <text>
@@ -1441,6 +1942,32 @@
             <persist>1</persist>
         </setInstallerVariable>
 
+	<!-- In upgrade mode, remove the existing ldconfig setting - set during the previous installation -->
+        <actionGroup>
+            <actionList>
+                <logMessage text="Removing the existing ldconfig setting - set during the previous installation."/>
+                <deleteFile>
+                    <path>/etc/ld.so.conf.d/postgresql-${product_version}.conf</path>
+                    <abortOnError>0</abortOnError>
+                    <showMessageOnError>0</showMessageOnError>
+                </deleteFile>
+                <substitute>
+                    <substitutionList>
+                        <substitution>
+                            <pattern>${installdir}/lib</pattern>
+                            <value></value>
+                        </substitution>
+                    </substitutionList>
+                    <type>exact</type>
+                    <files>/etc/ld.so.conf</files>
+                </substitute>
+            </actionList>
+            <ruleList>
+                <compareText logic="does_not_equal" text="${brandingVer}" value=""/>
+                <isFalse value="${extract_mode}"/>
+            </ruleList>
+    	</actionGroup>
+
         <!-- Do not perform any actions, if extract-only mode is enabled -->
         <actionGroup>
             <actionList>
@@ -1449,6 +1976,13 @@
                 </logMessage>
 
                 <setInstallerVariable name="languagepack_installdir" value="" />
+		<!-- Search for LanguagePack installers and replcae placeholders in plLanguages.config file -->
+                <iniFileGet file="${PostgreSqlIni}" key="InstallationDirectory" section="edb_languagepack_${product_version}" variable="languagepack_installdir">
+                    <ruleList>
+                        <fileTest condition="readable" path="${PostgreSqlIni}"/>
+                        <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+                    </ruleList>
+                </iniFileGet>
 		<substitute>
 		    <files>${installdir}/etc/sysconfig/plLanguages.config</files>
 		    <substitutionList>
@@ -1462,10 +1996,48 @@
                     </ruleList>
 		</substitute>
 
+		<substitute>
+                    <files>${installdir}/etc/sysconfig/plLanguages.config</files>
+                    <substitutionList>
+                        <substitution>
+                            <pattern>PERL_INSTALL_PATH</pattern>
+			    <value>/opt/Percona/percona-languages/percona-perl</value>
+                        </substitution>
+                        <substitution>
+                            <pattern>PYTHON_INSTALL_PATH</pattern>
+			    <value>/opt/Percona/percona-languages/percona-python3</value>
+                        </substitution>
+                        <substitution>
+                            <pattern>TCL_INSTALL_PATH</pattern>
+			    <value>/opt/Percona/percona-languages/percona-tcl</value>
+                        </substitution>
+                    </substitutionList>
+                    <ruleList>
+                        <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+                    </ruleList>
+	    	</substitute>
+
                 <!-- Log Installation directory -->
                 <logMessage>
                     <text>Write the base directory to the ini file...</text>
-                </logMessage>
+	    	</logMessage>
+		<iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>InstallationDirectory</key>
+                    <value>${installdir}</value>
+                    <ruleList>
+                        <stringTest>
+                            <text>${installdir}</text>
+                            <type>not_empty</type>
+                        </stringTest>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+	    	</iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
                     <name>Base Directory</name>
@@ -1475,24 +2047,63 @@
                 <!-- Log version number -->
                 <logMessage>
                     <text>Write the version number to the ini file...</text>
-                </logMessage>
+	    	</logMessage>
+		<iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Version</key>
+                    <value>PG_PACKAGE_VERSION</value>
+                    <ruleList>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
                     <name>Version</name>
                     <value>PG_PACKAGE_VERSION</value>
-                </registrySet>
+	    	</registrySet>
+		<!-- Shortcuts created ? -->
+                <iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Shortcuts</key>
+                    <value>${create_shortcuts}</value>
+                    <ruleList>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
                     <name>Shortcuts</name>
                     <value>${create_shortcuts}</value>
                 </registrySet>
 
-                <!-- Track if any errors occurred so we can hide the Run Stackbuilder option -->
                 <setInstallerVariable>
                     <name>didError</name>
                     <value>0</value>
                 </setInstallerVariable>
-
+		<runProgram>
+                    <program>${installdir}/installer/server/createuser.sh</program>
+                    <programArguments>"${serviceaccount}" "${installdir}"</programArguments>
+                    <progressText>${msg(progress.text.creating.user)}</progressText>
+                    <abortOnError>0</abortOnError>
+                    <showMessageOnError>0</showMessageOnError>
+                    <ruleList>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </runProgram>
                 <setInstallerVariable>
                     <name>didError</name>
                     <value>1</value>
@@ -1579,6 +2190,28 @@
                             <pattern>xxCOMMAxx</pattern>
                         </setInstallerVariableFromRegEx>
 
+			<!-- Initdb -->
+                        <setEnvironmentVariable name="PGPASSWORD" value="${superpassword}">
+                            <ruleList>
+                                <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
+                            </ruleList>
+                        </setEnvironmentVariable>
+
+                        <runProgram>
+                            <program>${installdir}/installer/server/initcluster.sh</program>
+                            <programArguments>"${serviceaccount}" "${superaccount}" "${installdir}" "${datadir}" ${serverport} ${reallocale}</programArguments>
+                            <progressText>${msg(progress.text.initialising.cluster)}</progressText>
+                            <abortOnError>0</abortOnError>
+                            <showMessageOnError>0</showMessageOnError>
+                            <ruleList>
+                                <compareText>
+                                    <logic>does_not_equal</logic>
+                                    <text>${platform_name}</text>
+                                    <value>windows</value>
+                                </compareText>
+                            </ruleList>
+		    	</runProgram>
+
                         <runProgram>
                             <program>${env(WINDIR)}\System32\cscript</program>
                             <programArguments>//NoLogo "${installdir}/installer/server/initcluster.vbs" "${serviceaccount}" "${superaccount}" "${superpassword.password}" "${system_temp_directory}/pg_installer_${random_number}" "${installdir}" "${datadir}" ${serverport} "${reallocale}" ${enable_aclcheck}</programArguments>
@@ -1647,6 +2280,21 @@
                     </ruleList>
                 </actionGroup>
 
+		<runProgram>
+                    <program>${installdir}/installer/server/startupcfg.sh</program>
+                    <programArguments>${product_version} "${serviceaccount}" "${installdir}" "${datadir}" "${servicename}" "${linux_init_system}"</programArguments>
+                    <progressText>${msg(progress.text.configuring.startup)}</progressText>
+                    <abortOnError>0</abortOnError>
+                    <showMessageOnError>0</showMessageOnError>
+                    <ruleList>
+                        <compareText>
+                            <logic>contains</logic>
+                            <text>${platform_name}</text>
+                            <value>linux</value>
+                        </compareText>
+                    </ruleList>
+	    	</runProgram>
+
                 <runProgram>
                     <program>${env(WINDIR)}\System32\cscript</program>
                     <programArguments>//NoLogo "${installdir}\installer\server\startupcfg.vbs" ${product_version} "${serviceaccount}" "${servicepassword.password}" "${installdir}" "${datadir}" "${servicename}"</programArguments>
@@ -1704,6 +2352,46 @@
                         </compareText>
                     </ruleList>
                 </showWarning>
+
+		<runProgram>
+                    <program>${installdir}/installer/server/createshortcuts_server.sh</program>
+                    <programArguments>${product_version} "${serviceaccount}" "${superaccount}" ${serverport} "${branding}" "${installdir}" "${datadir}" "${servicename}" "${system_temp_directory}/pg_installer_${random_number}"</programArguments>
+                    <progressText>${msg(progress.text.creating.shortcuts)}</progressText>
+                    <abortOnError>0</abortOnError>
+                    <showMessageOnError>0</showMessageOnError>
+                    <ruleList>
+                        <compareText>
+                            <logic>equals</logic>
+                            <text>${create_shortcuts}</text>
+                            <value>1</value>
+                        </compareText>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+	    	</runProgram>
+
+		<runProgram>
+            	    <program>${installdir}/installer/server/createshortcuts_clt.sh</program>
+            	    <programArguments>${product_version} "${branding}" "${installdir}" "${system_temp_directory}/pg_installer_${random_number}"</programArguments>
+            	    <progressText>${msg(progress.text.creating.shortcuts)}</progressText>
+            	    <abortOnError>0</abortOnError>
+            	    <showMessageOnError>0</showMessageOnError>
+            	    <ruleList>
+                	<compareText>
+                    	    <logic>equals</logic>
+                    	    <text>${create_shortcuts}</text>
+                    	    <value>1</value>
+                	</compareText>
+                	<compareText>
+                    	    <logic>does_not_equal</logic>
+                    	    <text>${platform_name}</text>
+                    	    <value>windows</value>
+                	</compareText>
+            	    </ruleList>
+        	</runProgram>
 
                 <!-- we aren't require to pass ${serviceaccount} to createshortcuts in windows -->
                 <runProgram>
@@ -1793,6 +2481,18 @@
                     </ruleList>
                 </setInstallerVariableFromRegEx>
 
+		<linuxServiceAction
+                    name="${servicename}" action="start" systemdBooted="${is_init_systemd}"
+                    abortOnError="0" showMessageOnError="0">
+                    <ruleList>
+                        <compareText>
+                            <logic>contains</logic>
+                            <text>${platform_name}</text>
+                            <value>linux</value>
+                        </compareText>
+                    </ruleList>
+	    	</linuxServiceAction>
+
                 <runProgram>
                     <program>${env(WINDIR)}\System32\cscript</program>
                     <programArguments>//NoLogo "${installdir}\installer\server\startserver.vbs" ${servicename}</programArguments>
@@ -1845,7 +2545,7 @@
                     <actionList>
                         <logMessage text="Installing the adminpack module in the postgres database..."/>
                         <!-- Set variable psql_path -->
-                        <!--<setInstallerVariable name="psql_path" value="${installdir}/bin/psql">
+                        <setInstallerVariable name="psql_path" value="${installdir}/bin/psql">
                             <ruleList>
                                 <compareText>
                                     <logic>does_not_equal</logic>
@@ -1853,7 +2553,7 @@
                                     <value>windows</value>
                                 </compareText>
                             </ruleList>
-                        </setInstallerVariable>-->
+                        </setInstallerVariable>
                         <setInstallerVariable name="psql_path" value="${installdir}\bin\psql.exe">
                             <ruleList>
                                 <compareText>
@@ -1869,11 +2569,11 @@
                         <setEnvironmentVariable name="PGUSER" value="${superaccount}"/>
                         <setEnvironmentVariable name="PGPASSWORD" value="${superpassword}"/>
                         <setEnvironmentVariable name="PGPORT" value="${serverport}"/>
-                        <!--<setEnvironmentVariable name="LD_LIBRARY_PATH" value="${installdir}/lib">
+                        <setEnvironmentVariable name="LD_LIBRARY_PATH" value="${installdir}/lib">
                             <ruleList>
                                 <compareText logic="does_not_equal" text="${platform_name}" value="windows"/>
                             </ruleList>
-                        </setEnvironmentVariable>-->
+                        </setEnvironmentVariable>
                         <runProgram>
                             <abortOnError>0</abortOnError>
                             <program>${psql_path}</program>
@@ -1889,7 +2589,8 @@
                             <value1>${IsUpgrade}</value1>
                             <logic>equals</logic>
                             <value2>0</value2>
-                        </compareValues>
+		    	</compareValues>
+			<compareValues logic="less" value1="PG_MAJOR_VERSION" value2="17"/>
                     </ruleList>
                 </actionGroup>
 
@@ -1912,7 +2613,24 @@
                 <!-- Data directory -->
                 <logMessage>
                     <text>Write the data directory to the ini file...</text>
-                </logMessage>
+	    	</logMessage>
+		<iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>DataDirectory</key>
+                    <value>${datadir}</value>
+                    <ruleList>
+                        <stringTest>
+                            <text>${datadir}</text>
+                            <type>not_empty</type>
+                        </stringTest>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
                     <name>Data Directory</name>
@@ -1939,7 +2657,24 @@
                 <!-- Port -->
                 <logMessage>
                     <text>Write the port number, service ID, locale and superuser to the ini file...</text>
-                </logMessage>
+	    	</logMessage>
+		<iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Port</key>
+                    <value>${serverport}</value>
+                    <ruleList>
+                        <stringTest>
+                            <text>${serverport}</text>
+                            <type>not_empty</type>
+                        </stringTest>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Services\postgresql${service_suffix}-${product_version}</key>
                     <name>Port</name>
@@ -1954,7 +2689,24 @@
                 </registrySet>
 
                 <logMessage text="Write ServiceID(${servicename}) to registry/ini..."/>
-                <!-- ServiceID -->
+		<!-- ServiceID -->
+		<iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>ServiceID</key>
+                    <value>${servicename}</value>
+                    <ruleList>
+                        <stringTest>
+                            <text>${serverport}</text> <!-- This is correct - only set the ServiceID if we know the port -->
+                            <type>not_empty</type>
+                        </stringTest>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Installations\postgresql${service_suffix}-${product_version}</key>
                     <name>Service ID</name>
@@ -1973,6 +2725,19 @@
                     <substitution>\1</substitution>
                 </setInstallerVariableFromRegEx>
 
+		<iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Locale</key>
+                    <value>${actuallocale}</value>
+                    <ruleList>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Services\postgresql${service_suffix}-${product_version}</key>
                     <name>Locale</name>
@@ -1980,7 +2745,24 @@
                 </registrySet>
 
                 <!-- Superuser -->
-                <logMessage text="Write Superuser to ini file and windows registry..." />
+		<logMessage text="Write Superuser to ini file and windows registry..." />
+		<iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Superuser</key>
+                    <value>${superaccount}</value>
+                    <ruleList>
+                        <stringTest>
+                            <text>${superaccount}</text>
+                            <type>not_empty</type>
+                        </stringTest>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Services\postgresql${service_suffix}-${product_version}</key>
                     <name>Database Superuser</name>
@@ -1993,7 +2775,24 @@
                     </ruleList>
                 </registrySet>
 
-                <logMessage text="Write Service Account to ini file and windows registry..." />
+		<logMessage text="Write Service Account to ini file and windows registry..." />
+		<iniFileSet>
+                    <file>${PostgreSqlIni}</file>
+		    <section>Percona/PostgreSQL/${product_version}</section>
+                    <key>Serviceaccount</key>
+                    <value>${serviceaccount}</value>
+                    <ruleList>
+                        <stringTest>
+                            <text>${serviceaccount}</text>
+                            <type>not_empty</type>
+                        </stringTest>
+                        <compareText>
+                            <logic>does_not_equal</logic>
+                            <text>${platform_name}</text>
+                            <value>windows</value>
+                        </compareText>
+                    </ruleList>
+                </iniFileSet>
                 <registrySet>
                     <key>HKEY_LOCAL_MACHINE\SOFTWARE\PerconaPostgreSQL\Services\postgresql${service_suffix}-${product_version}</key>
                     <name>Service Account</name>
@@ -2050,6 +2849,42 @@
                 </registrySet>
 
                 <!-- Write a environment variable scripts -->
+		<actionGroup>
+                    <actionList>
+                        <deleteFile path="${installdir}/pg_env.sh" >
+                            <ruleList>
+                                <fileTest path="${installdir}/pg_env.sh" condition="exists" />
+                            </ruleList>
+                        </deleteFile>
+
+                        <writeFile>
+                            <path>${installdir}/pg_env.sh</path>
+                            <text>#!/bin/sh
+# The script sets environment variables helpful for PostgreSQL
+
+export PATH=${installdir}/bin:$PATH
+export PGDATA=${datadir}
+export PGDATABASE=postgres
+export PGUSER=${superaccount}
+export PGPORT=${serverport}
+export PGLOCALEDIR=${installdir}/share/locale
+export MANPATH=$MANPATH:${installdir}/share/man
+
+                            </text>
+                        </writeFile>
+                        <changePermissions>
+                            <files>${installdir}/pg_env.sh</files>
+                            <permissions>755</permissions>
+                        </changePermissions>
+                        <changeOwnerAndGroup>
+                            <files>${installdir}/pg_env.sh</files>
+                            <group>daemon</group>
+                        </changeOwnerAndGroup>
+                    </actionList>
+                    <ruleList>
+                        <compareText text="${platform_name}" logic="does_not_equal" value="windows" />
+                    </ruleList>
+	    	</actionGroup>
 
                 <actionGroup>
                     <actionList>

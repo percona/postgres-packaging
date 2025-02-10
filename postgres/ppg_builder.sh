@@ -103,6 +103,7 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
+	sed -i "s|#shared_preload_libraries = ''|shared_preload_libraries = 'percona_pg_telemetry'|g" src/backend/utils/misc/postgresql.conf.sample
 	sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
     fi
     REVISION=$(git rev-parse --short HEAD)

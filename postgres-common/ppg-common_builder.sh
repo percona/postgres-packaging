@@ -443,12 +443,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="debian/270"
+BRANCH="debian/267"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='270'
+VERSION='267'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 PG_VERSION=13.19

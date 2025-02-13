@@ -136,7 +136,7 @@ get_srpm(){
 
     source llvm.properties
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BUILD_ID}" >> llvm.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${DATE_TIMESTAMP}/${BUILD_ID}" >> llvm.properties
 
     rm -fr rpmbuild
     #

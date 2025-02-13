@@ -233,7 +233,8 @@ EOT
     source pgpool2.properties
     #
     tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_CUT}.tar.gz ${PRODUCT_CUT}
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${BUILD_ID}" >> pgpool2.properties
+    DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> pgpool2.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
     cp percona-pgpool-II-*.tar.gz $WORKDIR/source_tarball

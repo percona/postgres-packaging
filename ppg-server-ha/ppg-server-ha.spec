@@ -1,6 +1,6 @@
 %global sname   percona-ppg-server-ha
 %global pgmajorversion 17
-%global version 3
+%global version 4
 
 Summary:        Percona selection of PostgreSQL%{pgmajorversion} HA components
 Name:           %{sname}%{pgmajorversion}
@@ -25,7 +25,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Thu Feb 13 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 17.3-1
+* Thu Feb 20 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 17.4-1
 - Update version for ppg-server-ha meta-package
 * Thu Nov 21 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> 17.2-1
 - Update version for ppg-server-ha meta-package

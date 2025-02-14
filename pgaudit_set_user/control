@@ -11,7 +11,7 @@ Standards-Version: 3.9.8
 
 Package: percona-pgaudit16-set-user
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-16 (>= 16.7) | percona-postgresql-16 (>= 16.7)
+Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-16 (>= 16.8) | percona-postgresql-16 (>= 16.8)
 Provides: pgaudit-set-user, postgresql-16-pgaudit-set-user
 Description: PostgreSQL Audit Set User Extension
   PostgreSQL is an advanced Object-Relational database management

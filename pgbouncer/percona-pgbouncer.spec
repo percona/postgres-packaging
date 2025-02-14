@@ -52,12 +52,14 @@ sed -i.fedora \
  configure
 
 %configure \
-	--datadir=%{_datadir} --disable-evdns \
-%if 0%{?rhel} >= 8
-	--with-cares \
-	--with-systemd \
+        --datadir=%{_datadir} \
+%if 0%{?rhel} >= 9
+        --with-cares --disable-evdns \
+%else
+        --without-cares \
 %endif
-	--with-pam
+        --with-systemd \
+        --with-pam
 
 %{__make} %{?_smp_mflags} V=1
 

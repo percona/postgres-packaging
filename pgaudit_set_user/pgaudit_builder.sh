@@ -457,7 +457,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='4.1.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=14.16
+PG_VERSION=14.17
 
 check_workdir
 get_system

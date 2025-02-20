@@ -144,6 +144,8 @@ CWD=$(pwd)
 
 if (( ${PG_MAJOR_VERSION} > 16 )); then
 	PG_SERVER_BRANCH=TDE_REL_${PG_MAJOR_VERSION}_STABLE
+else
+	PG_SERVER_BRANCH=REL_${PG_MAJOR_VERSION}_STABLE
 fi
 
 PGAUDIT_BRANCH=REL_${PG_MAJOR_VERSION}_STABLE
@@ -1095,9 +1097,20 @@ build_postgres_server(){
 		git reset --hard origin/main
 		cd -
 	else
-		wget https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG_VERSION}.tar.gz
-		tar -xvzf postgresql-${PG_VERSION}.tar.gz
-		cd postgresql-${PG_VERSION}
+                git clone git://git.postgresql.org/git/postgresql.git postgresql-${PG_VERSION}
+                retval=$?
+                if [ $retval != 0 ]
+                then
+                        echo "There were some issues during repo cloning from github. Please retry one more time"
+                        exit 1
+                fi
+                cd postgresql-${PG_VERSION}
+                if [ ! -z "${PG_SERVER_BRANCH}" ]
+                then
+                        git reset --hard
+                        git clean -xdf
+                        git checkout "${PG_SERVER_BRANCH}"
+                fi
 	fi
 
 	CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib

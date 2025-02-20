@@ -67,6 +67,8 @@ CWD=$(pwd)
 
 if (( ${PG_MAJOR_VERSION} > 16 )); then
 	PG_SERVER_BRANCH=TDE_REL_${PG_MAJOR_VERSION}_STABLE
+else
+	PG_SERVER_BRANCH=REL_${PG_MAJOR_VERSION}_STABLE
 fi
 
 PGAUDIT_BRANCH=REL_${PG_MAJOR_VERSION}_STABLE
@@ -157,9 +159,20 @@ build_postgres_server(){
 		git reset --hard origin/main
 		cd /source
 	else
-		wget https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG_VERSION}.tar.gz
-		tar -xvzf postgresql-${PG_VERSION}.tar.gz
-		rm -f postgresql-${PG_VERSION}.tar.gz
+                git clone git://git.postgresql.org/git/postgresql.git postgresql-${PG_VERSION}
+                retval=$?
+                if [ $retval != 0 ]
+                then
+                        echo "There were some issues during repo cloning from github. Please retry one more time"
+                        exit 1
+                fi
+                cd postgresql-${PG_VERSION}
+                if [ ! -z "${PG_SERVER_BRANCH}" ]
+                then
+                        git reset --hard
+                        git clean -xdf
+                        git checkout "${PG_SERVER_BRANCH}"
+                fi
 	fi
 
 	build_status "ends" "PostgreSQL Server"

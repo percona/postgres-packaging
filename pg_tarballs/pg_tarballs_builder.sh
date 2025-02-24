@@ -66,7 +66,7 @@ if [ -n "$USE_SYSTEM_SSL" ]; then
 	fi
 fi
 
-export OPENSSL_VERSION=3.1.7
+export OPENSSL_VERSION=3.1.8
 export ZLIB_VERSION=1.3
 export KRB5_VERSION=1.21.3
 export KEYUTILS_VERSION=1.6.1

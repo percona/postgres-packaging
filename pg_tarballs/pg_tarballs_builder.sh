@@ -787,6 +787,7 @@ build_freexl(){
         ARCH=$(uname -m)
 
         if [[ "$ARCH" == "aarch64" ]]; then
+                autoreconf -fvi
                 HOST_ARG="--host=aarch64-linux-gnu"
                 BUILD_ARG="--build=aarch64-linux-gnu"
         else
@@ -812,6 +813,12 @@ build_spatialite(){
 	tar -xvzf libspatialite-${SPATIALITE_VERSION}.tar.gz
 
 	cd libspatialite-${SPATIALITE_VERSION}
+
+	ARCH=$(uname -m)
+
+	if [[ "$ARCH" == "aarch64" ]]; then
+		autoreconf -fvi
+	fi
 
 	#cp /backup/config.h.in /source/libspatialite-5.1.0/
 	#cp /backup/configure.ac /source/libspatialite-5.1.0/

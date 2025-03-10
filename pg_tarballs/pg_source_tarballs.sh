@@ -66,7 +66,7 @@ export POSTGIS_VERSION=3.3.8
 CWD=$(pwd)
 
 if (( ${PG_MAJOR_VERSION} > 16 )); then
-	PG_SERVER_BRANCH=TDE_REL_${PG_MAJOR_VERSION}_STABLE
+	PG_SERVER_BRANCH=release-${PG_VERSION}
 else
 	PG_SERVER_BRANCH=REL_${PG_MAJOR_VERSION}_STABLE
 fi
@@ -154,9 +154,6 @@ build_postgres_server(){
 			git checkout "${PG_SERVER_BRANCH}"
 			git submodule update --init --recursive
 		fi
-		cd contrib/pg_tde
-		git fetch
-		git reset --hard origin/main
 		cd /source
 	else
                 git clone git://git.postgresql.org/git/postgresql.git postgresql-${PG_VERSION}

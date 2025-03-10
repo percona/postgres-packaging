@@ -579,7 +579,6 @@ benchmarks.
 %patch3 -p0
 %patch5 -p0
 %patch6 -p0
-%patch7 -p1
 
 %{__cp} -p %{SOURCE12} .
 
@@ -1089,7 +1088,7 @@ fi
 %{pgbaseinstdir}/bin/psql
 %{pgbaseinstdir}/bin/reindexdb
 %{pgbaseinstdir}/bin/vacuumdb
-%{pgbaseinstdir}/bin/pg_tde_alter_key_provider
+%{pgbaseinstdir}/bin/pg_tde_change_key_provider
 %{pgbaseinstdir}/share/errcodes.txt
 %{pgbaseinstdir}/share/man/man1/clusterdb.*
 %{pgbaseinstdir}/share/man/man1/createdb.*

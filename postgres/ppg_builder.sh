@@ -106,10 +106,6 @@ get_sources(){
         git clean -xdf
         git checkout "$BRANCH"
         git submodule update --init --recursive
-        cd contrib/pg_tde
-        git fetch
-        git reset --hard origin/main
-        cd -
 	sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
     fi
     REVISION=$(git rev-parse --short HEAD)

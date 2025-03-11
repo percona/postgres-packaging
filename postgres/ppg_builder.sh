@@ -117,6 +117,10 @@ get_sources(){
     cd deb_packaging
         git checkout -b ${VERSION} remotes/origin/${VERSION}
     cd ../
+
+    # Add pg_tde_change_key_provider binary to package.
+    echo "usr/lib/postgresql/*/bin/pg_tde_change_key_provider" >> deb_packaging/debian/postgresql-${VERSION}.install
+
     mv deb_packaging/debian ./
     rm -rf deb_packaging
     cd debian

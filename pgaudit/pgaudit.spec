@@ -1,7 +1,7 @@
 %define pginstdir /usr/pgsql-17/
 
 Name:           percona-pgaudit17
-Version:        17.0
+Version:        17.1
 Release:        1%{?dist}
 Summary:        PostgreSQL Audit Extension
 Packager:       Percona Development Team <https://jira.percona.com>

@@ -1,35 +1,66 @@
---- maintscripts-functions	2019-07-04 12:13:47.057670000 +0000
-+++ maintscripts-functions	2019-07-04 12:14:12.249670000 +0000
-@@ -125,7 +125,7 @@
+--- maintscripts-functions
++++ maintscripts-functions
+@@ -36,7 +36,7 @@ relink_postmaster_manpages ()
+     for dir in /usr/lib/postgresql/*; do
+         if test -x $dir/bin/psql; then
+             v=${dir#/usr/lib/postgresql/}
+-            _link_manpages $v psql.1.gz postgresql-client-$v postgresql-$v postgresql-contrib-$v
++            _link_manpages $v psql.1.gz percona-postgresql-client-$v percona-postgresql-$v percona-postgresql-contrib-$v
+         fi
+     done
  }
+@@ -111,7 +111,7 @@ configure_version() {
+     [ "$VERSION" ] || { echo "Error: configure_version: need version parameter" >&2; exit 1; }
  
- configure_client_version() {
--    _link_manpages "$1" psql.1.gz "postgresql-client-$1"
-+    _link_manpages "$1" psql.1.gz "percona-postgresql-client-$1"
+     relink_postmaster_manpages
+-    _link_manpages "$VERSION" psql.1.gz "postgresql-client-$PKG_VER" "postgresql-$PKG_VER" "postgresql-contrib-$PKG_VER"
++    _link_manpages "$VERSION" psql.1.gz "percona-postgresql-client-$PKG_VER" "percona-postgresql-$PKG_VER" "percona-postgresql-contrib-$PKG_VER"
+ 
+     # check if our catalog version changed
+     postinst_check_catversion "$VERSION"
+@@ -146,7 +146,7 @@ remove_version() {
+     VERSION="$1"
+     PKG_VER="${2:-$1}"
+     # we still want to retain the alternatives for the client packages
+-    _link_manpages "$VERSION" psql.1.gz "postgresql-client-$PKG_VER"
++    _link_manpages "$VERSION" psql.1.gz "percona-postgresql-client-$PKG_VER"
+     _remove_tsearch "$VERSION"
+     # update list of packages not to apt-autoremove
+     /usr/share/postgresql-common/pg_updateaptconfig
+@@ -156,7 +156,7 @@ configure_client_version() {
+     VERSION="$1"
+     PKG_VER="${3:-$1}"
+     relink_postmaster_manpages
+-    _link_manpages "$VERSION" psql.1.gz "postgresql-client-$PKG_VER" "postgresql-$PKG_VER" "postgresql-contrib-$PKG_VER"
++    _link_manpages "$VERSION" psql.1.gz "percona-postgresql-client-$PKG_VER" "percona-postgresql-$PKG_VER" "percona-postgresql-contrib-$PKG_VER"
  }
  
  remove_client_version() {
-@@ -133,16 +133,16 @@
- }
- 
- configure_contrib_version() {
--    _link_manpages "$1" postmaster.1.gz "postgresql-$1" "postgresql-contrib-$1"
-+    _link_manpages "$1" postmaster.1.gz "percona-postgresql-$1" "percona-postgresql-contrib-$1"
+@@ -168,20 +168,20 @@ configure_contrib_version() {
+     VERSION="$1"
+     PKG_VER="${3:-$1}"
+     relink_postmaster_manpages
+-    _link_manpages "$VERSION" psql.1.gz "postgresql-client-$PKG_VER" "postgresql-$PKG_VER" "postgresql-contrib-$PKG_VER"
++    _link_manpages "$VERSION" psql.1.gz "percona-postgresql-client-$PKG_VER" "percona-postgresql-$PKG_VER" "percona-postgresql-contrib-$PKG_VER"
  }
  
  remove_contrib_version() {
+     VERSION="$1"
+     PKG_VER="${2:-$1}"
      # we still want to retain the alternatives for the server packages
--    _link_manpages "$1" postmaster.1.gz "postgresql-$1"
-+    _link_manpages "$1" postmaster.1.gz "percona-postgresql-$1"
+-    _link_manpages "$VERSION" psql.1.gz "postgresql-client-$1" "postgresql-$PKG_VER"
++    _link_manpages "$VERSION" psql.1.gz "percona-postgresql-client-$1" "percona-postgresql-$PKG_VER"
  }
  
  configure_doc_version() {
--    _link_manpages "$1" SPI_connect.3.gz "postgresql-doc-$1"
-+    _link_manpages "$1" SPI_connect.3.gz "percona-postgresql-doc-$1"
+     VERSION="$1"
+     PKG_VER="${3:-$1}"
+-    _link_manpages "$VERSION" SPI_connect.3.gz "postgresql-doc-$PKG_VER"
++    _link_manpages "$VERSION" SPI_connect.3.gz "percona-postgresql-doc-$PKG_VER"
  }
  
  remove_doc_version() {
-@@ -232,13 +232,13 @@
+@@ -267,13 +267,13 @@ postinst_check_catversion()
  	  pg_dropcluster ${MAJOR_VER} ${cluster}.old
  	  rm -rf ${VARTMPDIR}
  	EOF
@@ -50,12 +81,12 @@
          db_go || true
      done
  }
-@@ -246,7 +246,7 @@
+@@ -281,7 +281,7 @@ postinst_check_catversion()
  # start debconf if we are in the server's postinst (can't run from a function)
  if [ "${DPKG_MAINTSCRIPT_NAME:-}" = "postinst" ] && [ "$1" = "configure" ]; then
      case $DPKG_MAINTSCRIPT_PACKAGE in
--        postgresql-[89].?|postgresql-[1-9]?)
-+        percona-postgresql-[89].?|percona-postgresql-[1-9]?)
+-        postgresql-[89].?|postgresql-[1-9]?|postgresql-[1-9]???) # -9.6 -15 -15ee
++        percona-postgresql-[89].?|percona-postgresql-[1-9]?|percona-postgresql-[1-9]???) # -9.6 -15 -15ee
              . /usr/share/debconf/confmodule
              ;;
      esac

@@ -1134,6 +1134,39 @@ build_postgres_server(){
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make -C contrib install
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make -C contrib/uuid-ossp install
 
+	mv ${POSTGRESQL_PREFIX}/bin/psql ${POSTGRESQL_PREFIX}/bin/psql.bin
+cat <<EOT > psql
+#!/bin/bash
+
+# Use OS supplied libreadline as it's more reliable than libedit
+PLL=""
+if [ -f /lib64/libreadline.so.7 ];
+then
+    PLL=/lib64/libreadline.so.7
+elif [ -f /lib64/libreadline.so.8 ];
+then
+    PLL=\$PLL:/lib64/libreadline.so.8
+elif [ -f /lib/libreadline.so.7 ];
+then
+    PLL=\$PLL:/lib/libreadline.so.7
+elif [ -f /lib/libreadline.so.8 ];
+then
+    PLL=\$PLL:/lib/libreadline.so.8
+fi
+# Get the PG bin directory path relative to psql caller script.
+PG_BIN_PATH=\`dirname "\$0"\`
+
+if [ -z "\$PLL" ];
+then
+       LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$PG_BIN_PATH/../lib "\$PG_BIN_PATH/psql.bin" "\$@"
+else
+       LD_PRELOAD=\$PLL LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$PG_BIN_PATH/../lib "\$PG_BIN_PATH/psql.bin" "\$@"
+fi
+
+EOT
+	mv psql ${POSTGRESQL_PREFIX}/bin/
+	chmod 755 ${POSTGRESQL_PREFIX}/bin/psql
+
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libicuuc.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libldap.* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/liblber* ${POSTGRESQL_PREFIX}/lib/

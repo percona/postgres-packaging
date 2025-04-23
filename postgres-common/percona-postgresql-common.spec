@@ -30,11 +30,11 @@ for the particular cluster you want to access (with a command line
 option, an environment variable, /etc/postgresql-common/user_clusters,
 or ~/.postgresqlrc).
 
-%package -n percona-postgresql-server-dev-all
-Provides: postgresql-server-dev-all
+%package -n percona-postgresql-common-dev
+Provides: postgresql-common-dev
 Summary: extension build tool for multiple PostgreSQL versions
-%description -n percona-postgresql-server-dev-all
-The percona-postgresql-server-dev-all package provides the pg_buildext script for
+%description -n percona-postgresql-common-dev
+The percona-postgresql-common-dev package provides the pg_buildext script for
 simplifying packaging of a PostgreSQL extension supporting multiple major
 versions of the product.
 
@@ -56,8 +56,10 @@ popd
 # install in subpackages using the Debian files
 for inst in debian/*.install; do
     pkg=$(basename $inst .install)
+    [ "$pkg" = "postgresql-server-dev-all" ] && continue
     echo "### Reading $pkg files list from $inst ###"
     while read file dir; do
+        [ "$file" = "supported_versions" ] && continue # only relevant on Debian
         mkdir -p %{buildroot}/$dir
         cp -r $file %{buildroot}/$dir
         echo "/$dir/${file##*/}" >> files-$pkg
@@ -66,6 +68,7 @@ done
 # install manpages
 for manpages in debian/*.manpages; do
     pkg=$(basename $manpages .manpages)
+    [ "$pkg" = "postgresql-server-dev-all" ] && continue
     echo "### Reading $pkg manpages list from $manpages ###"
     while read file; do
         section="${file##*.}"
@@ -89,7 +92,8 @@ sed -i -e 's/#redhat# //' \
     %{buildroot}/usr/bin/pg_config \
     %{buildroot}/usr/bin/pg_virtualenv \
     %{buildroot}/usr/share/perl5/PgCommon.pm \
-    %{buildroot}/usr/share/postgresql-common/init.d-functions
+    %{buildroot}/usr/share/postgresql-common/init.d-functions \
+    %{buildroot}/usr/share/postgresql-common/pg_getwal
 # install init script
 mkdir -p %{buildroot}/etc/init.d %{buildroot}/etc/logrotate.d
 cp debian/percona-postgresql-common.postgresql.init %{buildroot}/etc/init.d/postgresql
@@ -113,7 +117,7 @@ cp debian/percona-postgresql-common.logrotate %{buildroot}/etc/logrotate.d/postg
 
 %files -n percona-postgresql-client-common -f files-percona-postgresql-client-common
 
-%files -n percona-postgresql-server-dev-all -f files-percona-postgresql-server-dev-all
+%files -n percona-postgresql-common-dev -f files-percona-postgresql-common-dev
 
 %post
 # create postgres user

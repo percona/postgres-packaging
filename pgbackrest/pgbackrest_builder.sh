@@ -498,15 +498,15 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release/2.54.2"
-DEB_PACKAGING_TAG="debian/2.54.2-1"
+BRANCH="release/2.55.0"
+DEB_PACKAGING_TAG="debian/2.55.0-1"
 REPO="https://github.com/pgbackrest/pgbackrest.git"
 PRODUCT=percona-pgbackrest
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.54.2'
+VERSION='2.55.0'
 RELEASE='1'
-PG_VERSION=16.8
+PG_VERSION=16.9
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

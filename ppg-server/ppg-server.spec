@@ -1,6 +1,6 @@
 %global sname   percona-ppg-server
 %global pgmajorversion 13
-%global version 20
+%global version 21
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
@@ -13,11 +13,11 @@ Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
 Requires:       percona-postgresql%{pgmajorversion}-server
-Requires:       percona-postgresql-common >= 13.20
+Requires:       percona-postgresql-common >= 13.21
 Requires:       percona-postgresql%{pgmajorversion}-contrib
 Requires:       percona-pg-stat-monitor%{pgmajorversion}
-Requires:       percona-postgresql-common > 13.20
-Requires:       percona-pgaudit13 > 13.20
+Requires:       percona-postgresql-common > 13.21
+Requires:       percona-pgaudit13 > 13.21
 Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 
@@ -29,6 +29,8 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
+* Thu May 08 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 13.21-1
+- Update version for ppg-server meta-package
 * Thu Feb 20 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 13.20-1
 - Update version for ppg-server meta-package
 * Thu Nov 21 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> 13.18-1

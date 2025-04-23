@@ -467,15 +467,15 @@ RPM_RELEASE=7
 DEB_RELEASE=7
 REVISION=0
 BRANCH="master"
-BRANCH="1.5.2"
+BRANCH="1.5.3"
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='1.5.2'
-RELEASE='8'
+VERSION='1.5.3'
+RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=13.20
+PG_VERSION=13.21
 
 check_workdir
 get_system

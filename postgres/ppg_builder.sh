@@ -526,15 +526,15 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="release-17.4.1"
+BRANCH="release-17.5.1"
 REPO="https://github.com/Percona-Lab/postgres.git"
-#BRANCH="REL_17_4"
+#BRANCH="REL_17_5"
 #REPO="git://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='17'
-RELEASE='4'
+RELEASE='5'
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

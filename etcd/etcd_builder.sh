@@ -461,9 +461,9 @@ REVISION=0
 REPO="https://github.com/etcd-io/etcd.git"
 PRODUCT=etcd
 DEBUG=0
-VERSION='3.5.18'
+VERSION='3.5.21'
 RELEASE='1'
-PG_VERSION=17.4
+PG_VERSION=17.5
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}

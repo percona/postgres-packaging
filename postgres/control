@@ -171,8 +171,8 @@ Depends:
  ${shlibs:Depends}
 Suggests: percona-postgresql-17, percona-postgresql-doc-17
 Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-17 (= ${binary:Version})
-Conflicts: postgresql-server-dev-17 (<< 17.4-1~)
-Replaces: postgresql-server-dev-17 (<< 17.4-1~)
+Conflicts: postgresql-server-dev-17 (<< 17.5-1~)
+Replaces: postgresql-server-dev-17 (<< 17.5-1~)
 Description: front-end programs for PostgreSQL 17
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and

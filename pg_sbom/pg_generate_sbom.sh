@@ -58,10 +58,6 @@ PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 export DEBIAN_FRONTEND=noninteractive
 export TZ="UTC"  # Set time zone (you can modify this to your preferred time zone, e.g., "Asia/Kolkata")
 
-# Platform detection using /etc/os-release
-#PLATFORM=$(awk -F= '/^ID=/ {print tolower($2)}' /etc/os-release)
-#VERSION=$(awk -F= '/^VERSION_ID=/ {print tolower($2)}' /etc/os-release)
-
 # Platform detection
 if [ -f /etc/os-release ]; then
   . /etc/os-release
@@ -78,12 +74,14 @@ install_dependencies() {
     ol|centos|rhel|rocky|almalinux)
       # RHEL/CentOS/OracleLinux (RHEL 8/9)
       RHEL=$(rpm --eval %rhel)
+      PLATFORM=${PLATFORM_ID}
       dnf install -y epel-release jq
       dnf config-manager --set-enabled ol${RHEL}_codeready_builder || true
       dnf install -y 'dnf-command(config-manager)'
       ;;
     ubuntu|debian)
       # Install dependencies for Ubuntu/Debian
+      PLATFORM=$(echo "$VERSION_CODENAME" | tr '[:upper:]' '[:lower:]')
       apt update
       apt install -y curl gnupg jq lsb-release tzdata
       apt --fix-broken install -y  # Fix broken dependencies
@@ -246,7 +244,7 @@ jq '{
   "version": .version,
   "metadata": .metadata,
   "components": [.components[] | select(.name | test("postgresql|percona"; "i"))]
-}' sbom-full-db.json > $CWD/pg_sbom/sbom-percona-postgresql-${PG_VERSION}-${PLATFORM_ID}-${ARCH}.json
+}' sbom-full-db.json > $CWD/pg_sbom/sbom-percona-postgresql-${PG_VERSION}-${PLATFORM}-${ARCH}.json
 
-echo "✅ SBOM for Percona PostgreSQL ${PG_VERSION} written to: $CWD/pg_sbom/sbom-percona-postgresql-${PG_VERSION}-${PLATFORM_ID}-${ARCH}.json"
+echo "✅ SBOM for Percona PostgreSQL ${PG_VERSION} written to: $CWD/pg_sbom/sbom-percona-postgresql-${PG_VERSION}-${PLATFORM}-${ARCH}.json"
 

@@ -74,7 +74,7 @@ install_dependencies() {
     ol|centos|rhel|rocky|almalinux)
       # RHEL/CentOS/OracleLinux (RHEL 8/9)
       RHEL=$(rpm --eval %rhel)
-      PLATFORM=${PLATFORM_ID}
+      PLATFORM=${PLATFORM_ID}${RHEL}
       dnf install -y epel-release jq
       dnf config-manager --set-enabled ol${RHEL}_codeready_builder || true
       dnf install -y 'dnf-command(config-manager)'

@@ -118,7 +118,7 @@ get_sources(){
 	    mv $file $newname; 
         done
 	rm -rf rules control supported-versions 
-        wget https://raw.githubusercontent.com/EvgeniyPatlan/postgres-packaging/${PG_VERSION}/postgres-common/control
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/maintscripts-functions.patch
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.templates.patch
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules

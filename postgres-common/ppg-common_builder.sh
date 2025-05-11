@@ -124,6 +124,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common-dev.install
 	cp postgresql-common.tmpfiles postgresql-common.conf
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
@@ -447,12 +448,12 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="debian/267"
+BRANCH="debian/277"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='267'
+VERSION='277'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
 PG_VERSION=16.9

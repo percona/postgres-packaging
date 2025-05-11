@@ -94,43 +94,6 @@ Description: manager for multiple PostgreSQL client versions
  outer joins, multiversion concurrency control, and user-defined types
  and functions.
 
-Package: percona-postgresql-common-dev
-Architecture: all
-Multi-Arch: foreign
-Depends:
- libipc-run-perl,
-# TODO: re-add make dependency before the PG18 release
-# make:any,
- ${misc:Depends},
-Breaks:
- postgresql-client-common (<< 269),
- percona-postgresql-client-common (<< 269),
- postgresql-common (<< 269),
- percona-postgresql-common (<< 269),
- postgresql-server-dev-all (<< 269),
- percona-postgresql-server-dev-all (<< 269),
-Replaces:
- postgresql-client-common (<< 269),
- percona-postgresql-client-common (<< 269),
- postgresql-common (<< 269),
- percona-postgresql-common (<< 269),
- postgresql-server-dev-all (<< 269),
- perconapostgresql-server-dev-all (<< 269),
-Provides:
- postgresql-common-dev
-Description: extension build tool for multiple PostgreSQL versions
- The postgresql-server-dev-all package provides the pg_buildext script for
- simplifying packaging of a PostgreSQL extension supporting multiple major
- versions of the product, and dh_make_pgxs which builds a template debian/
- source package directory based on pg_buildext.
- .
- PostgreSQL is a fully featured object-relational database management
- system. It supports a large part of the SQL standard and is designed
- to be extensible by users in many aspects. Its features include ACID
- transactions, foreign keys, views, sequences, subqueries, triggers,
- outer joins, multiversion concurrency control, and user-defined types
- and functions.
-
 Package: percona-postgresql-server-dev-all
 Architecture: all
 Depends:

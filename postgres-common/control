@@ -13,6 +13,12 @@ Multi-Arch: foreign
 Pre-Depends: postgresql-common (= ${binary:Version}),
 Description: Virtual package to satisfy dependencies
 
+Package: percona-postgresql-common-dev
+Architecture: all
+Multi-Arch: foreign
+Pre-Depends: postgresql-common-dev (= ${binary:Version}),
+Description: Virtual package to satisfy dependencies
+
 Package: postgresql-common
 Architecture: all
 Multi-Arch: foreign
@@ -24,6 +30,7 @@ Depends:
  perl (>= 5.14),
  percona-postgresql-client-common | postgresql-client-common,
  percona-postgresql-common,
+ percona-postgresql-common-dev,
  ssl-cert (>= 1.0.11),
  ucf,
  ${misc:Depends},
@@ -129,6 +136,7 @@ Architecture: all
 Depends:
  make,
  percona-postgresql-common (>= 117~),
+ percona-postgresql-common-dev,
  ${misc:Depends},
  ${server-dev-all-depends},
 Provides: postgresql-server-dev-all

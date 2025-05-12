@@ -15,7 +15,7 @@ Source2:	pgbackrest-tmpfiles.d
 Source3:	pgbackrest.logrotate
 Source4:	pgbackrest.service
 BuildRequires:	openssl-devel zlib-devel percona-postgresql%{pgmajorversion}-devel
-BuildRequires:	libzstd-devel libxml2-devel libyaml-devel libssh-devel
+BuildRequires:	libzstd-devel libxml2-devel libyaml-devel libssh-devel meson
 
 %if 0%{?fedora} >= 37 || 0%{?rhel} >= 8
 Requires:	lz4-libs libzstd libssh
@@ -70,13 +70,18 @@ are required to perform a backup which increases security.
 %setup -q -n %{name}-%{version}
 
 %build
-pushd src
-export CPPFLAGS='-I %{pginstdir}/include'
-export PATH=%{pginstdir}/bin/:$PATH
-export LDFLAGS='-L%{pginstdir}/lib'
-%configure
-%{__make}
-popd
+export PATH=%{pginstdir}/bin:$PATH
+export PKG_CONFIG_PATH=%{pginstdir}/lib/pkgconfig
+export CPPFLAGS="-I%{pginstdir}/include"
+export LDFLAGS="-L%{pginstdir}/lib"
+
+meson setup builddir %{_builddir}/%{name}-%{version} \
+  --prefix=%{_prefix} \
+  --libdir=%{_libdir} \
+  --buildtype=release
+
+ninja -C builddir
+
 
 %install
 %{__install} -D -d -m 0755 %{buildroot}%{perl_vendorlib} %{buildroot}%{_bindir}
@@ -85,7 +90,7 @@ popd
 %{__install} -D -d -m 0700 %{buildroot}/var/spool/pgbackrest
 %{__install} -D -d -m 0755 %{buildroot}%{_sysconfdir}
 %{__install} %{SOURCE1} %{buildroot}/%{_sysconfdir}/pgbackrest.conf
-%{__cp} -a src/pgbackrest %{buildroot}%{_bindir}/pgbackrest
+%{__cp} -a builddir/src/pgbackrest %{buildroot}%{_bindir}/pgbackrest
 
 # Install logrotate file:
 %{__install} -p -d %{buildroot}%{_sysconfdir}/logrotate.d

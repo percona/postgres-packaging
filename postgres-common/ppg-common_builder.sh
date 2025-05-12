@@ -124,6 +124,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common-dev.install
 	cp postgresql-common.tmpfiles postgresql-common.conf
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
@@ -149,6 +150,9 @@ get_sources(){
         done
 	rm -rf percona-postgresql-common.spec
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.spec
+	if [ ${ARCH} = "aarch64" ]; then
+            sed -e '4d' percona-postgresql-common.spec
+	fi	
     cd ../
     cd ${WORKDIR}
     #

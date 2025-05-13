@@ -22,19 +22,19 @@ Depends:
 # make:any,
  ${misc:Depends},
 Breaks:
- postgresql-client-common (<< 269),
- percona-postgresql-client-common (<< 269),
- postgresql-common (<< 269),
- percona-postgresql-common (<< 269),
- postgresql-server-dev-all (<< 269),
- percona-postgresql-server-dev-all (<< 269),
+ postgresql-client-common (<< 266),
+ percona-postgresql-client-common (<< 266),
+ postgresql-common (<< 266),
+ percona-postgresql-common (<< 266),
+ postgresql-server-dev-all (<< 266),
+ percona-postgresql-server-dev-all (<< 266),
 Replaces:
- postgresql-client-common (<< 269),
- percona-postgresql-client-common (<< 269),
- postgresql-common (<< 269),
- percona-postgresql-common (<< 269),
- postgresql-server-dev-all (<< 269),
- perconapostgresql-server-dev-all (<< 269),
+ postgresql-client-common (<< 266),
+ percona-postgresql-client-common (<< 266),
+ postgresql-common (<< 266),
+ percona-postgresql-common (<< 266),
+ postgresql-server-dev-all (<< 266),
+ perconapostgresql-server-dev-all (<< 266),
 Provides:
  postgresql-common-dev
 Description: extension build tool for multiple PostgreSQL versions

@@ -16,7 +16,6 @@ Description: Virtual package to satisfy dependencies
 Package: percona-postgresql-common-dev
 Architecture: all
 Multi-Arch: foreign
-Pre-Depends: postgresql-common-dev (= ${binary:Version}),
 Depends:
  libipc-run-perl,
 # TODO: re-add make dependency before the PG18 release

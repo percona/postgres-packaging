@@ -86,7 +86,8 @@ Provides:
 Replaces:
  postgresql-server-dev-all (<< 204),
  percona-postgresql-server-dev-all (<< 204),
- postgresql-common
+ postgresql-common,
+ postgresql-client-common (<< 266)
 Conflicts: postgresql-common
 Description: PostgreSQL database-cluster manager
  The postgresql-common package provides a structure under which

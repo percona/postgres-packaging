@@ -7,12 +7,6 @@ Build-Depends:
  debhelper (>= 10.1) | dh-systemd (>= 1.19),
  libreadline-dev,
 
-Package: percona-postgresql-common
-Architecture: all
-Multi-Arch: foreign
-Pre-Depends: postgresql-common (= ${binary:Version}),
-Description: Virtual package to satisfy dependencies
-
 Package: percona-postgresql-common-dev
 Architecture: all
 Multi-Arch: foreign

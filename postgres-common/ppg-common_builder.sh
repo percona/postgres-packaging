@@ -148,6 +148,8 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
+        mv postgresql-common.install.1 postgresql-common.install
+        sed -i '3d' postgresql-client-common.install
 	rm -rf percona-postgresql-common.spec
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.spec
 	if [ ${ARCH} = "aarch64" ]; then

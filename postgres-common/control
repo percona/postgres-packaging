@@ -18,25 +18,23 @@ Architecture: all
 Multi-Arch: foreign
 Depends:
  libipc-run-perl,
-# TODO: re-add make dependency before the PG18 release
-# make:any,
+ postgresql-common-dev (= ${binary:Version}),
  ${misc:Depends},
 Breaks:
- postgresql-client-common (<< 269),
- percona-postgresql-client-common (<< 269),
- postgresql-common (<< 269),
- percona-postgresql-common (<< 269),
- postgresql-server-dev-all (<< 269),
- percona-postgresql-server-dev-all (<< 269),
+ postgresql-client-common (<< 266),
+ percona-postgresql-client-common (<< 266),
+ postgresql-common (<< 266),
+ percona-postgresql-common (<< 266),
+ postgresql-server-dev-all (<< 266),
+ percona-postgresql-server-dev-all (<< 266)
 Replaces:
- postgresql-client-common (<< 269),
- percona-postgresql-client-common (<< 269),
- postgresql-common (<< 269),
- percona-postgresql-common (<< 269),
- postgresql-server-dev-all (<< 269),
- perconapostgresql-server-dev-all (<< 269),
-Provides:
- postgresql-common-dev
+ postgresql-client-common (<< 266),
+ percona-postgresql-client-common (<< 266),
+ postgresql-common (<< 266),
+ percona-postgresql-common (<< 266),
+ postgresql-server-dev-all (<< 266),
+ percona-postgresql-server-dev-all (<< 266)
+Provides: postgresql-common-dev
 Description: extension build tool for multiple PostgreSQL versions
  The postgresql-server-dev-all package provides the pg_buildext script for
  simplifying packaging of a PostgreSQL extension supporting multiple major
@@ -81,13 +79,14 @@ Breaks:
 # pg_buildext moved pg-s-d-all in 204
  postgresql-server-dev-all (<< 204),
  percona-postgresql-server-dev-all (<< 204),
-Provides:
- postgresql-common, percona-postgresql-common
+ postgresql-client-common (<< 277)
 Replaces:
  postgresql-server-dev-all (<< 204),
  percona-postgresql-server-dev-all (<< 204),
- postgresql-common
+ postgresql-common,
+ postgresql-client-common (<< 277)
 Conflicts: postgresql-common
+Provides: postgresql-common, percona-postgresql-common
 Description: PostgreSQL database-cluster manager
  The postgresql-common package provides a structure under which
  multiple versions of PostgreSQL may be installed and/or multiple
@@ -107,15 +106,16 @@ Description: PostgreSQL database-cluster manager
 Package: postgresql-client-common
 Architecture: all
 Multi-Arch: foreign
+Pre-Depends: postgresql-common (>= 276)
 Depends:
  netbase,
- postgresql-client-common,
  ${misc:Depends},
  ${pgdg:Depends},
 Recommends:
  lsb-release,
- ${readline:Recommends},
-Replaces: percona-postgresql-client-common
+ ${readline:Recommends}
+Replaces: postgresql-common (<< 277), percona-postgresql-client-common
+Breaks: postgresql-common (<< 277), percona-postgresql-client-common
 Provides: postgresql-client-common, percona-postgresql-client-common
 Description: manager for multiple PostgreSQL client versions
  The postgresql-client-common package provides a structure under which

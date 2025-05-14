@@ -17,3 +17,4 @@ pg_upgradecluster usr/bin
 pg_upgradecluster.d etc/postgresql-common
 pg_virtualenv usr/bin
 systemd/system* lib/systemd
+pgdg/apt.postgresql.org.* usr/share/postgresql-common/pgdg

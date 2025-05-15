@@ -109,28 +109,28 @@ get_sources(){
         for file in $(ls | grep ^postgresql); do 
             mv $file "percona-$file"
         done
-	    for file in $(ls | grep percona-postgresql-common | grep -v dev); do 
-            newname=$(echo $file | awk -F'percona-' '{print $2}'); 
-	        mv $file $newname; 
+	for file in $(ls|grep percona-postgresql-common); do 
+            newname=$(echo $file| awk -F'percona-' '{print $2}'); 
+	    mv $file $newname; 
         done
-	    for file in $(ls|grep percona-postgresql-client-common); do 
-            newname=$(echo $file | awk -F'percona-' '{print $2}'); 
-	        mv $file $newname; 
+	for file in $(ls|grep percona-postgresql-client-common); do 
+            newname=$(echo $file| awk -F'percona-' '{print $2}'); 
+	    mv $file $newname; 
         done
-	    rm -rf rules control supported-versions 
+	rm -rf rules control supported-versions 
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/maintscripts-functions.patch
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.templates.patch
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
-	    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
-	    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
-	    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common-dev.install
-	    cp postgresql-common.tmpfiles postgresql-common.conf
-	    sudo chmod +x supported-versions
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common-dev.install
+	cp postgresql-common.tmpfiles postgresql-common.conf
+	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
         rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch
-	    rm -rf changelog
+	rm -rf changelog
         echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
         echo "  * Initial Release." >> changelog
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog

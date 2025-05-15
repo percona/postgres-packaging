@@ -7,6 +7,12 @@ Build-Depends:
  debhelper (>= 10.1) | dh-systemd (>= 1.19),
  libreadline-dev,
 
+Package: percona-postgresql-common
+Architecture: all
+Multi-Arch: foreign
+Pre-Depends: postgresql-common (= ${binary:Version}),
+Description: Virtual package to satisfy dependencies
+
 Package: percona-postgresql-common-dev
 Architecture: all
 Multi-Arch: foreign
@@ -80,8 +86,7 @@ Provides:
 Replaces:
  postgresql-server-dev-all (<< 204),
  percona-postgresql-server-dev-all (<< 204),
- postgresql-common,
- postgresql-client-common (<< 266)
+ postgresql-common
 Conflicts: postgresql-common
 Description: PostgreSQL database-cluster manager
  The postgresql-common package provides a structure under which

@@ -126,6 +126,11 @@ get_sources(){
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common-dev.install
 	cp postgresql-common.tmpfiles postgresql-common.conf
+        for file in $(ls | grep postgresql); do
+           mv $file "percona-$file"
+        done
+        mv postgresql-common.install.1 postgresql-common.install
+        sed -i '3d' postgresql-client-common.install
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
@@ -145,11 +150,6 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/pgcommon.sh
     sudo chmod +x pgcommon.sh
     cd rpm
-        for file in $(ls | grep postgresql); do
-            mv $file "percona-$file"
-        done
-        mv postgresql-common.install.1 postgresql-common.install
-        sed -i '3d' postgresql-client-common.install
 	rm -rf percona-postgresql-common.spec
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.spec
 	if [ ${ARCH} = "aarch64" ]; then

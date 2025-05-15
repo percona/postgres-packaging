@@ -32,6 +32,9 @@ or ~/.postgresqlrc).
 
 %package -n percona-postgresql-common-dev
 Provides: postgresql-common-dev
+Provides: postgresql-server-dev-all
+Conflicts: percona-postgresql-server-dev-all
+Obsoletes: percona-postgresql-server-dev-all < 1:277
 Summary: extension build tool for multiple PostgreSQL versions
 %description -n percona-postgresql-common-dev
 The percona-postgresql-common-dev package provides the pg_buildext script for

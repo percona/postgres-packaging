@@ -3,8 +3,4 @@ debhelper/dh_pgxs_test /usr/bin
 debian/supported-versions usr/share/postgresql-common
 dh_make_pgxs/debian /usr/share/postgresql-common/dh_make_pgxs
 dh_make_pgxs/dh_make_pgxs /usr/bin
-pg_buildext usr/bin
 pgxs_debian_control.mk /usr/share/postgresql-common/
-server usr/share/postgresql-common
-t/* usr/share/postgresql-common/t
-testsuite usr/share/postgresql-common

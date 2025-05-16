@@ -235,6 +235,14 @@ install_deps() {
       yum -y install lz4 || true
       yum -y install perl-libxml-perl || true
 
+      yum install meson gcc make git autoconf libtool cmake
+      git clone https://github.com/ianlancetaylor/libbacktrace.git
+      cd libbacktrace/
+          ./configure --prefix=/usr/local
+          make
+          make install
+      cd ../
+
     else
       export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
       apt-get update || true

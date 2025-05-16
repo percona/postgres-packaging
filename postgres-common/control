@@ -10,7 +10,7 @@ Build-Depends:
 Package: percona-postgresql-common
 Architecture: all
 Multi-Arch: foreign
-Pre-Depends: postgresql-common (= ${binary:Version}),
+Depends: postgresql-common (= ${binary:Version})
 Description: Virtual package to satisfy dependencies
 
 Package: percona-postgresql-common-dev
@@ -18,22 +18,13 @@ Architecture: all
 Multi-Arch: foreign
 Depends:
  libipc-run-perl,
- postgresql-common-dev (= ${binary:Version}),
- ${misc:Depends},
+ ${misc:Depends}
 Breaks:
- postgresql-client-common (<< 266),
- percona-postgresql-client-common (<< 266),
- postgresql-common (<< 266),
- percona-postgresql-common (<< 266),
- postgresql-server-dev-all (<< 266),
- percona-postgresql-server-dev-all (<< 266)
+ percona-postgresql-server-dev-all (<< 1:277~),
+ postgresql-server-dev-all (<< 277)
 Replaces:
- postgresql-client-common (<< 266),
- percona-postgresql-client-common (<< 266),
- postgresql-common (<< 266),
- percona-postgresql-common (<< 266),
- postgresql-server-dev-all (<< 266),
- percona-postgresql-server-dev-all (<< 266)
+ percona-postgresql-server-dev-all (<< 1:277~),
+ postgresql-server-dev-all (<< 277)
 Provides: postgresql-common-dev
 Description: extension build tool for multiple PostgreSQL versions
  The postgresql-server-dev-all package provides the pg_buildext script for
@@ -69,24 +60,24 @@ Depends:
  percona-postgresql-common-dev,
  ssl-cert (>= 1.0.11),
  ucf,
- ${misc:Depends},
+ ${misc:Depends}
 Recommends:
  e2fsprogs,
- logrotate,
+ logrotate
 Breaks:
  postgresql-9.1 (<< 9.1.1-3~),
  systemd (<< 204),
 # pg_buildext moved pg-s-d-all in 204
  postgresql-server-dev-all (<< 204),
- percona-postgresql-server-dev-all (<< 204),
- postgresql-client-common (<< 277)
+ percona-postgresql-server-dev-all (<< 204)
+Provides:
+ postgresql-common, percona-postgresql-common
 Replaces:
  postgresql-server-dev-all (<< 204),
  percona-postgresql-server-dev-all (<< 204),
  postgresql-common,
  postgresql-client-common (<< 277)
 Conflicts: postgresql-common
-Provides: postgresql-common, percona-postgresql-common
 Description: PostgreSQL database-cluster manager
  The postgresql-common package provides a structure under which
  multiple versions of PostgreSQL may be installed and/or multiple
@@ -106,16 +97,15 @@ Description: PostgreSQL database-cluster manager
 Package: postgresql-client-common
 Architecture: all
 Multi-Arch: foreign
-Pre-Depends: postgresql-common (>= 276)
 Depends:
  netbase,
+ postgresql-client-common,
  ${misc:Depends},
- ${pgdg:Depends},
+ ${pgdg:Depends}
 Recommends:
  lsb-release,
  ${readline:Recommends}
-Replaces: postgresql-common (<< 277), percona-postgresql-client-common
-Breaks: postgresql-common (<< 277), percona-postgresql-client-common
+Replaces: percona-postgresql-client-common
 Provides: postgresql-client-common, percona-postgresql-client-common
 Description: manager for multiple PostgreSQL client versions
  The postgresql-client-common package provides a structure under which
@@ -139,7 +129,7 @@ Depends:
  percona-postgresql-common (>= 117~),
  percona-postgresql-common-dev,
  ${misc:Depends},
- ${server-dev-all-depends},
+ ${server-dev-all-depends}
 Provides: postgresql-server-dev-all
 Replaces: postgresql-server-dev-all, percona-postgresql-server-dev-all
 Description: extension build tool for multiple PostgreSQL versions
@@ -159,9 +149,9 @@ Package: percona-postgresql
 Architecture: all
 Depends:
  percona-postgresql-${default-version},
- ${misc:Depends},
+ ${misc:Depends}
 Suggests:
- percona-postgresql-doc,
+ percona-postgresql-doc
 Provides: postgresql
 Replaces: postgresql, percona-postgresql
 Description: object-relational SQL database (supported version)
@@ -181,7 +171,7 @@ Architecture: all
 Multi-Arch: foreign
 Depends:
  percona-postgresql-client-${default-version} | postgresql-client-${default-version},
- ${misc:Depends},
+ ${misc:Depends}
 Provides: postgresql-client
 Description: front-end programs for PostgreSQL (supported version)
  This metapackage always depends on the currently supported database
@@ -201,7 +191,7 @@ Multi-Arch: foreign
 Section: doc
 Depends:
  percona-postgresql-doc-${default-version} | postgresql-doc-${default-version},
- ${misc:Depends},
+ ${misc:Depends}
 Provides: postgresql-doc
 Description: documentation for the PostgreSQL database management system
  This metapackage always depends on the currently supported PostgreSQL
@@ -219,7 +209,7 @@ Package: percona-postgresql-contrib
 Architecture: all
 Depends:
  percona-postgresql-contrib-${default-version},
- ${misc:Depends},
+ ${misc:Depends}
 Provides: postgresql-contrib
 Replaces: postgresql-contrib, percona-postgresql-contrib
 Description: additional facilities for PostgreSQL (supported version)
@@ -241,7 +231,7 @@ Depends:
  libpq-dev,
  percona-postgresql-server-dev-all,
  ${postgresql-all-depends},
- ${misc:Depends},
+ ${misc:Depends}
 Provides: postgresql-all
 Replaces: postgresql-all, percona-postgresql-all
 Description: metapackage depending on all PostgreSQL server packages

@@ -109,13 +109,13 @@ get_sources(){
         for file in $(ls | grep ^postgresql); do 
             mv $file "percona-$file"
         done
-	for file in $(ls|grep percona-postgresql-common); do 
-            newname=$(echo $file| awk -F'percona-' '{print $2}'); 
-	    mv $file $newname; 
+	    for file in $(ls | grep percona-postgresql-common | grep -v dev); do 
+            newname=$(echo $file | awk -F'percona-' '{print $2}'); 
+	        mv $file $newname; 
         done
-	for file in $(ls|grep percona-postgresql-client-common); do 
-            newname=$(echo $file| awk -F'percona-' '{print $2}'); 
-	    mv $file $newname; 
+	    for file in $(ls|grep percona-postgresql-client-common); do 
+            newname=$(echo $file | awk -F'percona-' '{print $2}'); 
+	        mv $file $newname; 
         done
 	rm -rf rules control supported-versions 
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/control
@@ -124,6 +124,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
 	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
+	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common-dev.install
 	cp postgresql-common.tmpfiles postgresql-common.conf
 	sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
@@ -138,6 +139,8 @@ get_sources(){
 	sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
+        mv postgresql-common.install.1 postgresql-common.install
+        sed -i '3d' postgresql-client-common.install
 	echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
 	sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
     cd ../

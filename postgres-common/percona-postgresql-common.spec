@@ -55,6 +55,7 @@ pushd debian
         for file in $(ls | grep postgresql| grep -v percona); do
             mv $file "percona-$file"
         done
+        echo "dh_make_pgxs/dh_make_pgxs /usr/bin" >> percona-postgresql-common-dev.install
 popd
 # install in subpackages using the Debian files
 for inst in debian/*.install; do

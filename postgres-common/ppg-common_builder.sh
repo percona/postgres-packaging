@@ -143,8 +143,10 @@ get_sources(){
         mv postgresql-common.install.1 postgresql-common.install
         mv percona-postgresql-common-dev.install.1 percona-postgresql-common-dev.install
         sed -i '3d' postgresql-client-common.install
+        sed -i '2d' percona-postgresql-common-dev.manpages
         echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
         sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
+        echo "dh_make_pgxs/dh_make_pgxs.1" >>  percona-postgresql-server-dev-all.manpages
     cd ../
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/pgcommon.sh
     sudo chmod +x pgcommon.sh

@@ -1,5 +1,4 @@
 debhelper/Debian /usr/share/perl5
-debhelper/dh_pgxs_test /usr/bin
 debian/supported-versions usr/share/postgresql-common
 dh_make_pgxs/debian /usr/share/postgresql-common/dh_make_pgxs
 pgxs_debian_control.mk /usr/share/postgresql-common/

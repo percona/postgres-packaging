@@ -1,1 +1,2 @@
 dh_make_pgxs/dh_make_pgxs /usr/bin
+debhelper/dh_pgxs_test /usr/bin

@@ -145,7 +145,7 @@ get_sources(){
         sed -i '3d' postgresql-client-common.install
         rm -rf percona-postgresql-common-dev.manpages
         echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
-        echo "debhelper/dh_pgxs_test /usr/bin" >> percona-postgresql-common-dev.install
+        echo "debhelper/dh_pgxs_test /usr/bin" >> percona-postgresql-server-dev-all.install
         sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
         echo "dh_make_pgxs/dh_make_pgxs.1" >> percona-postgresql-server-dev-all.manpages
         echo "debhelper/dh_pgxs_test.1" >> percona-postgresql-server-dev-all.manpages

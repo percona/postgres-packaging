@@ -1,2 +1,2 @@
 debian/supported-versions usr/share/postgresql-common
-pgxs_debian_control.mk /usr/share/postgresql-common/
+

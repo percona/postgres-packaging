@@ -56,6 +56,7 @@ pushd debian
             mv $file "percona-$file"
         done
         echo "dh_make_pgxs/dh_make_pgxs /usr/bin" >> percona-postgresql-common-dev.install
+        echo "debhelper/dh_pgxs_test /usr/bin" >> percona-postgresql-common-dev.install
         echo "dh_make_pgxs/dh_make_pgxs.1" >> percona-postgresql-common-dev.manpages
         echo "debhelper/dh_pgxs_test.1" >> percona-postgresql-common-dev.manpages
 popd

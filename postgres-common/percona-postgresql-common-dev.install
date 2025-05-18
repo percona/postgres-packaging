@@ -1,4 +1,3 @@
-debhelper/Debian /usr/share/perl5
 debian/supported-versions usr/share/postgresql-common
 dh_make_pgxs/debian /usr/share/postgresql-common/dh_make_pgxs
 pgxs_debian_control.mk /usr/share/postgresql-common/

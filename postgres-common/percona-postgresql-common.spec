@@ -71,7 +71,7 @@ for inst in debian/*.install; do
     while read file dir; do
         [ "$file" = "supported_versions" ] && continue # only relevant on Debian
         mkdir -p %{buildroot}/$dir
-        cp -r $file %{buildroot}/$dir
+        cp -r $file %{buildroot}/$dir || true
         echo "/$dir/${file##*/}" >> files-$pkg
     done < $inst
 done

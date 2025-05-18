@@ -60,6 +60,7 @@ pushd debian
         echo "debhelper/Debian /usr/share/perl" >> percona-postgresql-common-dev.install
         echo "dh_make_pgxs/dh_make_pgxs.1" >> percona-postgresql-common-dev.manpages
         echo "debhelper/dh_pgxs_test.1" >> percona-postgresql-common-dev.manpages
+        echo "dh_make_pgxs/debian /usr/share/postgresql-common/dh_make_pgxs" >>  percona-postgresql-common-dev.install
 popd
 # install in subpackages using the Debian files
 for inst in debian/*.install; do

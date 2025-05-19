@@ -20,11 +20,19 @@ Depends:
  libipc-run-perl,
  ${misc:Depends}
 Breaks:
- percona-postgresql-server-dev-all (<< 1:277~),
- postgresql-server-dev-all (<< 277)
+ postgresql-client-common (<< 277),
+ percona-postgresql-client-common (<< 277),
+ postgresql-common (<< 277),
+ percona-postgresql-common (<< 277),
+ postgresql-server-dev-all (<< 277),
+ percona-postgresql-server-dev-all (<< 277)
 Replaces:
- percona-postgresql-server-dev-all (<< 1:277~),
- postgresql-server-dev-all (<< 277)
+ postgresql-client-common (<< 277),
+ percona-postgresql-client-common (<< 277),
+ postgresql-common (<< 277),
+ percona-postgresql-common (<< 277),
+ postgresql-server-dev-all (<< 277),
+ percona-postgresql-server-dev-all (<< 277)
 Provides: postgresql-common-dev
 Description: extension build tool for multiple PostgreSQL versions
  The postgresql-server-dev-all package provides the pg_buildext script for
@@ -38,6 +46,7 @@ Description: extension build tool for multiple PostgreSQL versions
  transactions, foreign keys, views, sequences, subqueries, triggers,
  outer joins, multiversion concurrency control, and user-defined types
  and functions.
+
 
 
 #Package: percona-postgresql-common-dev
@@ -75,8 +84,7 @@ Provides:
 Replaces:
  postgresql-server-dev-all (<< 204),
  percona-postgresql-server-dev-all (<< 204),
- postgresql-common,
- postgresql-client-common (<< 277)
+ postgresql-common
 Conflicts: postgresql-common
 Description: PostgreSQL database-cluster manager
  The postgresql-common package provides a structure under which

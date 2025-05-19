@@ -109,28 +109,29 @@ get_sources(){
         for file in $(ls | grep ^postgresql); do 
             mv $file "percona-$file"
         done
-	    for file in $(ls | grep percona-postgresql-common | grep -v dev); do 
+            for file in $(ls | grep percona-postgresql-common | grep -v dev); do 
             newname=$(echo $file | awk -F'percona-' '{print $2}'); 
-	        mv $file $newname; 
+                mv $file $newname; 
         done
-	    for file in $(ls|grep percona-postgresql-client-common); do 
+            for file in $(ls|grep percona-postgresql-client-common); do 
             newname=$(echo $file | awk -F'percona-' '{print $2}'); 
-	        mv $file $newname; 
+                mv $file $newname; 
         done
-	rm -rf rules control supported-versions 
+            rm -rf rules control supported-versions 
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/maintscripts-functions.patch
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.templates.patch
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
-	wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common-dev.install
-	cp postgresql-common.tmpfiles postgresql-common.conf
-	sudo chmod +x supported-versions
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/refs/heads/${PG_VERSION}/postgres-common/percona-postgresql-common-dev.install
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/refs/heads/${PG_VERSION}/postgres-common/percona-postgresql-server-dev-all.install
+        cp postgresql-common.tmpfiles postgresql-common.conf
+        sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
         rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch
-	rm -rf changelog
+        rm -rf changelog
         echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
         echo "  * Initial Release." >> changelog
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
@@ -140,9 +141,14 @@ get_sources(){
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
 	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
         mv postgresql-common.install.1 postgresql-common.install
+        mv percona-postgresql-common-dev.install.1 percona-postgresql-common-dev.install
         sed -i '3d' postgresql-client-common.install
-	echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
-	sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
+        rm -rf percona-postgresql-common-dev.manpages
+        echo "pgcommon.sh usr/share/postgresql-common" >> postgresql-client-common.install
+        echo "debhelper/dh_pgxs_test /usr/bin" >> percona-postgresql-server-dev-all.install
+        sudo sed -i 's:db_stop:db_stop || true:' maintscripts-functions
+        echo "dh_make_pgxs/dh_make_pgxs.1" >> percona-postgresql-server-dev-all.manpages
+        echo "debhelper/dh_pgxs_test.1" >> percona-postgresql-server-dev-all.manpages
     cd ../
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/pgcommon.sh
     sudo chmod +x pgcommon.sh
@@ -150,8 +156,11 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-	rm -rf percona-postgresql-common.spec
+        rm -rf percona-postgresql-common.spec
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.spec
+        if [ ${ARCH} = "aarch64" ]; then
+            sed -e '4d' percona-postgresql-common.spec
+        fi
     cd ../
     cd ${WORKDIR}
     #

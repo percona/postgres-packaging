@@ -55,6 +55,13 @@ pushd debian
         for file in $(ls | grep postgresql| grep -v percona); do
             mv $file "percona-$file"
         done
+        echo "dh_make_pgxs/dh_make_pgxs /usr/bin" >> percona-postgresql-common-dev.install
+        echo "debhelper/dh_pgxs_test /usr/bin" >> percona-postgresql-common-dev.install
+        echo "debhelper/Debian /usr/share/perl" >> percona-postgresql-common-dev.install
+        echo "dh_make_pgxs/dh_make_pgxs.1" >> percona-postgresql-common-dev.manpages
+        echo "debhelper/dh_pgxs_test.1" >> percona-postgresql-common-dev.manpages
+        echo "dh_make_pgxs/debian /usr/share/postgresql-common/dh_make_pgxs" >>  percona-postgresql-common-dev.install
+        echo "pgxs_debian_control.mk /usr/share/postgresql-common" >> percona-postgresql-common-dev.install
 popd
 # install in subpackages using the Debian files
 for inst in debian/*.install; do
@@ -64,11 +71,12 @@ for inst in debian/*.install; do
     while read file dir; do
         [ "$file" = "supported_versions" ] && continue # only relevant on Debian
         mkdir -p %{buildroot}/$dir
-        cp -r $file %{buildroot}/$dir
+        cp -r $file %{buildroot}/$dir || true
         echo "/$dir/${file##*/}" >> files-$pkg
     done < $inst
 done
 # install manpages
+
 for manpages in debian/*.manpages; do
     pkg=$(basename $manpages .manpages)
     [ "$pkg" = "postgresql-server-dev-all" ] && continue

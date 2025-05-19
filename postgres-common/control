@@ -20,11 +20,19 @@ Depends:
  libipc-run-perl,
  ${misc:Depends}
 Breaks:
- percona-postgresql-server-dev-all (<< 1:277~),
- postgresql-server-dev-all (<< 277)
+ postgresql-client-common (<< 277),
+ percona-postgresql-client-common (<< 277),
+ postgresql-common (<< 277),
+ percona-postgresql-common (<< 277),
+ postgresql-server-dev-all (<< 277),
+ percona-postgresql-server-dev-all (<< 277)
 Replaces:
- percona-postgresql-server-dev-all (<< 1:277~),
- postgresql-server-dev-all (<< 277)
+ postgresql-client-common (<< 277),
+ percona-postgresql-client-common (<< 277),
+ postgresql-common (<< 277),
+ percona-postgresql-common (<< 277),
+ postgresql-server-dev-all (<< 277),
+ percona-postgresql-server-dev-all (<< 277)
 Provides: postgresql-common-dev
 Description: extension build tool for multiple PostgreSQL versions
  The postgresql-server-dev-all package provides the pg_buildext script for

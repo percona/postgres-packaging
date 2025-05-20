@@ -171,7 +171,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel
+	yum install -y meson vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel
 	mkdir -p ${DEPENDENCY_LIBS_PATH}
 	mkdir -p /source
 
@@ -1385,53 +1385,64 @@ build_pg_gather(){
 	build_status "ends" "pg_gather"
 }
 
-build_pgbackrest(){
+build_pgbackrest() {
 
-	build_status "start" "pgbackrest"
-        mkdir -p /source
-        cd /source
+    build_status "start" "pgbackrest"
+    mkdir -p /source
+    cd /source
 
-        git clone https://github.com/pgbackrest/pgbackrest.git
-        cd pgbackrest
+    git clone https://github.com/pgbackrest/pgbackrest.git
+    cd pgbackrest
 
-        if [ ! -z "${PGBACKREST_BRANCH}" ]
-        then
-          git reset --hard
-          git clean -xdf
-          git checkout "${PGBACKREST_BRANCH}"
-        fi
+    if [ ! -z "${PGBACKREST_BRANCH}" ]; then
+        git reset --hard
+        git clean -xdf
+        git checkout "${PGBACKREST_BRANCH}"
+    fi
 
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
 
-        pushd src
-        export CPPFLAGS="-I${POSTGRESQL_PREFIX}/include"
-        export PATH=${POSTGRESQL_PREFIX}/bin/:$PATH
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" ./configure --prefix=${PGBACKREST_PREFIX}
-        LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make
-        make install
-        popd
+    export PATH="${POSTGRESQL_PREFIX}/bin:$PATH"
+    export PKG_CONFIG_PATH="${POSTGRESQL_PREFIX}/lib/pkgconfig"
+    export CPPFLAGS="-I${POSTGRESQL_PREFIX}/include -I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2"
+    export LDFLAGS="-L${POSTGRESQL_PREFIX}/lib -L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib"
+    export CFLAGS="$CPPFLAGS"
+    export LD_LIBRARY_PATH="${POSTGRESQL_PREFIX}/lib:${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH"
 
-        #mkdir -p ${PGBACKREST_PREFIX}/var/lib/pgbackrest
-        #mkdir -p ${PGBACKREST_PREFIX}/var/log/pgbackrest
-        #mkdir -p ${PGBACKREST_PREFIX}/var/spool/pgbackrest
-        
-	mkdir -p ${PGBACKREST_PREFIX}/lib
-	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libcrypto.* ${PGBACKREST_PREFIX}/lib/
-	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libssl.* ${PGBACKREST_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libldap.* ${PGBACKREST_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/liblber* ${PGBACKREST_PREFIX}/lib/
-	cp -rp ${POSTGRESQL_PREFIX}/lib/libpq.* ${PGBACKREST_PREFIX}/lib/
-	chmod 755 ${PGBACKREST_PREFIX}/lib/*.so*
+    # Clean previous build
+    rm -rf builddir
 
-	mkdir -p ${PGBACKREST_PREFIX}/etc
+    # Configure with Meson
+    meson setup builddir . \
+        --prefix="${PGBACKREST_PREFIX}" \
+        --libdir="${PGBACKREST_PREFIX}/lib" \
+        --buildtype=release \
+        -Dc_args="${CFLAGS}" \
+        -Dc_link_args="${LDFLAGS}"
 
-        cp -rp /usr/share/perl5/vendor_perl ${PGBACKREST_PREFIX}/bin
-        cp pgbackrest.conf ${PGBACKREST_PREFIX}/etc
-        cp -a src/pgbackrest ${PGBACKREST_PREFIX}/bin
-        cp LICENSE ${PGBACKREST_PREFIX}/pgbackrest_license
+    # Compile and install
+    ninja -C builddir
+    ninja -C builddir install
 
-	build_status "ends" "pgbackrest"
+    # Copy runtime libraries and config
+    mkdir -p "${PGBACKREST_PREFIX}/lib"
+    cp -rp "${DEPENDENCY_LIBS_PATH}/lib/libldap."* "${PGBACKREST_PREFIX}/lib/" || true
+    cp -rp "${DEPENDENCY_LIBS_PATH}/lib/liblber"* "${PGBACKREST_PREFIX}/lib/" || true
+    cp -rp "${POSTGRESQL_PREFIX}/lib/libpq."* "${PGBACKREST_PREFIX}/lib/" || true
+    chmod 755 "${PGBACKREST_PREFIX}/lib/"*.so* || true
+    mkdir -p "${PGBACKREST_PREFIX}/bin"
+    cp -a builddir/src/pgbackrest "${PGBACKREST_PREFIX}/bin"
+
+    mkdir -p "${PGBACKREST_PREFIX}/etc"
+    cp pgbackrest.conf "${PGBACKREST_PREFIX}/etc"
+    cp LICENSE "${PGBACKREST_PREFIX}/pgbackrest_license"
+
+    # Perl modules for runtime
+    cp -rp /usr/share/perl5/vendor_perl "${PGBACKREST_PREFIX}/bin" || true
+
+    build_status "ends" "pgbackrest"
 }
+
 
 build_pgbadger(){
 

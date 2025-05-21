@@ -136,10 +136,10 @@ get_sources(){
         echo "  * Initial Release." >> changelog
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
         sed -i 's:percona-postgresql-plpython-$v,::' rules
-	echo 12 > compat
-	sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
-	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
-	sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
+        echo 12 > compat
+        sed -i 's:supported_versions:debian/supported-versions:' postgresql-client-common.install
+        sed -i 's:ucfr:ucfr --force:g' postgresql-common.postinst
+        sed -i 's:ucfr:ucfr --force:g' postgresql-common.postrm
         mv postgresql-common.install.1 postgresql-common.install
         mv percona-postgresql-common-dev.install.1 percona-postgresql-common-dev.install
         sed -i '3d' postgresql-client-common.install

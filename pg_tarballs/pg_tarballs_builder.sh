@@ -959,7 +959,9 @@ build_perl(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcrypt.so* ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxcrypt.so* ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libowcrypt.so* ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE
-
+	cd ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE/
+	ln -s libcrypt.so.1 libcrypt.so.2
+	cd -
 	chmod 755 ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE/*.so*
 	build_status "ends" "Perl"
 }
@@ -1197,7 +1199,9 @@ EOT
 	cp -rp ${PYTHON_PREFIX}/lib/libpython*.so* ${POSTGRESQL_PREFIX}/lib/
 	ARCH=$(uname -m)
 	cp -rp ${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE/libperl.so* ${POSTGRESQL_PREFIX}/lib/
-
+	cd ${POSTGRESQL_PREFIX}/lib/
+	ln -s libcrypt.so.1 libcrypt.so.2
+	cd -
 	chmod 755 ${POSTGRESQL_PREFIX}/lib/*.so*
 	build_status "ends" "PostgreSQL Server"
 }
@@ -1268,6 +1272,9 @@ build_pgpool(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcrypt.so* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxcrypt.so* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libowcrypt.so* ${PGPOOL_PREFIX}/lib/
+	cd ${PGPOOL_PREFIX}/lib/
+	ln -s libcrypt.so.1 libcrypt.so.2
+	cd -
 	chmod 755 ${PGPOOL_PREFIX}/lib/*.so*
 
 	build_status "ends" "pgPool-II"
@@ -1569,6 +1576,9 @@ build_haproxy(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcrypt.so* ${HAPROXY_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxcrypt.so* ${HAPROXY_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libowcrypt.so* ${HAPROXY_PREFIX}/lib/
+	cd ${HAPROXY_PREFIX}/lib/
+	ln -s libcrypt.so.1 libcrypt.so.2
+	cd -
 	chmod 755 ${HAPROXY_PREFIX}/lib/*.so*
 
         wget https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/haproxy.cfg

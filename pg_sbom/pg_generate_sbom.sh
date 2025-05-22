@@ -12,7 +12,7 @@ Usage: $0 [OPTIONS]
         --pg_version        PostgreSQL major_version.minor_version
         --repo_type         Repository type
         --help) usage ;;
-Example $0 --pg_version=17.4 --repo_type=testing
+Example $0 --pg_version=17.5 --repo_type=testing
 EOF
         exit 1
 }
@@ -46,7 +46,7 @@ parse_arguments() {
 }
 
 CWD=$(pwd)
-PG_VERSION=17.4
+PG_VERSION=17.5
 REPO_TYPE=testing
 ARCH=$(uname -m)
 

@@ -1240,7 +1240,7 @@ build_pgpool(){
         cd pgpool-II-${PGPOOL_VERSION}
         export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
 
-        CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include/ -I${POSTGRESQL_PREFIX}/include" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib -L${POSTGRESQL_PREFIX}/lib" ./configure --prefix=${PGPOOL_PREFIX} \
+        CFLAGS="-DHAVE_LONG_LONG_INT_64 -I${DEPENDENCY_LIBS_PATH}/include/ -I${POSTGRESQL_PREFIX}/include" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib -L${POSTGRESQL_PREFIX}/lib" ./configure --prefix=${PGPOOL_PREFIX} \
                     --sysconfdir=${PGPOOL_PREFIX}/etc/pgpool2 \
                     --bindir=${PGPOOL_PREFIX}/bin \
                     --includedir=${PGPOOL_PREFIX}/include/pgpool2 \

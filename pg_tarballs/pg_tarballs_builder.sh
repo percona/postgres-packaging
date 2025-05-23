@@ -1161,6 +1161,20 @@ then
 elif [ -f /lib/libreadline.so.8 ];
 then
     PLL=\$PLL:/lib/libreadline.so.8
+elif [ -f /usr/lib/x86_64-linux-gnu/libreadline.so.8 ];
+then
+	PLL=$PLL:/usr/lib/x86_64-linux-gnu/libreadline.so.8
+	if [ ! -f  libreadline.so.7 ];
+	then
+		ln -s /usr/lib/x86_64-linux-gnu/libreadline.so libreadline.so.7
+	fi
+elif [ -f /usr/lib/aarch64-linux-gnu/libreadline.so.8 ];
+then
+	PLL=$PLL:/usr/lib/aarch64-linux-gnu/libreadline.so.8
+	if [ ! -f  libreadline.so.7 ];
+	then
+		ln -s /usr/lib/aarch64-linux-gnu/libreadline.so libreadline.so.7
+	fi
 fi
 # Get the PG bin directory path relative to psql caller script.
 PG_BIN_PATH=\`dirname "\$0"\`

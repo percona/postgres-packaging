@@ -1425,9 +1425,68 @@ build_pg_gather(){
 	build_status "ends" "pg_gather"
 }
 
-build_pgbackrest() {
+#build_pgbackrest() {
+#
+#    build_status "start" "pgbackrest"
+#    mkdir -p /source
+#    cd /source
 
+#    git clone https://github.com/pgbackrest/pgbackrest.git
+#    cd pgbackrest
+
+#    if [ ! -z "${PGBACKREST_BRANCH}" ]; then
+#        git reset --hard
+#        git clean -xdf
+#        git checkout "${PGBACKREST_BRANCH}"
+#    fi
+
+#    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
+
+#    export PATH="${POSTGRESQL_PREFIX}/bin:$PATH"
+#    export PKG_CONFIG_PATH="${POSTGRESQL_PREFIX}/lib/pkgconfig"
+#    export CPPFLAGS="-I${POSTGRESQL_PREFIX}/include -I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2"
+#    export LDFLAGS="-L${POSTGRESQL_PREFIX}/lib -L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib"
+#    export CFLAGS="$CPPFLAGS"
+#    export LD_LIBRARY_PATH="${POSTGRESQL_PREFIX}/lib:${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH"
+
+    # Clean previous build
+#    rm -rf builddir
+
+    # Configure with Meson
+#    meson setup builddir . \
+#        --prefix="${PGBACKREST_PREFIX}" \
+#        --libdir="${PGBACKREST_PREFIX}/lib" \
+#        --buildtype=release \
+#        -Dc_args="${CFLAGS}" \
+#        -Dc_link_args="${LDFLAGS}"
+
+    # Compile and install
+#    ninja -C builddir
+#    ninja -C builddir install
+
+    # Copy runtime libraries and config
+#    mkdir -p "${PGBACKREST_PREFIX}/lib"
+#    cp -rp "${DEPENDENCY_LIBS_PATH}/lib/libldap."* "${PGBACKREST_PREFIX}/lib/" || true
+#    cp -rp "${DEPENDENCY_LIBS_PATH}/lib/liblber"* "${PGBACKREST_PREFIX}/lib/" || true
+#    cp -rp "${POSTGRESQL_PREFIX}/lib/libpq."* "${PGBACKREST_PREFIX}/lib/" || true
+#    chmod 755 "${PGBACKREST_PREFIX}/lib/"*.so* || true
+#    mkdir -p "${PGBACKREST_PREFIX}/bin"
+#    cp -a builddir/src/pgbackrest "${PGBACKREST_PREFIX}/bin"
+
+#    mkdir -p "${PGBACKREST_PREFIX}/etc"
+#    cp pgbackrest.conf "${PGBACKREST_PREFIX}/etc"
+#    cp LICENSE "${PGBACKREST_PREFIX}/pgbackrest_license"
+
+    # Perl modules for runtime
+#    cp -rp /usr/share/perl5/vendor_perl "${PGBACKREST_PREFIX}/bin" || true
+
+#    build_status "ends" "pgbackrest"
+#}
+
+
+build_pgbackrest() {
     build_status "start" "pgbackrest"
+
     mkdir -p /source
     cd /source
 
@@ -1443,10 +1502,12 @@ build_pgbackrest() {
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
 
     export PATH="${POSTGRESQL_PREFIX}/bin:$PATH"
-    export PKG_CONFIG_PATH="${POSTGRESQL_PREFIX}/lib/pkgconfig"
+    export PKG_CONFIG_PATH="${POSTGRESQL_PREFIX}/lib/pkgconfig:${DEPENDENCY_LIBS_PATH}/lib64/pkgconfig"
+    # Compilation flags
     export CPPFLAGS="-I${POSTGRESQL_PREFIX}/include -I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2"
-    export LDFLAGS="-L${POSTGRESQL_PREFIX}/lib -L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib"
     export CFLAGS="$CPPFLAGS"
+    export LDFLAGS="-L${POSTGRESQL_PREFIX}/lib -L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib -lssl -lcrypto"
+
     export LD_LIBRARY_PATH="${POSTGRESQL_PREFIX}/lib:${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH"
 
     # Clean previous build
@@ -1469,7 +1530,11 @@ build_pgbackrest() {
     cp -rp "${DEPENDENCY_LIBS_PATH}/lib/libldap."* "${PGBACKREST_PREFIX}/lib/" || true
     cp -rp "${DEPENDENCY_LIBS_PATH}/lib/liblber"* "${PGBACKREST_PREFIX}/lib/" || true
     cp -rp "${POSTGRESQL_PREFIX}/lib/libpq."* "${PGBACKREST_PREFIX}/lib/" || true
+    cp -rp "${DEPENDENCY_LIBS_PATH}/lib64/libssl.so.3" "${PGBACKREST_PREFIX}/lib/" || true
+    cp -rp "${DEPENDENCY_LIBS_PATH}/lib64/libcrypto.so.3" "${PGBACKREST_PREFIX}/lib/" || true
+
     chmod 755 "${PGBACKREST_PREFIX}/lib/"*.so* || true
+
     mkdir -p "${PGBACKREST_PREFIX}/bin"
     cp -a builddir/src/pgbackrest "${PGBACKREST_PREFIX}/bin"
 
@@ -1482,7 +1547,6 @@ build_pgbackrest() {
 
     build_status "ends" "pgbackrest"
 }
-
 
 build_pgbadger(){
 

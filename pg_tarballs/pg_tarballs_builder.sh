@@ -1955,9 +1955,9 @@ build_wal2json
 build_pg_stat_monitor
 build_pg_gather
 if [ "$USE_SYSTEM_SSL" != "1" ]; then
-	build_pgbackrest_ssl1
-else
 	build_pgbackrest_ssl3
+else
+	build_pgbackrest_ssl1
 fi
 build_pgbadger
 build_patroni

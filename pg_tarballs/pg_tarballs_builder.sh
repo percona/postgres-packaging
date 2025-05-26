@@ -1154,7 +1154,11 @@ then
     PLL=/lib64/libreadline.so.7
 elif [ -f /lib64/libreadline.so.8 ];
 then
-    PLL=\$PLL:/lib64/libreadline.so.8
+    PLL=$PLL:/lib64/libreadline.so.8
+    if [ ! -f  /lib64/libreadline.so.7 ]; then
+        ln -s /lib64/libreadline.so.8 libreadline.so.7
+        PLL=$PLL:./libreadline.so.7
+    fi
 elif [ -f /lib/libreadline.so.7 ];
 then
     PLL=\$PLL:/lib/libreadline.so.7

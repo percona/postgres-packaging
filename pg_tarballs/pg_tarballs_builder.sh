@@ -1146,6 +1146,9 @@ build_postgres_server(){
 	mv ${POSTGRESQL_PREFIX}/bin/psql ${POSTGRESQL_PREFIX}/bin/psql.bin
 cat <<EOT > psql
 #!/bin/bash
+# Get the PG bin directory path relative to psql caller script.
+PG_BIN_PATH=\`dirname "\$0"\`
+PG_LIB_PATH=\$PG_BIN_PATH/../lib/
 
 # Use OS supplied libreadline as it's more reliable than libedit
 PLL=""
@@ -1156,8 +1159,10 @@ elif [ -f /lib64/libreadline.so.8 ];
 then
     PLL=$PLL:/lib64/libreadline.so.8
     if [ ! -f  /lib64/libreadline.so.7 ]; then
+		cd \$PG_LIB_PATH
         ln -s /lib64/libreadline.so.8 libreadline.so.7
-        PLL=$PLL:./libreadline.so.7
+		cd -
+        PLL=$PLL:\$PG_LIB_PATH/libreadline.so.7
     fi
 elif [ -f /lib/libreadline.so.7 ];
 then
@@ -1168,32 +1173,37 @@ then
 elif [ -f /usr/lib/x86_64-linux-gnu/libreadline.so.8 ];
 then
     PLL=:/usr/lib/x86_64-linux-gnu/libreadline.so.8
-    if [ ! -f  libreadline.so.7 ];
+    if [ ! -f  \$PG_LIB_PATH/libreadline.so.7 ];
     then
         if [ -f /usr/lib/x86_64-linux-gnu/libreadline.so.8 ];
 		then
+			cd \$PG_LIB_PATH
             ln -sf /usr/lib/x86_64-linux-gnu/libreadline.so.8 libreadline.so.7
+			cd -
         else
+			cd \$PG_LIB_PATH
             ln -sf /usr/lib/x86_64-linux-gnu/libreadline.so libreadline.so.7
+			cd -
         fi
-        PLL=\$PLL:./libreadline.so.7
+        PLL=\$PLL:\$PG_LIB_PATH/libreadline.so.7
     fi
 elif [ -f /usr/lib/aarch64-linux-gnu/libreadline.so.8 ];
 then
     PLL=:/usr/lib/aarch64-linux-gnu/libreadline.so.8
-    if [ ! -f  libreadline.so.7 ];
+    if [ ! -f \$PG_LIB_PATH/libreadline.so.7 ];
     then
         if [ -f /usr/lib/aarch64-linux-gnu/libreadline.so.8 ]; then
+			cd \$PG_LIB_PATH
             ln -s /usr/lib/aarch64-linux-gnu/libreadline.so.8 libreadline.so.7
+			cd -
         else
+			cd \$PG_LIB_PATH
             ln -s /usr/lib/aarch64-linux-gnu/libreadline.so libreadline.so.7
+			cd \$PG_LIB_PATH
         fi
-        PLL=\$PLL:./libreadline.so.7
+        PLL=\$PLL:\$PG_LIB_PATH/libreadline.so.7
     fi
 fi
-
-# Get the PG bin directory path relative to psql caller script.
-PG_BIN_PATH=\`dirname "\$0"\`
 
 if [ -z "\$PLL" ];
 then

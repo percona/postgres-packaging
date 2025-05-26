@@ -1429,66 +1429,65 @@ build_pg_gather(){
 	build_status "ends" "pg_gather"
 }
 
-#build_pgbackrest() {
-#
-#    build_status "start" "pgbackrest"
-#    mkdir -p /source
-#    cd /source
+build_pgbackrest_ssl1() {
 
-#    git clone https://github.com/pgbackrest/pgbackrest.git
-#    cd pgbackrest
+    build_status "start" "pgbackrest"
+    mkdir -p /source
+    cd /source
+    git clone https://github.com/pgbackrest/pgbackrest.git
+    cd pgbackrest
 
-#    if [ ! -z "${PGBACKREST_BRANCH}" ]; then
-#        git reset --hard
-#        git clean -xdf
-#        git checkout "${PGBACKREST_BRANCH}"
-#    fi
+    if [ ! -z "${PGBACKREST_BRANCH}" ]; then
+        git reset --hard
+        git clean -xdf
+        git checkout "${PGBACKREST_BRANCH}"
+    fi
 
-#    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
 
-#    export PATH="${POSTGRESQL_PREFIX}/bin:$PATH"
-#    export PKG_CONFIG_PATH="${POSTGRESQL_PREFIX}/lib/pkgconfig"
-#    export CPPFLAGS="-I${POSTGRESQL_PREFIX}/include -I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2"
-#    export LDFLAGS="-L${POSTGRESQL_PREFIX}/lib -L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib"
-#    export CFLAGS="$CPPFLAGS"
-#    export LD_LIBRARY_PATH="${POSTGRESQL_PREFIX}/lib:${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH"
+    export PATH="${POSTGRESQL_PREFIX}/bin:$PATH"
+    export PKG_CONFIG_PATH="${POSTGRESQL_PREFIX}/lib/pkgconfig"
+    export CPPFLAGS="-I${POSTGRESQL_PREFIX}/include -I${DEPENDENCY_LIBS_PATH}/include -I${DEPENDENCY_LIBS_PATH}/include/libxml2"
+    export LDFLAGS="-L${POSTGRESQL_PREFIX}/lib -L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib"
+    export CFLAGS="$CPPFLAGS"
+    export LD_LIBRARY_PATH="${POSTGRESQL_PREFIX}/lib:${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH"
 
     # Clean previous build
-#    rm -rf builddir
+    rm -rf builddir
 
     # Configure with Meson
-#    meson setup builddir . \
-#        --prefix="${PGBACKREST_PREFIX}" \
-#        --libdir="${PGBACKREST_PREFIX}/lib" \
-#        --buildtype=release \
-#        -Dc_args="${CFLAGS}" \
-#        -Dc_link_args="${LDFLAGS}"
+    meson setup builddir . \
+        --prefix="${PGBACKREST_PREFIX}" \
+        --libdir="${PGBACKREST_PREFIX}/lib" \
+        --buildtype=release \
+        -Dc_args="${CFLAGS}" \
+        -Dc_link_args="${LDFLAGS}"
 
     # Compile and install
-#    ninja -C builddir
-#    ninja -C builddir install
+    ninja -C builddir
+    ninja -C builddir install
 
     # Copy runtime libraries and config
-#    mkdir -p "${PGBACKREST_PREFIX}/lib"
-#    cp -rp "${DEPENDENCY_LIBS_PATH}/lib/libldap."* "${PGBACKREST_PREFIX}/lib/" || true
-#    cp -rp "${DEPENDENCY_LIBS_PATH}/lib/liblber"* "${PGBACKREST_PREFIX}/lib/" || true
-#    cp -rp "${POSTGRESQL_PREFIX}/lib/libpq."* "${PGBACKREST_PREFIX}/lib/" || true
-#    chmod 755 "${PGBACKREST_PREFIX}/lib/"*.so* || true
-#    mkdir -p "${PGBACKREST_PREFIX}/bin"
-#    cp -a builddir/src/pgbackrest "${PGBACKREST_PREFIX}/bin"
+    mkdir -p "${PGBACKREST_PREFIX}/lib"
+    cp -rp "${DEPENDENCY_LIBS_PATH}/lib/libldap."* "${PGBACKREST_PREFIX}/lib/" || true
+    cp -rp "${DEPENDENCY_LIBS_PATH}/lib/liblber"* "${PGBACKREST_PREFIX}/lib/" || true
+    cp -rp "${POSTGRESQL_PREFIX}/lib/libpq."* "${PGBACKREST_PREFIX}/lib/" || true
+    chmod 755 "${PGBACKREST_PREFIX}/lib/"*.so* || true
+    mkdir -p "${PGBACKREST_PREFIX}/bin"
+    cp -a builddir/src/pgbackrest "${PGBACKREST_PREFIX}/bin"
 
-#    mkdir -p "${PGBACKREST_PREFIX}/etc"
-#    cp pgbackrest.conf "${PGBACKREST_PREFIX}/etc"
-#    cp LICENSE "${PGBACKREST_PREFIX}/pgbackrest_license"
+    mkdir -p "${PGBACKREST_PREFIX}/etc"
+    cp pgbackrest.conf "${PGBACKREST_PREFIX}/etc"
+    cp LICENSE "${PGBACKREST_PREFIX}/pgbackrest_license"
 
     # Perl modules for runtime
-#    cp -rp /usr/share/perl5/vendor_perl "${PGBACKREST_PREFIX}/bin" || true
+    cp -rp /usr/share/perl5/vendor_perl "${PGBACKREST_PREFIX}/bin" || true
 
-#    build_status "ends" "pgbackrest"
-#}
+    build_status "ends" "pgbackrest"
+}
 
 
-build_pgbackrest() {
+build_pgbackrest_ssl3() {
     build_status "start" "pgbackrest"
 
     mkdir -p /source
@@ -1955,7 +1954,11 @@ build_pgrepack
 build_wal2json
 build_pg_stat_monitor
 build_pg_gather
-build_pgbackrest
+if [ "$USE_SYSTEM_SSL" != "1" ]; then
+	build_pgbackrest_ssl1
+else
+	build_pgbackrest_ssl3
+fi
 build_pgbadger
 build_patroni
 build_haproxy

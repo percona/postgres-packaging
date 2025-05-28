@@ -1160,7 +1160,7 @@ then
     PLL=$PLL:/lib64/libreadline.so.8
     if [ ! -f  /lib64/libreadline.so.7 ]; then
 		cd \$PG_LIB_PATH
-        ln -s /lib64/libreadline.so.8 libreadline.so.7
+        ln -sf /lib64/libreadline.so.8 libreadline.so.7
 		cd -
         PLL=$PLL:\$PG_LIB_PATH/libreadline.so.7
     fi
@@ -1194,11 +1194,11 @@ then
     then
         if [ -f /usr/lib/aarch64-linux-gnu/libreadline.so.8 ]; then
 			cd \$PG_LIB_PATH
-            ln -s /usr/lib/aarch64-linux-gnu/libreadline.so.8 libreadline.so.7
+            ln -sf /usr/lib/aarch64-linux-gnu/libreadline.so.8 libreadline.so.7
 			cd -
         else
 			cd \$PG_LIB_PATH
-            ln -s /usr/lib/aarch64-linux-gnu/libreadline.so libreadline.so.7
+            ln -sf /usr/lib/aarch64-linux-gnu/libreadline.so libreadline.so.7
 			cd \$PG_LIB_PATH
         fi
         PLL=\$PLL:\$PG_LIB_PATH/libreadline.so.7

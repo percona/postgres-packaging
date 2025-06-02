@@ -112,6 +112,7 @@ cp rpm/init-functions-compat %{buildroot}/usr/share/postgresql-common
 # ssl defaults to 'off' here because we don't have pregenerated snakeoil certs
 sed -e 's/__SSL__/off/' createcluster.conf > %{buildroot}/etc/postgresql-common/createcluster.conf
 cp debian/percona-postgresql-common.logrotate %{buildroot}/etc/logrotate.d/postgresql-common
+sed -i '2d' files-percona-postgresql-common-dev
 
 %files -n percona-postgresql-common -f files-percona-postgresql-common
 %attr(0755, root, root) %config /etc/init.d/postgresql

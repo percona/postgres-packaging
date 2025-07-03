@@ -1,0 +1,5 @@
+dh_make_pgxs/dh_make_pgxs /usr/bin
+debhelper/dh_pgxs_test /usr/bin
+debhelper/Debian /usr/share/perl
+dh_make_pgxs/debian /usr/share/postgresql-common/dh_make_pgxs
+pgxs_debian_control.mk /usr/share/postgresql-common/

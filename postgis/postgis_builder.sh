@@ -266,7 +266,11 @@ install_deps() {
 	 yum config-manager --enable PowerTools AppStream BaseOS *epel
 	 dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-         yum -y install SFCGAL SFCGAL-devel gdal35-devel
+         if [ x"$RHEL" = x9 ]; then
+            yum -y install SFCGAL SFCGAL-devel gdal311-devel proj95-devel
+         else
+            yum -y install SFCGAL SFCGAL-devel gdal35-devel
+         fi
          wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-srpm-macros

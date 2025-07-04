@@ -157,7 +157,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm -f postgis33.spec postgis33-3.3.0-gdalfpic.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/17.5.2/postgis/rpm/percona-postgis33.spec
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
     cd ../
     cd ${WORKDIR}

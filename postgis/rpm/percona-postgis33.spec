@@ -25,8 +25,8 @@
 %global geosfullversion 3.11.2
 %global geosmajorversion 311
 %global geosinstdir /usr/geos%{geosmajorversion}
-%global gdalfullversion 3.11.0
-%global gdalmajorversion 311
+%global gdalfullversion 3.8.5
+%global gdalmajorversion 38
 %global gdalinstdir /usr/gdal%{gdalmajorversion}
 %global projmajorversion 95
 %global projfullversion 9.5.1

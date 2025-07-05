@@ -275,7 +275,7 @@ install_deps() {
          else
             yum -y install SFCGAL SFCGAL-devel gdal38-devel proj95-devel
          fi
-         INSTALL_LIST="clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql${PG_MAJOR_VERSION}-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
+         INSTALL_LIST="clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql${PG_MAJOR_VERSION}-devel gcc make  geos geos-devel libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all

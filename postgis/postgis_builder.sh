@@ -266,11 +266,16 @@ install_deps() {
 	 yum config-manager --enable PowerTools AppStream BaseOS *epel
 	 dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-         yum -y install SFCGAL SFCGAL-devel gdal35-devel
+         yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
          wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-srpm-macros
-         INSTALL_LIST="clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel proj libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel proj90-devel protobuf-c-devel pkg-config"
+         if [ x"$RHEL" = x9 ]; then
+            yum -y install SFCGAL SFCGAL-devel gdal311-devel proj95-devel
+         else
+            yum -y install SFCGAL SFCGAL-devel gdal38-devel proj95-devel
+         fi
+         INSTALL_LIST="clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all
@@ -295,6 +300,7 @@ install_deps() {
       rm -f percona-release_latest.generic_all.deb
       percona-release enable-only tools testing
       percona-release enable-only ppg-${PPG_VERSION} testing
+      percona-release enable telemetry testing
       apt-get update
       if [ "x${DEBIAN}" = "xbionic" ]; then
         INSTALL_LIST="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc git cmake vim wget dctrl-tools docbook docbook-xsl imagemagick libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-16 protobuf-c-compiler rdfind xsltproc"

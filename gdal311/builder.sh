@@ -118,18 +118,18 @@ get_srpm(){
 
     cd $WORKDIR
     PRODUCT=gdal
-    echo "PRODUCT=${PRODUCT}" > gdal.properties
+    echo "PRODUCT=${PRODUCT}" > gdal311.properties
     GIT_USER=$(echo ${REPO} | awk -F'/' '{print $4}')
 
     PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> gdal.properties
-    echo "VERSION=${VERSION}" >> gdal.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> gdal.properties
-    echo "BUILD_ID=${BUILD_ID}" >> gdal.properties
+    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> gdal311.properties
+    echo "VERSION=${VERSION}" >> gdal311.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> gdal311.properties
+    echo "BUILD_ID=${BUILD_ID}" >> gdal311.properties
 
-    source gdal.properties
+    source gdal311.properties
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${DATE_TIMESTAMP}/${BUILD_ID}" >> gdal.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${DATE_TIMESTAMP}/${BUILD_ID}" >> gdal311.properties
 
     rm -fr rpmbuild
     #
@@ -211,7 +211,7 @@ build_rpm(){
 #main
 export GIT_SSL_NO_VERIFY=1
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/gdal.properties
+VERSION_FILE=$CURDIR/gdal311.properties
 args=
 WORKDIR=
 SRPM=0

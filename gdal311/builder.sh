@@ -103,7 +103,7 @@ install_deps() {
       yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
       yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
       yum -y install pgdg-srpm-macros
-      INSTALL_LIST="SFCGAL-devel ant armadillo-devel bash-completion bison cfitsio-devel chrpath cmake curl-devel doxygen expat-devel fontconfig-devel freexl-devel gcc-c++ geos313-devel ghostscript giflib-devel hdf-devel hdf-static hdf5-devel jasper-devel java-devel jpackage-utils json-c-devel libarchive-devel libarrow-devel libdap-devel libdeflate-devel libgeotiff17-devel libgta-devel libjpeg-devel libpng-devel libpq5-devel libspatialite50-devel libtiff-devel git curl rpm-build rpmdevtools rpmlint"
+      INSTALL_LIST="libtool libwebp-devel mariadb-devel netcdf-devel ogdi41-devel openjpeg2-devel perl-ExtUtils-MakeMaker perl-devel perl-generators poppler-devel proj96-devel python3-devel qhull-devel shapelib-devel sqlite-devel swig unixODBC-devel xerces-c-devel rpmdevtools SFCGAL-devel ant armadillo-devel bash-completion bison cfitsio-devel chrpath cmake curl-devel doxygen expat-devel fontconfig-devel freexl-devel gcc-c++ geos313-devel ghostscript giflib-devel hdf-devel hdf-static hdf5-devel jasper-devel java-devel jpackage-utils json-c-devel libarchive-devel libarrow-devel libdap-devel libdeflate-devel libgeotiff17-devel libgta-devel libjpeg-devel libpng-devel libpq5-devel libspatialite50-devel libtiff-devel git curl rpm-build rpmdevtools rpmlint"
       yum -y install ${INSTALL_LIST}
     fi
     return;

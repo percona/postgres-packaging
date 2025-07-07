@@ -142,12 +142,12 @@ get_srpm(){
     latest_rpm=$(find . | grep gdal | grep src.rpm | cut -f2 -d'/')
     rpm2cpio $latest_rpm | cpio -id
     rm -f $latest_rpm
-    mv gdal385.spec ../SPECS/
+    mv gdal38.spec ../SPECS/
     mv * ../SOURCES/
     cd ../SPECS
     sed -i 's/PGDG//' gdal385.spec
     cd ../../
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" rpmbuild/SPECS/gdal385.spec
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" rpmbuild/SPECS/gdal38.spec
 
     cp rpmbuild/SRPMS/*.src.rpm ${WORKDIR}/rpmbuild/SRPMS
     mkdir -p ${WORKDIR}/srpm

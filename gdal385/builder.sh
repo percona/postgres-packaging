@@ -105,6 +105,8 @@ install_deps() {
       yum -y install pgdg-srpm-macros
       INSTALL_LIST="g2clib-devel g2clib-static librx-devel python39-devel libtool libwebp-devel mariadb-devel netcdf-devel ogdi-devel openjpeg2-devel perl perl-devel perl-ExtUtils-MakeMaker perl-generators poppler-devel ogdi41-devel proj96-devel qhull-devel shapelib-devel swig unixODBC-devel xerces-c-devel curl-devel libtiff-devel proj95-devel python3-devel python3-numpy sqlite-devel SFCGAL-devel ant armadillo-devel bash-completion bison cfitsio-devel chrpath cmake curl-devel doxygen expat-devel fontconfig-devel freexl-devel gcc-c++ geos313-devel ghostscript giflib-devel hdf-devel hdf-static hdf5-devel jasper-devel java-devel jpackage-utils json-c-devel libarchive-devel libarrow-devel libdap-devel libdeflate-devel libgeotiff17-devel libgta-devel libjpeg-devel libpng-devel libpq5-devel libspatialite50-devel libtiff-devel git curl rpm-build rpmdevtools rpmlint"
       yum -y install ${INSTALL_LIST}
+      yum install -y java-1.8.0-openjdk-devel
+
     fi
     return;
 }

@@ -48,10 +48,17 @@ pushd build
 LDFLAGS="-Wl,-rpath,'\$ORIGIN/../lib64' ${LDFLAGS}" ; export LDFLAGS
 SHLIB_LINK="$SHLIB_LINK -Wl,-rpath,'\$ORIGIN/../lib64'" ; export SHLIB_LINK
 
+# Workaround: reduce debug symbol size and memory use
+RPM_OPT_FLAGS="${RPM_OPT_FLAGS/-g /-g1 }"
+CXXFLAGS="${RPM_OPT_FLAGS} -fno-var-tracking-assignments" ; export CXXFLAGS
+CFLAGS="${RPM_OPT_FLAGS}" ; export CFLAGS
+
+# Optional: switch to newer compiler on SUSE
 %if 0%{?suse_version} >= 1315
 export CXX=/usr/bin/g++-12
 %endif
 
+# Run CMake
 %if 0%{?suse_version}
 %if 0%{?suse_version} >= 1315
 cmake .. \
@@ -64,10 +71,17 @@ cmake3 .. \
     -DCMAKE_INSTALL_RPATH="\$ORIGIN/../lib64" \
     -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=OFF \
     -DCMAKE_SKIP_RPATH=OFF \
-    -DCMAKE_C_FLAGS="${RPM_OPT_FLAGS}" \
-    -DCMAKE_CXX_FLAGS="${RPM_OPT_FLAGS}"
+    -DCMAKE_C_FLAGS="${CFLAGS}" \
+    -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
+    -DENABLE_TESTS=OFF  # Disable memory-hungry test builds on OL8
 
+# Limit parallelism on memory-constrained OL8
+%if 0%{?rhel} == 8
+%make_build -j2
+%else
 %{__make} -C "%{_vpath_builddir}" %{?_smp_mflags}
+%endif
+
 popd
 
 %install

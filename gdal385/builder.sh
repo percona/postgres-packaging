@@ -147,7 +147,7 @@ get_srpm(){
     mv gdal38.spec ../SPECS/
     mv * ../SOURCES/
     cd ../SPECS
-    sed -i 's/PGDG//' gdal385.spec
+    sed -i 's/PGDG//' gdal38.spec
     cd ../../
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" rpmbuild/SPECS/gdal38.spec
 

@@ -181,7 +181,7 @@ install_deps() {
           rm -r /var/cache/dnf
           dnf -y upgrade
           if [ ${RHEL} = 10 ]; then
-              yum -u install oracle-epel-release-el10
+              yum -y install oracle-epel-release-el10
           fi
           INSTALL_LIST="git rpm-build python3-devel rpmdevtools rpmlint"
           yum -y install ${INSTALL_LIST}

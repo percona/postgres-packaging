@@ -103,8 +103,8 @@ get_sources(){
         git reset --hard
         git clean -xdf
         git checkout "$BRANCH"
-	sed -i "s|#shared_preload_libraries = ''|shared_preload_libraries = 'percona_pg_telemetry'|g" src/backend/utils/misc/postgresql.conf.sample
-	sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
+        sed -i "s|#shared_preload_libraries = ''|shared_preload_libraries = 'percona_pg_telemetry'|g" src/backend/utils/misc/postgresql.conf.sample
+        sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgresql.properties
@@ -120,12 +120,12 @@ get_sources(){
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
-	rm -f rules control
+        rm -f rules control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/rules
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/control
         sed -i 's/postgresql-16/percona-postgresql-16/' percona-postgresql-16.templates
-	echo "10" > compat
-	sed -i '14d' patches/series
+        echo "10" > compat
+        sed -i '14d' patches/series
     cd ../
     git clone https://git.postgresql.org/git/pgrpms.git
     mkdir rpm
@@ -134,7 +134,7 @@ get_sources(){
     cd rpm
         rm postgresql-16.spec
         wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/percona-postgresql-16.spec
-	wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/llvm_static_linking.patch
+        wget  https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres/llvm_static_linking.patch
     cd ../
     cd ${WORKDIR}
     #
@@ -195,16 +195,16 @@ install_deps() {
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
       else
-	dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+        dnf config-manager --set-enabled ol${RHEL}_codeready_builder
 
-        INSTALL_LIST="clang-devel clang llvm-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
-	yum -y install rpmbuild || yum -y install rpm-build || true
+        INSTALL_LIST="chrpath clang-devel clang llvm-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
+        yum -y install rpmbuild || yum -y install rpm-build || true
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++
-	if [ x"$RHEL" = x8 ]; then
-	    yum -y install python2-devel
+        if [ x"$RHEL" = x8 ]; then
+            yum -y install python2-devel
         else
-	    yum -y install python-devel
+            yum -y install python-devel
         fi
         yum clean all
         if [ ! -f  /usr/bin/llvm-config ]; then
@@ -217,7 +217,7 @@ install_deps() {
       yum -y install perl-IPC-Run perl-Test-Simple
       yum -y install docbook-xsl libxslt-devel
 
-      if [ x"$RHEL" = x9 ]; then
+      if [ x"$RHEL" >= x9 ]; then
            yum -y install gcc-toolset-14
       fi
     else
@@ -315,6 +315,7 @@ build_srpm(){
     wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/16/postgresql-16-A4.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgresql-16.spec rpmbuild/SPECS
+    cp -av /percona-postgresql-16.spec rpmbuild/SPECS/
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     if [ -f /opt/rh/devtoolset-7/enable ]; then
@@ -484,7 +485,7 @@ build_deb(){
         cat call-home.sh >> percona-postgresql-16.postinst
         echo "CALLHOME" >> percona-postgresql-16.postinst
         echo "bash +x /tmp/call-home.sh -f \"PRODUCT_FAMILY_POSTGRESQL\" -v \"${PG_VERSION}-${DEB_RELEASE}\" -d \"PACKAGE\" || :" >> percona-postgresql-16.postinst
-	echo "chgrp percona-telemetry /usr/local/percona/telemetry_uuid &>/dev/null || :" >> percona-postgresql-16.postinst
+        echo "chgrp percona-telemetry /usr/local/percona/telemetry_uuid &>/dev/null || :" >> percona-postgresql-16.postinst
         echo "chmod 664 /usr/local/percona/telemetry_uuid &>/dev/null || :" >> percona-postgresql-16.postinst
         echo "rm -rf /tmp/call-home.sh" >> percona-postgresql-16.postinst
         echo "exit 0" >> percona-postgresql-16.postinst
@@ -518,13 +519,13 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="REL_16_9"
-REPO="git://git.postgresql.org/git/postgresql.git"
+BRANCH="REL_16_10"
+REPO="https://git.postgresql.org/git/postgresql.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='16'
-RELEASE='9'
+RELEASE='10'
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

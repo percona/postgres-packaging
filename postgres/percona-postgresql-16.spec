@@ -249,7 +249,6 @@ includes HTML version of the documentation.
 Summary:        Contributed source and binaries distributed with PostgreSQL
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
-Requires:       %{name}-server% = %{version}-%{release}
 Provides:       postgresql-contrib >= %{version}-%{release}
 Provides:       %{vname}-contrib = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-contrib = %{epoch}:%{version}-%{release}
@@ -268,7 +267,6 @@ Summary:        PostgreSQL development header files and libraries
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
-Requires:       %{name} = %{version}-%{release}
 Requires:       llvm-devel => 17.0 clang-devel >= 17.0
 Requires:       libicu-devel
 

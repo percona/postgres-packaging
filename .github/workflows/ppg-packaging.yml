@@ -110,7 +110,7 @@ jobs:
 
       - name: Install build tools
         run: |
-          yum install -y gcc make tar rpm-build rpmdevtools
+          yum install -y gcc make tar rpm-build rpmdevtools git
           echo "Ready to build!"
 
       - name: Create a working directory

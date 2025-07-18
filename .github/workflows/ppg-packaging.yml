@@ -86,10 +86,11 @@ jobs:
         
      - name: Create archive of packaging files
        run: |
-         if [[ "${{ inputs.package }}" = "postgres" ]]; then
-           cp postgres-packaging/${{ inputs.package }}/ppg_builder.sh .
-         fi
+        if [[ "${{ inputs.package }}" = "postgres" ]]; then
+         cp postgres-packaging/${{ inputs.package }}/ppg_builder.sh .
+        else
          cp postgres-packaging/${{ inputs.package }}/*builder.sh ./pkg-builder.sh
+        fi
        shell: bash
 
      - name: Upload build script as artifact

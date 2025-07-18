@@ -29,7 +29,7 @@ on:
           - ppg-server-ha
           - psycopg2
           - pysyncobj
-          - timescaldb
+          - timescaledb
           - wal2json
           - ydiff
 

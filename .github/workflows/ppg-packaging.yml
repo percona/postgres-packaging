@@ -89,14 +89,14 @@ jobs:
          if [[ "${{ inputs.package }}" = "postgres" ]]; then
            cp postgres-packaging/${{ inputs.package }}/ppg_builder.sh .
          fi
-         cp postgres-packaging/${{ inputs.package }}/*builder.sh .
+         cp postgres-packaging/${{ inputs.package }}/*builder.sh ./pkg-builder.sh
        shell: bash
 
      - name: Upload build script as artifact
        uses: actions/upload-artifact@v4
        with:
-         name: pkg-builder.sh
-         path: ./*builder.sh
+         name: builder-script
+         path: ./pkg-builder.sh
 
   build:
     runs-on: ubuntu-latest
@@ -119,8 +119,8 @@ jobs:
       - name: Get build script artifact
         uses: actions/download-artifact@v4
         with:
-          name: pkg-builder.sh
-          path: ./${{ inputs.package }}/pkg-builder.sh
+          name: builder-script
+          path: ./${{ inputs.package }}/
 
       - name: Install dependencies
         if: inputs.install_deps

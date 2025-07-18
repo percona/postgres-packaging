@@ -122,6 +122,12 @@ jobs:
           name: builder-script
           path: ./${{ inputs.package }}/
 
+      - name: Update permissions of the build script
+        run: |
+          cd ${{ inputs.package }}
+          chmod 755 pkg-builder.sh
+        shell: bash
+
       - name: Install dependencies
         if: inputs.install_deps
         run: |

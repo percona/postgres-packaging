@@ -116,28 +116,28 @@ jobs:
         if: inputs.install_deps
         run: |
           cd ${{ inputs.package }}
-          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --install_deps=1 ${{ inputs.additional_options }}
+          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --install_deps=1 --${{ inputs.additional_options }}
         shell: bash
 
       - name: Get Sources
         if: inputs.get_sources
         run: |
           cd ${{ inputs.package }}
-          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --get_sources=1 ${{ inputs.additional_options }}
+          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --get_sources=1 --${{ inputs.additional_options }}
         shell: bash
 
       - name: Build Source RPM
         if: inputs.build_src_rpm
         run: |
           cd ${{ inputs.package }}
-          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --build_src_rpm=1 ${{ inputs.additional_options }}
+          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --build_src_rpm=1 --${{ inputs.additional_options }}
         shell: bash
 
       - name: Build RPM
         if: inputs.build_rpm
         run: |
           cd ${{ inputs.package }}
-          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --build_rpm=1 ${{ inputs.additional_options }}
+          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --build_rpm=1 --${{ inputs.additional_options }}
         shell: bash
 
       - name: Archive final rpm packages

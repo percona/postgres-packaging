@@ -1,0 +1,158 @@
+name: PG Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: package name
+        required: true
+        default: postgres
+        type: choice
+        options:
+          - etcd
+          - llvm
+          - patroni
+          - pg_cron
+          - pg_gather
+          - pg_repack
+          - pgaudit
+          - pgaudit_set_user
+          - pgbackrest
+          - pgbadger
+          - pgbouncer
+          - pgpool2
+          - pgvector
+          - postgis
+          - postgres
+          - postgres-common
+          - ppg-server
+          - ppg-server-ha
+          - psycopg2
+          - pysyncobj
+          - timescaldb
+          - wal2json
+          - ydiff
+
+      packaging-repo:
+        description: packaging repo to be used
+        default: percona/postgres-packaging
+        required: true
+
+      install_deps:
+        description: install_deps
+        default: true
+        type: boolean
+
+      get_sources:
+        description: get_sources
+        default: false
+        type: boolean
+
+      build_src_rpm:
+        description: build_src_rpm
+        default: false
+        type: boolean
+
+      build_rpm:
+        description: build_rpm
+        default: false
+        type: boolean
+
+      branch:
+        description: branch for build options
+        required: true
+
+      additional_options:
+        description: additional build options if any
+        required: false
+
+      debugging:
+        description: tmate session required
+        default: false
+        type: boolean
+
+jobs:
+  prepare:
+    runs on: oraclelinux:10
+
+    steps:
+      - name: Checkout packaging repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          repository: ${{ inputs.packaging-repo }}
+          ref: ${{ github.ref_name }}
+          path: postgres-packaging
+        
+      - name: Create archive of packaging files
+        run: |
+          if [[ "${{ inputs.package }}" = "postgres" ]]; then
+            cp postgres-packaging/${{ inputs.package }}/ppg_builder.sh .
+          fi
+          cp postgres-packaging/${{ inputs.package }}/*builder.sh .
+        shell: bash
+
+      - name: Upload build script as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pkg-builder.sh
+          path: ./*builder.sh
+
+  build:
+    runs-on: oraclelinux:10
+    needs: prepare
+
+    steps:
+      - name: Create a working directory
+        run: mkdir ${{ inputs.package }}
+
+      - name: Get build script artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pkg-builder.sh
+          path: ./${{ inputs.package }}/pkg-builder.sh
+
+      - name: Install dependencies
+        if: inputs.install_deps
+        run: |
+          cd ${{ inputs.package }}
+          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --install_deps=1 ${{ inputs.additional_options }}
+        shell: bash
+
+      - name: Get Sources
+        if: inputs.get_sources
+        run: |
+          cd ${{ inputs.package }}
+          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --get_sources=1 ${{ inputs.additional_options }}
+        shell: bash
+
+      - name: Build Source RPM
+        if: inputs.build_src_rpm
+        run: |
+          cd ${{ inputs.package }}
+          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --build_src_rpm=1 ${{ inputs.additional_options }}
+        shell: bash
+
+      - name: Build RPM
+        if: inputs.build_rpm
+        run: |
+          cd ${{ inputs.package }}
+          ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --build_rpm=1 ${{ inputs.additional_options }}
+        shell: bash
+
+      - name: Archive final rpm packages
+        run: |
+          cp ${{ inputs.package }}/rpm .
+          tar -cvf rpm.tar rpm/
+        shell: bash
+
+      - name: Upload rpm tar as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.package }}-rpm-archive
+          path: ./rpm.tar
+
+      - name: enable tmate debugging
+        if: inputs.debugging && failure()
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 60

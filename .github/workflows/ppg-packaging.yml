@@ -159,7 +159,7 @@ jobs:
 
       - name: Archive final rpm packages
         run: |
-          cp ${{ inputs.package }}/rpm .
+          cp -r ${{ inputs.package }}/rpm .
           tar -cvf rpm.tar rpm/
         shell: bash
 

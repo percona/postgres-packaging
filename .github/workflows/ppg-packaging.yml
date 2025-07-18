@@ -35,7 +35,7 @@ on:
 
       packaging-repo:
         description: packaging repo to be used
-        default: percona/postgres-packaging
+        default: Manika-Percona/postgres-packaging
         required: true
 
       install_deps:

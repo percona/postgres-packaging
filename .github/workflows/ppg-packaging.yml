@@ -132,6 +132,7 @@ jobs:
         if: inputs.install_deps
         run: |
           cd ${{ inputs.package }}
+          mkdir test
           ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --install_deps=1 --${{ inputs.additional_options }}
         shell: bash
 

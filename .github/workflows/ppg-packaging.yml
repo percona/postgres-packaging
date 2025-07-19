@@ -144,7 +144,7 @@ jobs:
       - name: Copy build scripts in required directories
         run: |
           cp pkg-builder.sh ${{ inputs.package }}/
-          if [[ ${{ inputs.build-postgresql }} ]]; then
+          if [[ ${{ "inputs.build-postgresql" == "true"}} ]]; then
            cp pg-builder.sh postgres/
           fi
         shell: bash

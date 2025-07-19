@@ -154,8 +154,8 @@ jobs:
         run: |
           cd postgres
           mkdir test
-          ./pg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --install_deps=1
-          ./pg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --get_sources=1 --build_src_rpm=1 --build_rpm=1
+          ./pg-builder.sh --builddir=$(pwd)/test --branch=REL_15_13 --install_deps=1
+          ./pg-builder.sh --builddir=$(pwd)/test --branch=REL_15_13 --get_sources=1 --build_src_rpm=1 --build_rpm=1
         shell: bash
 
       - name: Install PG rpm

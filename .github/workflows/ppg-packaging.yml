@@ -163,6 +163,9 @@ jobs:
         run: |
           cd postgres/rpm
           rpm -ivh percona-postgresql*-devel-*.rpm
+          rpm -ivh percona-postgresql*-libs-*.rpm
+          rpm -ivh percona-postgresql*-debuginfo-*.rpm
+          rpm -ivh percona-postgresql*-*.rpm
         shell: bash
 
       - name: Install dependencies

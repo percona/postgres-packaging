@@ -38,6 +38,11 @@ on:
         default: Manika-Percona/postgres-packaging
         required: true
 
+      build-postgresql:
+        description: build postgresql before actual pkg
+        default: false
+        type: boolean
+
       install_deps:
         description: install_deps
         default: true
@@ -86,18 +91,22 @@ jobs:
         
      - name: Create archive of packaging files
        run: |
+        mkdir pkg
         if [[ "${{ inputs.package }}" = "postgres" ]]; then
-         cp postgres-packaging/${{ inputs.package }}/ppg_builder.sh .
+         cp postgres-packaging/${{ inputs.package }}/ppg_builder.sh pkg/pkg-builder.sh
         else
-         cp postgres-packaging/${{ inputs.package }}/*builder.sh ./pkg-builder.sh
+         cp postgres-packaging/${{ inputs.package }}/*builder.sh pkg/pkg-builder.sh
         fi
+        if [[ ${{ inputs.build-postgresql }} ]]; then
+         cp postgres-packaging/postgres/ppg_builder.sh pkg/pg-builder.sh
+        else 
        shell: bash
 
      - name: Upload build script as artifact
        uses: actions/upload-artifact@v4
        with:
          name: builder-script
-         path: ./pkg-builder.sh
+         path: pkg/*
 
   build:
     runs-on: ubuntu-latest
@@ -114,19 +123,46 @@ jobs:
           yum install -y gcc make tar rpm-build rpmdevtools git
           echo "Ready to build!"
 
-      - name: Create a working directory
-        run: mkdir ${{ inputs.package }}
-
       - name: Get build script artifact
         uses: actions/download-artifact@v4
         with:
           name: builder-script
-          path: ./${{ inputs.package }}/
+          path: ./
 
       - name: Update permissions of the build script
         run: |
-          cd ${{ inputs.package }}
-          chmod 755 pkg-builder.sh
+          chmod 755 *-builder.sh
+        shell: bash
+
+      - name: Create a working directory for PG
+        if: inputs.build-postgresql
+        run: mkdir postgres
+
+      - name: Create a working directory
+        run: mkdir ${{ inputs.package }}
+
+      - name: Copy build scripts in required directories
+        run: |
+          cp pkg-builder.sh ${{ inputs.package }}/
+          if [[ ${{ inputs.build-postgresql }} ]]; then
+           cp pg-builder.sh postgres/
+          else
+        shell: bash
+
+      - name: Build PG before actual pkg
+        if: inputs.build-postgresql
+        run: |
+          cd postgres
+          mkdir test
+          ./pg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --install_deps=1
+          ./pg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --get_sources=1 --build_src_rpm=1 --build_rpm=1
+        shell: bash
+
+      - name: Install PG rpm
+        if: inputs.build-postgresql
+        run: |
+          cd postgres/rpm
+          rpm -ivh percona-postgresql*-devel-*.rpm
         shell: bash
 
       - name: Install dependencies

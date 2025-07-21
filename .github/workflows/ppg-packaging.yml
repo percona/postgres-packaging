@@ -162,10 +162,10 @@ jobs:
         if: inputs.build-postgresql
         run: |
           cd postgres/rpm
-          #rpm -ivh percona-postgresql*-libs-*.rpm
-          #rpm -ivh percona-postgresql*-debuginfo-*.rpm
-          #rpm -ivh percona-postgresql*-*.rpm
-          yum install percona-postgresql*-devel-*.rpm
+          rpm -ivh percona-postgresql15-debuginfo-*.rpm
+          rpm -ivh percona-postgresql15-libs-*.rpm
+          rpm -ivh percona-postgresql15-*.rpm
+          rpm -ivh percona-postgresql15-devel-*.rpm
         shell: bash
 
       - name: Install dependencies

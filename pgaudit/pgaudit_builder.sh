@@ -206,7 +206,11 @@ install_deps() {
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
         else
-            yum -y install epel-release
+            if [ x"$RHEL" = x10 ]; then
+                yum -y install oracle-epel-release-el10
+            else
+                yum -y install epel-release
+            fi
             dnf module -y disable postgresql
             dnf config-manager --set-enabled ol${RHEL}_codeready_builder
 
@@ -346,6 +350,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=0x0002
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -467,7 +474,7 @@ RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
 BRANCH="16.0"
-PG_VERSION=16.9
+PG_VERSION=16.10
 REPO="https://github.com/pgaudit/pgaudit.git"
 PRODUCT=percona-pgaudit
 DEBUG=0

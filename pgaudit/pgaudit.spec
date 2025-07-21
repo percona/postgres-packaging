@@ -40,7 +40,7 @@ trail or audit log. The term audit log is used in this documentation.
 
 %prep
 %setup -q -n percona-pgaudit-%{version}
-%patch0
+%patch -P 0
 
 %build
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-16/bin/pg_config:' Makefile

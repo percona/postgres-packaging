@@ -92,13 +92,10 @@ jobs:
      - name: Create archive of packaging files
        run: |
         mkdir pkg
-        if [[ "${{ inputs.package }}" = "postgres" ]]; then
-         cp postgres-packaging/${{ inputs.package }}/ppg_builder.sh pkg/pkg-builder.sh
+        if [[ "${{ inputs.package }}" = "postgres" || "${{ inputs.build-postgresql }}" == "true" ]]; then
+         cp postgres-packaging/postgres/ppg_builder.sh pkg/pkg-builder.sh
         else
          cp postgres-packaging/${{ inputs.package }}/*builder.sh pkg/pkg-builder.sh
-        fi
-        if [[ ${{ inputs.build-postgresql }} ]]; then
-         cp postgres-packaging/postgres/ppg_builder.sh pkg/pg-builder.sh
         fi
        shell: bash
 

@@ -176,7 +176,7 @@ install_deps() {
             sleep 1
         done
       fi
-      INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
+      INSTALL_LIST="git rpm-build rpmdevtools wget"
       yum -y install ${INSTALL_LIST}
     else
       apt-get update || true
@@ -421,7 +421,7 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="16.9"
+BRANCH="16.10"
 GIT_REPO="https://github.com/percona/postgres-packaging"
 PRODUCT=percona-pg_gather
 DEBUG=0

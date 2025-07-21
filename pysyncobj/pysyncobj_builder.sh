@@ -169,8 +169,7 @@ install_deps() {
       if [ x"$RHEL" = x8 ]; then
           switch_to_vault_repo
       fi
-      yum -y install epel-release
-      yum -y install wget
+      yum -y install wget epel-release
       yum clean all
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} = 7 ]; then

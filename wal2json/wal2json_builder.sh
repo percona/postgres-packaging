@@ -204,22 +204,24 @@ install_deps() {
       yum -y install wget
       add_percona_yum_repo
       yum clean all
+      if [[ "${RHEL}" -eq 10 ]]; then
+        yum install oracle-epel-release-el10
+      else
+        yum -y install epel-release
+      fi
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
-	  yum -y install epel-release
           dnf config-manager --set-enabled ol${RHEL}_codeready_builder
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-	  switch_to_vault_repo
-
+	      switch_to_vault_repo
           yum -y install clang-devel clang llvm-devel perl lz4-libs c-ares-devel
       else
         until yum -y install centos-release-scl; do
             echo "waiting"
             sleep 1
         done
-        yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
@@ -360,6 +362,9 @@ build_rpm(){
     fi
     export LIBPQ_DIR=/usr/pgsql-16/
     export LIBRARY_PATH=/usr/pgsql-16/lib/:/usr/pgsql-16/include/
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=0x0002
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-16" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -480,7 +485,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.6'
 RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=16.9
+PG_VERSION=16.10
 
 check_workdir
 get_system

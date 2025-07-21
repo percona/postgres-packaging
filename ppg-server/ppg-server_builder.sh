@@ -203,7 +203,7 @@ install_deps() {
           dnf -y upgrade
           yum -y install perl lz4-libs c-ares-devel
       fi
-      INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
+      INSTALL_LIST="git rpm-build rpmdevtools wget"
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 

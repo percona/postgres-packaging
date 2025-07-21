@@ -196,18 +196,21 @@ install_deps() {
         add_percona_yum_repo
         yum clean all
         RHEL=$(rpm --eval %rhel)
+        if [[ "${RHEL}" -eq 10 ]]; then
+            yum install oracle-epel-release-el10
+        else
+            yum -y install epel-release
+        fi
         if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
             until yum -y install centos-release-scl; do
                 echo "waiting"
                 sleep 1
             done
-            yum -y install epel-release
             INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel make gcc gcc-c++"
             yum -y install ${INSTALL_LIST}
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
         else
-            yum -y install epel-release
             dnf module -y disable postgresql
             dnf config-manager --set-enabled ol${RHEL}_codeready_builder
 

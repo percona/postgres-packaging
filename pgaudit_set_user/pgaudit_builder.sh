@@ -75,10 +75,8 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
+    percona-release enable telemetry testing
     percona-release enable ppg-${PG_VERSION} testing
     return
 }
@@ -201,7 +199,11 @@ install_deps() {
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
         else
-            yum -y install epel-release
+            if [ x"$RHEL" = x10 ]; then
+                yum -y install oracle-epel-release-el10
+            else
+                yum -y install epel-release
+            fi
             dnf config-manager --set-enabled ol${RHEL}_codeready_builder
             dnf module disable postgresql
 
@@ -337,6 +339,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=0x0002
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pgmajorversion 16" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -457,7 +462,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='4.1.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=16.9
+PG_VERSION=16.10
 
 check_workdir
 get_system

@@ -370,6 +370,9 @@ build_rpm(){
     fi
     export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR_VERSION}/
     export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR_VERSION}/lib/:/usr/pgsql-${PG_MAJOR_VERSION}/include/
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=0x0002
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-${PG_MAJOR_VERSION}" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?

@@ -236,7 +236,11 @@ install_deps() {
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          INSTALL_LIST="git wget rpm-build python3-virtualenv python3-setuptools libyaml-devel gcc python3-psycopg2"
+          if [ ${RHEL} = 10 ]; then
+            INSTALL_LIST="git wget rpm-build python3-setuptools libyaml-devel gcc python3-psycopg2"
+          else
+            INSTALL_LIST="git wget rpm-build python3-virtualenv python3-setuptools libyaml-devel gcc python3-psycopg2"
+          fi
           yum -y install ${INSTALL_LIST}
 	      #ln -s /usr/bin/virtualenv-2 /usr/bin/virtualenv
       fi
@@ -527,7 +531,7 @@ DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='4.0.5'
 RELEASE='1'
-PG_VERSION=16.9
+PG_VERSION=16.10
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 

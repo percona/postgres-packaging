@@ -38,10 +38,10 @@ on:
         default: Manika-Percona/postgres-packaging
         required: true
 
-      build-postgresql:
-        description: build postgresql before actual pkg
-        default: false
-        type: boolean
+      #build-postgresql:
+      #  description: build postgresql before actual pkg
+      #  default: false
+      #  type: boolean
 
       install_deps:
         description: install_deps
@@ -97,9 +97,9 @@ jobs:
         else
          cp postgres-packaging/${{ inputs.package }}/*builder.sh pkg/pkg-builder.sh
         fi
-        if [[ ${{ inputs.build-postgresql }} ]]; then
-         cp postgres-packaging/postgres/ppg_builder.sh pkg/pg-builder.sh
-        fi
+        #if [[ ${{ inputs.build-postgresql }} ]]; then
+        # cp postgres-packaging/postgres/ppg_builder.sh pkg/pg-builder.sh
+        #fi
        shell: bash
 
      - name: Upload build script as artifact
@@ -134,9 +134,9 @@ jobs:
           chmod 755 *-builder.sh
         shell: bash
 
-      - name: Create a working directory for PG
-        if: inputs.build-postgresql
-        run: mkdir postgres
+      #- name: Create a working directory for PG
+      #  if: inputs.build-postgresql
+      #  run: mkdir postgres
 
       - name: Create a working directory
         run: mkdir ${{ inputs.package }}
@@ -144,19 +144,19 @@ jobs:
       - name: Copy build scripts in required directories
         run: |
           cp pkg-builder.sh ${{ inputs.package }}/
-          if [ "${{ inputs.build-postgresql }}" = "true" ]; then
-           cp pg-builder.sh postgres/
-          fi
+          #if [ "${{ inputs.build-postgresql }}" = "true" ]; then
+          # cp pg-builder.sh postgres/
+          #fi
         shell: bash
 
-      - name: Build PG before actual pkg
-        if: inputs.build-postgresql
-        run: |
-          cd postgres
-          mkdir test
-          ./pg-builder.sh --builddir=$(pwd)/test --branch=REL_15_13 --install_deps=1
-          ./pg-builder.sh --builddir=$(pwd)/test --branch=REL_15_13 --get_sources=1 --build_src_rpm=1 --build_rpm=1
-        shell: bash
+      #- name: Build PG before actual pkg
+      #  if: inputs.build-postgresql
+      #  run: |
+      #    cd postgres
+      #    mkdir test
+      #    ./pg-builder.sh --builddir=$(pwd)/test --branch=REL_15_13 --install_deps=1
+      #    ./pg-builder.sh --builddir=$(pwd)/test --branch=REL_15_13 --get_sources=1 --build_src_rpm=1 --build_rpm=1
+      #  shell: bash
 
       - name: Install dependencies
         if: inputs.install_deps
@@ -166,17 +166,17 @@ jobs:
           ./pkg-builder.sh --builddir=$(pwd)/test --branch=${{ inputs.branch }} --install_deps=1 ${{ inputs.additional_options }}
         shell: bash
 
-      - name: Install PG rpm
-        if: inputs.build-postgresql
-        run: |
-          #wget https://repo.percona.com/telemetry/yum/testing/10/RPMS/x86_64/percona-telemetry-agent-1.0.4-1.el10.x86_64.rpm
-          #yum install percona-telemetry-agent-1.0.4-1.el10.x86_64.rpm
-          cd postgres/rpm
-          yum install percona-postgresql15-debuginfo-*.rpm
-          yum install percona-postgresql15-libs-*.rpm
-          yum install percona-postgresql15-*.rpm
-          yum install percona-postgresql15-devel-*.rpm
-        shell: bash
+      #- name: Install PG rpm
+      #  if: inputs.build-postgresql
+      #  run: |
+      #    #wget https://repo.percona.com/telemetry/yum/testing/10/RPMS/x86_64/percona-telemetry-agent-1.0.4-1.el10.x86_64.rpm
+      #    #yum install percona-telemetry-agent-1.0.4-1.el10.x86_64.rpm
+      #    cd postgres/rpm
+      #    yum install percona-postgresql15-debuginfo-*.rpm
+      #    yum install percona-postgresql15-libs-*.rpm
+      #    yum install percona-postgresql15-*.rpm
+      #    yum install percona-postgresql15-devel-*.rpm
+      #  shell: bash
 
       - name: Get Sources
         if: inputs.get_sources

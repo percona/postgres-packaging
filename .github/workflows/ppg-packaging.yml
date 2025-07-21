@@ -166,7 +166,7 @@ jobs:
           cd postgres/rpm
           rpm -ivh percona-postgresql15-debuginfo-*.rpm
           rpm -ivh percona-postgresql15-libs-*.rpm
-          yum install percona-postgresql15-*.rpm
+          rpm -ivh percona-postgresql15-*.rpm
           rpm -ivh percona-postgresql15-devel-*.rpm
         shell: bash
 

@@ -353,6 +353,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=0x0002
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -480,7 +483,7 @@ DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.5.2'
 RELEASE='1'
-PG_VERSION=16.9
+PG_VERSION=16.10
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

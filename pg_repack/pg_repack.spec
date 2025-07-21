@@ -29,7 +29,7 @@ The module is developed to be a better alternative of CLUSTER and VACUUM FULL.
 
 %prep
 %setup -q -n %{sname}-%{version}
-%patch0 -p0
+%patch -P 0 -p0
 
 %build
 %if 0%{?rhel} && 0%{?rhel} == 9

@@ -185,7 +185,7 @@ install_deps() {
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          INSTALL_LIST="git rpm-build python3-devel rpmdevtools rpmlint"
+          INSTALL_LIST="git rpm-build python3-devel python3-setuptools rpmdevtools rpmlint"
           yum -y install ${INSTALL_LIST}
       fi
     else

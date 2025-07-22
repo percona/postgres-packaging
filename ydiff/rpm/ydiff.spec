@@ -2,7 +2,7 @@
 
 Name:           ydiff
 Version:        1.2
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        View colored, incremental diff
 URL:            https://github.com/ymattw/ydiff
 License:        BSD

@@ -210,7 +210,11 @@ install_deps() {
       yum -y install wget
       yum clean all
       RHEL=$(rpm --eval %rhel)
-      yum -y install epel-release
+      if [[ "${RHEL}" -eq 10 ]]; then
+        yum install oracle-epel-release-el10
+      else
+        yum -y install epel-release
+      fi
       INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmdevtools wget perl-podlators sudo make"
       yum -y install ${INSTALL_LIST}
     else

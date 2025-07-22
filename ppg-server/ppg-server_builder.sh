@@ -200,7 +200,11 @@ install_deps() {
           dnf -y upgrade
           yum -y install perl lz4-libs c-ares-devel
       fi
-      INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
+      if [[ "${RHEL}" -eq 10 ]]; then
+        INSTALL_LIST="git rpm-build rpmdevtools"
+      else
+        INSTALL_LIST="git rpm-build rpmdevtools rpmlint"
+      fi
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 
@@ -442,7 +446,7 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-PG_VERSION=15.14
+PG_VERSION=15.13
 BRANCH="v${PG_VERSION}"
 REPO="https://github.com/percona/postgres-packaging.git"
 PRODUCT=percona-ppg-server-15

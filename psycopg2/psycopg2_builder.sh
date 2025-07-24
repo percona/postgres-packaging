@@ -185,9 +185,15 @@ install_deps() {
       add_percona_yum_repo
       yum clean all
       RHEL=$(rpm --eval %rhel)
+      if [[ "${RHEL}" -eq 10 ]]; then
+        yum install oracle-epel-release-el10
+        dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+      else
+        yum -y install epel-release
+        dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
+      fi
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql || true
-          dnf config-manager --set-enabled codeready-builder-for-rhel-${RHEL}-x86_64-rpms
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
@@ -198,7 +204,6 @@ install_deps() {
             echo "waiting"
             sleep 1
         done
-        yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable

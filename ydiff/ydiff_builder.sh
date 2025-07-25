@@ -177,8 +177,13 @@ install_deps() {
       if [ x"$RHEL" = x8 ]; then
           switch_to_vault_repo
       fi
-      yum -y install epel-release wget
+      yum -y install wget
       yum clean all
+      if [[ "${RHEL}" -eq 10 ]]; then
+        yum install oracle-epel-release-el10
+      else
+        yum -y install epel-release
+      fi
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} -gt 7 ]; then
           yum config-manager --set-enabled PowerTools || yum config-manager --set-enabled powertools || true
@@ -191,7 +196,7 @@ install_deps() {
           dnf clean all
           rm -r /var/cache/dnf
           dnf -y upgrade
-          INSTALL_LIST="git wget rpm-build python3-devel rpmdevtools"
+          INSTALL_LIST="git wget rpm-build python3-devel python3-setuptools rpmdevtools"
           yum -y install ${INSTALL_LIST}
       fi
     else

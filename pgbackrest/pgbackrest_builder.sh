@@ -80,9 +80,6 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} testing
     return
@@ -210,6 +207,11 @@ install_deps() {
       add_percona_yum_repo
       yum clean all
       RHEL=$(rpm --eval %rhel)
+      if [[ "${RHEL}" -eq 10 ]]; then
+          yum install oracle-epel-release-el10
+      else
+          yum -y install epel-release
+      fi
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
           dnf config-manager --enable ol${RHEL}_codeready_builder
@@ -224,7 +226,6 @@ install_deps() {
             echo "waiting"
             sleep 1
         done
-        yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
         yum -y install libyaml-devel
         source /opt/rh/devtoolset-7/enable
@@ -512,7 +513,7 @@ DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='2.55.0'
 RELEASE='1'
-PG_VERSION=14.18
+PG_VERSION=14.19
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

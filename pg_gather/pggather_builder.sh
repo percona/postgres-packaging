@@ -75,9 +75,6 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${BRANCH} testing
     return
@@ -176,7 +173,11 @@ install_deps() {
             sleep 1
         done
       fi
-      INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
+      if [[ "${RHEL}" -eq 10 ]]; then
+        INSTALL_LIST="git rpm-build rpmdevtools wget"
+      else
+        INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
+      fi
       yum -y install ${INSTALL_LIST}
     else
       apt-get update || true
@@ -421,7 +422,7 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="14.18"
+BRANCH="14.19"
 GIT_REPO="https://github.com/percona/postgres-packaging"
 PRODUCT=percona-pg_gather
 DEBUG=0

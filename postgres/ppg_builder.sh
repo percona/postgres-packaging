@@ -118,8 +118,10 @@ get_sources(){
         git checkout -b ${VERSION} remotes/origin/${VERSION}
     cd ../
 
-    # Add pg_tde_change_key_provider binary to package.
+    # Add pg_tde binaries to package.
     echo "usr/lib/postgresql/*/bin/pg_tde_change_key_provider" >> deb_packaging/debian/postgresql-${VERSION}.install
+    echo "usr/lib/postgresql/*/bin/pg_tde_archive_decrypt" >> deb_packaging/debian/postgresql-${VERSION}.install
+    echo "usr/lib/postgresql/*/bin/pg_tde_restore_encrypt" >> deb_packaging/debian/postgresql-${VERSION}.install
 
     mv deb_packaging/debian ./
     rm -rf deb_packaging

@@ -195,9 +195,13 @@ install_deps() {
 
     if [ "x$OS" = "xrpm" ]; then
       RHEL=$(rpm --eval %rhel)
-      yum -y install epel-release
       #add_percona_yum_repo
       yum clean all
+      if [[ "${RHEL}" -eq 10 ]]; then
+        yum install oracle-epel-release-el10
+      else
+        yum -y install epel-release
+      fi
       if [ ${RHEL} -gt 7 ]; then
           #dnf -y module disable postgresql
           dnf config-manager --set-enabled ol${RHEL}_codeready_builder

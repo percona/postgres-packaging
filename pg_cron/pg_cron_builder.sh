@@ -74,15 +74,12 @@ check_workdir(){
 }
 
 add_percona_yum_repo(){
-    if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
-    then
-        wget http://jenkins.percona.com/yum-repo/percona-dev.repo
+    #if [ ! -f /etc/yum.repos.d/percona-dev.repo ]
+    #then
+        #wget http://jenkins.percona.com/yum-repo/percona-dev.repo
         #mv -f percona-dev.repo /etc/yum.repos.d/
-    fi
+    #fi
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} testing
     return
@@ -207,22 +204,25 @@ install_deps() {
     if [ "x$OS" = "xrpm" ]; then
         yum -y install wget
         add_percona_yum_repo
-        wget http://jenkins.percona.com/yum-repo/percona-dev.repo
+        #wget http://jenkins.percona.com/yum-repo/percona-dev.repo
         #mv -f percona-dev.repo /etc/yum.repos.d/
         yum clean all
         RHEL=$(rpm --eval %rhel)
+        if [[ "${RHEL}" -eq 10 ]]; then
+            yum install oracle-epel-release-el10
+        else
+            yum -y install epel-release
+        fi
         if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
             until yum -y install centos-release-scl; do
                 echo "waiting"
                 sleep 1
             done
-            yum -y install epel-release
             INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel make gcc gcc-c++"
             yum -y install ${INSTALL_LIST}
             source /opt/rh/devtoolset-7/enable
             source /opt/rh/llvm-toolset-7/enable
         else
-            yum -y install epel-release
             dnf module -y disable postgresql
             dnf config-manager --set-enabled ol${RHEL}_codeready_builder
 
@@ -361,6 +361,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=0x0002
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -493,7 +496,7 @@ DEB_RELEASE=2
 REVISION=0
 BRANCH="v1.6.2"
 PG_MAJOR_VERSION=13
-PG_VERSION="13.21"
+PG_VERSION="13.22"
 REPO="https://github.com/citusdata/pg_cron.git"
 PRODUCT=percona-pg-cron_${PG_MAJOR_VERSION}
 DEBUG=0

@@ -295,11 +295,14 @@ install_deps() {
     CURPLACE=$(pwd)
     if [ "$OS" == "rpm" ]
     then
-        yum -y install epel-release wget
+        if [[ "${RHEL}" -eq 10 ]]; then
+            yum install oracle-epel-release-el10
+            dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+        else
+            yum -y install epel-release
+        fi
+        yum -y install wget
         yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-        wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-        mv percona-release.sh /usr/bin/percona-release
-        chmod 777 /usr/bin/percona-release
         percona-release enable ppg-${PG_RELEASE} testing
         yum -y install git libtool bison flex byacc
 
@@ -501,6 +504,9 @@ build_rpm(){
     fi
     export LIBPQ_DIR=/usr/pgsql-${PG_RELEASE}/
     export LIBRARY_PATH=/usr/pgsql-${PG_RELEASE}/lib/:/usr/pgsql-${PG_RELEASE}/include/
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=$(( 0x0001 | 0x0002 ))
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" \
     --define "pgpool_version ${VERSION}" --define "pg_version ${PG_VER}" --define "pghome /usr/pgsql-${PG_VER}" \
     --define "pgsql_ver ${PG_VER}0" --define "with-pgsql-includedir /usr/pgsql-${PG_VER}/include/" \
@@ -623,7 +629,7 @@ RPM_RELEASE=1
 DEB_RELEASE=1
 REPO="https://git.postgresql.org/git/pgpool2.git"
 VERSION="4.6.0"
-PG_RELEASE=13.21
+PG_RELEASE=13.22
 GIT_BUILD_REPO="https://github.com/percona/postgres-packaging.git"
 BUILD_BRANCH=${PG_RELEASE}
 parse_arguments PICK-ARGS-FROM-ARGV "$@"

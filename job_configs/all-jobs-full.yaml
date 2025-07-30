@@ -1,0 +1,370 @@
+hetzner-etcd-RELEASE:
+  job_name: hetzner-etcd-RELEASE
+  dsl_source: ../ppg/etcd.yml
+  script_path: ../ppg/etcd.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    ETCD_VERSION: 3.5.13
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-haproxy-RELEASE:
+  job_name: hetzner-haproxy-RELEASE
+  dsl_source: ../ppg/haproxy.yml
+  script_path: ../ppg/haproxy.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/haproxy-packaging.git
+    PG_BRANCH: v2.8.10
+    GIT_BRANCH: main
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-patroni-RELEASE:
+  job_name: hetzner-patroni-RELEASE
+  dsl_source: ../ppg/patroni.yml
+  script_path: ../ppg/patroni.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: 3.1.0
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-percona-postgis-RELEASE:
+  job_name: hetzner-percona-postgis-RELEASE
+  dsl_source: ../ppg/percona-postgis.yml
+  script_path: ../ppg/percona-postgis.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    GIT_BRANCH: '16.10'
+    POSTGIS_GITREPO: https://github.com/postgis/postgis.git
+    POSTGIS_BRANCH: stable-3.3
+    POSTGIS_VERSION: '3.3'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    POSTGIS_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pgaudit_set_user-RELEASE:
+  job_name: hetzner-pgaudit_set_user-RELEASE
+  dsl_source: ../ppg/pgaudit_set_user.yml
+  script_path: ../ppg/pgaudit_set_user.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pgaudit-RELEASE:
+  job_name: hetzner-pgaudit-RELEASE
+  dsl_source: ../ppg/pgaudit.yml
+  script_path: ../ppg/pgaudit.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pgbackrest-RELEASE:
+  job_name: hetzner-pgbackrest-RELEASE
+  dsl_source: ../ppg/pgbackrest.yml
+  script_path: ../ppg/pgbackrest.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pgbadger-RELEASE:
+  job_name: hetzner-pgbadger-RELEASE
+  dsl_source: ../ppg/pgbadger.yml
+  script_path: ../ppg/pgbadger.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pgbouncer-RELEASE:
+  job_name: hetzner-pgbouncer-RELEASE
+  dsl_source: ../ppg/pgbouncer.yml
+  script_path: ../ppg/pgbouncer.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pg_cron-RELEASE:
+  job_name: hetzner-pg_cron-RELEASE
+  dsl_source: ../ppg/pg_cron.yml
+  script_path: ../ppg/pg_cron.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: '16.10'
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pg_gather-RELEASE:
+  job_name: hetzner-pg_gather-RELEASE
+  dsl_source: ../ppg/pg_gather.yml
+  script_path: ../ppg/pg_gather.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pg_percona_telemetry-autobuild-RELEASE:
+  job_name: hetzner-pg_percona_telemetry-autobuild-RELEASE
+  dsl_source: ../ppg/pg_percona_telemetry_autobuild.yml
+  script_path: ../ppg/pg_percona_telemetry_autobuild.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    VERSION: 1.0.0
+    GIT_REPO: https://github.com/Percona-Lab/percona_pg_telemetry.git
+    BRANCH: main
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental\nrelease
+hetzner-pgpool2-build-RELEASE:
+  job_name: hetzner-pgpool2-build-RELEASE
+  dsl_source: ../ppg/pgpool2-build-RELEASE.yml
+  script_path: ../ppg/pgpool2-build.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    VERSION: 4.4.2
+    GIT_REPO: https://git.postgresql.org/git/pgpool2.git
+    BRANCH: V4_4_STABLE
+    GIT_BUILD_REPO: https://github.com/percona/postgres-packaging.git
+    BUILD_BRANCH: main
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PG_RELEASE: '16.10'
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental\nrelease
+hetzner-pgrepack-RELEASE:
+  job_name: hetzner-pgrepack-RELEASE
+  dsl_source: ../ppg/pgrepack.yml
+  script_path: ../ppg/pgrepack.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pg_stat_monitor-autobuild-RELEASE:
+  job_name: hetzner-pg_stat_monitor-autobuild-RELEASE
+  dsl_source: ../ppg/pg_stat_monitor-autobuild.yml
+  script_path: ../ppg/pg_stat_monitor-autobuild.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    VERSION: 2.0.0
+    GIT_REPO: https://github.com/percona/pg_stat_monitor.git
+    BRANCH: main
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental\nrelease
+hetzner-pgvector-RELEASE:
+  job_name: hetzner-pgvector-RELEASE
+  dsl_source: ../ppg/pgvector.yml
+  script_path: ../ppg/pgvector.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-postgresql-common-RELEASE:
+  job_name: hetzner-postgresql-common-RELEASE
+  dsl_source: ../ppg/postgresql-common.yml
+  script_path: ../ppg/postgresql-common.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: debian/280
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-postgresql-server-autobuild-RELEASE:
+  job_name: hetzner-postgresql-server-autobuild-RELEASE
+  dsl_source: ../ppg/postgresql_server.yml
+  script_path: ../ppg/postgresql_server.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: REL_16_RELEASE
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-ppg-server-ha-autobuild-RELEASE:
+  job_name: hetzner-ppg-server-ha-autobuild-RELEASE
+  dsl_source: ../ppg/ppg-server-ha.yml
+  script_path: ../ppg/ppg-server-ha.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-ppg-server-autobuild-RELEASE:
+  job_name: hetzner-ppg-server-autobuild-RELEASE
+  dsl_source: ../ppg/ppg-server.yml
+  script_path: ../ppg/ppg-server.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-pysyncobj-RELEASE:
+  job_name: hetzner-pysyncobj-RELEASE
+  dsl_source: ../ppg/pysyncobj.yml
+  script_path: ../ppg/pysyncobj.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: 0.3.10
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-wal2json-RELEASE:
+  job_name: hetzner-wal2json-RELEASE
+  dsl_source: ../ppg/wal2json.yml
+  script_path: ../ppg/wal2json.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: ver_1.4.4
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental
+hetzner-ydiff-RELEASE:
+  job_name: hetzner-ydiff-RELEASE
+  dsl_source: ../ppg/ydiff.yml
+  script_path: ../ppg/ydiff.groovy
+  trigger: true
+  wait: true
+  parallel_group: default
+  parameters:
+    GIT_REPO: https://github.com/percona/postgres-packaging.git
+    PG_BRANCH: '1.2'
+    GIT_BRANCH: '16.10'
+    RPM_RELEASE: '1'
+    DEB_RELEASE: '1'
+    PPG_REPO: ppg-16.10
+    CLOUD: Hetzner
+    COMPONENT: laboratory\ntesting\nexperimental

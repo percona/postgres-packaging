@@ -210,7 +210,11 @@ install_deps() {
       yum -y install wget
       yum clean all
       RHEL=$(rpm --eval %rhel)
-      yum -y install epel-release
+      if [[ "${RHEL}" -eq 10 ]]; then
+        yum install oracle-epel-release-el10
+      else
+        yum -y install epel-release
+      fi
       INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmdevtools wget perl-podlators sudo make"
       yum -y install ${INSTALL_LIST}
     else
@@ -456,15 +460,15 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="debian/277"
+BRANCH="debian/280"
 REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
 PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='277'
+VERSION='280'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}
-PG_VERSION=17.5
+PG_VERSION=17.6
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 
 check_workdir

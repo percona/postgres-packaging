@@ -31,7 +31,7 @@ schema-qualified, data types, and transaction ids.
 
 %prep
 %setup -q -n percona-%{sname}-%{version}
-%patch0 -p0
+%patch  -P 0 -p0
 
 %build
 %{__make} %{?_smp_mflags}

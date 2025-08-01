@@ -118,8 +118,10 @@ get_sources(){
         git checkout -b ${VERSION} remotes/origin/${VERSION}
     cd ../
 
-    # Add pg_tde_change_key_provider binary to package.
+    # Add pg_tde binaries to package.
     echo "usr/lib/postgresql/*/bin/pg_tde_change_key_provider" >> deb_packaging/debian/postgresql-${VERSION}.install
+    echo "usr/lib/postgresql/*/bin/pg_tde_archive_decrypt" >> deb_packaging/debian/postgresql-${VERSION}.install
+    echo "usr/lib/postgresql/*/bin/pg_tde_restore_encrypt" >> deb_packaging/debian/postgresql-${VERSION}.install
 
     mv deb_packaging/debian ./
     rm -rf deb_packaging
@@ -534,7 +536,7 @@ PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='17'
-RELEASE='5'
+RELEASE='6'
 PG_VERSION=${VERSION}.${RELEASE}
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 

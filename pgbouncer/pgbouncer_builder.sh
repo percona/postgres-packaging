@@ -75,9 +75,6 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} testing
     return
@@ -144,7 +141,6 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbouncer/percona-pgbouncer.spec
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbouncer/pgbouncer-ini.patch
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbouncer/pgbouncer.logrotate
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbouncer/pgbouncer-mkauth-py3.patch
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbouncer/pgbouncer.service
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbouncer/pgbouncer.service.rhel7
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbouncer/pgbouncer.sysconfig
@@ -201,9 +197,14 @@ install_deps() {
       if [ x"$RHEL" = x8 ]; then
           switch_to_vault_repo
       fi
-      yum -y install epel-release wget
+      yum -y install wget
       add_percona_yum_repo
       yum clean all
+      if [[ "${RHEL}" -eq 10 ]]; then
+          yum install oracle-epel-release-el10
+      else
+          yum -y install epel-release
+      fi
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
           dnf config-manager --set-enabled ol${RHEL}_codeready_builder
@@ -217,7 +218,6 @@ install_deps() {
             echo "waiting"
             sleep 1
         done
-        yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
@@ -486,7 +486,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.24.1'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=17.5
+PG_VERSION=17.6
 PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
 
 check_workdir

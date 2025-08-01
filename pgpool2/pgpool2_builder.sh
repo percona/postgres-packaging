@@ -631,7 +631,7 @@ RPM_RELEASE=1
 DEB_RELEASE=1
 REPO="https://git.postgresql.org/git/pgpool2.git"
 VERSION="4.6.0"
-PG_RELEASE=17.5
+PG_RELEASE=17.6
 GIT_BUILD_REPO="https://github.com/percona/postgres-packaging.git"
 BUILD_BRANCH=${PG_RELEASE}
 parse_arguments PICK-ARGS-FROM-ARGV "$@"

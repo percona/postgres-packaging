@@ -25,7 +25,7 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
-* Thu May 08 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 16.9-1
+* Thu May 08 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 16.10-1
 - Update version for ppg-server-ha meta-package
 * Thu Feb 20 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 16.8-1
 - Update version for ppg-server-ha meta-package

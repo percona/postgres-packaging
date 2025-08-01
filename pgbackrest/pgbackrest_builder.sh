@@ -81,7 +81,6 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable telemetry testing
     percona-release enable ppg-${PG_VERSION} testing
     return
 }
@@ -208,6 +207,11 @@ install_deps() {
       add_percona_yum_repo
       yum clean all
       RHEL=$(rpm --eval %rhel)
+      if [[ "${RHEL}" -eq 10 ]]; then
+          yum install oracle-epel-release-el10
+      else
+          yum -y install epel-release
+      fi
       if [ ${RHEL} -gt 7 ]; then
           dnf -y module disable postgresql
           dnf config-manager --enable ol${RHEL}_codeready_builder
@@ -222,7 +226,6 @@ install_deps() {
             echo "waiting"
             sleep 1
         done
-        yum -y install epel-release
         yum -y install llvm-toolset-7-clang llvm5.0-devtoolset
         yum -y install libyaml-devel
         source /opt/rh/devtoolset-7/enable
@@ -232,6 +235,7 @@ install_deps() {
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
       yum -y install perl-libxml-perl || true
+
       yum install meson gcc make git autoconf libtool cmake
       git clone https://github.com/ianlancetaylor/libbacktrace.git
       cd libbacktrace/

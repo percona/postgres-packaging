@@ -177,8 +177,13 @@ install_deps() {
       if [ x"$RHEL" = x8 ]; then
           switch_to_vault_repo
       fi
-      yum -y install epel-release wget
+      yum -y install wget
       yum clean all
+      if [[ "${RHEL}" -eq 10 ]]; then
+        yum install oracle-epel-release-el10
+      else
+        yum -y install epel-release
+      fi
       RHEL=$(rpm --eval %rhel)
       if [ ${RHEL} -gt 7 ]; then
           yum config-manager --set-enabled PowerTools || yum config-manager --set-enabled powertools || true

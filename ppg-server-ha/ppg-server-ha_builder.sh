@@ -77,9 +77,6 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} testing
     return
@@ -192,7 +189,7 @@ install_deps() {
     if [ "x$OS" = "xrpm" ]; then
       RHEL=$(rpm --eval %rhel)
       yum -y install wget
-      #add_percona_yum_repo
+      add_percona_yum_repo
       yum clean all
 
       if [ ${RHEL} = 8 ]; then
@@ -203,7 +200,11 @@ install_deps() {
           dnf -y upgrade
           yum -y install perl lz4-libs c-ares-devel
       fi
-      INSTALL_LIST="git rpm-build rpmdevtools wget"
+      if [[ "${RHEL}" -eq 10 ]]; then
+        INSTALL_LIST="git wget rpm-build rpmdevtools"
+      else
+        INSTALL_LIST="git wget rpm-build rpmdevtools rpmlint"
+      fi
       yum -y install ${INSTALL_LIST}
       yum -y install lz4 || true
 
@@ -443,7 +444,7 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-PG_VERSION=16.9
+PG_VERSION=16.10
 BRANCH="v${PG_VERSION}"
 REPO="https://github.com/percona/postgres-packaging.git"
 PRODUCT=percona-ppg-server-ha-16

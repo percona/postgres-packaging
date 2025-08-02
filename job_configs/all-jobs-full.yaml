@@ -276,8 +276,8 @@ hetzner-postgresql-common-RELEASE:
     COMPONENT: laboratory
 hetzner-postgresql-server-autobuild-RELEASE:
   job_name: hetzner-postgresql-server-autobuild-RELEASE
-  dsl_source: ../ppg/postgresql-server.yml
-  script_path: ../ppg/postgresql-server.groovy
+  dsl_source: ../ppg/postgresql_server.yml
+  script_path: ../ppg/postgresql_server.groovy
   trigger: true
   wait: true
   parallel_group: default

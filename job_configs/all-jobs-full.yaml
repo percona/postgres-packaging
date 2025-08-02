@@ -7,7 +7,7 @@ hetzner-etcd-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    ETCD_VERSION: 3.5.13
+    ETCD_VERSION: 3.5.21
     GIT_BRANCH: '16.10'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
@@ -23,7 +23,7 @@ hetzner-haproxy-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/haproxy-packaging.git
-    PG_BRANCH: v2.8.10
+    PG_BRANCH: v2.8.15
     GIT_BRANCH: main
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
@@ -39,7 +39,7 @@ hetzner-patroni-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: 3.1.0
+    PG_BRANCH: 4.0.5
     GIT_BRANCH: '16.10'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
@@ -58,7 +58,7 @@ hetzner-percona-postgis-RELEASE:
     GIT_BRANCH: '16.10'
     POSTGIS_GITREPO: https://github.com/postgis/postgis.git
     POSTGIS_BRANCH: stable-3.3
-    POSTGIS_VERSION: '3.3'
+    POSTGIS_VERSION: '3.3.8'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
     POSTGIS_REPO: ppg-16.10
@@ -200,9 +200,9 @@ hetzner-pgpool2-build-RELEASE:
   wait: true
   parallel_group: default
   parameters:
-    VERSION: 4.4.2
+    VERSION: 4.6.0
     GIT_REPO: https://git.postgresql.org/git/pgpool2.git
-    BRANCH: V4_4_STABLE
+    BRANCH: V4_6_STABLE
     GIT_BUILD_REPO: https://github.com/percona/postgres-packaging.git
     BUILD_BRANCH: main
     RPM_RELEASE: '1'
@@ -234,7 +234,7 @@ hetzner-pg_stat_monitor-autobuild-RELEASE:
   wait: true
   parallel_group: default
   parameters:
-    VERSION: 2.0.0
+    VERSION: 2.2.0
     GIT_REPO: https://github.com/percona/pg_stat_monitor.git
     BRANCH: main
     RPM_RELEASE: '1'
@@ -276,8 +276,8 @@ hetzner-postgresql-common-RELEASE:
     COMPONENT: laboratory
 hetzner-postgresql-server-autobuild-RELEASE:
   job_name: hetzner-postgresql-server-autobuild-RELEASE
-  dsl_source: ../ppg/postgresql_server.yml
-  script_path: ../ppg/postgresql_server.groovy
+  dsl_source: ../ppg/postgresql-server.yml
+  script_path: ../ppg/postgresql-server.groovy
   trigger: true
   wait: true
   parallel_group: default

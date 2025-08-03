@@ -278,11 +278,11 @@ install_deps() {
             yum -y install SFCGAL SFCGAL-devel gdal38-devel proj95-devel
          fi
          if [ x"$RHEL" = x10 ]; then
-            yum -y install geos311-devel pcre2-devel
+            yum -y install geos313-devel pcre2-devel
          else
-            yum -y install geos313-devel pcre-devel
+            yum -y install geos311-devel pcre-devel
          fi
-         INSTALL_LIST="xerces-c-devel clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel libgeotiff-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config"
+         INSTALL_LIST="xerces-c-devel clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel libgeotiff-devel gmp-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all

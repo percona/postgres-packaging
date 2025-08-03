@@ -282,7 +282,7 @@ export PATH=/usr/bin:$PATH
 export ACLOCAL=aclocal
 export AUTOMAKE=automake
 export AUTOCONF=autoconf
-sh autogen.sh
+sh -x autogen.sh
 autoconf
 
 %configure --with-pgconfig=%{pginstdir}/bin/pg_config \

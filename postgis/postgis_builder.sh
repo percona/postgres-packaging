@@ -272,9 +272,11 @@ install_deps() {
          wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-srpm-macros
-         if [ x"$RHEL" = x9 -o x"$RHEL" = x10 ]; then
+         if [ x"$RHEL" = x9 ]; then
             yum -y install SFCGAL SFCGAL-devel gdal311-devel proj95-devel
-         else
+         elif [ x"$RHEL" = x10 ]; then
+            yum -y install SFCGAL SFCGAL-devel gdal311-devel proj96fix-devel
+         else 
             yum -y install SFCGAL SFCGAL-devel gdal38-devel proj95-devel
          fi
          if [ x"$RHEL" = x10 ]; then

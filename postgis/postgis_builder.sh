@@ -68,7 +68,7 @@ check_workdir(){
         exit 1
     else
         if ! test -d "$WORKDIR"
-	then
+        then
             echo >&2 "$WORKDIR is not a directory."
             exit 1
         fi
@@ -78,9 +78,6 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PPG_VERSION} testing
     return 
@@ -141,7 +138,7 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3.install
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgis.install
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-16-postgis-3.lintian-overrides
-	cp control control.in
+        cp control control.in
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
     cd ../
@@ -247,9 +244,14 @@ install_deps() {
       yum -y install wget
       add_percona_yum_repo
       yum clean all
-      yum -y install epel-release
       RHEL=$(rpm --eval %rhel)
       ARCH=$(uname -m)
+        if [[ "${RHEL}" -eq 10 ]]; then
+            yum install oracle-epel-release-el10
+            dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+        else
+            yum -y install epel-release
+        fi
       if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
           until yum -y install centos-release-scl; do
               echo "waiting"
@@ -263,19 +265,24 @@ install_deps() {
           source /opt/rh/devtoolset-7/enable
           source /opt/rh/llvm-toolset-7/enable
       else
-	 yum config-manager --enable PowerTools AppStream BaseOS *epel
-	 dnf module -y disable postgresql
+         yum config-manager --enable PowerTools AppStream BaseOS *epel
+         dnf module -y disable postgresql
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
          wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-redhat-repo-latest.noarch.rpm
          yum -y install pgdg-srpm-macros
-         if [ x"$RHEL" = x9 ]; then
+         if [ x"$RHEL" = x9 -o x"$RHEL" = x10 ]; then
             yum -y install SFCGAL SFCGAL-devel gdal311-devel proj95-devel
          else
             yum -y install SFCGAL SFCGAL-devel gdal38-devel proj95-devel
          fi
-         INSTALL_LIST="clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config"
+         if [ x"$RHEL" = x10 ]; then
+            yum -y install geos311-devel pcre2-devel
+         else
+            yum -y install geos313-devel pcre-devel
+         fi
+         INSTALL_LIST="xerces-c-devel clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql16-devel gcc make  geos geos-devel libgeotiff-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all
@@ -444,6 +451,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=0x0002
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --define "pginstdir /usr/pgsql-16" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -539,13 +549,13 @@ build_deb(){
 #    if [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbionic" ]
 #    then
         sed -i '15i DEB_BUILD_OPTIONS=nocheck' debian/rules
-	sed -i '1d' debian/percona-postgis-doc.install
+        sed -i '1d' debian/percona-postgis-doc.install
 #    fi
     if [ "x${DEBIAN}" = "xbionic" ]
     then
         sed -i '/libsfcgal/d' debian/control
         cp debian/control debian/control.in
-	sed -i "248i override_dh_shlibdeps:\n\tdh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info" debian/rules
+        sed -i "248i override_dh_shlibdeps:\n\tdh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info" debian/rules
     fi
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

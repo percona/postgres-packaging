@@ -275,7 +275,7 @@ install_deps() {
          if [ x"$RHEL" = x9 ]; then
             yum -y install SFCGAL SFCGAL-devel gdal311-devel proj95-devel
          elif [ x"$RHEL" = x10 ]; then
-            yum -y install SFCGAL SFCGAL-devel gdal311-devel proj96fix-devel
+            yum -y install SFCGAL SFCGAL-devel gdal311-devel proj96-devel
          else 
             yum -y install SFCGAL SFCGAL-devel gdal38-devel proj95-devel
          fi

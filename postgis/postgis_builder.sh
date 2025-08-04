@@ -270,8 +270,8 @@ install_deps() {
          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
          wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
-         yum -y install pgdg-redhat-repo-latest.noarch.rpm
-         yum -y install pgdg-srpm-macros
+         #yum -y install pgdg-redhat-repo-latest.noarch.rpm
+         #yum -y install pgdg-srpm-macros
          if [ x"$RHEL" = x9 ]; then
             yum -y install SFCGAL SFCGAL-devel gdal311-devel proj95-devel
          elif [ x"$RHEL" = x10 ]; then

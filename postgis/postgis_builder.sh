@@ -154,7 +154,7 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm -f postgis33.spec postgis33-3.3.0-gdalfpic.patch
-        wget https://raw.githubusercontent.com/Manika-Percona/postgres-packaging/13.22/postgis/rpm/percona-postgis33.spec
+        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/percona-postgis33.spec
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/rpm/postgis33-3.3.0-gdalfpic.patch
     cd ../
     cd ${WORKDIR}
@@ -599,7 +599,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION=${POSTGIS_VERSION}
 RELEASE='8'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PPG_VERSION=13.21
+PPG_VERSION=13.22
 
 check_workdir
 get_system

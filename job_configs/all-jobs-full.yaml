@@ -282,8 +282,8 @@ hetzner-postgresql-server-autobuild-RELEASE:
   wait: true
   parallel_group: default
   parameters:
-    GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: REL_17_6
+    GIT_REPO: https://github.com/Percona-Lab/postgres.git
+    PG_BRANCH: TDE_REL_17_STABLE
     GIT_BRANCH: '17.6'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'

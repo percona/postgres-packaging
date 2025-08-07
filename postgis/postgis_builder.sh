@@ -78,9 +78,6 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PPG_VERSION} testing
     return 
@@ -247,9 +244,14 @@ install_deps() {
       yum -y install wget
       add_percona_yum_repo
       yum clean all
-      yum -y install epel-release
       RHEL=$(rpm --eval %rhel)
       ARCH=$(uname -m)
+      if [[ "${RHEL}" -eq 10 ]]; then
+          yum install oracle-epel-release-el10
+          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
+      else
+          yum -y install epel-release
+      fi
       if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
           until yum -y install centos-release-scl; do
               echo "waiting"
@@ -276,10 +278,17 @@ install_deps() {
          dnf module install llvm-toolset:ol8
          if [ x"$RHEL" = x9 ]; then
             yum -y install SFCGAL SFCGAL-devel gdal311-devel proj95-devel
+         elif [ x"$RHEL" = x10 ]; then
+            yum -y install SFCGAL SFCGAL-devel gdal311-devel proj96-devel
          else
             yum -y install SFCGAL SFCGAL-devel gdal38-devel proj95-devel
          fi
-         INSTALL_LIST="clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql13-devel gcc make  geos geos-devel libgeotiff-devel pcre-devel gmp-devel geos311-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config"
+         if [ x"$RHEL" = x10 ]; then
+            yum -y install geos313-devel pcre2-devel which
+         else
+            yum -y install geos311-devel pcre-devel
+         fi
+         INSTALL_LIST="xerces-c-devel clang-devel clang llvm-devel git rpm-build  autoconf libtool flex rpmdevtools wget rpmlint percona-postgresql13-devel gcc make  geos geos-devel libgeotiff-devel gmp-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config"
          yum -y install ${INSTALL_LIST}
          yum -y install binutils gcc gcc-c++
          yum clean all
@@ -448,6 +457,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
+    if [[ "${RHEL}" -eq 10 ]]; then
+        export QA_RPATHS=0x0002
+    fi
     rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --define "pginstdir /usr/pgsql-13" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -587,7 +599,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION=${POSTGIS_VERSION}
 RELEASE='8'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PPG_VERSION=13.21
+PPG_VERSION=13.22
 
 check_workdir
 get_system

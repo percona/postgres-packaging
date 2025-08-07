@@ -9,6 +9,18 @@
 
 # Override some variables. PostGIS 3.3 is best served with GeOS 3.11,
 # GDAL 3.4 and PROJ 9.0:
+%if 0%{?rhel} && 0%{?rhel} == 10
+%global geosfullversion 3.13.1
+%global geosmajorversion 313
+%global geosinstdir /usr/geos%{geosmajorversion}
+%global gdalfullversion 3.11.3
+%global gdalmajorversion 311
+%global gdalinstdir /usr/gdal%{gdalmajorversion}
+%global projmajorversion 96
+%global projfullversion 9.6.2
+%global projinstdir /usr/proj%{projmajorversion}
+%endif
+
 %if 0%{?rhel} && 0%{?rhel} == 9
 %global geosfullversion 3.11.2
 %global geosmajorversion 311
@@ -94,8 +106,15 @@ Patch0:		%{sname}%{postgiscurrmajorversion}-%{postgismajorversion}.0-gdalfpic.pa
 URL:		https://www.postgis.net/
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel geos%{geosmajorversion}-devel >= %{geosfullversion}
-BuildRequires:	libgeotiff%{libgeotiffmajorversion}-devel
-BuildRequires:	pgdg-srpm-macros >= 1.0.25 pcre-devel gmp-devel
+BuildRequires:	libgeotiff%{libgeotiffmajorversion}-devel libxml2 libxslt autoconf
+BuildRequires:	pgdg-srpm-macros >= 1.0.49 gmp-devel
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+BuildRequires:  pcre2-devel
+Requires:       pcre2
+%else
+BuildRequires:  pcre-devel
+Requires:       pcre
+%endif
 %if 0%{?suse_version} >= 1500
 Requires:	libgmp10
 %else
@@ -118,6 +137,7 @@ Requires:	SFCGAL
 %endif
 %if %{raster}
 BuildRequires:	gdal%{gdalmajorversion}-devel >= %{gdalfullversion}
+Requires:       gdal%{gdalmajorversion}-libs >= %{gdalfullversion}
 %endif
 
 
@@ -140,6 +160,7 @@ Requires:	libjson-c5
 Requires:	libxerces-c-3_1
 %else
 Requires:	json-c xerces-c
+BuildRequires:  xerces-c-devel
 %endif
 Requires(post):	%{_sbindir}/update-alternatives
 
@@ -250,20 +271,26 @@ This packages provides JIT support for postgis33
 
 %build
 LDFLAGS="-Wl,-rpath,%{geosinstdir}/lib64 ${LDFLAGS}" ; export LDFLAGS
-LDFLAGS="-Wl,-rpath,%{projinstdir}/lib ${LDFLAGS}" ; export LDFLAGS
+LDFLAGS="-Wl,-rpath,%{projinstdir}/lib64 ${LDFLAGS}" ; export LDFLAGS
 LDFLAGS="-Wl,-rpath,%{libspatialiteinstdir}/lib ${LDFLAGS}" ; export LDFLAGS
 SHLIB_LINK="$SHLIB_LINK -Wl,-rpath,%{geosinstdir}/lib64" ; export SHLIB_LINK
 SFCGAL_LDFLAGS="$SFCGAL_LDFLAGS -L/usr/lib64"; export SFCGAL_LDFLAGS
 LDFLAGS="$LDFLAGS -L%{geosinstdir}/lib64 -lgeos_c -L%{projinstdir}/lib64 -L%{gdalinstdir}/lib -L%{libgeotiffinstdir}/lib -ltiff -L/usr/lib64"; export LDFLAGS
 CFLAGS="$CFLAGS -I%{gdalinstdir}/include"; export CFLAGS
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:%{projinstdir}/lib64/pkgconfig
-
-sh autogen.sh
+export PATH=/usr/bin:$PATH
+export ACLOCAL=aclocal
+export AUTOMAKE=automake
+export AUTOCONF=autoconf
+sh -x autogen.sh
 autoconf
 
 %configure --with-pgconfig=%{pginstdir}/bin/pg_config \
+        --enable-lto \
         --with-projdir=%{projinstdir} \
-	--enable-lto \
+%if !%raster
+        --without-raster \
+%endif
 %if %{sfcgal}
 	--with-sfcgal=%{_bindir}/sfcgal-config \
 %endif
@@ -281,7 +308,7 @@ autoconf
 
 SHLIB_LINK="$SHLIB_LINK" %{__make} LPATH=`%{pginstdir}/bin/pg_config --pkglibdir` shlib="%{sname}-%{postgissomajorversion}.so"
 
-%{__make} %{?_smp_mflags}
+%{__make} %{?_smp_mflags} -C extensions
 
 %if %utils
  SHLIB_LINK="$SHLIB_LINK" %{__make} %{?_smp_mflags} -C utils
@@ -317,11 +344,7 @@ fi
 %defattr(-,root,root)
 %doc COPYING CREDITS NEWS TODO README.%{sname} doc/html loader/README.* doc/%{sname}.xml doc/ZMSgeoms.txt
 %license LICENSE.TXT
-#%if 0%{?rhel} == 7
 %{pginstdir}/doc/extension/README.address_standardizer
-#%else
-#%{pginstdir}/share/doc/extension/README.address_standardizer
-#%endif
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_comments.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_upgrade*.sql

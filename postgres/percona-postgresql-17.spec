@@ -1089,6 +1089,8 @@ fi
 %{pgbaseinstdir}/bin/reindexdb
 %{pgbaseinstdir}/bin/vacuumdb
 %{pgbaseinstdir}/bin/pg_tde_change_key_provider
+%{pgbaseinstdir}/bin/pg_tde_archive_decrypt
+%{pgbaseinstdir}/bin/pg_tde_restore_encrypt
 %{pgbaseinstdir}/share/errcodes.txt
 %{pgbaseinstdir}/share/man/man1/clusterdb.*
 %{pgbaseinstdir}/share/man/man1/createdb.*

@@ -154,7 +154,6 @@ Requires:	hdf5
 Requires:	gdal%{gdalmajorversion}-libs >= %{gdalfullversion}
 %endif
 
-Requires:	pcre
 %if 0%{?suse_version} >= 1315
 Requires:	libjson-c5
 Requires:	libxerces-c-3_1

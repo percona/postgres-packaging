@@ -128,7 +128,7 @@ get_sources(){
         for file in $(ls | grep postgis); do
             mv $file "percona-$file"
         done
-        rm -f rules* control* percona-postgis.install
+        rm -f rules* control* percona-postgis.install patches/sfcgal*
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/rules
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/control
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-14-postgis-3-scripts.install
@@ -139,6 +139,8 @@ get_sources(){
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgis.install
         wget https://raw.githubusercontent.com/percona/postgres-packaging/${PPG_VERSION}/postgis/debian/percona-postgresql-14-postgis-3.lintian-overrides
 	cp control control.in
+        # Remove the sfcgal patch entry from patches/series
+        sed -i '/sfcgal/d' patches/series
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
         echo "9" > compat
     cd ../

@@ -3,7 +3,7 @@
 
 Name:		percona-%{sname}
 Version:	4.1.0
-Release:	4%{?dist}
+Release:	5%{?dist}
 Epoch:      1
 Provides:	pgaudit15_set_user = %{version}-%{release}
 URL:        https://github.com/pgaudit/set_user.git

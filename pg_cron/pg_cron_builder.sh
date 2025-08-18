@@ -495,7 +495,7 @@ PRODUCT=percona-pg-cron_${PG_MAJOR_VERSION}
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 VERSION='1.6.2'
-RELEASE='1'
+RELEASE='2'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir

@@ -13,7 +13,7 @@ hetzner-etcd-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-haproxy-RELEASE:
   job_name: hetzner-haproxy-RELEASE
   dsl_source: ../ppg/haproxy.yml
@@ -29,7 +29,7 @@ hetzner-haproxy-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-patroni-RELEASE:
   job_name: hetzner-patroni-RELEASE
   dsl_source: ../ppg/patroni.yml
@@ -39,13 +39,13 @@ hetzner-patroni-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: 4.0.5
+    PG_BRANCH: v4.0.6
     GIT_BRANCH: '16.10'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-percona-postgis-RELEASE:
   job_name: hetzner-percona-postgis-RELEASE
   dsl_source: ../ppg/percona-postgis.yml
@@ -59,11 +59,11 @@ hetzner-percona-postgis-RELEASE:
     POSTGIS_GITREPO: https://github.com/postgis/postgis.git
     POSTGIS_BRANCH: stable-3.3
     POSTGIS_VERSION: '3.3.8'
-    RPM_RELEASE: '1'
-    DEB_RELEASE: '1'
+    RPM_RELEASE: '2'
+    DEB_RELEASE: '2'
     POSTGIS_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pgaudit_set_user-RELEASE:
   job_name: hetzner-pgaudit_set_user-RELEASE
   dsl_source: ../ppg/pgaudit_set_user.yml
@@ -73,13 +73,13 @@ hetzner-pgaudit_set_user-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: REL4_1_0
     GIT_BRANCH: '16.10'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pgaudit-RELEASE:
   job_name: hetzner-pgaudit-RELEASE
   dsl_source: ../ppg/pgaudit.yml
@@ -89,13 +89,13 @@ hetzner-pgaudit-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: 16.1
     GIT_BRANCH: '16.10'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pgbackrest-RELEASE:
   job_name: hetzner-pgbackrest-RELEASE
   dsl_source: ../ppg/pgbackrest.yml
@@ -105,13 +105,13 @@ hetzner-pgbackrest-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: release/2.56.0
     GIT_BRANCH: '16.10'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pgbadger-RELEASE:
   job_name: hetzner-pgbadger-RELEASE
   dsl_source: ../ppg/pgbadger.yml
@@ -121,13 +121,13 @@ hetzner-pgbadger-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: v13.1
     GIT_BRANCH: '16.10'
-    RPM_RELEASE: '1'
-    DEB_RELEASE: '1'
+    RPM_RELEASE: '2'
+    DEB_RELEASE: '2'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pgbouncer-RELEASE:
   job_name: hetzner-pgbouncer-RELEASE
   dsl_source: ../ppg/pgbouncer.yml
@@ -137,13 +137,13 @@ hetzner-pgbouncer-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: pgbouncer_1.24.1
     GIT_BRANCH: '16.10'
-    RPM_RELEASE: '1'
-    DEB_RELEASE: '1'
+    RPM_RELEASE: '2'
+    DEB_RELEASE: '2'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pg_cron-RELEASE:
   job_name: hetzner-pg_cron-RELEASE
   dsl_source: ../ppg/pg_cron.yml
@@ -153,13 +153,13 @@ hetzner-pg_cron-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: '16.10'
+    PG_BRANCH: 'v1.6.2'
     GIT_BRANCH: '16.10'
-    RPM_RELEASE: '1'
-    DEB_RELEASE: '1'
+    RPM_RELEASE: '2'
+    DEB_RELEASE: '2'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pg_gather-RELEASE:
   job_name: hetzner-pg_gather-RELEASE
   dsl_source: ../ppg/pg_gather.yml
@@ -169,13 +169,13 @@ hetzner-pg_gather-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: v31
     GIT_BRANCH: '16.10'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pg_percona_telemetry-autobuild-RELEASE:
   job_name: hetzner-pg_percona_telemetry-autobuild-RELEASE
   dsl_source: ../ppg/pg_percona_telemetry_autobuild.yml
@@ -191,7 +191,8 @@ hetzner-pg_percona_telemetry-autobuild-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory\nrelease
+    COMPONENT: testing\nrelease
+
 hetzner-pgpool2-build-RELEASE:
   job_name: hetzner-pgpool2-build-RELEASE
   dsl_source: ../ppg/pgpool2-build-RELEASE.yml
@@ -200,16 +201,16 @@ hetzner-pgpool2-build-RELEASE:
   wait: true
   parallel_group: default
   parameters:
-    VERSION: 4.6.0
+    VERSION: 4.6.2
     GIT_REPO: https://git.postgresql.org/git/pgpool2.git
-    BRANCH: V4_6_STABLE
+    BRANCH: V4_6_2
     GIT_BUILD_REPO: https://github.com/percona/postgres-packaging.git
     BUILD_BRANCH: main
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
     PG_RELEASE: '16.10'
     CLOUD: Hetzner
-    COMPONENT: laboratory\nrelease
+    COMPONENT: testing\nrelease
 hetzner-pgrepack-RELEASE:
   job_name: hetzner-pgrepack-RELEASE
   dsl_source: ../ppg/pgrepack.yml
@@ -219,13 +220,13 @@ hetzner-pgrepack-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: ver_1.5.2
     GIT_BRANCH: '16.10'
-    RPM_RELEASE: '1'
-    DEB_RELEASE: '1'
+    RPM_RELEASE: '2'
+    DEB_RELEASE: '2'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pg_stat_monitor-autobuild-RELEASE:
   job_name: hetzner-pg_stat_monitor-autobuild-RELEASE
   dsl_source: ../ppg/pg_stat_monitor-autobuild.yml
@@ -241,7 +242,7 @@ hetzner-pg_stat_monitor-autobuild-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory\nrelease
+    COMPONENT: testing\nrelease
 hetzner-pgvector-RELEASE:
   job_name: hetzner-pgvector-RELEASE
   dsl_source: ../ppg/pgvector.yml
@@ -251,13 +252,13 @@ hetzner-pgvector-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: v0.8.0
     GIT_BRANCH: '16.10'
-    RPM_RELEASE: '1'
-    DEB_RELEASE: '1'
+    RPM_RELEASE: '3'
+    DEB_RELEASE: '3'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-postgresql-common-RELEASE:
   job_name: hetzner-postgresql-common-RELEASE
   dsl_source: ../ppg/postgresql-common.yml
@@ -273,7 +274,7 @@ hetzner-postgresql-common-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-postgresql-server-autobuild-RELEASE:
   job_name: hetzner-postgresql-server-autobuild-RELEASE
   dsl_source: ../ppg/postgresql_server.yml
@@ -289,7 +290,7 @@ hetzner-postgresql-server-autobuild-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-ppg-server-ha-autobuild-RELEASE:
   job_name: hetzner-ppg-server-ha-autobuild-RELEASE
   dsl_source: ../ppg/ppg-server-ha.yml
@@ -304,7 +305,7 @@ hetzner-ppg-server-ha-autobuild-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-ppg-server-autobuild-RELEASE:
   job_name: hetzner-ppg-server-autobuild-RELEASE
   dsl_source: ../ppg/ppg-server.yml
@@ -319,7 +320,7 @@ hetzner-ppg-server-autobuild-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-pysyncobj-RELEASE:
   job_name: hetzner-pysyncobj-RELEASE
   dsl_source: ../ppg/pysyncobj.yml
@@ -335,7 +336,7 @@ hetzner-pysyncobj-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-wal2json-RELEASE:
   job_name: hetzner-wal2json-RELEASE
   dsl_source: ../ppg/wal2json.yml
@@ -345,13 +346,13 @@ hetzner-wal2json-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: ver_1.4.4
+    PG_BRANCH: wal2json_2_6
     GIT_BRANCH: '16.10'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing
 hetzner-ydiff-RELEASE:
   job_name: hetzner-ydiff-RELEASE
   dsl_source: ../ppg/ydiff.yml
@@ -367,4 +368,4 @@ hetzner-ydiff-RELEASE:
     DEB_RELEASE: '1'
     PPG_REPO: ppg-16.10
     CLOUD: Hetzner
-    COMPONENT: laboratory
+    COMPONENT: testing

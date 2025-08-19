@@ -1,5 +1,5 @@
 diff --git a/config/llvm.m4 b/config/llvm.m4
-index c6cf8858f6..f25efa25ed 100644
+index 7a3fff50638..6ee9e55eefe 100644
 --- a/config/llvm.m4
 +++ b/config/llvm.m4
 @@ -47,20 +47,20 @@ AC_DEFUN([PGAC_LLVM_SUPPORT],
@@ -16,7 +16,7 @@ index c6cf8858f6..f25efa25ed 100644
 -  for pgac_option in `$LLVM_CONFIG --ldflags`; do
 +  for pgac_option in `$LLVM_CONFIG --link-static --ldflags`; do
      case $pgac_option in
-       -L*) LDFLAGS="$LDFLAGS $pgac_option";;
+       -L*) LLVM_LIBS="$LLVM_LIBS $pgac_option";;
      esac
    done
  
@@ -45,10 +45,10 @@ index c6cf8858f6..f25efa25ed 100644
        -l*) LLVM_LIBS="$LLVM_LIBS $pgac_option";;
      esac
 diff --git a/configure b/configure
-index d5a6d499c1..658db7033a 100755
+index 240e84a2099..5fef2cb48ef 100755
 --- a/configure
 +++ b/configure
-@@ -5247,20 +5247,20 @@ fi
+@@ -5205,20 +5205,20 @@ fi
  
    # Collect compiler flags necessary to build the LLVM dependent
    # shared library.
@@ -62,7 +62,7 @@ index d5a6d499c1..658db7033a 100755
 -  for pgac_option in `$LLVM_CONFIG --ldflags`; do
 +  for pgac_option in `$LLVM_CONFIG --link-static --ldflags`; do
      case $pgac_option in
-       -L*) LDFLAGS="$LDFLAGS $pgac_option";;
+       -L*) LLVM_LIBS="$LLVM_LIBS $pgac_option";;
      esac
    done
  
@@ -72,7 +72,7 @@ index d5a6d499c1..658db7033a 100755
      case $pgac_option in
        -fno-rtti*) LLVM_CXXFLAGS="$LLVM_CXXFLAGS $pgac_option";;
        -std=*) LLVM_CXXFLAGS="$LLVM_CXXFLAGS $pgac_option";;
-@@ -5271,7 +5271,7 @@ fi
+@@ -5229,7 +5229,7 @@ fi
    # libs. As some components are optional, we can't just list all of
    # them as it'd raise an error.
    pgac_components='';
@@ -81,7 +81,7 @@ index d5a6d499c1..658db7033a 100755
      case $pgac_component in
        engine) pgac_components="$pgac_components $pgac_component";;
        debuginfodwarf) pgac_components="$pgac_components $pgac_component";;
-@@ -5285,7 +5285,7 @@ fi
+@@ -5243,7 +5243,7 @@ fi
    # And then get the libraries that need to be linked in for the
    # selected components.  They're large libraries, we only want to
    # link them into the LLVM using shared library.
@@ -90,16 +90,3 @@ index d5a6d499c1..658db7033a 100755
      case $pgac_option in
        -l*) LLVM_LIBS="$LLVM_LIBS $pgac_option";;
      esac
-diff --git a/meson.build b/meson.build
-index 1555598a75..ef1eaef64c 100644
---- a/meson.build
-+++ b/meson.build
-@@ -792,7 +792,7 @@ endif
- llvmopt = get_option('llvm')
- llvm = not_found_dep
- if add_languages('cpp', required: llvmopt, native: false)
--  llvm = dependency('llvm', version: '>=10', method: 'config-tool', required: llvmopt)
-+  llvm = dependency('llvm', version: '>=10', method: 'config-tool', required: llvmopt, static: true)
- 
-   if llvm.found()
- 

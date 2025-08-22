@@ -80,9 +80,6 @@ check_workdir(){
 
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    wget https://raw.githubusercontent.com/percona/percona-repositories/release-1.0-28/scripts/percona-release.sh
-    mv percona-release.sh /usr/bin/percona-release
-    chmod 777 /usr/bin/percona-release
     percona-release disable all
     percona-release enable ppg-${PG_VERSION} testing
     return
@@ -143,7 +140,7 @@ get_sources(){
     rm -f control rules
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/control
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/compat
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/17.5.3/pgbackrest/rules
     #wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/rules.patch
     #patch -p0 < rules.patch
     #rm rules.patch
@@ -154,7 +151,7 @@ get_sources(){
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/17.5.3/pgbackrest/pgbackrest.spec
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest-tmpfiles.d
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.logrotate

@@ -15,33 +15,33 @@ include /usr/share/dpkg/buildflags.mk
 #export DH_VERBOSE = 1
 
 %:
-        dh $@ --buildsystem=meson
+	dh $@ --buildsystem=meson
 
 override_dh_builddeb:
-        dh_builddeb -- -Zgzip
+	dh_builddeb -- -Zgzip
 
 override_dh_auto_configure:
-        # src contains a separate configure script.
-        dh_auto_configure -- --prefix=/usr --bindir=/usr/bin --buildtype=release --optimization=3
+	# src contains a separate configure script.
+	dh_auto_configure -- --prefix=/usr --bindir=/usr/bin --buildtype=release --optimization=3
 
 override_dh_auto_build:
-        # Replace user name in doc cache with the current user
-        [ $$(whoami) = root ] || sed -i "s/vagrant/$$(whoami)/g" $(CURDIR)/doc/resource/exe.cache
+	# Replace user name in doc cache with the current user
+	[ $$(whoami) = root ] || sed -i "s/vagrant/$$(whoami)/g" $(CURDIR)/doc/resource/exe.cache
 
-        perl $(CURDIR)/doc/doc.pl --out=man --out=html --cache-only \
-          --var=project-url-root=index.html --exclude=backlog \
-          --var=release-date-static=y
-        txt2man \
-          -v "pgBackRest Command Reference" \
-          -t pgbackrest \
-          -s 1 \
-          ${MANTEMPLATE} > ${CURDIR}/doc/output/man/pgbackrest.1
-        dh_auto_build
+	perl $(CURDIR)/doc/doc.pl --out=man --out=html --cache-only \
+		--var=project-url-root=index.html --exclude=backlog \
+		--var=release-date-static=y
+		txt2man \
+			-v "pgBackRest Command Reference" \
+				-t pgbackrest \
+				-s 1 \
+					${MANTEMPLATE} > ${CURDIR}/doc/output/man/pgbackrest.1
+	dh_auto_build
 
 override_dh_auto_clean:
-        ! [ -f src/Makefile ] || $(MAKE) -C src clean-all
+	! [ -f src/Makefile ] || $(MAKE) -C src clean-all
 
 # pgBackRest must be configured before the TLS server can be started.
 # Moreover a user must configure valid CA, client and server certificates.
 override_dh_installsystemd:
-        dh_installsystemd --no-enable --no-start --restart-after-upgrade
+	dh_installsystemd --no-enable --no-start --restart-after-upgrade

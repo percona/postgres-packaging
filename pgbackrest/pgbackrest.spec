@@ -1,6 +1,6 @@
 %global debug_package %{nil}
-%global pgmajorversion 16
-%global pginstdir /usr/pgsql-16
+%global pgmajorversion 17
+%global pginstdir /usr/pgsql-17
 
 # Disable RPM hardening to match manual build
 %undefine _hardened_build

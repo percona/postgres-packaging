@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+
+MANTEMPLATE="${CURDIR}/doc/output/man/pgbackrest.1.txt"
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all optimize=-lto
+export CFLAGS = -O3 -funroll-loops -ftree-vectorize -Wall -Wextra -std=c99 \
+                -Wcast-qual -Wconversion -Wformat=2 -Wmissing-prototypes \
+                -Wpointer-arith -Wredundant-decls -Wstrict-prototypes \
+                -Wvla -Wwrite-strings -Wno-clobbered -Wno-missing-field-initializers
+export CPPFLAGS = -D_POSIX_C_SOURCE=200809L -DNDEBUG
+export LDFLAGS = 
+
+include /usr/share/dpkg/buildflags.mk
+
+#export DH_VERBOSE = 1
+
+%:
+        dh $@ --buildsystem=meson
+
+override_dh_builddeb:
+        dh_builddeb -- -Zgzip
+
+override_dh_auto_configure:
+        # src contains a separate configure script.
+        dh_auto_configure -- --prefix=/usr --bindir=/usr/bin --buildtype=release --optimization=3
+
+override_dh_auto_build:
+        # Replace user name in doc cache with the current user
+        [ $$(whoami) = root ] || sed -i "s/vagrant/$$(whoami)/g" $(CURDIR)/doc/resource/exe.cache
+
+        perl $(CURDIR)/doc/doc.pl --out=man --out=html --cache-only \
+          --var=project-url-root=index.html --exclude=backlog \
+          --var=release-date-static=y
+        txt2man \
+          -v "pgBackRest Command Reference" \
+          -t pgbackrest \
+          -s 1 \
+          ${MANTEMPLATE} > ${CURDIR}/doc/output/man/pgbackrest.1
+        dh_auto_build
+
+override_dh_auto_clean:
+        ! [ -f src/Makefile ] || $(MAKE) -C src clean-all
+
+# pgBackRest must be configured before the TLS server can be started.
+# Moreover a user must configure valid CA, client and server certificates.
+override_dh_installsystemd:
+        dh_installsystemd --no-enable --no-start --restart-after-upgrade

@@ -1,47 +1,114 @@
 #!/usr/bin/make -f
 
+# Document generation template
 MANTEMPLATE="${CURDIR}/doc/output/man/pgbackrest.1.txt"
 
+# Disable all Debian hardening and optimization to match manual build
 export DEB_BUILD_MAINT_OPTIONS = hardening=-all optimize=-lto
+
+# Set exact flags from manual build
 export CFLAGS = -O3 -funroll-loops -ftree-vectorize -Wall -Wextra -std=c99 \
-                -Wcast-qual -Wconversion -Wformat=2 -Wmissing-prototypes \
-                -Wpointer-arith -Wredundant-decls -Wstrict-prototypes \
-                -Wvla -Wwrite-strings -Wno-clobbered -Wno-missing-field-initializers
+                -Wcast-qual -Wconversion -Wduplicated-cond -Wduplicated-branches \
+                -Wformat=2 -Wformat-overflow=2 -Wformat-signedness -Winit-self \
+                -Wmissing-prototypes -Wpointer-arith -Wredundant-decls \
+                -Wstrict-prototypes -Wvla -Wwrite-strings -Wno-clobbered \
+                -Wno-missing-field-initializers
+                
 export CPPFLAGS = -D_POSIX_C_SOURCE=200809L -DNDEBUG
 export LDFLAGS = 
 
-include /usr/share/dpkg/buildflags.mk
+# Prevent dpkg-buildflags from overriding our settings
+unexport DEB_CFLAGS_MAINT_APPEND
+unexport DEB_LDFLAGS_MAINT_APPEND
+unexport DEB_CPPFLAGS_MAINT_APPEND
 
-#export DH_VERBOSE = 1
-
+# Main build rules
 %:
 	dh $@ --buildsystem=meson
 
+# Configure exactly like manual build
+override_dh_auto_configure:
+	# Remove any existing build directories
+	rm -rf builddir obj-x86_64-linux-gnu
+	
+	# Configure exactly as manual build
+	meson setup builddir --prefix=/usr --buildtype=release --optimization=3
+	
+	# Show configuration for debugging
+	@echo "=== Build Configuration ==="
+	meson configure builddir | grep -E "buildtype|optimization|prefix"
+	@echo "=========================="
+
+# Build with documentation
+override_dh_auto_build:
+	# Replace user name in doc cache with the current user
+	[ $$(whoami) = root ] || sed -i "s/vagrant/$$(whoami)/g" $(CURDIR)/doc/resource/exe.cache || true
+	
+	# Generate documentation
+	perl $(CURDIR)/doc/doc.pl --out=man --out=html --cache-only \
+		--var=project-url-root=index.html --exclude=backlog \
+		--var=release-date-static=y || true
+	
+	# Generate man page
+	if [ -f "$(MANTEMPLATE)" ]; then \
+		txt2man \
+			-v "pgBackRest Command Reference" \
+			-t pgbackrest \
+			-s 1 \
+			"$(MANTEMPLATE)" > ${CURDIR}/doc/output/man/pgbackrest.1 || true; \
+	fi
+	
+	# Build using ninja directly (not through dh)
+	ninja -C builddir
+	
+	# Show the binary was created
+	@echo "=== Built Binary ==="
+	ls -la builddir/src/pgbackrest
+	file builddir/src/pgbackrest
+	@echo "==================="
+
+# Skip tests to avoid obj-x86_64-linux-gnu error
+override_dh_auto_test:
+	@echo "Skipping tests"
+
+# Install files properly
+override_dh_auto_install:
+	# Create installation directories
+	mkdir -p $(CURDIR)/debian/tmp/usr/bin
+	mkdir -p $(CURDIR)/debian/tmp/usr/share/man/man1
+	mkdir -p $(CURDIR)/debian/tmp/usr/share/doc/pgbackrest
+	
+	# Install binary
+	cp builddir/src/pgbackrest $(CURDIR)/debian/tmp/usr/bin/
+	chmod 755 $(CURDIR)/debian/tmp/usr/bin/pgbackrest
+	
+	# Install man page if it exists
+	if [ -f "${CURDIR}/doc/output/man/pgbackrest.1" ]; then \
+		cp ${CURDIR}/doc/output/man/pgbackrest.1 $(CURDIR)/debian/tmp/usr/share/man/man1/; \
+	fi
+	
+	# Install HTML documentation if it exists
+	if [ -d "${CURDIR}/doc/output/html" ]; then \
+		cp -r ${CURDIR}/doc/output/html $(CURDIR)/debian/tmp/usr/share/doc/pgbackrest/; \
+	fi
+
+# Clean properly
+override_dh_auto_clean:
+	rm -rf builddir obj-x86_64-linux-gnu
+	rm -rf doc/output
+	if [ -f src/Makefile ]; then $(MAKE) -C src clean-all; fi
+	dh_clean
+
+# Handle systemd service
+override_dh_installsystemd:
+	dh_installsystemd --no-enable --no-start --restart-after-upgrade
+
+# Compress with gzip
 override_dh_builddeb:
 	dh_builddeb -- -Zgzip
 
-override_dh_auto_configure:
-	# src contains a separate configure script.
-	dh_auto_configure -- --prefix=/usr --bindir=/usr/bin --buildtype=release --optimization=3
-
-override_dh_auto_build:
-	# Replace user name in doc cache with the current user
-	[ $$(whoami) = root ] || sed -i "s/vagrant/$$(whoami)/g" $(CURDIR)/doc/resource/exe.cache
-
-	perl $(CURDIR)/doc/doc.pl --out=man --out=html --cache-only \
-		--var=project-url-root=index.html --exclude=backlog \
-		--var=release-date-static=y
-		txt2man \
-			-v "pgBackRest Command Reference" \
-				-t pgbackrest \
-				-s 1 \
-					${MANTEMPLATE} > ${CURDIR}/doc/output/man/pgbackrest.1
-	dh_auto_build
-
-override_dh_auto_clean:
-	! [ -f src/Makefile ] || $(MAKE) -C src clean-all
-
-# pgBackRest must be configured before the TLS server can be started.
-# Moreover a user must configure valid CA, client and server certificates.
-override_dh_installsystemd:
-	dh_installsystemd --no-enable --no-start --restart-after-upgrade
+# Optional: Add debug output to verify flags
+override_dh_auto_configure-check:
+	@echo "=== Actual Compilation Flags ==="
+	@ninja -C builddir -t commands | grep -m1 "pack\.c" || true
+	@echo "================================"

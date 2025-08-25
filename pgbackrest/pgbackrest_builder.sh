@@ -137,13 +137,12 @@ get_sources(){
     for file in $(ls | grep ^pgbackrest | grep -v pgbackrest.conf); do
         mv $file "percona-$file"
     done
-    rm -f control rules
+    rm -f control 
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/control
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/compat
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/17.5.3/pgbackrest/rules
-    #wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/rules.patch
-    #patch -p0 < rules.patch
-    #rm rules.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/rules.patch
+    patch -p0 < rules.patch
+    rm rules.patch
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
@@ -156,6 +155,7 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest-tmpfiles.d
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.logrotate
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.service
+    sed -i 's|const String \*const plural = errorTotalMin > 1 ? STRDEF("s") : EMPTY_STR;|const String *const plural = errorTotalMin > 1 ? strNewZ("s") : EMPTY_STR;|' src/command/backup/backup.c
     cd ${WORKDIR}
     #
     source pgbackrest.properties

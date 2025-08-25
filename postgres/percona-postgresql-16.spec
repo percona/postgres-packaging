@@ -295,7 +295,7 @@ to develop applications which will interact with a PostgreSQL server.
 
 %package llvmjit
 Summary:        Just-in-time compilation support for PostgreSQL
-Requires:       %{name}-server = %{version}-%{release}
+Requires:       %{name}-server >= %{version}-%{release}
 Requires:       llvm => 13
 Provides:       postgresql-llvmjit >= %{version}-%{release}
 Provides:       %{vname}-llvmjit = %{epoch}:%{version}-%{release}

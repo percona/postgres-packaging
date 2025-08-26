@@ -700,8 +700,6 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7 %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/pgsql
 
-# These file(s) should not be packaged:
-%{__rm} %{buildroot}%{pgbaseinstdir}/lib/libpgfeutils.a
 
 # initialize file lists
 %{__cp} /dev/null main.lst
@@ -719,7 +717,6 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %find_lang ecpglib6-%{pgmajorversion}
 %find_lang initdb-%{pgmajorversion}
 %find_lang libpq5-%{pgmajorversion}
-%find_lang pg_amcheck-%{pgmajorversion}
 %find_lang pg_archivecleanup-%{pgmajorversion}
 %find_lang pg_basebackup-%{pgmajorversion}
 %find_lang pg_checksums-%{pgmajorversion}
@@ -760,7 +757,6 @@ find %{buildroot}%{pgbaseinstdir} -type f \( -name "*.so*" -o -perm /111 \) -exe
     fi
 done
 
-cat pg_amcheck-%{pgmajorversion}.lang > pg_contrib.lst
 cat libpq5-%{pgmajorversion}.lang > pg_libpq5.lst
 cat pg_config-%{pgmajorversion}.lang ecpg-%{pgmajorversion}.lang ecpglib6-%{pgmajorversion}.lang > pg_devel.lst
 cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
@@ -964,7 +960,7 @@ fi
 %doc src/tutorial
 %doc doc/html
 
-%files contrib -f pg_contrib.lst
+%files contrib
 %defattr(-,root,root)
 %if 0%{?rhel} && 0%{?rhel} == 7
 %doc %{pgbaseinstdir}/doc/extension/*.example

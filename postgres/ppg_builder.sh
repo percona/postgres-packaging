@@ -197,7 +197,7 @@ install_deps() {
       else
 	dnf config-manager --set-enabled ol${RHEL}_codeready_builder
 
-        INSTALL_LIST="clang-devel clang llvm-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
+        INSTALL_LIST="chrpath clang-devel clang llvm-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel lz4-devel libzstd-devel perl-IPC-Run perl-Test-Simple rpmdevtools"
 	yum -y install rpmbuild || yum -y install rpm-build || true
         yum -y install ${INSTALL_LIST}
         yum -y install binutils gcc gcc-c++

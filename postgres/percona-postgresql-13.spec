@@ -1,4 +1,7 @@
 %undefine _package_note_file
+#%if 0%{?rhel} >= 10
+#%define debug_package %{nil}
+#%endif
 
 # These are macros to be used with find_lang and other stuff
 %global packageversion 130
@@ -7,9 +10,6 @@
 %global sname postgresql
 %global vname postgresql13
 %global pgbaseinstdir   /usr/pgsql-%{pgmajorversion}
-
-%global beta 0
-%{?beta:%global __os_install_post /usr/lib/rpm/brp-compress}
 
 # Macros that define the configure parameters:
 %{!?kerbdir:%global kerbdir "/usr"}
@@ -29,7 +29,7 @@
 
 # All Fedora releases now use Python3
 # Support Python3 on RHEL 7.7+ natively
-# RHEL 8 uses Python3
+# RHEL 8+ use Python3
 %{!?plpython3:%global plpython3 1}
 
 %if 0%{?suse_version}
@@ -41,6 +41,7 @@
 
 %{!?pltcl:%global pltcl 1}
 %{!?plperl:%global plperl 1}
+%{!?plpython3:%global plpython3 1}
 %{!?ssl:%global ssl 1}
 %{!?test:%global test 1}
 %{!?runselftest:%global runselftest 0}
@@ -55,15 +56,7 @@
  %{!?sdt:%global sdt 1}
 %endif
 
-%ifarch ppc64 ppc64le s390 s390x armv7hl
-%if 0%{?rhel} && 0%{?rhel} == 7
-%{!?llvm:%global llvm 0}
-%else
 %{!?llvm:%global llvm 1}
-%endif
-%else
-%{!?llvm:%global llvm 1}
-%endif
 
 %{!?selinux:%global selinux 1}
 
@@ -71,11 +64,10 @@
 %global _hardened_build 1
 %endif
 
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-%pgdg_set_ppc64le_compiler_at10
-%endif
-%endif
+#Filter out some Perl "dependencies"
+%global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
+%global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
+
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
@@ -111,21 +103,18 @@ Patch6:         %{sname}-%{pgmajorversion}-perl-rpath.patch
 Patch7:         llvm_static_linking.patch
 
 BuildRequires:  perl glibc-devel bison flex >= 2.5.31
+BuildRequires:  gcc-c++
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  readline-devel zlib-devel >= 1.0.4
+BuildRequires:  chrpath
+
 %if 0%{?rhel} || 0%{?fedora}
-BuildRequires:	lz4-devel
-Requires:	lz4
+BuildRequires:  lz4-devel
+Requires:       lz4-libs
 %endif
 # This dependency is needed for Source 16:
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?fedora} || 0%{?rhel}
 BuildRequires:  perl-generators
-%endif
-
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-%pgdg_set_ppc64le_min_requires
-%endif
 %endif
 
 Requires:       /sbin/ldconfig
@@ -135,124 +124,51 @@ BuildRequires:  libicu-devel
 Requires:       libicu
 %endif
 
-%if %llvm
-%if 0%{?rhel} && 0%{?rhel} == 7
-# Packages come from EPEL and SCL:
-BuildRequires:  llvm5.0-devel >= 5.0 llvm-toolset-7-clang >= 4.0.1
-%endif
-%if 0%{?rhel} && 0%{?rhel} >= 8
-# Packages come from Appstream:
-BuildRequires:  llvm-devel clang-devel
-%endif
-%if 0%{?fedora}
-BuildRequires:  llvm-devel >= 5.0 clang-devel >= 5.0
-%endif
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-BuildRequires:  llvm6-devel clang6-devel
-%endif
-%if 0%{?suse_version} >= 1500
-BuildRequires:  llvm5-devel clang5-devel
-%endif
-%endif
+BuildRequires:  llvm-devel => 13.0 clang-devel >= 13.0
 
-%if %kerberos
 BuildRequires:  krb5-devel
 BuildRequires:  e2fsprogs-devel
-%endif
 
-%if %ldap
-%if 0%{?suse_version}
-%if 0%{?suse_version} >= 1315
-BuildRequires:  openldap2-devel
-%endif
-%else
 BuildRequires:  openldap-devel
-%endif
-%endif
 
-%if %nls
 BuildRequires:  gettext >= 0.10.35
-%endif
 
-%if %pam
 BuildRequires:  pam-devel
-%endif
 
-%if %plperl
-%if 0%{?rhel} && 0%{?rhel} >= 7
 BuildRequires:  perl-ExtUtils-Embed
-%endif
-%if 0%{?fedora} >= 22
-BuildRequires:  perl-ExtUtils-Embed
-%endif
-%endif
 
-%if %plpython3
 BuildRequires:  python3-devel
-%endif
 
-%if %pltcl
 BuildRequires:  tcl-devel
-%endif
 
-%if %sdt
 BuildRequires:  systemtap-sdt-devel
-%endif
 
 %if %selinux
 # All supported distros have libselinux-devel package:
 BuildRequires:  libselinux-devel >= 2.0.93
 # SLES: SLES 15 does not have selinux-policy package. Use
 # it only on SLES 12:
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-BuildRequires:  selinux-policy >= 3.9.13
-%endif
+
 # RHEL/Fedora has selinux-policy:
 %if 0%{?rhel} || 0%{?fedora}
 BuildRequires:  selinux-policy >= 3.9.13
 %endif
 %endif
 
-%if %ssl
-# We depend un the SSL libraries provided by Advance Toolchain on PPC,
-# so use openssl-devel only on other platforms:
-%ifnarch ppc64 ppc64le
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-BuildRequires:  libopenssl-devel
-%else
 BuildRequires:  openssl-devel
-%endif
-%endif
-%endif
 
-%if %uuid
-%if 0%{?suse_version}
-%if 0%{?suse_version} >= 1315
-BuildRequires:  uuid-devel
-%endif
-%else
 BuildRequires:  libuuid-devel
-%endif
-%endif
 
-%if %xml
 BuildRequires:  libxml2-devel libxslt-devel
-%endif
 
 %if %{systemd_enabled}
 BuildRequires:          systemd, systemd-devel
 # We require this to be present for %%{_prefix}/lib/tmpfiles.d
 Requires:               systemd
-%if 0%{?suse_version}
-%if 0%{?suse_version} >= 1315
-Requires(post):         systemd-sysvinit
-%endif
-%else
 Requires(post):         systemd-sysv
 Requires(post):         systemd
 Requires(preun):        systemd
 Requires(postun):       systemd
-%endif
 %endif
 
 Requires:       %{name}-libs >= %{version}-%{release}
@@ -265,11 +181,6 @@ Provides:       %{sname} = %{epoch}:%{version}-%{release}
 Provides:       %{vname} = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname} <= %{version}-%{release}
 Obsoletes:      %{vname} <= %{version}-%{release}
-
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 
 %description
 PostgreSQL is an advanced Object-Relational database management system (DBMS).
@@ -286,29 +197,14 @@ if you're installing the postgresql%{pgmajorversion}-server package.
 
 %package libs
 Summary:        The shared libraries required for any PostgreSQL clients
-Provides:       libpq5 >= 10.0
-
-%if 0%{?rhel} && 0%{?rhel} <= 6
-Requires:       openssl
-%else
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-Requires:       libopenssl1_0_0
-%else
-Requires:       openssl-libs >= 1.0.2k
-%endif
-%endif
+Provides:       postgresql-libs = %{pgmajorversion} libpq5 >= 10.0
 Provides:       postgresql-libs >= %{version}-%{release}
 Provides:       %{sname}-libs = %{epoch}:%{version}-%{release}
 Provides:       %{vname}-libs = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-libs <= %{version}-%{release}
 Obsoletes:      %{vname}-libs <= %{version}-%{release}
 
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
-%endif
+Epoch:          1
 
 %description libs
 The postgresql%{pgmajorversion}-libs package provides the essential shared libraries for any
@@ -338,8 +234,6 @@ Requires(post):         systemd
 Requires(preun):        systemd
 Requires(postun):       systemd
 %endif
-%else
-Requires:       /usr/sbin/useradd, /sbin/chkconfig
 %endif
 Provides:       postgresql-server >= %{version}-%{release}
 Provides:       %{vname}-server = %{epoch}:%{version}-%{release}
@@ -347,10 +241,6 @@ Provides:       %{sname}-server = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-server <= %{version}-%{release}
 Obsoletes:      %{vname}-server <= %{version}-%{release}
 
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description server
@@ -385,10 +275,6 @@ Provides:       %{sname}-contrib = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-contrib <= %{version}-%{release}
 Obsoletes:      %{vname}-contrib <= %{version}-%{release}
 
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description contrib
@@ -400,38 +286,13 @@ Summary:        PostgreSQL development header files and libraries
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
-#%%if %%llvm
-#%%if 0%%{?rhel} && 0%%{?rhel} == 7
-# Packages come from EPEL and SCL:
-#Requires:       llvm5.0-devel >= 5.0
-#%%endif
-#%%if 0%%{?rhel} && 0%%{?rhel} >= 8
-# Packages come from EPEL and SCL:
-#Requires:       llvm-devel >= 6.0.0
-#%%endif
-#%%if 0%%{?fedora}
-#Requires:       llvm-devel >= 5.0 clang-devel >= 5.0
-#%%endif
-#%%if 0%%{?suse_version} >= 1315 && 0%%{?suse_version} <= 1499
-#Requires:       llvm6-devel clang6-devel
-#%%endif
-#%%endif
-%if %icu
+Requires:       llvm-devel => 17.0 clang-devel >= 17.0
 Requires:       libicu-devel
-%endif
 
 %if %enabletaptests
-%if 0%{?suse_version} && 0%{?suse_version} >= 1315
-Requires:       perl-IPC-Run
-BuildRequires:  perl-IPC-Run
-%endif
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 Requires:       perl-Test-Simple
-BuildRequires:  perl-Test-Simple
-%endif
-%if 0%{?fedora}
-Requires:       perl-IPC-Run
-BuildRequires:  perl-IPC-Run
+BuildRequires:  perl-Test-Simple perl-IPC-Run perl-Time-HiRes
 %endif
 %endif
 
@@ -442,10 +303,6 @@ Provides:       %{sname}-devel = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-devel <= %{version}-%{release}
 Obsoletes:      %{vname}-devel <= %{version}-%{release}
 
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description devel
@@ -455,23 +312,10 @@ with a PostgreSQL database management server. It also contains the ecpg
 Embedded C Postgres preprocessor. You need to install this package if you want
 to develop applications which will interact with a PostgreSQL server.
 
-%if %llvm
 %package llvmjit
 Summary:        Just-in-time compilation support for PostgreSQL
 Requires:       %{name}-server >= %{version}-%{release}
-#%%if 0%%{?rhel} && 0%%{?rhel} == 7
-#%%ifarch aarch64
-#Requires:       llvm-toolset-7.0-llvm >= 7.0.1
-#%%else
-#Requires:       llvm5.0 >= 5.0
-#%%endif
-#%%endif
-#%%if 0%%{?suse_version} == 1315
-#Requires:       llvm
-#%%endif
-#%%if 0%%{?fedora} || 0%%{?rhel} >= 8
-#Requires:       llvm => 5.0
-#%%endif
+Requires:       llvm => 13
 
 Provides:       postgresql-llvmjit >= %{version}-%{release}
 Provides:       %{vname}-llvmjit = %{epoch}:%{version}-%{release}
@@ -479,10 +323,6 @@ Provides:       %{sname}-llvmjit = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-llvmjit <= %{version}-%{release}
 Obsoletes:      %{vname}-llvmjit <= %{version}-%{release}
 
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description llvmjit
@@ -490,16 +330,11 @@ The postgresql%{pgmajorversion}-llvmjit package contains support for
 just-in-time compiling parts of PostgreSQL queries. Using LLVM it
 compiles e.g. expressions and tuple deforming into native code, with the
 goal of accelerating analytics queries.
-%endif
 
-%if %plperl
 %package plperl
 Summary:        The Perl procedural language for PostgreSQL
 Requires:       %{name}-server >= %{version}-%{release}
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-%ifarch ppc ppc64
-BuildRequires:  perl-devel
-%endif
 Obsoletes:      postgresql%{pgmajorversion}-pl <= %{version}-%{release}
 Provides:       postgresql-plperl >= %{version}-%{release}
 Provides:       %{vname}-plperl = %{epoch}:%{version}-%{release}
@@ -507,10 +342,6 @@ Provides:       %{sname}-plperl = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-plperl <= %{version}-%{release}
 Obsoletes:      %{vname}-plperl <= %{version}-%{release}
 
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description plperl
@@ -518,30 +349,19 @@ The postgresql%{pgmajorversion}-plperl package contains the PL/Perl procedural l
 which is an extension to the PostgreSQL database server.
 Install this if you want to write database functions in Perl.
 
-%endif
 
-%if %plpython3
 %package plpython3
 Summary:        The Python3 procedural language for PostgreSQL
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-server >= %{version}-%{release}
 Obsoletes:      %{name}-pl <= %{version}-%{release}
 Provides:       postgresql-plpython3 >= %{version}-%{release}
-%if 0%{?rhel} == 7
-# We support Python3 natively on RHEL/CentOS 7 as of 7.7+,
 Requires:       python3-libs
-%else
-Requires:       python3-libs
-%endif
 Provides:       %{vname}-plpython3 = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-plpython3 = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-plpython3 <= %{version}-%{release}
 Obsoletes:      %{vname}-plpython3 <= %{version}-%{release}
 
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description plpython3
@@ -549,9 +369,6 @@ The postgresql%{pgmajorversion}-plpython3 package contains the PL/Python3 proced
 which is an extension to the PostgreSQL database server.
 Install this if you want to write database functions in Python 3.
 
-%endif
-
-%if %pltcl
 %package pltcl
 Summary:        The Tcl procedural language for PostgreSQL
 Requires:       %{name} >= %{version}-%{release}
@@ -564,19 +381,13 @@ Provides:       %{sname}-pltcl = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-pltcl <= %{version}-%{release}
 Obsoletes:      %{vname}-pltcl <= %{version}-%{release}
 
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description pltcl
 PostgreSQL is an advanced Object-Relational database management
 system. The %{name}-pltcl package contains the PL/Tcl language
 for the backend.
-%endif
 
-%if %test
 %package test
 Summary:        The test suite distributed with PostgreSQL
 Requires:       %{name}-server >= %{version}-%{release}
@@ -587,27 +398,20 @@ Provides:       %{sname}-test = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-test <= %{version}-%{release}
 Obsoletes:      %{vname}-test <= %{version}-%{release}
 
-%ifarch ppc64 ppc64le
-AutoReq:        0
-Requires:       advance-toolchain-%{atstring}-runtime
-%endif
 Epoch:          1
 
 %description test
 The postgresql%{pgmajorversion}-test package contains files needed for various tests for the
 PostgreSQL database management system, including regression tests and
 benchmarks.
-%endif
-
-%global __perl_requires %{SOURCE16}
 
 %prep
 %setup -q -n percona-postgresql-%{version}
-%patch1 -p0
-%patch3 -p0
-%patch5 -p0
-%patch6 -p0
-%patch7 -p1
+%patch -P 1 -p0
+%patch -P 3 -p0
+%patch -P 5 -p0
+%patch -P 6 -p0
+%patch -P 7 -p1
 
 %{__cp} -p %{SOURCE12} .
 
@@ -624,41 +428,20 @@ benchmarks.
 %endif
 
 CFLAGS="${CFLAGS:-%optflags}"
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-        CFLAGS="${CFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
-        CXXFLAGS="${CXXFLAGS} $(echo %{__global_cflags} | sed 's/-O2/-O3/g') -m64 -mcpu=power8 -mtune=power8 -I%{atpath}/include"
-        LDFLAGS="-L%{atpath}/%{_lib}"
-        CC=%{atpath}/bin/gcc; export CC
-%endif
-%else
-        # Strip out -ffast-math from CFLAGS....
-        CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
-        %if 0%{?rhel}
-        LDFLAGS="-Wl,--as-needed"; export LDFLAGS
-        %endif
+# Strip out -ffast-math from CFLAGS....
+CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
+%if 0%{?rhel}
+LDFLAGS="-Wl,--as-needed"; export LDFLAGS
 %endif
 
 export CFLAGS
 
-%if %plpython3
-
-export PYTHON=/usr/bin/python3
-
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch aarch64
-        export CLANG=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang LLVM_CONFIG=/opt/rh/llvm-toolset-7.0/root/usr/bin/llvm-config
-%else
-        export CLANG=/opt/rh/llvm-toolset-7/root/usr/bin/clang LLVM_CONFIG=%{_libdir}/llvm5.0/bin/llvm-config
-%endif
-%endif
-%if 0%{?rhel} && 0%{?rhel} == 8
-        export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
-%endif
-
-%if 0%{?rhel} && 0%{?rhel} == 9
-	source /opt/rh/gcc-toolset-14/enable
-%endif
+# We need to export these even though they are under the standard
+# path. Buildfarm utilises ccache which may not be available on
+# users' instances, and that breaks extension builds as shown here:
+# https://www.postgresql.org/message-id/CACMiCkV%2BfQ4yAZqygyWx7ZQ8eWsj1AjoC6CGEUoyxY9jUm7paA%40mail.gmail.com
+# Previously reported by Muralikrishna Bandaru.
+export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 
 # These configure options must match main build
 ./configure --enable-rpath \
@@ -669,10 +452,8 @@ export PYTHON=/usr/bin/python3
         --libdir=%{pgbaseinstdir}/lib \
         --with-lz4 \
         --with-extra-version=" - Percona Distribution" \
-%if %beta
         --enable-debug \
         --enable-cassert \
-%endif
 %if %enabletaptests
         --enable-tap-tests \
 %endif
@@ -709,9 +490,6 @@ export PYTHON=/usr/bin/python3
 %if %sdt
         --enable-dtrace \
 %endif
-%if %disablepgfts
-        --disable-thread-safety \
-%endif
 %if %uuid
         --with-uuid=e2fs \
 %endif
@@ -734,14 +512,10 @@ export PYTHON=/usr/bin/python3
         --with-libraries=%{atpath}/lib64 \
 %endif
 %endif
-        --with-system-tzdata=%{_datadir}/zoneinfo \
-        --sysconfdir=/etc/sysconfig/pgsql \
-        --docdir=%{pgbaseinstdir}/doc \
-        --htmldir=%{pgbaseinstdir}/doc/html \
-        --enable-tap-tests 
-%else
-        --enable-tap-tests 
-%endif
+	--with-system-tzdata=%{_datadir}/zoneinfo \
+	--sysconfdir=/etc/sysconfig/pgsql \
+	--docdir=%{pgbaseinstdir}/doc \
+	--htmldir=%{pgbaseinstdir}/doc/html
 
 cd src/backend
 MAKELEVEL=0 %{__make} submake-generated-headers
@@ -889,26 +663,33 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %{__install} -m 700 %{SOURCE9} %{buildroot}%{pgbaseinstdir}/share/
 
 %if %test
-        # tests. There are many files included here that are unnecessary,
-        # but include them anyway for completeness.  We replace the original
-        # Makefiles, however.
-        %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/lib/test
-        %{__cp} -a src/test/regress %{buildroot}%{pgbaseinstdir}/lib/test
-        %{__install} -m 0755 contrib/spi/refint.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
-        %{__install} -m 0755 contrib/spi/autoinc.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
-        pushd  %{buildroot}%{pgbaseinstdir}/lib/test/regress
-        strip *.so
-        %{__rm} -f GNUmakefile Makefile *.o
-        chmod 0755 pg_regress regress.so
-        popd
-        %{__cp} %{SOURCE4} %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
-        chmod 0644 %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
+	# tests. There are many files included here that are unnecessary,
+	# but include them anyway for completeness.  We replace the original
+	# Makefiles, however.
+	%{__mkdir} -p %{buildroot}%{pgbaseinstdir}/lib/test
+	%{__cp} -a src/test/regress %{buildroot}%{pgbaseinstdir}/lib/test
+	%{__install} -m 0755 contrib/spi/refint.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
+	%{__install} -m 0755 contrib/spi/autoinc.so %{buildroot}%{pgbaseinstdir}/lib/test/regress
+	# pg_regress binary should be only in one subpackage,
+	# there will be a symlink from -test to -devel
+	%{__rm} -f %{buildroot}%{pgbaseinstdir}/lib/test/regress/pg_regress
+	%{__mkdir} -p %{buildroot}%{pgbaseinstdir}/lib/pgsql/test/regress/
+	%{__ln_s} -f ../../pgxs/src/test/regress/pg_regress %{buildroot}%{pgbaseinstdir}/lib/test/regress/pg_regress
+	pushd %{buildroot}%{pgbaseinstdir}/lib/test/regress
+	strip *.so
+	%{__rm} -f GNUmakefile Makefile *.o
+	chmod 0755 pg_regress regress.so
+	popd
+	%{__cp} %{SOURCE4} %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
+	chmod 0644 %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
 %endif
 
-# Quick hack:
-%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpython2u*
-%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpythonu-*
-%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*_plpythonu.control
+%if %plpython3
+       # Quick hack:
+       %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpython2u*
+       %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpythonu-*
+       %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*_plpythonu.control
+%endif
 
 # Fix some more documentation
 # gzip doc/internals.ps
@@ -918,6 +699,9 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/share/man/
 %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7 %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/pgsql
+
+# These file(s) should not be packaged:
+%{__rm} %{buildroot}%{pgbaseinstdir}/lib/libpgfeutils.a
 
 # initialize file lists
 %{__cp} /dev/null main.lst
@@ -935,6 +719,7 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %find_lang ecpglib6-%{pgmajorversion}
 %find_lang initdb-%{pgmajorversion}
 %find_lang libpq5-%{pgmajorversion}
+%find_lang pg_amcheck-%{pgmajorversion}
 %find_lang pg_archivecleanup-%{pgmajorversion}
 %find_lang pg_basebackup-%{pgmajorversion}
 %find_lang pg_checksums-%{pgmajorversion}
@@ -968,6 +753,14 @@ cat pltcl-%{pgmajorversion}.lang > pg_pltcl.lst
 %find_lang postgres-%{pgmajorversion}
 %find_lang psql-%{pgmajorversion}
 
+find %{buildroot}%{pgbaseinstdir} -type f \( -name "*.so*" -o -perm /111 \) -exec file {} \; | \
+    grep -E "(shared object|executable)" | cut -d: -f1 | while read binary; do
+    if chrpath -l "$binary" 2>/dev/null | grep -q "%{pgbaseinstdir}/lib"; then
+        chrpath -d "$binary" 2>/dev/null || true
+    fi
+done
+
+cat pg_amcheck-%{pgmajorversion}.lang > pg_contrib.lst
 cat libpq5-%{pgmajorversion}.lang > pg_libpq5.lst
 cat pg_config-%{pgmajorversion}.lang ecpg-%{pgmajorversion}.lang ecpglib6-%{pgmajorversion}.lang > pg_devel.lst
 cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
@@ -991,6 +784,8 @@ if [ $1 -eq 1 ] ; then
    %else
    %systemd_post %{sname}-%{pgpackageversion}.service
    %endif
+  %else
+   chkconfig --add %{sname}-%{pgpackageversion}
   %endif
 fi
 
@@ -1016,9 +811,13 @@ rm -f /tmp/call-home.sh
 %preun server
 if [ $1 -eq 0 ] ; then
 %if %{systemd_enabled}
-	# Package removal, not upgrade
-	/bin/systemctl --no-reload disable %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
-	/bin/systemctl stop %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+        # Package removal, not upgrade
+        /bin/systemctl --no-reload disable %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+        /bin/systemctl stop %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+%else
+        /sbin/service %{sname}-%{pgmajorversion} condstop >/dev/null 2>&1
+        chkconfig --del %{sname}-%{pgmajorversion}
+
 %endif
 fi
 
@@ -1026,11 +825,15 @@ fi
 /sbin/ldconfig
 %if %{systemd_enabled}
  /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%else
+ /sbin/service %{sname}-%{pgmajorversion} condrestart >/dev/null 2>&1
 %endif
 if [ $1 -ge 1 ] ; then
  %if %{systemd_enabled}
-	# Package upgrade, not uninstall
-	/bin/systemctl try-restart %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+        # Package upgrade, not uninstall
+        /bin/systemctl try-restart %{sname}-%{pgmajorversion}.service >/dev/null 2>&1 || :
+ %else
+   /sbin/service %{sname}-%{pgmajorversion} condrestart >/dev/null 2>&1
  %endif
 fi
 
@@ -1161,9 +964,13 @@ fi
 %doc src/tutorial
 %doc doc/html
 
-%files contrib
+%files contrib -f pg_contrib.lst
 %defattr(-,root,root)
+%if 0%{?rhel} && 0%{?rhel} == 7
 %doc %{pgbaseinstdir}/doc/extension/*.example
+%else
+%doc %{pgbaseinstdir}/doc/extension/*.example
+%endif
 %{pgbaseinstdir}/lib/_int.so
 %{pgbaseinstdir}/lib/adminpack.so
 %{pgbaseinstdir}/lib/amcheck.so
@@ -1240,7 +1047,9 @@ fi
 %{pgbaseinstdir}/share/extension/fuzzystrmatch*
 %{pgbaseinstdir}/share/extension/hstore.control
 %{pgbaseinstdir}/share/extension/hstore--*.sql
+%if %plperl
 %{pgbaseinstdir}/share/extension/hstore_plperl*
+%endif
 %{pgbaseinstdir}/share/extension/insert_username*
 %{pgbaseinstdir}/share/extension/intagg*
 %{pgbaseinstdir}/share/extension/intarray*
@@ -1303,6 +1112,8 @@ fi
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-check-db-dir
 %{_tmpfilesdir}/%{sname}-%{pgmajorversion}.conf
 %{_unitdir}/%{sname}-%{pgmajorversion}.service
+%else
+%config(noreplace) %{_initrddir}/%{sname}-%{pgmajorversion}
 %endif
 %if %pam
 %config(noreplace) /etc/pam.d/%{sname}

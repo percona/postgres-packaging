@@ -1,4 +1,7 @@
 %undefine _package_note_file
+#%if 0%{?rhel} >= 10
+#%define debug_package %{nil}
+#%endif
 
 # These are macros to be used with find_lang and other stuff
 %global packageversion 150

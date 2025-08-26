@@ -155,6 +155,7 @@ get_sources(){
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest-tmpfiles.d
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.logrotate
     wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.service
+    cd ../
     sed -i 's|const String \*const plural = errorTotalMin > 1 ? STRDEF("s") : EMPTY_STR;|const String *const plural = errorTotalMin > 1 ? strNewZ("s") : EMPTY_STR;|' src/command/backup/backup.c
     cd ${WORKDIR}
     #

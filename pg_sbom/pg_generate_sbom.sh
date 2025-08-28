@@ -75,9 +75,13 @@ install_dependencies() {
       # RHEL/CentOS/OracleLinux (RHEL 8/9)
       RHEL=$(rpm --eval %rhel)
       PLATFORM=${PLATFORM_ID}${RHEL}
-      dnf install -y epel-release jq
+      dnf install -y epel-release || true
       dnf config-manager --set-enabled ol${RHEL}_codeready_builder || true
       dnf install -y 'dnf-command(config-manager)'
+      dnf install -y jq
+      if [[ ${RHEL} -eq 8 ]]; then
+        dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+      fi
       ;;
     ubuntu|debian)
       # Install dependencies for Ubuntu/Debian
@@ -115,7 +119,7 @@ install_percona_postgres() {
       curl -sO https://repo.percona.com/yum/percona-release-latest.noarch.rpm
       dnf install -y percona-release-latest.noarch.rpm
       percona-release enable ppg-${PG_VERSION} ${REPO_TYPE}
-      dnf module disable postgresql
+      dnf module disable postgresql || true
       dnf install -y \
         percona-postgresql${PG_MAJOR_VERSION} \
         percona-postgresql${PG_MAJOR_VERSION}-server \

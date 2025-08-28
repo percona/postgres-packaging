@@ -79,6 +79,7 @@ install_dependencies() {
       dnf config-manager --set-enabled ol${RHEL}_codeready_builder || true
       dnf install -y 'dnf-command(config-manager)'
       dnf install -y jq
+      yum install oracle-epel-release-el${RHEL} || true
       if [[ ${RHEL} -eq 8 ]]; then
         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
       fi

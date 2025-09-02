@@ -156,7 +156,7 @@ build_postgres_server(){
 		fi
 		cd /source
 	else
-                git clone git://git.postgresql.org/git/postgresql.git postgresql-${PG_VERSION}
+                git clone https://git.postgresql.org/git/postgresql.git postgresql-${PG_VERSION}
                 retval=$?
                 if [ $retval != 0 ]
                 then

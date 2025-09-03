@@ -1431,8 +1431,8 @@ build_pg_gather(){
         mkdir -p /source
         cd /source
 
-        wget https://raw.githubusercontent.com/jobinau/pg_gather/refs/tags/v30/gather.sql
-        wget https://raw.githubusercontent.com/jobinau/pg_gather/refs/tags/v30/README.md
+        wget https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/gather.sql
+        wget https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/README.md
 
         cp gather.sql ${POSTGRESQL_PREFIX}/bin
         chmod 755 ${POSTGRESQL_PREFIX}/bin/gather.sql

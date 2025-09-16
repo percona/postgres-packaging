@@ -1,0 +1,100 @@
+name: PG Docker Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      pg-version:
+        description: pg version for docker image
+        required: true
+        default: '15.14'
+        type: choice
+        options:
+          - '17.6'
+          - '16.10'
+          - '15.14'
+          - '14.19'
+          - '13.22'
+
+      arch:
+        description: architecture
+        required: true
+        default: amd64
+        type: choice
+        options:
+          - amd64
+          - arm64
+
+jobs:
+  test-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PG major version
+        run: |
+          PG_MAJOR=$(echo "${{ inputs.pg-version }}" | cut -d'.' -f1)
+          echo "PG_MAJOR="$PG_MAJOR"" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Pull Percona-PostgreSQL image
+        run: |
+          docker pull perconalab/percona-distribution-postgresql:${{ inputs.pg-version }}-1-${{ inputs.arch }}
+
+      - name: Run AMD container
+        if: ${{ contains(inputs.arch, 'amd64') }}
+        run: |
+          docker run --name ppg-test -e POSTGRES_PASSWORD=secret -d perconalab/percona-distribution-postgresql:${{ inputs.pg-version }}-1-${{ inputs.arch }}
+
+      - name: Prep for ARM container
+        if: ${{ contains(inputs.arch, 'arm64') }}
+        run: |
+          docker run --rm --privileged tonistiigi/binfmt --install all
+          docker run --rm --platform linux/arm64 alpine uname -m
+
+      - name: Run ARM container
+        if: ${{ contains(inputs.arch, 'arm64') }}
+        run: |
+          docker run --platform linux/arm64 --name ppg-test -e POSTGRES_PASSWORD=secret -d perconalab/percona-distribution-postgresql:${{ inputs.pg-version }}-1-${{ inputs.arch }}
+
+      - name: Wait for PostgreSQL to start
+        run: sleep 15
+        
+      - name: Verify container is running
+        run: |
+          docker ps --filter "name=ppg-test" --format "table {{.Names}}\t{{.Status}}"
+          if [ "$(docker inspect -f '{{.State.Running}}' ppg-test)" != "true" ]; then
+            echo "Container is not running!" && exit 1
+          fi
+
+      - name: Check PostgreSQL version
+        run: |
+          docker exec ppg-test psql -U postgres -c "SELECT version();"
+
+      - name: Verify required packages and versions
+        run: |
+          REQUIRED_PACKAGES=(
+            percona-postgresql${{ env.PG_MAJOR }}
+            percona-postgresql${{ env.PG_MAJOR }}-contrib
+            percona-postgresql${{ env.PG_MAJOR }}-server
+            percona-postgresql${{ env.PG_MAJOR }}-libs
+            percona-postgresql-common
+            percona-postgresql-client-common
+            percona-pg_stat_monitor${{ env.PG_MAJOR }}
+            percona-pg_repack${{ env.PG_MAJOR }}
+            percona-pgaudit${{ env.PG_MAJOR }}
+            percona-pgaudit${{ env.PG_MAJOR }}_set_user
+            percona-pgbackrest
+            percona-pgvector_${{ env.PG_MAJOR }}
+            percona-wal2json${{ env.PG_MAJOR }}
+          )
+
+          echo "Checking required packages..."
+          for pkg in "${REQUIRED_PACKAGES[@]}"; do
+            echo "----- $pkg -----"
+            docker exec ppg-test rpm -qi $pkg | grep ^Version || echo "$pkg not installed!"
+          done
+
+      - name: Clean Up
+        if: always()
+        run: |
+          docker stop ppg-test || true
+          docker rm ppg-test || true

@@ -8,10 +8,10 @@ hetzner-etcd-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     ETCD_VERSION: 3.5.21
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-haproxy-RELEASE:
@@ -27,7 +27,7 @@ hetzner-haproxy-RELEASE:
     GIT_BRANCH: main
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-patroni-RELEASE:
@@ -40,10 +40,10 @@ hetzner-patroni-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: 4.0.5
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-percona-postgis-RELEASE:
@@ -55,13 +55,13 @@ hetzner-percona-postgis-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     POSTGIS_GITREPO: https://github.com/postgis/postgis.git
     POSTGIS_BRANCH: stable-3.3
     POSTGIS_VERSION: '3.3.8'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    POSTGIS_REPO: ppg-17.6
+    POSTGIS_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pgaudit_set_user-RELEASE:
@@ -74,10 +74,10 @@ hetzner-pgaudit_set_user-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: REL4_1_0
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pgaudit-RELEASE:
@@ -90,10 +90,10 @@ hetzner-pgaudit-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: '17.1'
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pgbackrest-RELEASE:
@@ -106,10 +106,10 @@ hetzner-pgbackrest-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: release/2.55.0
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pgbadger-RELEASE:
@@ -122,10 +122,10 @@ hetzner-pgbadger-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: v13.1
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pgbouncer-RELEASE:
@@ -138,10 +138,10 @@ hetzner-pgbouncer-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: pgbouncer_1_24_1
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pg_cron-RELEASE:
@@ -154,10 +154,10 @@ hetzner-pg_cron-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: 'v1.6.2'
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pg_gather-RELEASE:
@@ -169,11 +169,11 @@ hetzner-pg_gather-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    PG_BRANCH: '17.6'
-    GIT_BRANCH: '17.6'
+    PG_BRANCH: '18.0'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pg_percona_telemetry-autobuild-RELEASE:
@@ -189,7 +189,7 @@ hetzner-pg_percona_telemetry-autobuild-RELEASE:
     BRANCH: main
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory\nrelease
 hetzner-pgpool2-build-RELEASE:
@@ -207,7 +207,7 @@ hetzner-pgpool2-build-RELEASE:
     BUILD_BRANCH: main
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PG_RELEASE: '17.6'
+    PG_RELEASE: '18.0'
     CLOUD: Hetzner
     COMPONENT: laboratory\nrelease
 hetzner-pgrepack-RELEASE:
@@ -220,10 +220,10 @@ hetzner-pgrepack-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: ver_1.5.2
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pg_stat_monitor-autobuild-RELEASE:
@@ -239,7 +239,7 @@ hetzner-pg_stat_monitor-autobuild-RELEASE:
     BRANCH: main
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory\nrelease
 hetzner-pgvector-RELEASE:
@@ -252,10 +252,10 @@ hetzner-pgvector-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: v0.8.0
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-postgresql-common-RELEASE:
@@ -268,10 +268,10 @@ hetzner-postgresql-common-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: debian/280
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-postgresql-server-autobuild-RELEASE:
@@ -284,10 +284,10 @@ hetzner-postgresql-server-autobuild-RELEASE:
   parameters:
     GIT_REPO: https://github.com/Percona-Lab/postgres.git
     PG_BRANCH: TDE_REL_17_STABLE
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-ppg-server-ha-autobuild-RELEASE:
@@ -299,10 +299,10 @@ hetzner-ppg-server-ha-autobuild-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-ppg-server-autobuild-RELEASE:
@@ -314,10 +314,10 @@ hetzner-ppg-server-autobuild-RELEASE:
   parallel_group: default
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-pysyncobj-RELEASE:
@@ -330,10 +330,10 @@ hetzner-pysyncobj-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: 0.3.10
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-wal2json-RELEASE:
@@ -346,10 +346,10 @@ hetzner-wal2json-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: wal2json_2_6
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory
 hetzner-ydiff-RELEASE:
@@ -362,9 +362,9 @@ hetzner-ydiff-RELEASE:
   parameters:
     GIT_REPO: https://github.com/percona/postgres-packaging.git
     PG_BRANCH: '1.2'
-    GIT_BRANCH: '17.6'
+    GIT_BRANCH: '18.0'
     RPM_RELEASE: '1'
     DEB_RELEASE: '1'
-    PPG_REPO: ppg-17.6
+    PPG_REPO: ppg-18.0
     CLOUD: Hetzner
     COMPONENT: laboratory

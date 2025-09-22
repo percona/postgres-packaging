@@ -650,6 +650,10 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 	popd
 	%{__cp} %{SOURCE4} %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
 	chmod 0644 %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
+
+        # ---- Add Perl test framework (from source) ----
+        %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/lib/pgxs/src/test/perl
+        %{__cp} -a src/test/perl/PostgreSQL %{buildroot}%{pgbaseinstdir}/lib/pgxs/src/test/perl/
 %endif
 
 %if %plpython3

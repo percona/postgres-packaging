@@ -141,29 +141,23 @@ jobs:
         run: | 
           PG="percona-postgresql percona-postgresql-${{ env.PG_MAJOR }} percona-postgresql-all percona-postgresql-contrib percona-postgresql-doc percona-postgresql-doc-${{ env.PG_MAJOR }} percona-postgresql-plperl-${{ env.PG_MAJOR }} percona-postgresql-plpython3-${{ env.PG_MAJOR }} percona-postgresql-pltcl-${{ env.PG_MAJOR }} percona-postgresql-server-dev-${{ env.PG_MAJOR }} percona-postgresql-server-dev-all percona-postgresql-${{ env.PG_MAJOR }}-dbgsym percona-postgresql-plperl-${{ env.PG_MAJOR }}-dbgsym percona-postgresql-plpython3-${{ env.PG_MAJOR }}-dbgsym percona-postgresql-pltcl-${{ env.PG_MAJOR }}-dbgsym percona-postgresql-plpython3-${{ env.PG_MAJOR }} percona-postgresql-plpython3-${{ env.PG_MAJOR }}-dbgsym"
           PG_COMMON="percona-postgresql-client percona-postgresql-client-${{ env.PG_MAJOR }} percona-postgresql-common percona-postgresql-client-${{ env.PG_MAJOR }}-dbgsym postgresql-client-common postgresql-common"
-          #PPG_SERVER="percona-ppg-server-${{ env.PG_MAJOR }} percona-ppg-server-ha-${{ env.PG_MAJOR }}"
-          #AUDIT="percona-postgresql-${{ env.PG_MAJOR }}-pgaudit percona-postgresql-${{ env.PG_MAJOR }}-pgaudit-dbgsym percona-pgaudit${{ env.PG_MAJOR }}-set-user percona-pgaudit${{ env.PG_MAJOR }}-set-user-dbgsym"
-          #PGBACKREST="percona-pgbackrest percona-pgbackrest-doc percona-pgbackrest-dbgsym"
-          #REPACK="percona-postgresql-${{ env.PG_MAJOR }}-repack percona-postgresql-${{ env.PG_MAJOR }}-repack-dbgsym"
-          #PATRONI="percona-patroni percona-patroni-doc"
-          #PGSM="percona-pg-stat-monitor${{ env.PG_MAJOR }} percona-pg-stat-monitor${{ env.PG_MAJOR }}-dbgsym"
-          #PGBADGER="percona-pgbadger"
-          #PGBOUNCER="percona-pgbouncer percona-pgbouncer-dbgsym"
-          #PGPOOL="percona-pgpool2 libpgpool2"
-          #POSTGIS="percona-postgresql-${{ env.PG_MAJOR }}-postgis-3 percona-postgresql-${{ env.PG_MAJOR }}-postgis-3-scripts percona-postgresql-postgis-scripts percona-postgresql-postgis percona-postgis"
-          #WAL2JSON="percona-postgresql-${{ env.PG_MAJOR }}-wal2json percona-postgresql-${{ env.PG_MAJOR }}-wal2json-dbgsym"
-          #PGGATHER="percona-pg-gather"
-          #PGVECTOR="percona-postgresql-${{ env.PG_MAJOR }}-pgvector"
-          #ETCD="etcd"
-          #HAPROXY="percona-haproxy"
+          PPG_SERVER="percona-ppg-server-${{ env.PG_MAJOR }} percona-ppg-server-ha-${{ env.PG_MAJOR }}"
+          AUDIT="percona-postgresql-${{ env.PG_MAJOR }}-pgaudit percona-postgresql-${{ env.PG_MAJOR }}-pgaudit-dbgsym percona-pgaudit${{ env.PG_MAJOR }}-set-user percona-pgaudit${{ env.PG_MAJOR }}-set-user-dbgsym"
+          PGBACKREST="percona-pgbackrest percona-pgbackrest-doc percona-pgbackrest-dbgsym"
+          REPACK="percona-postgresql-${{ env.PG_MAJOR }}-repack percona-postgresql-${{ env.PG_MAJOR }}-repack-dbgsym"
+          PATRONI="percona-patroni percona-patroni-doc"
+          PGSM="percona-pg-stat-monitor${{ env.PG_MAJOR }} percona-pg-stat-monitor${{ env.PG_MAJOR }}-dbgsym"
+          PGBADGER="percona-pgbadger"
+          PGBOUNCER="percona-pgbouncer percona-pgbouncer-dbgsym"
+          PGPOOL="percona-pgpool2 libpgpool2"
+          POSTGIS="percona-postgresql-${{ env.PG_MAJOR }}-postgis-3 percona-postgresql-${{ env.PG_MAJOR }}-postgis-3-scripts percona-postgresql-postgis-scripts percona-postgresql-postgis percona-postgis"
+          WAL2JSON="percona-postgresql-${{ env.PG_MAJOR }}-wal2json percona-postgresql-${{ env.PG_MAJOR }}-wal2json-dbgsym"
+          PGGATHER="percona-pg-gather"
+          PGVECTOR="percona-postgresql-${{ env.PG_MAJOR }}-pgvector"
+          ETCD="etcd"
+          HAPROXY="percona-haproxy"
           echo "INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"" >> $GITHUB_ENV
-          
-      #- name: Debug code
-      #  run: | 
-      #    yum -y install percona-postgresql16-server
-      #    rpm -qa | grep percona-postgresql16-server
-      #    yum info percona-postgresql16-server percona-postgresql16-llvmjit
-        
+                  
       - name: Install Packages
         run: |
           if [[ "${{ inputs.platform }}" == *"linux"* ]]; then

@@ -111,7 +111,7 @@ jobs:
             rm -f percona-release_latest.generic_all.deb
           fi
           percona-release disable all
-          percona-release enable ${{ inputs.ppg-repo }} testing
+          percona-release enable ${{ inputs.ppg-repo }} ${{ inputs.ppg-repo-type }}
         shell: bash
 
       - name: Set RPM install list

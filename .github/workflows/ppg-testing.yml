@@ -15,6 +15,16 @@ on:
           - ppg-14.19
           - ppg-13.22
 
+      ppg-repo-type:
+        description: ppg repo type
+        required: true
+        default: testing
+        type: choice
+        options:
+          - experimental
+          - testing
+          - release
+
       platform:
         description: platform to be tested on
         required: true

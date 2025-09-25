@@ -132,7 +132,7 @@ jobs:
           WAL2JSON="percona-wal2json${{ env.PG_MAJOR }}"
           PGGATHER="percona-pg_gather"
           PGVECTOR="percona-pgvector_${{ env.PG_MAJOR }} percona-pgvector_${{ env.PG_MAJOR }}-debuginfo percona-pgvector_${{ env.PG_MAJOR }}-debugsource percona-pgvector_${{ env.PG_MAJOR }}-llvmjit"
-          ETCD="etcd python3-etcd"
+          ETCD="etcd"
           HAPROXY="percona-haproxy"
           echo "INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"" >> $GITHUB_ENV
 
@@ -162,6 +162,7 @@ jobs:
         run: |
           if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
             yum -y install ${{ env.INSTALL_LIST }}
+            yum -y install python3-etcd || yum -y install python3.12-etcd
           else
             DEBIAN_FRONTEND=noninteractive apt-get -y install ${{ env.INSTALL_LIST }}
           fi

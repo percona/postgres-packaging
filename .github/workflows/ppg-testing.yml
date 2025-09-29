@@ -38,6 +38,7 @@ on:
             - ubuntu:jammy
             - debian:bookworm
             - debian:bullseye
+            - debian:trixie
 
       debugging:
         description: tmate session required

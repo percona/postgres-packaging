@@ -309,7 +309,6 @@ install_deps() {
       wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
       dpkg -i percona-release_latest.generic_all.deb
       rm -f percona-release_latest.generic_all.deb
-      percona-release enable-only tools testing
       percona-release enable-only ppg-${PPG_VERSION} testing
       percona-release enable telemetry testing
       apt-get update
@@ -561,6 +560,7 @@ build_deb(){
         cp debian/control debian/control.in
 	sed -i "248i override_dh_shlibdeps:\n\tdh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info" debian/rules
     fi
+	sed -i '67i\LIBTOOLIZE_MAJOR_VER=`echo ${LIBTOOLIZE_MAJOR_VER} | awk -F'\''-'\'' '\''{print $NF}'\''`' autogen.sh
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb

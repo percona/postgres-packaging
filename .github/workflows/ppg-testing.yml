@@ -108,7 +108,7 @@ jobs:
             yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
           else
             wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-            dpkg -i percona-release_latest.generic_all.deb
+            apt-get install -y ./percona-release_latest.generic_all.deb
             rm -f percona-release_latest.generic_all.deb
           fi
           percona-release disable all

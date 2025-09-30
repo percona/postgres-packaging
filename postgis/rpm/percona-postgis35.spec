@@ -1,5 +1,5 @@
 %undefine _debugsource_packages
-%global postgismajorversion 3.3
+%global postgismajorversion 3.5
 %global postgissomajorversion 3
 %global pgmajorversion 17
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
@@ -95,13 +95,12 @@
 
 Summary:	Geographic Information Systems Extensions to PostgreSQL
 Name:		percona-postgis%{postgiscurrmajorversion}_%{pgmajorversion}
-Version:	%{postgismajorversion}.8
-Release:	2%{?dist}
+Version:	%{postgismajorversion}.3
+Release:	1%{?dist}
 License:	GPLv2+
 Source0:	percona-postgis-%{version}.tar.gz
 Source2:        https://download.osgeo.org/postgis/docs/postgis-%{version}.pdf
 Source4:	%{sname}%{postgiscurrmajorversion}-filter-requires-perl-Pg.sh
-Patch0:		%{sname}%{postgiscurrmajorversion}-%{postgismajorversion}.0-gdalfpic.patch
 
 URL:		https://www.postgis.net/
 
@@ -235,7 +234,7 @@ The %{name}-utils package provides the utilities for PostGIS.
 
 %if %llvm
 %package llvmjit
-Summary:	Just-in-time compilation support for postgis33
+Summary:	Just-in-time compilation support for postgis35
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 #%%if 0%%{?rhel} && 0%%{?rhel} == 7
 #%%ifarch aarch64
@@ -257,7 +256,7 @@ BuildRequires:  llvm13-devel clang13-devel
 #%%endif
 
 %description llvmjit
-This packages provides JIT support for postgis33
+This packages provides JIT support for postgis35
 %endif
 
 
@@ -265,8 +264,6 @@ This packages provides JIT support for postgis33
 %setup -q -n percona-postgis-%{version}
 %{__cp} -p %{SOURCE2} .
 # Copy .pdf file to top directory before installing.
-/usr/bin/patch --no-backup-if-mismatch -p0 --ignore-whitespace  --fuzz=0  < %{PATCH0}
-#%patch0 -p0
 
 %build
 LDFLAGS="-Wl,-rpath,%{geosinstdir}/lib64 ${LDFLAGS}" ; export LDFLAGS
@@ -343,11 +340,12 @@ fi
 %defattr(-,root,root)
 %doc COPYING CREDITS NEWS TODO README.%{sname} doc/html loader/README.* doc/%{sname}.xml doc/ZMSgeoms.txt
 %license LICENSE.TXT
+%{_bindir}/postgis
 %{pginstdir}/doc/extension/README.address_standardizer
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_comments.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_upgrade*.sql
-%{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_restore.pl
+%{_bindir}/postgis_restore
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/uninstall_postgis.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/legacy*.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/*topology*.sql
@@ -386,27 +384,34 @@ fi
 
 %files client
 %defattr(644,root,root)
-%attr(755,root,root) %{pginstdir}/bin/pgsql2shp
+%attr(755,root,root) %{_bindir}/pgsql2shp
 %if %{raster}
-%attr(755,root,root) %{pginstdir}/bin/raster2pgsql
+%attr(755,root,root) %{_bindir}/raster2pgsql
 %endif
-%attr(755,root,root) %{pginstdir}/bin/shp2pgsql
-%attr(755,root,root) %{pginstdir}/bin/pgtopo_export
-%attr(755,root,root) %{pginstdir}/bin/pgtopo_import
+%attr(755,root,root) %{_bindir}/shp2pgsql
+%attr(755,root,root) %{_bindir}/pgtopo_export
+%attr(755,root,root) %{_bindir}/pgtopo_import
 
 %files devel
 %defattr(644,root,root)
+%{pginstdir}/lib/bitcode/postgis_sfcgal-3/postgis_sfcgal_legacy.bc
 
 %files docs
 %defattr(-,root,root)
 %doc %{sname}-%{version}.pdf
+%{_mandir}/man1/pgsql2shp.1.*
+%{_mandir}/man1/pgtopo_export.1.*
+%{_mandir}/man1/pgtopo_import.1.*
+%{_mandir}/man1/postgis.1.*
+%{_mandir}/man1/postgis_restore.1.*
+%{_mandir}/man1/shp2pgsql.1.*
 
 %if %shp2pgsqlgui
 %files gui
 %defattr(-,root,root)
-%{pginstdir}/bin/shp2pgsql-gui
-%{pginstdir}/share/applications/shp2pgsql-gui.desktop
-%{pginstdir}/share/icons/hicolor/*/apps/shp2pgsql-gui.png
+%{_bindir}/shp2pgsql-gui
+%{_datadir}/applications/shp2pgsql-gui.desktop
+%{_datadir}/icons/hicolor/*/apps/shp2pgsql-gui.png
 %endif
 
 %if %llvm

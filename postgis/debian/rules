@@ -217,11 +217,11 @@ override_dh_auto_install:
 #	Move binaries from the NEWEST_POSTGRES_VERSION build to the
 #	'postgis' binary package.
 	mkdir -p $(CURDIR)/debian/postgis/usr/bin
-	mv $(CURDIR)/debian/tmp/usr/lib/postgresql/$(NEWEST_POSTGRES_VERSION)/bin/* \
+	mv $(CURDIR)/debian/tmp/usr/bin/* \
 		$(CURDIR)/debian/postgis/usr/bin/
 
 #	Set executable bit for postgis_restore.pl
-	chmod 755 $(CURDIR)/debian/*/usr/share/postgresql/*/contrib/postgis-*/postgis_restore.pl
+	chmod 755 $(CURDIR)/debian/postgis/usr/bin/postgis_restore
 
 #	De-duplicate upgrade scripts - using hard-links for exactly one
 #	directory (so we don't generate cross-directory hard ones).
@@ -239,7 +239,6 @@ override_dh_install:
 	$(RM) $(CURDIR)/debian/tmp/usr/lib/postgresql/*/bin/*
 	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/postgis/README.postgis
 	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/postgresql-doc-*/extension/README.address_standardizer
-	mv $(CURDIR)/debian/tmp/usr/share/doc/postgis/* $(CURDIR)/debian/tmp/usr/share/doc/
 
 	dh_install
 

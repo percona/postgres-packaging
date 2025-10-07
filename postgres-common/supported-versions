@@ -105,6 +105,7 @@ debian() {
         10|10.*) /bin/echo -e "13" ;; # Buster
         11|11.*) /bin/echo -e "13" ;; # Bullseye
         12|12.*) /bin/echo -e "13" ;; # Bookworm
+        13|13.*) /bin/echo -e "13" ;; # Trixie
         testing | unstable)
             /bin/echo -e "$DEFAULT" ;;
         *)
@@ -123,6 +124,7 @@ debian_backports() {
         10|10.*) /bin/echo -e "13" ;; # Buster
         11|11.*) /bin/echo -e "13" ;; # Bullseye
         12|12.*) /bin/echo -e "13" ;; # Bookworm
+        13|13.*) /bin/echo -e "13" ;; # Trixie
         testing | unstable)
             /bin/echo -e "$DEFAULT" ;;
         *)

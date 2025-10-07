@@ -223,8 +223,6 @@ install_deps() {
 	apt-get -y update || true
         apt-get -y install gnupg2 curl
         add_percona_apt_repo
-        percona-release enable tools testing
-        percona-release enable ppg-${PG_VERSION} testing
         apt-get update || true
         INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}

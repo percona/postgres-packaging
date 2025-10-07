@@ -253,11 +253,17 @@ install_deps() {
       done
       add_percona_apt_repo
       apt-get update || true
+      
+      INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec git wget fakeroot devscripts python3-psycopg2 python3-dev libyaml-dev python3-virtualenv python3-psycopg2 ruby ruby-dev rubygems curl golang libjs-mathjax pyflakes3 python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-pip python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python "
+      
       if [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" -a "x${DEBIAN}" != "xbookworm" -a "x${DEBIAN}" != "xnoble" ]; then
-        INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python-setuptools python-dev libyaml-dev python3-virtualenv dh-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-pip python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
+        INSTALL_LIST+="python-setuptools python-dev dh-virtualenv python3-boto"
+      elif [ "x${DEBIAN}" = "xtrixie" ]; then
+        INSTALL_LIST+="python3-dev dh-virtualenv python3-boto3"
       else
-        INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec git wget build-essential fakeroot devscripts python3-psycopg2 python3-dev libyaml-dev python3-virtualenv python3-psycopg2 wget git ruby ruby-dev rubygems build-essential curl golang libjs-mathjax pyflakes3 python3-boto python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-pip python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python"
+        INSTALL_LIST+="python3-dev python3-boto"
       fi
+      
       DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
       if [ "x${DEBIAN}" = "xstretch" ]; then
         DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip
@@ -265,7 +271,7 @@ install_deps() {
 	pip3 install python-kubernetes 
       else 
         DEBIAN_FRONTEND=noninteractive apt-get -y install python3-consul python3-kubernetes python3-cdiff || true
-        if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" ]; then
+        if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" ]; then
           apt-get install -y python3-sphinxcontrib.apidoc
           apt-get install -y python3-pysyncobj
           apt-get install -y python3-boto3

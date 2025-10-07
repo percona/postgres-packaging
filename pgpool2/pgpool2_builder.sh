@@ -343,6 +343,7 @@ install_deps() {
     else
         apt-get update
         DEBIAN_FRONTEND=noninteractive apt-get -y install lsb-release gnupg git wget curl
+        export DEBIAN=$(lsb_release -sc)
 
         wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
         dpkg -i percona-release_latest.generic_all.deb
@@ -358,7 +359,7 @@ install_deps() {
 
         apt-get update
 
-        if [[ "${OS_NAME}" != "focal" ]]; then
+        if [[ "${DEBIAN}" != "focal" ]]; then
             LLVM_EXISTS=$(grep -c "apt.llvm.org" /etc/apt/sources.list)
             if [ "${LLVM_EXISTS}" == 0 ]; then
                 wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
@@ -379,9 +380,9 @@ install_deps() {
             echo "waiting"
         done
 
-        cat /etc/apt/sources.list | grep ${OS_NAME}-backports
+        cat /etc/apt/sources.list | grep ${DEBIAN}-backports
         apt list --all-versions debhelper
-        apt-get -y install -t ${OS_NAME}-backports debhelper
+        apt-get -y install -t ${DEBIAN}-backports debhelper
 
         get_openjade_devel
     fi

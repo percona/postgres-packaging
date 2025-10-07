@@ -8,10 +8,11 @@ usage () {
     cat <<EOF
 Usage: $0 [OPTIONS]
     The following options may be given :
-        --version               Tarball version
+    --version               Tarball version
 	--use_system_ssl        Use system SSL or our own prebuilt SSL
+	--use_ssl35				Use OpenSSL 3.5
 	--build_dependencies    Build dependency packages
-        --help) usage ;;
+    --help) usage ;;
 Example $0 --version=16.1
 EOF
         exit 1
@@ -34,6 +35,7 @@ parse_arguments() {
         case "$arg" in
             --version=*) PG_VERSION="$val" ;;
 	    --use_system_ssl=*) USE_SYSTEM_SSL="$val" ;;
+		--use_ssl35=*) USE_SSL35="$val" ;;
 	    --build_dependencies=*) BUILD_DEPENDENCIES="$val" ;;
             --help) usage ;;
             *)
@@ -66,7 +68,12 @@ if [ -n "$USE_SYSTEM_SSL" ]; then
 	fi
 fi
 
+if [ "$USE_SSL35" = "1" ]; then
+	SSL_VERSION=ssl3.5
+fi
+
 export OPENSSL_VERSION=3.1.8
+export OPENSSL_VERSION_35=3.5.4
 export ZLIB_VERSION=1.3
 export KRB5_VERSION=1.21.3
 export KEYUTILS_VERSION=1.6.1
@@ -125,7 +132,7 @@ export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
 export TCL_VERSION=8.6.16
 export ETCD_VERSION=3.5.21
-export POSTGIS_VERSION=3.3.8
+export POSTGIS_VERSION=3.5.3
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
 export PGBOUNCER_PREFIX=/opt/percona-pgbouncer
@@ -192,6 +199,20 @@ build_openssl(){
 	wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz
 	tar -xvzf openssl-${OPENSSL_VERSION}.tar.gz
 	cd openssl-${OPENSSL_VERSION}
+	./Configure --prefix=${DEPENDENCY_LIBS_PATH} --openssldir=${DEPENDENCY_LIBS_PATH} '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)'
+	make
+	make install
+	build_status "ends" "openssl"
+}
+
+build_openssl35(){
+
+	build_status "start" "openssl35" 
+	cd /source
+	rm -rf openssl-${OPENSSL_VERSION_35}* || true
+	wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION_35}.tar.gz
+	tar -xvzf openssl-${OPENSSL_VERSION_35}.tar.gz
+	cd openssl-${OPENSSL_VERSION_35}
 	./Configure --prefix=${DEPENDENCY_LIBS_PATH} --openssldir=${DEPENDENCY_LIBS_PATH} '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)'
 	make
 	make install
@@ -1890,7 +1911,11 @@ create_build_environment
 if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 
 	if [ "$USE_SYSTEM_SSL" != "1" ]; then
-		build_openssl
+		if [ "$USE_SSL35" = "1" ]; then
+			build_openssl35
+		else	
+			build_openssl
+		fi
 	fi
 	build_zlib
 	build_krb5

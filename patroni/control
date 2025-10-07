@@ -10,7 +10,7 @@ Build-Depends:
  libjs-underscore,
  pyflakes3,
  python3,
- python3-boto,
+ python3-boto | python3-boto3,
  python3-click (>= 4.1),
  python3-dateutil,
  python3-dnspython,

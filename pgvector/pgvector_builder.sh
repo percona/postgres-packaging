@@ -1,94 +1,9 @@
 #!/usr/bin/env bash
-
-shell_quote_string() {
-    echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
-}
-
-usage () {
-    cat <<EOF
-Usage: $0 [OPTIONS]
-    The following options may be given :
-        --builddir=DIR      Absolute path to the dir where all actions will be performed
-        --get_sources       Source will be downloaded from github
-        --build_src_rpm     If it is set - src rpm will be built
-        --build_src_deb  If it is set - source deb package will be built
-        --build_rpm         If it is set - rpm will be built
-        --build_deb         If it is set - deb will be built
-        --install_deps      Install build dependencies(root privilages are required)
-        --branch            Branch for build
-        --repo              Repo for build
-        --help) usage ;;
-Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
-EOF
-        exit 1
-}
-
-append_arg_to_args () {
-    args="$args "$(shell_quote_string "$1")
-}
-
-parse_arguments() {
-    pick_args=
-    if test "$1" = PICK-ARGS-FROM-ARGV
-    then
-        pick_args=1
-        shift
-    fi
-
-    for arg do
-        val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
-        case "$arg" in
-            --builddir=*) WORKDIR="$val" ;;
-            --build_src_rpm=*) SRPM="$val" ;;
-            --build_src_deb=*) SDEB="$val" ;;
-            --build_rpm=*) RPM="$val" ;;
-            --build_deb=*) DEB="$val" ;;
-            --get_sources=*) SOURCE="$val" ;;
-            --branch=*) BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
-            --install_deps=*) INSTALL="$val" ;;
-            --help) usage ;;
-            *)
-                if test -n "$pick_args"
-                then
-                    append_arg_to_args "$arg"
-                fi
-            ;;
-        esac
-    done
-}
-
-check_workdir(){
-    if [ "x$WORKDIR" = "x$CURDIR" ]
-    then
-        echo >&2 "Current directory cannot be used for building!"
-        exit 1
-    else
-        if ! test -d "$WORKDIR"
-        then
-            echo >&2 "$WORKDIR is not a directory."
-            exit 1
-        fi
-    fi
-    return
-}
-
-add_percona_yum_repo(){
-    yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    percona-release disable all
-    percona-release enable telemetry testing
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
-
-add_percona_apt_repo(){
-    wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-    dpkg -i percona-release_latest.generic_all.deb
-    rm -f percona-release_latest.generic_all.deb
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
+set -x
+# Versions and other variables
+source versions.sh "pgvector"
+# Common functions
+source common-functions.sh
 
 get_sources(){
     cd "${WORKDIR}"
@@ -97,41 +12,39 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-pgvector_${PG_MAJOR_VERSION}
-    echo "PRODUCT=${PRODUCT}" > pgvector.properties
 
-    PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> pgvector.properties
-    #echo "VERSION=${PSM_VER}" >> pgvector.properties
-    echo "VERSION=${VERSION}" >> pgvector.properties
+    echo "PRODUCT=${PGVECTOR_PRODUCT}" > pgvector.properties
+
+    echo "PRODUCT_FULL=${PGVECTOR_PRODUCT_FULL}" >> pgvector.properties
+    echo "VERSION=${PGVECTOR_VERSION}" >> pgvector.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgvector.properties
     echo "BUILD_ID=${BUILD_ID}" >> pgvector.properties
-    git clone "$REPO" ${PRODUCT_FULL}
+    git clone "$PGVECTOR_SRC_REPO" ${PGVECTOR_PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
-    cd ${PRODUCT_FULL}
-    if [ ! -z "$BRANCH" ]
+    cd ${PGVECTOR_PRODUCT_FULL}
+    if [ ! -z "$PGVECTOR_SRC_BRANCH" ]
     then
         git reset --hard
         git clean -xdf
-        git checkout "$BRANCH"
+        git checkout "$PGVECTOR_SRC_BRANCH"
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/pgvector.properties
     rm -fr debian rpm
 
-    git clone https://salsa.debian.org/postgresql/pgvector.git deb_packaging
+    git clone ${PGVECTOR_SRC_REPO_DEB} deb_packaging
     cd deb_packaging
-    git checkout debian/${VERSION}-${RELEASE}
+    git checkout debian/${PGVECTOR_VERSION}-${PGVECTOR_RELEASE}
     cd ../
     mv deb_packaging/debian ./
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgvector/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgvector/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgvector/rules
+    wget ${PKG_RAW_URL}/pgvector/control
+    wget ${PKG_RAW_URL}/pgvector/control.in
+    wget ${PKG_RAW_URL}/pgvector/rules
 
     patch -p1 <debian/patches/no-native
     sed -i 's|no-native|#no-native|g' debian/patches/series
@@ -139,114 +52,26 @@ get_sources(){
     rm -rf debian/control*
     mv control* debian/
     mv rules debian/
-    echo ${PG_MAJOR_VERSION} > debian/pgversions
+    echo ${PG_MAJOR} > debian/pgversions
     echo 10 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgvector/pgvector.spec
+    wget ${PKG_RAW_URL}/pgvector/pgvector.spec
     cd ${WORKDIR}
     #
     source pgvector.properties
     #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    tar --owner=0 --group=0 --exclude=.* -czf ${PGVECTOR_PRODUCT_FULL}.tar.gz ${PGVECTOR_PRODUCT_FULL}
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> pgvector.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PGVECTOR_PRODUCT}/${PGVECTOR_PRODUCT_FULL}/${PGVECTOR_SRC_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> pgvector.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
+    cp ${PGVECTOR_PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
+    cp ${PGVECTOR_PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
     rm -rf pgvector*
-    return
-}
-
-get_system(){
-    if [ -f /etc/redhat-release ]; then
-        RHEL=$(rpm --eval %rhel)
-        ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-        OS_NAME="el$RHEL"
-        OS="rpm"
-    else
-        ARCH=$(uname -m)
-        OS_NAME="$(lsb_release -sc)"
-        OS="deb"
-    fi
-    return
-}
-
-install_deps() {
-    if [ $INSTALL = 0 ]
-    then
-        echo "Dependencies will not be installed"
-        return;
-    fi
-    if [ $( id -u ) -ne 0 ]
-    then
-        echo "It is not possible to instal dependencies. Please run as root"
-        exit 1
-    fi
-    CURPLACE=$(pwd)
-
-    if [ "x$OS" = "xrpm" ]; then
-        yum -y install wget
-        add_percona_yum_repo
-        yum clean all
-        RHEL=$(rpm --eval %rhel)
-        if [[ "${RHEL}" -eq 10 ]]; then
-            yum install oracle-epel-release-el10
-        else
-            yum -y install epel-release
-        fi
-        if [ x"$RHEL" = x6 -o x"$RHEL" = x7 ]; then
-            until yum -y install centos-release-scl; do
-                echo "waiting"
-                sleep 1
-            done
-            INSTALL_LIST="bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel llvm5.0-devel llvm-toolset-7-clang openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-Embed perl-ExtUtils-MakeMaker python2-devel readline-devel rpmbuild percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel llvm-toolset-7-clang-devel make gcc gcc-c++"
-            yum -y install ${INSTALL_LIST}
-            source /opt/rh/devtoolset-7/enable
-            source /opt/rh/llvm-toolset-7/enable
-        else
-            dnf module -y disable postgresql
-            dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-
-            INSTALL_LIST="clang-devel clang llvm-devel python3-devel perl-generators bison e2fsprogs-devel flex gettext git glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql${PG_MAJOR_VERSION}-devel percona-postgresql${PG_MAJOR_VERSION}-server rpm-build rpmdevtools selinux-policy systemd systemd-devel systemtap-sdt-devel tcl-devel vim wget zlib-devel "
-            yum -y install ${INSTALL_LIST}
-            yum -y install binutils gcc gcc-c++
-        fi
-    else
-        apt-get -y update
-        apt-get -y install wget lsb-release
-        export DEBIAN=$(lsb_release -sc)
-        export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-	apt-get -y update || true
-        apt-get -y install gnupg2 curl
-        add_percona_apt_repo
-        apt-get update || true
-        INSTALL_LIST="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec git wget libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
-        DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-    fi
-    return;
-}
-
-get_tar(){
-    TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-pgvector*.tar.gz' | sort | tail -n1))
-    if [ -z $TARFILE ]
-    then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-pgvector*.tar.gz' | sort | tail -n1))
-        if [ -z $TARFILE ]
-        then
-            echo "There is no $TARBALL for build"
-            exit 1
-        else
-            cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-        fi
-    else
-        cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    fi
     return
 }
 
@@ -282,7 +107,7 @@ build_srpm(){
         exit 1
     fi
     cd $WORKDIR
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-pgvector"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
     TARFILE=$(find . -name 'percona-pgvector*.tar.gz' | sort | tail -n1)
@@ -296,7 +121,7 @@ build_srpm(){
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/pgvector.spec
+        --define "version ${PGVECTOR_VERSION}" rpmbuild/SPECS/pgvector.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -347,7 +172,7 @@ build_rpm(){
     if [[ "${RHEL}" -eq 10 ]]; then
         export QA_RPATHS=0x0002
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${PGVECTOR_VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -371,7 +196,7 @@ build_source_deb(){
         exit 1
     fi
     rm -rf percona-pgvector*
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-pgvector"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
     TARFILE=$(basename $(find . -name 'percona-pgvector*.tar.gz' | sort | tail -n1))
@@ -380,19 +205,19 @@ build_source_deb(){
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
-    PRODUCT=percona-pgvector
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
+
+    mv ${TARFILE} ${PGVECTOR_PRODUCT_DEB}_${PGVECTOR_VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-pgvector (${VERSION}-${RELEASE}) unstable; urgency=low" > changelog
+    echo "percona-pgvector (${PGVECTOR_VERSION}-${PGVECTOR_RELEASE}) unstable; urgency=low" > changelog
     echo "  * Initial Release." >> changelog
     echo " -- Muhammad Aqeel <muhammad.aqeel@percona.com>  $(date -R)" >> changelog
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new pgvector version ${VERSION}"
+    dch -D unstable --force-distribution -v "${PGVECTOR_VERSION}-${PGVECTOR_RELEASE}" "Update to new pgvector version ${PGVECTOR_VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -436,9 +261,9 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    PRODUCT=percona-pgvector
-    cd ${PRODUCT}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+
+    cd ${PGVECTOR_PRODUCT_DEB}-${PGVECTOR_VERSION}
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PGVECTOR_VERSION}-${PGVECTOR_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -465,23 +290,18 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=3
-DEB_RELEASE=3
 REVISION=0
-BRANCH="v0.8.0"
-PG_MAJOR_VERSION=14
-PG_VERSION="14.19"
-REPO="https://github.com/pgvector/pgvector.git"
-PRODUCT=percona-pgvector_${PG_MAJOR_VERSION}
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='0.8.0'
-RELEASE='3'
-PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir
 get_system
-install_deps
+#install_deps
+if [ $INSTALL = 0 ]; then
+    echo "Dependencies will not be installed"
+else
+    source install-deps.sh "pgvector"
+fi
 get_sources
 build_srpm
 build_source_deb

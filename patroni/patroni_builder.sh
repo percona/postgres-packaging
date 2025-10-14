@@ -1,98 +1,9 @@
 #!/usr/bin/env bash
-
-shell_quote_string() {
-  echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
-}
-
-usage () {
-    cat <<EOF
-Usage: $0 [OPTIONS]
-    The following options may be given :
-        --builddir=DIR      Absolute path to the dir where all actions will be performed
-        --get_sources       Source will be downloaded from github
-        --build_src_rpm     If it is set - src rpm will be built
-        --build_src_deb  If it is set - source deb package will be built
-        --build_rpm         If it is set - rpm will be built
-        --build_deb         If it is set - deb will be built
-        --install_deps      Install build dependencies(root privilages are required)
-        --branch            Branch for build
-        --repo              Repo for build
-        --help) usage ;;
-Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
-EOF
-        exit 1
-}
-
-append_arg_to_args () {
-  args="$args "$(shell_quote_string "$1")
-}
-
-parse_arguments() {
-    pick_args=
-    if test "$1" = PICK-ARGS-FROM-ARGV
-    then
-        pick_args=1
-        shift
-    fi
-
-    for arg do
-        val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
-        case "$arg" in
-            --builddir=*) WORKDIR="$val" ;;
-            --build_src_rpm=*) SRPM="$val" ;;
-            --build_src_deb=*) SDEB="$val" ;;
-            --build_rpm=*) RPM="$val" ;;
-            --build_deb=*) DEB="$val" ;;
-            --get_sources=*) SOURCE="$val" ;;
-            --branch=*) BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
-            --install_deps=*) INSTALL="$val" ;;
-            --help) usage ;;
-            *)
-              if test -n "$pick_args"
-              then
-                  append_arg_to_args "$arg"
-              fi
-              ;;
-        esac
-    done
-}
-
-check_workdir(){
-    if [ "x$WORKDIR" = "x$CURDIR" ]
-    then
-        echo >&2 "Current directory cannot be used for building!"
-        exit 1
-    else
-        if ! test -d "$WORKDIR"
-        then
-            echo >&2 "$WORKDIR is not a directory."
-            exit 1
-        fi
-    fi
-    return
-}
-
-switch_to_vault_repo() {
-    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
-}
-
-add_percona_yum_repo(){
-    yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
-
-add_percona_apt_repo(){
-    wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-    dpkg -i percona-release_latest.generic_all.deb
-    rm -f percona-release_latest.generic_all.deb
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
+set -x
+# Versions and other variables
+source versions.sh "patroni"
+# Common functions
+source common-functions.sh
 
 get_sources(){
     cd "${WORKDIR}"
@@ -101,46 +12,44 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-patroni
-    echo "PRODUCT=${PRODUCT}" > patroni.properties
-    GIT_USER=$(echo ${REPO} | awk -F'/' '{print $4}')
 
-    PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> patroni.properties
+    echo "PRODUCT=${PATRONI_PRODUCT}" > patroni.properties
+    GIT_USER=$(echo ${PATRONI_SRC_REPO} | awk -F'/' '{print $4}')
+    echo "PRODUCT_FULL=${PATRONI_PRODUCT_FULL}" >> patroni.properties
     echo "VERSION=${PSM_VER}" >> patroni.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> patroni.properties
     echo "BUILD_ID=${BUILD_ID}" >> patroni.properties
-#   git clone "$REPO" ${PRODUCT_FULL}
-    git clone https://github.com/zalando/patroni.git ${PRODUCT_FULL}
+
+    git clone ${PATRONI_SRC_REPO} ${PATRONI_PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
-    cd ${PRODUCT_FULL}
-    if [ ! -z "$BRANCH" ]
+    cd ${PATRONI_PRODUCT_FULL}
+    if [ ! -z "$PATRONI_SRC_BRANCH" ]
     then
         git reset --hard
         git clean -xdf
-        git checkout "$BRANCH"
+        git checkout "$PATRONI_SRC_BRANCH"
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/patroni.properties
     rm -fr debian rpm
-    git clone https://github.com/cybertec-postgresql/patroni-packaging.git all_packaging
+    git clone ${PATRONI_SRC_REPO_DEB} all_packaging
     cd all_packaging
         git reset --hard
         git clean -xdf
-        git checkout "v1.6.5-1"
+        git checkout "1.6.5-1"
     cd ../
     mv all_packaging/DEB/debian ./
     cd debian
     rm -f rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/patroni/rules
+    wget ${PKG_RAW_URL}/patroni/rules
     rm -f control
     rm -f postinst
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/patroni/control
+    wget ${PKG_RAW_URL}/patroni/control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     sed -i "s:'sphinx_github_style':#'sphinx_github_style':g" ../docs/conf.py
@@ -151,7 +60,7 @@ get_sources(){
     fi
 
     git apply patches/add-sample-config.patch
-    sed -i "s|9.6|${PG_MAJOR_VERSION}|g" patroni.yml.sample
+    sed -i "s|9.6|${PG_MAJOR}|g" patroni.yml.sample
     mv install percona-patroni.install
     sed -i 's|patroni.yml.sample|debian/patroni.yml.sample|g' percona-patroni.install
     echo "debian/tmp/usr/lib" >> percona-patroni.install
@@ -162,7 +71,7 @@ get_sources(){
     mv all_packaging/RPM/* rpm/
     cd rpm
     rm -f patroni.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/patroni/patroni.spec
+    wget ${PKG_RAW_URL}/patroni/patroni.spec
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     sed -i 's:/opt/patroni/bin:/usr/bin:' patroni.2.service
     sed -i 's:/opt/patroni/etc/:/etc/patroni/:' patroni.2.service
@@ -175,140 +84,15 @@ get_sources(){
     source patroni.properties
     #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    tar --owner=0 --group=0 --exclude=.* -czf ${PATRONI_PRODUCT_FULL}.tar.gz ${PATRONI_PRODUCT_FULL}
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> patroni.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PATRONI_PRODUCT}/${PATRONI_PRODUCT_FULL}/${PATRONI_SRC_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> patroni.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
+    cp ${PATRONI_PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
+    cp ${PATRONI_PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
     rm -rf percona-patroni*
-    return
-}
-
-get_system(){
-    if [ -f /etc/redhat-release ]; then
-        RHEL=$(rpm --eval %rhel)
-        ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-        OS_NAME="el$RHEL"
-        OS="rpm"
-    else
-        ARCH=$(uname -m)
-        OS_NAME="$(lsb_release -sc)"
-        OS="deb"
-    fi
-    return
-}
-
-install_deps() {
-    if [ $INSTALL = 0 ]
-    then
-        echo "Dependencies will not be installed"
-        return;
-    fi
-    if [ $( id -u ) -ne 0 ]
-    then
-        echo "It is not possible to instal dependencies. Please run as root"
-        exit 1
-    fi
-    CURPLACE=$(pwd)
-
-    if [ "x$OS" = "xrpm" ]; then
-      if [ x"$RHEL" = x8 ]; then
-          switch_to_vault_repo
-      fi
-      yum -y install wget
-      add_percona_yum_repo
-      yum clean all
-      if [[ "${RHEL}" -eq 10 ]]; then
-        yum install oracle-epel-release-el10
-      else
-        yum -y install epel-release
-      fi
-      RHEL=$(rpm --eval %rhel)
-      if [ ${RHEL} -gt 7 ]; then
-          yum config-manager --set-enabled PowerTools || yum config-manager --set-enabled powertools || true
-      fi
-      if [ ${RHEL} = 7 ]; then
-          INSTALL_LIST="git wget rpm-build python36-virtualenv libyaml-devel gcc python36-psycopg2 python36-six"
-          yum -y install ${INSTALL_LIST}
-      else
-          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-          dnf clean all
-          rm -r /var/cache/dnf
-          dnf -y upgrade
-          INSTALL_LIST="git wget rpm-build python3-virtualenv python3-setuptools libyaml-devel gcc python3-psycopg2"
-          yum -y install ${INSTALL_LIST}
-	      #ln -s /usr/bin/virtualenv-2 /usr/bin/virtualenv
-      fi
-    else
-      apt-get update || true
-      apt-get -y install lsb-release wget curl gnupg2
-      export DEBIAN=$(lsb_release -sc)
-      export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      until apt-get -y install gnupg2; do
-          sleep 3
-	  echo "WAITING"
-      done
-      add_percona_apt_repo
-      apt-get update || true
-      INSTALL_LIST="build-essential debconf debhelper clang devscripts dh-exec git wget fakeroot devscripts python3-psycopg2 libyaml-dev python3-virtualenv python3-psycopg2 ruby ruby-dev rubygems curl golang libjs-mathjax pyflakes3  python3-dateutil python3-dnspython python3-etcd  python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-pip python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python "
-      if [ "x${DEBIAN}" = "xtrixie" ]; then
-        INSTALL_LIST+="python3-dev dh-virtualenv python3-boto3"  
-      elif [ "x${DEBIAN}" != "xfocal" -a "x${DEBIAN}" != "xbullseye" -a "x${DEBIAN}" != "xjammy" -a "x${DEBIAN}" != "xbookworm" -a "x${DEBIAN}" != "xnoble" -a "x${DEBIAN}" != "xtrixie" ]; then
-        INSTALL_LIST+="python-setuptools python-dev dh-virtualenv python3-boto"
-      else
-        INSTALL_LIST+="python3-dev python3-boto"
-      fi
-      DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}
-      if [ "x${DEBIAN}" = "xstretch" ]; then
-        DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip
-	pip3 install python-consul
-	pip3 install python-kubernetes 
-      else 
-        DEBIAN_FRONTEND=noninteractive apt-get -y install python3-consul python3-kubernetes python3-cdiff || true
-        if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" ]; then
-          apt-get install -y python3-sphinxcontrib.apidoc
-          apt-get install -y python3-pysyncobj
-          apt-get install -y python3-boto3
-        elif [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbuster" -o "x${DEBIAN}" = "xbullseye" ]; then
-          pip3 install --upgrade sphinx sphinx-rtd-theme
-          pip3 install sphinxcontrib.apidoc
-          pip3 install pysyncobj
-          pip3 install boto3
-        fi
-      fi
-      if [ "x${DEBIAN}" = "xfocal" ]; then
-        wget https://bootstrap.pypa.io/get-pip.py
-        python2.7 get-pip.py
-        rm -rf /usr/bin/python2
-        ln -s /usr/bin/python2.7 /usr/bin/python2
-        pip install --upgrade sphinx sphinx-rtd-theme
-        pip install sphinxcontrib.apidoc
-        pip install pysyncobj
-        pip install boto3
-      fi
-    fi
-    return;
-}
-
-get_tar(){
-    TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-patroni*.tar.gz' | sort | tail -n1))
-    if [ -z $TARFILE ]
-    then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-patroni*.tar.gz' | sort | tail -n1))
-        if [ -z $TARFILE ]
-        then
-            echo "There is no $TARBALL for build"
-            exit 1
-        else
-            cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-        fi
-    else
-        cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    fi
     return
 }
 
@@ -344,7 +128,7 @@ build_srpm(){
         exit 1
     fi
     cd $WORKDIR
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-patroni"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
     TARFILE=$(find . -name 'percona-patroni*.tar.gz' | sort | tail -n1)
@@ -360,7 +144,7 @@ build_srpm(){
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     sed -i 's:.rhel7:%{dist}:' ${WORKDIR}/rpmbuild/SPECS/patroni.spec
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/patroni.spec
+        --define "version ${PATRONI_VERSION}" rpmbuild/SPECS/patroni.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -404,7 +188,7 @@ build_rpm(){
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    rpmbuild --define "_topdir ${WORKDIR}/rb" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rb/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rb" --define "dist .$OS_NAME" --define "version ${PATRONI_VERSION}" --rebuild rb/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -428,7 +212,7 @@ build_source_deb(){
         exit 1
     fi
     rm -rf percona-patroni*
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-patroni"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
     TARFILE=$(basename $(find . -name 'percona-patroni*.tar.gz' | sort | tail -n1))
@@ -438,18 +222,18 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PATRONI_PRODUCT}_${PATRONI_VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-patroni (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-patroni (${PATRONI_VERSION}-${PATRONI_RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new patroni version ${VERSION}"
+    dch -D unstable --force-distribution -v "${PATRONI_VERSION}-${PATRONI_RELEASE}" "Update to new patroni version ${PATRONI_VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -493,9 +277,9 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}
+    cd ${PATRONI_PRODUCT_FULL}
     sed -i 's:ExecStart=/bin/patroni /etc/patroni.yml:ExecStart=/opt/patroni/bin/patroni /etc/patroni/patroni.yml:' extras/startup-scripts/patroni.service
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PATRONI_VERSION}-${PATRONI_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -522,23 +306,18 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
 REVISION=0
-BRANCH="v4.0.6"
-REPO="https://github.com/zalando/patroni.git"
-PRODUCT=percona-patroni
 DEBUG=0
-parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='4.0.6'
-RELEASE='1'
-PG_VERSION=14.19
-PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 
+parse_arguments PICK-ARGS-FROM-ARGV "$@"
 check_workdir
 get_system
-install_deps
+#install_deps
+if [ $INSTALL = 0 ]; then
+    echo "Dependencies will not be installed"
+else
+    source install-deps.sh "patroni"
+fi
 get_sources
 build_srpm
 build_source_deb

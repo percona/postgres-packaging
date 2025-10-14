@@ -1,95 +1,9 @@
 #!/usr/bin/env bash
-
-shell_quote_string() {
-  echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
-}
-
-usage () {
-    cat <<EOF
-Usage: $0 [OPTIONS]
-    The following options may be given :
-        --builddir=DIR      Absolute path to the dir where all actions will be performed
-        --get_sources       Source will be downloaded from github
-        --build_src_rpm     If it is set - src rpm will be built
-        --build_src_deb  If it is set - source deb package will be built
-        --build_rpm         If it is set - rpm will be built
-        --build_deb         If it is set - deb will be built
-        --install_deps      Install build dependencies(root privilages are required)
-        --branch            Branch for build
-        --repo              Repo for build
-        --version           Packaging repo
-        --help) usage ;;
-Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
-EOF
-        exit 1
-}
-
-append_arg_to_args () {
-  args="$args "$(shell_quote_string "$1")
-}
-
-parse_arguments() {
-    pick_args=
-    if test "$1" = PICK-ARGS-FROM-ARGV
-    then
-        pick_args=1
-        shift
-    fi
-
-    for arg do
-        val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
-        case "$arg" in
-            --builddir=*) WORKDIR="$val" ;;
-            --build_src_rpm=*) SRPM="$val" ;;
-            --build_src_deb=*) SDEB="$val" ;;
-            --build_rpm=*) RPM="$val" ;;
-            --build_deb=*) DEB="$val" ;;
-            --get_sources=*) SOURCE="$val" ;;
-            --branch=*) BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
-            --version=*) VERSION=$(echo $val|awk -F'-' '{print $2}') ;;
-            --install_deps=*) INSTALL="$val" ;;
-            --help) usage ;;
-            *)
-              if test -n "$pick_args"
-              then
-                  append_arg_to_args "$arg"
-              fi
-              ;;
-        esac
-    done
-}
-
-check_workdir(){
-    if [ "x$WORKDIR" = "x$CURDIR" ]
-    then
-        echo >&2 "Current directory cannot be used for building!"
-        exit 1
-    else
-        if ! test -d "$WORKDIR"
-        then
-            echo >&2 "$WORKDIR is not a directory."
-            exit 1
-        fi
-    fi
-    return
-}
-
-add_percona_yum_repo(){
-    yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
-
-add_percona_apt_repo(){
-    wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-    dpkg -i percona-release_latest.generic_all.deb
-    rm -f percona-release_latest.generic_all.deb
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
+set -x
+# Versions and other variables
+source versions.sh "ppg-server"
+# Common functions
+source common-functions.sh
 
 get_sources(){
     cd "${WORKDIR}"
@@ -98,27 +12,26 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-ppg-server-${PG_MAJOR_VERSION}
-    echo "PRODUCT=${PRODUCT}" > ppg-server.properties
 
-    PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> ppg-server.properties
+    echo "PRODUCT=${PPG_SERVER_PRODUCT}" > ppg-server.properties
+
+    echo "PRODUCT_FULL=${PPG_SERVER_PRODUCT_FULL}" >> ppg-server.properties
     echo "VERSION=${PSM_VER}" >> ppg-server.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ppg-server.properties
     echo "BUILD_ID=${BUILD_ID}" >> ppg-server.properties
-    git clone "$REPO" ${PRODUCT_FULL}
+    git clone "$PPG_SERVER_SRC_REPO" ${PPG_SERVER_PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
-    cd ${PRODUCT_FULL}
-    if [ ! -z "$BRANCH" ]
+    cd ${PPG_SERVER_PRODUCT_FULL}
+    if [ ! -z "$PPG_SERVER_SRC_BRANCH" ]
     then
         git reset --hard
         git clean -xdf
-        git checkout "$BRANCH"
+        git checkout "$PPG_SERVER_SRC_BRANCH"
         git submodule update --init
     fi
     REVISION=$(git rev-parse --short HEAD)
@@ -126,120 +39,31 @@ get_sources(){
     
     mkdir debian
     cd debian/
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server/rules
+    wget ${PKG_RAW_URL}/ppg-server/control
+    wget ${PKG_RAW_URL}/ppg-server/rules
     echo 9 > compat
-    echo "percona-ppg-server-${PG_MAJOR_VERSION} (${PG_VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-ppg-server-$PG_MAJOR (${PG_VERSION}-${PPG_SERVER_RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
 
     cd ../
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/ppg-server/ppg-server.spec
+    wget ${PKG_RAW_URL}/ppg-server/ppg-server.spec
     cd ${WORKDIR}
     #
     source ppg-server.properties
     #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    tar --owner=0 --group=0 --exclude=.* -czf ${PPG_SERVER_PRODUCT_FULL}.tar.gz ${PPG_SERVER_PRODUCT_FULL}
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> ppg-server.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PPG_SERVER_PRODUCT}/${PPG_SERVER_PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> ppg-server.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
+    cp ${PPG_SERVER_PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
+    cp ${PPG_SERVER_PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
     rm -rf percona-ppg-server*
-    return
-}
-
-get_system(){
-    if [ -f /etc/redhat-release ]; then
-        RHEL=$(rpm --eval %rhel)
-        ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-        OS_NAME="el$RHEL"
-        OS="rpm"
-    else
-        ARCH=$(uname -m)
-        apt-get -y update
-        apt-get -y install lsb-release
-        OS_NAME="$(lsb_release -sc)"
-        OS="deb"
-    fi
-    return
-}
-
-switch_to_vault_repo() {
-     sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
-     sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
-}
-
-install_deps() {
-    if [ $INSTALL = 0 ]; then
-        echo "Dependencies will not be installed"
-        return;
-    fi
-    if [ $( id -u ) -ne 0 ]; then
-        echo "It is not possible to instal dependencies. Please run as root"
-        exit 1
-    fi
-    CURPLACE=$(pwd)
-
-    if [ "x$OS" = "xrpm" ]; then
-      RHEL=$(rpm --eval %rhel)
-      yum -y install wget
-      #add_percona_yum_repo
-      yum clean all
-
-      if [ ${RHEL} = 8 ]; then
-          dnf -y module disable postgresql
-          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
-          dnf clean all
-          rm -r /var/cache/dnf
-          dnf -y upgrade
-          yum -y install perl lz4-libs c-ares-devel
-      fi
-      if [[ "${RHEL}" -eq 10 ]]; then
-        INSTALL_LIST="git rpm-build rpmdevtools wget"
-      else
-        INSTALL_LIST="git rpm-build rpmdevtools wget rpmlint"
-      fi
-      yum -y install ${INSTALL_LIST}
-      yum -y install lz4 || true
-
-    else
-      export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y update
-      apt-get -y install wget curl lsb-release gnupg2
-      export DEBIAN=$(lsb_release -sc)
-      add_percona_apt_repo
-      apt-get update || true
-      INSTALL_LIST="debconf debhelper devscripts dh-exec git"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
-    fi
-    return;
-}
-
-get_tar(){
-    TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-ppg-server*.tar.gz' | sort | tail -n1))
-    if [ -z $TARFILE ]
-    then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-ppg-server*.tar.gz' | sort | tail -n1))
-        if [ -z $TARFILE ]
-        then
-            echo "There is no $TARBALL for build"
-            exit 1
-        else
-            cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-        fi
-    else
-        cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    fi
     return
 }
 
@@ -275,7 +99,7 @@ build_srpm(){
         exit 1
     fi
     cd $WORKDIR
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-ppg-server"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
     TARFILE=$(find . -name 'percona-ppg-server*.tar.gz' | sort | tail -n1)
@@ -289,7 +113,7 @@ build_srpm(){
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/ppg-server.spec
+        --define "version ${PPG_SERVER_VERSION}" rpmbuild/SPECS/ppg-server.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -333,9 +157,9 @@ build_rpm(){
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR_VERSION}/
-    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR_VERSION}/lib/:/usr/pgsql-${PG_MAJOR_VERSION}/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR}/
+    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR}/lib/:/usr/pgsql-${PG_MAJOR}/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${PPG_SERVER_VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -359,7 +183,7 @@ build_source_deb(){
         exit 1
     fi
     #rm -rf percona-ppg-server*
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-ppg-server"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
     TARFILE=$(basename $(find . -name 'percona-ppg-server*.tar.gz' | sort | tail -n1))
@@ -369,9 +193,9 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PPG_SERVER_PRODUCT}_${PPG_SERVER_VERSION}.orig.tar.gz
     cd ${BUILDDIR}    
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new ppg-server version ${VERSION}"
+    dch -D unstable --force-distribution -v "${PPG_SERVER_VERSION}-${PPG_SERVER_RELEASE}" "Update to new ppg-server version ${PPG_SERVER_VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -419,8 +243,8 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${PPG_SERVER_PRODUCT_FULL}
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PPG_SERVER_VERSION}-${PPG_SERVER_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -443,23 +267,18 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
 REVISION=0
-PG_VERSION=17.6
-BRANCH="v${PG_VERSION}"
-REPO="https://github.com/percona/postgres-packaging.git"
 DEBUG=0
-VERSION="ppg-${PG_VERSION}"
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-RELEASE='1'
-PG_MAJOR_VERSION=$(echo $PG_VERSION | cut -f1 -d'.')
-PRODUCT=percona-ppg-server-${PG_MAJOR_VERSION}
-PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
 check_workdir
 get_system
-install_deps
+#install_deps
+if [ $INSTALL = 0 ]; then
+    echo "Dependencies will not be installed"
+else
+    source install-deps.sh "ppg-server"
+fi
 get_sources
 build_srpm
 build_source_deb

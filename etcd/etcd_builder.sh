@@ -1,95 +1,9 @@
 #!/usr/bin/env bash
-
-shell_quote_string() {
-  echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
-}
-
-usage () {
-    cat <<EOF
-Usage: $0 [OPTIONS]
-    The following options may be given :
-        --builddir=DIR      Absolute path to the dir where all actions will be performed
-        --get_sources       Source will be downloaded from github
-        --build_src_rpm     If it is set - src rpm will be built
-        --build_src_deb  If it is set - source deb package will be built
-        --build_rpm         If it is set - rpm will be built
-        --build_deb         If it is set - deb will be built
-        --etcd_version      etcd version
-        --install_deps      Install build dependencies(root privilages are required)
-        --pg_version        Packaging branch version
-        --repo              Repo for build
-        --help) usage ;;
-Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
-EOF
-        exit 1
-}
-
-append_arg_to_args () {
-  args="$args "$(shell_quote_string "$1")
-}
-
-parse_arguments() {
-    pick_args=
-    if test "$1" = PICK-ARGS-FROM-ARGV
-    then
-        pick_args=1
-        shift
-    fi
-
-    for arg do
-        val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
-        case "$arg" in
-            --builddir=*) WORKDIR="$val" ;;
-            --build_src_rpm=*) SRPM="$val" ;;
-            --build_src_deb=*) SDEB="$val" ;;
-            --build_rpm=*) RPM="$val" ;;
-            --build_deb=*) DEB="$val" ;;
-            --etcd_version=*) VERSION="$val" ;;
-            --get_sources=*) SOURCE="$val" ;;
-            --pg_version=*) PG_VERSION="$val" ;;
-            --repo=*) REPO="$val" ;;
-            --install_deps=*) INSTALL="$val" ;;
-            --help) usage ;;
-            *)
-              if test -n "$pick_args"
-              then
-                  append_arg_to_args "$arg"
-              fi
-              ;;
-        esac
-    done
-}
-
-check_workdir(){
-    if [ "x$WORKDIR" = "x$CURDIR" ]
-    then
-        echo >&2 "Current directory cannot be used for building!"
-        exit 1
-    else
-        if ! test -d "$WORKDIR"
-        then
-            echo >&2 "$WORKDIR is not a directory."
-            exit 1
-        fi
-    fi
-    return
-}
-
-add_percona_yum_repo(){
-    yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
-
-add_percona_apt_repo(){
-    wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-    dpkg -i percona-release_latest.generic_all.deb
-    rm -f percona-release_latest.generic_all.deb
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
+set -x
+# Versions and other variables
+source versions.sh "etcd"
+# Common functions
+source common-functions.sh
 
 get_sources(){
     cd "${WORKDIR}"
@@ -98,21 +12,12 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=etcd
-    echo "PRODUCT=${PRODUCT}" > etcd.properties
 
-    PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> etcd.properties
+    echo "PRODUCT=${ETCD_PRODUCT}" > etcd.properties
+    echo "PRODUCT_FULL=${ETCD_PRODUCT_FULL}" >> etcd.properties
     echo "VERSION=${PSM_VER}" >> etcd.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> etcd.properties
     echo "BUILD_ID=${BUILD_ID}" >> etcd.properties
-#    git clone "$REPO" ${PRODUCT_FULL}
-#    retval=$?
-#    if [ $retval != 0 ]
-#    then
-#        echo "There were some issues during repo cloning from github. Please retry one more time"
-#        exit 1
-#    fi
 
     ARCH=$(uname -m)
     if [ "$ARCH" = "x86_64" ]; then
@@ -121,22 +26,22 @@ get_sources(){
         ARCH="arm64"
     fi
 
-    wget https://github.com/etcd-io/etcd/releases/download/v${VERSION}/etcd-v${VERSION}-linux-${ARCH}.tar.gz
-    tar -xvzf etcd-v${VERSION}-linux-${ARCH}.tar.gz
-    mkdir -p ${PRODUCT_FULL}
-    cp -rp etcd-v${VERSION}-linux-${ARCH}/* ${PRODUCT_FULL}
-    cd ${PRODUCT_FULL}
+    wget ${ETCD_SRC_REPO}/etcd-v${ETCD_VERSION}-linux-${ARCH}.tar.gz
+    tar -xvzf etcd-v${ETCD_VERSION}-linux-${ARCH}.tar.gz
+    mkdir -p ${ETCD_PRODUCT_FULL}
+    cp -rp etcd-v${ETCD_VERSION}-linux-${ARCH}/* ${ETCD_PRODUCT_FULL}
+    cd ${ETCD_PRODUCT_FULL}
     rm -fr debian rpm
 
-    git clone https://github.com/EvgeniyPatlan/etcd-packaging.git deb_packaging
+    git clone ${ETCD_SRC_REPO_DEB} deb_packaging
     mv deb_packaging/deb ./debian
     cd debian/
     rm -f etcd-server.install etcd-client.install rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/etcd/etcd-server.install
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/etcd/rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/etcd/etcd-client.install
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/etcd/etcd.service
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/etcd/etcd.conf.yaml
+    wget ${PKG_RAW_URL}/etcd/etcd-server.install
+    wget ${PKG_RAW_URL}/etcd/rules
+    wget ${PKG_RAW_URL}/etcd/etcd-client.install
+    wget ${PKG_RAW_URL}/etcd/etcd.service
+    wget ${PKG_RAW_URL}/etcd/etcd.conf.yaml
     mv etcd.conf.yaml ../
 
     rm -f etcd-server.etcd.service
@@ -148,100 +53,23 @@ get_sources(){
 
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/etcd/etcd.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/etcd/etcd.service
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/etcd/etcd.conf.yaml
+    wget ${PKG_RAW_URL}/etcd/etcd.spec
+    wget ${PKG_RAW_URL}/etcd/etcd.service
+    wget ${PKG_RAW_URL}/etcd/etcd.conf.yaml
     cd ${WORKDIR}
     #
     source etcd.properties
     #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    tar --owner=0 --group=0 --exclude=.* -czf ${ETCD_PRODUCT_FULL}.tar.gz ${ETCD_PRODUCT_FULL}
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> etcd.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${ETCD_PRODUCT}/${ETCD_PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> etcd.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
+    cp ${ETCD_PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
+    cp ${ETCD_PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
     #rm -rf etcd*
-    return
-}
-
-get_system(){
-    if [ -f /etc/redhat-release ]; then
-        RHEL=$(rpm --eval %rhel)
-        ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-        OS_NAME="el$RHEL"
-        OS="rpm"
-    else
-        ARCH=$(uname -m)
-        OS_NAME="$(lsb_release -sc)"
-        OS="deb"
-    fi
-    return
-}
-
-install_deps() {
-    if [ $INSTALL = 0 ]; then
-        echo "Dependencies will not be installed"
-        return;
-    fi
-    if [ $( id -u ) -ne 0 ]; then
-        echo "It is not possible to instal dependencies. Please run as root"
-        exit 1
-    fi
-    CURPLACE=$(pwd)
-
-    if [ "x$OS" = "xrpm" ]; then
-      RHEL=$(rpm --eval %rhel)
-      #add_percona_yum_repo
-      yum clean all
-      if [[ "${RHEL}" -eq 10 ]]; then
-        yum install oracle-epel-release-el10
-      else
-        yum -y install epel-release
-      fi
-      if [ ${RHEL} -gt 7 ]; then
-          #dnf -y module disable postgresql
-          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-          dnf clean all
-          rm -r /var/cache/dnf
-          dnf -y upgrade
-      fi
-      INSTALL_LIST="git vim wget go-toolset rpmdevtools python3-devel"
-      yum -y install ${INSTALL_LIST}
-
-    else
-      apt-get update || true
-      export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install lsb-release wget curl gnupg2
-      export DEBIAN=$(lsb_release -sc)
-      add_percona_apt_repo
-      apt-get update || true
-      INSTALL_LIST="git vim wget rpm dpkg-dev build-essential ccache cron debconf debhelper devscripts dh-exec curl dh-golang fakeroot golang-go"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-    fi
-    return;
-}
-
-get_tar(){
-    TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'etcd*.tar.gz' | sort | tail -n1))
-
-    if [ -z $TARFILE ]
-    then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'etcd*.tar.gz' | sort | tail -n1))
-	if [ -z $TARFILE ]
-        then
-            echo "There is no $TARBALL for build"
-            exit 1
-        else
-            cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-        fi
-    else
-        cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    fi
     return
 }
 
@@ -277,7 +105,7 @@ build_srpm(){
         exit 1
     fi
     cd $WORKDIR
-    get_tar "source_tarball"
+    get_tar "source_tarball" "etcd"
     rm -fr rpmbuild
     #ls | grep -v tar.gz | xargs rm -rf
     TARFILE=$(find . -name 'etcd*.tar.gz' | sort | tail -n1)
@@ -292,7 +120,7 @@ build_srpm(){
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
     rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/etcd.spec
+        --define "version ${ETCD_VERSION}" rpmbuild/SPECS/etcd.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -340,9 +168,9 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    export LIBPQ_DIR=/usr/pgsql-15/
-    export LIBRARY_PATH=/usr/pgsql-15/lib/:/usr/pgsql-15/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-15" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR}/
+    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR}/lib/:/usr/pgsql-${PG_MAJOR}/include/
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-$PG_MAJOR" --define "dist .$OS_NAME" --define "version ${ETCD_VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -366,7 +194,7 @@ build_source_deb(){
         exit 1
     fi
     rm -rf etcd*
-    get_tar "source_tarball"
+    get_tar "source_tarball" "etcd"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
     TARFILE=$(basename $(find . -name 'etcd*.tar.gz' | sort | tail -n1))
@@ -376,18 +204,18 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${ETCD_PRODUCT}_${ETCD_VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "etcd (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "etcd (${ETCD_VERSION}-${ETCD_RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new etcd version ${VERSION}"
+    dch -D unstable --force-distribution -v "${ETCD_VERSION}-${ETCD_RELEASE}" "Update to new etcd version ${ETCD_VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -431,8 +259,8 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${ETCD_PRODUCT_FULL}
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${ETCD_VERSION}-${ETCD_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -459,21 +287,18 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
 REVISION=0
-REPO="https://github.com/etcd-io/etcd.git"
-PRODUCT=etcd
 DEBUG=0
-VERSION='3.5.21'
-RELEASE='1'
-PG_VERSION=15.14
-parse_arguments PICK-ARGS-FROM-ARGV "$@"
-PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
 
+parse_arguments PICK-ARGS-FROM-ARGV "$@"
 check_workdir
 get_system
-install_deps
+#install_deps
+if [ $INSTALL = 0 ]; then
+    echo "Dependencies will not be installed"
+else
+    source install-deps.sh "etcd"
+fi
 get_sources
 build_srpm
 build_source_deb

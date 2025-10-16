@@ -1,77 +1,10 @@
 #!/usr/bin/env bash
+set -x
 
-shell_quote_string() {
-  echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
-}
-
-usage () {
-    cat <<EOF
-Usage: $0 [OPTIONS]
-    The following options may be given :
-        --builddir=DIR      Absolute path to the dir where all actions will be performed
-        --get_sources       Source will be downloaded from github
-        --build_src_rpm     If it is set - src rpm will be built
-        --build_src_deb  If it is set - source deb package will be built
-        --build_rpm         If it is set - rpm will be built
-        --build_deb         If it is set - deb will be built
-        --install_deps      Install build dependencies(root privilages are required)
-        --branch            Branch for build
-        --repo              Repo for build
-        --help) usage ;;
-Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
-EOF
-        exit 1
-}
-
-append_arg_to_args () {
-  args="$args "$(shell_quote_string "$1")
-}
-
-parse_arguments() {
-    pick_args=
-    if test "$1" = PICK-ARGS-FROM-ARGV
-    then
-        pick_args=1
-        shift
-    fi
-
-    for arg do
-        val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
-        case "$arg" in
-            --builddir=*) WORKDIR="$val" ;;
-            --build_src_rpm=*) SRPM="$val" ;;
-            --build_src_deb=*) SDEB="$val" ;;
-            --build_rpm=*) RPM="$val" ;;
-            --build_deb=*) DEB="$val" ;;
-            --get_sources=*) SOURCE="$val" ;;
-            --branch=*) BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
-            --install_deps=*) INSTALL="$val" ;;
-            --help) usage ;;
-            *)
-              if test -n "$pick_args"
-              then
-                  append_arg_to_args "$arg"
-              fi
-              ;;
-        esac
-    done
-}
-
-check_workdir(){
-    if [ "x$WORKDIR" = "x$CURDIR" ]
-    then
-        echo >&2 "Current directory cannot be used for building!"
-        exit 1
-    else
-        if ! test -d "$WORKDIR"
-        then
-            echo >&2 "$WORKDIR is not a directory."
-            exit 1
-        fi
-    fi
-    return
-}
+# Versions and other variables
+source versions.sh "postgresql-common"
+# Common functions
+source common-functions.sh
 
 get_sources(){
     cd "${WORKDIR}"
@@ -80,28 +13,26 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-postgresql-common
-    echo "PRODUCT=${PRODUCT}" > percona-postgresql.properties
 
-    PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> percona-postgresql.properties
-    echo "VERSION=${VERSION}" >> percona-postgresql.properties
+    echo "PRODUCT=${PPG_COMMON_PRODUCT}" > percona-postgresql.properties
+    echo "PRODUCT_FULL=${PPG_COMMON_PRODUCT_FULL}" >> percona-postgresql.properties
+    echo "VERSION=${PPG_COMMON_MAJOR}" >> percona-postgresql.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgresql.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgresql.properties
-    git clone "$REPO"
+    git clone "$PPG_COMMON_SRC_REPO"
     retval=$?
     if [ $retval != 0 ]
     then
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
-    mv postgresql-common ${PRODUCT_FULL}
-    cd ${PRODUCT_FULL}
-    if [ ! -z "$BRANCH" ]
+    mv postgresql-common ${PPG_COMMON_PRODUCT_FULL}
+    cd ${PPG_COMMON_PRODUCT_FULL}
+    if [ ! -z "$PPG_COMMON_SRC_BRANCH" ]
     then
         git reset --hard
         git clean -xdf
-        git checkout "$BRANCH"
+        git checkout "$PPG_COMMON_SRC_BRANCH"
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgresql.properties
@@ -118,21 +49,21 @@ get_sources(){
                 mv $file $newname; 
         done
             rm -rf rules control supported-versions 
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/control
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/maintscripts-functions.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.templates.patch
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/rules
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/supported-versions
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/postgresql-common.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/refs/heads/${PG_VERSION}/postgres-common/percona-postgresql-common-dev.install
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/refs/heads/${PG_VERSION}/postgres-common/percona-postgresql-server-dev-all.install
+        wget ${PKG_RAW_URL}/postgres-common/control
+        wget ${PKG_RAW_URL}/postgres-common/maintscripts-functions.patch
+        wget ${PKG_RAW_URL}/postgres-common/percona-postgresql-common.templates.patch
+        wget ${PKG_RAW_URL}/postgres-common/rules
+        wget ${PKG_RAW_URL}/postgres-common/supported-versions
+        wget ${PKG_RAW_URL}/postgres-common/postgresql-common.install
+        wget ${PKG_RAW_URL}/postgres-common/percona-postgresql-common-dev.install
+        wget ${PKG_RAW_URL}/postgres-common/percona-postgresql-server-dev-all.install
         cp postgresql-common.tmpfiles postgresql-common.conf
         sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch
         patch -p0 < percona-postgresql-common.templates.patch
         rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch
         rm -rf changelog
-        echo "percona-postgresql-common (${VERSION}) unstable; urgency=low" >> changelog
+        echo "percona-postgresql-common (${PPG_COMMON_MAJOR}) unstable; urgency=low" >> changelog
         echo "  * Initial Release." >> changelog
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
         sed -i 's:percona-postgresql-plpython-$v,::' rules
@@ -150,105 +81,31 @@ get_sources(){
         echo "dh_make_pgxs/dh_make_pgxs.1" >> percona-postgresql-server-dev-all.manpages
         echo "debhelper/dh_pgxs_test.1" >> percona-postgresql-server-dev-all.manpages
     cd ../
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/pgcommon.sh
+    wget ${PKG_RAW_URL}/postgres-common/pgcommon.sh
     sudo chmod +x pgcommon.sh
     cd rpm
         for file in $(ls | grep postgresql); do
             mv $file "percona-$file"
         done
         rm -rf percona-postgresql-common.spec
-        wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/postgres-common/percona-postgresql-common.spec
+        wget ${PKG_RAW_URL}/postgres-common/percona-postgresql-common.spec
         if [ ${ARCH} = "aarch64" ]; then
             sed -e '4d' percona-postgresql-common.spec
         fi
     cd ../
     cd ${WORKDIR}
-    #
-    source percona-postgresql.properties
-    #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    source percona-postgresql.properties
+
+    tar --owner=0 --group=0 --exclude=.* -czf ${PPG_COMMON_PRODUCT_FULL}.tar.gz ${PPG_COMMON_PRODUCT_FULL}
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}-16/${PRODUCT_FULL}/${BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> percona-postgresql.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PPG_COMMON_PRODUCT}-$PG_MAJOR/${PPG_COMMON_PRODUCT_FULL}/${PPG_COMMON_SRC_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> percona-postgresql.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
+    cp ${PPG_COMMON_PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
+    cp ${PPG_COMMON_PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
     rm -rf percona-postgresql*
-    return
-}
-
-get_system(){
-    if [ -f /etc/redhat-release ]; then
-        RHEL=$(rpm --eval %rhel)
-        ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-        OS_NAME="el$RHEL"
-        OS="rpm"
-    else
-        ARCH=$(uname -m)
-        OS_NAME="$(lsb_release -sc)"
-        OS="deb"
-    fi
-    return
-}
-
-install_deps() {
-    if [ $INSTALL = 0 ]
-    then
-        echo "Dependencies will not be installed"
-        return;
-    fi
-    if [ $( id -u ) -ne 0 ]
-    then
-        echo "It is not possible to instal dependencies. Please run as root"
-        exit 1
-    fi
-    CURPLACE=$(pwd)
-
-    if [ "x$OS" = "xrpm" ]; then
-      yum -y install wget
-      yum clean all
-      RHEL=$(rpm --eval %rhel)
-      if [[ "${RHEL}" -eq 10 ]]; then
-        yum install oracle-epel-release-el10
-      else
-        yum -y install epel-release
-      fi
-      INSTALL_LIST="git patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed rpmdevtools wget perl-podlators sudo make"
-      yum -y install ${INSTALL_LIST}
-    else
-      apt-get update || true
-      apt-get -y install lsb-release
-      export DEBIAN=$(lsb_release -sc)
-      export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get -y install gnupg2
-      apt-get update || true
-      INSTALL_LIST="git wget debhelper libreadline-dev lsb-release rename devscripts sudo"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
-    fi
-    return;
-}
-
-get_tar(){
-    TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
-    if [ -z $TARFILE ]
-    then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
-        if [ -z $TARFILE ]
-        then
-            echo "There is no $TARBALL for build"
-            exit 1
-        else
-            cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-        fi
-    else
-        cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    fi
     return
 }
 
@@ -284,22 +141,22 @@ build_srpm(){
         exit 1
     fi
     cd $WORKDIR
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-postgresql-common"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
     TARFILE=$(find . -name 'percona-postgresql*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
-    #
+
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
-    #
+
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
     cd ../../
     cp -av rpmbuild/SOURCES/*.spec rpmbuild/SPECS
-    #
+
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" --define "version ${VERSION}"\
+    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" --define "version ${PPG_COMMON_MAJOR}"\
         rpmbuild/SPECS/percona-postgresql-common.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -340,11 +197,11 @@ build_rpm(){
     cp $SRC_RPM rpmbuild/SRPMS/
 
     cd rpmbuild/SRPMS/
-    #
+
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "version ${VERSION}" --define "dist .$OS_NAME" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "version ${PPG_COMMON_MAJOR}" --define "dist .$OS_NAME" --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -369,19 +226,19 @@ build_source_deb(){
     fi
     rm -rf percona-postgresql-common*
     rm -f *.dsc *.orig.tar.gz *.tar.* *.changes
-    get_tar "source_tarball"
-    #
+    get_tar "source_tarball" "percona-postgresql-common"
+
     TARFILE=$(basename $(find . -name 'percona-postgresql-common*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
-    #
+
     
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PPG_COMMON_PRODUCT}_${PPG_COMMON_MAJOR}.orig.tar.gz
     cd ${BUILDDIR}
 
-    dch -D unstable --force-distribution -v "${VERSION}" "Update to new Percona Platform for PostgreSQL version ${VERSION}"
+    dch -D unstable --force-distribution -v "${PPG_COMMON_MAJOR}" "Update to new Percona Platform for PostgreSQL version ${PPG_COMMON_MAJOR}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -413,23 +270,23 @@ build_deb(){
     done
     cd $WORKDIR
     rm -fv *.deb
-    #
+
     export DEBIAN=$(lsb_release -sc)
     export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    #
+
     echo "DEBIAN=${DEBIAN}" >> percona-postgresql.properties
     echo "ARCH=${ARCH}" >> percona-postgresql.properties
 
-    #
+
     DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
-    #
+
     dpkg-source -x ${DSC}
-    #
-    cd ${PRODUCT}-common-${VERSION}
+
+    cd ${PPG_COMMON_PRODUCT_FULL}
     if [ ${DEBIAN} = "stretch" ]; then
         sed -i 's:12:11:' debian/compat
     fi
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PPG_COMMON_MAJOR}-${PPG_COMMON_MINOR}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     sed -i '38,55d' Makefile
     dpkg-buildpackage -rfakeroot -us -uc -b
@@ -457,22 +314,19 @@ OS_NAME=
 ARCH=
 OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
 REVISION=0
-BRANCH="debian/280"
-REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
-PRODUCT=percona-postgresql
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='280'
-RELEASE='1'
-PRODUCT_FULL=${PRODUCT}-${VERSION}
-PG_VERSION=16.10
 
 check_workdir
 get_system
-install_deps
+
+#install_deps
+if [ $INSTALL = 0 ]; then
+    echo "Dependencies will not be installed"
+else
+    source install-deps.sh "postgresql-common"
+fi
 get_sources
 build_srpm
 build_source_deb

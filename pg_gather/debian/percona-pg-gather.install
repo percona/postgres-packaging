@@ -1,2 +1,1 @@
-debian/tmp/gather.sql /usr/bin
-debian/tmp/gather.sql /usr/pgsql-16/bin
+debian/tmp/gather.sql /usr/share/postgresql/17/contrib

@@ -338,6 +338,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 
 if [ ${NIGHTLY} = 1 ]; then
    NIGHTLY_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+   PG_SRC_BRANCH=$PG_SRC_BRANCH_NIGHTLY
    if [ "x$OS" = "xrpm" ]; then
       BUILD_RELEASE=${NIGHTLY_TIMESTAMP}.${PG_RPM_RELEASE}
    else

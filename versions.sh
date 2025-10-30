@@ -25,6 +25,7 @@ case "$1" in
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
         PG_RELEASE='1'
         PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}.${PG_RELEASE}"
+        PG_SRC_BRANCH_NIGHTLY="TDE_REL_${PG_MAJOR}_STABLE"
         PG_RPM_RELEASE='1'
         PG_DEB_RELEASE='1'
 

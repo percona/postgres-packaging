@@ -10,6 +10,7 @@ usage () {
 Usage: $0 [OPTIONS]
     The following options may be given :
         --builddir=DIR      Absolute path to the dir where all actions will be performed
+        --nightly           If it is set - nightly build will be performed
         --get_sources       Source will be downloaded from github
         --build_src_rpm     If it is set - src rpm will be built
         --build_src_deb  If it is set - source deb package will be built
@@ -41,6 +42,7 @@ parse_arguments() {
         val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
         case "$arg" in
             --builddir=*) WORKDIR="$val" ;;
+            --nightly=*) NIGHTLY="$val" ;;
             --build_src_rpm=*) SRPM="$val" ;;
             --build_src_deb=*) SDEB="$val" ;;
 			--build_source_deb=*) SDEB="$val" ;;

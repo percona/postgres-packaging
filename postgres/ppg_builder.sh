@@ -18,7 +18,7 @@ get_sources(){
     echo "VERSION=${PSM_VER}" >> percona-postgresql.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgresql.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgresql.properties
-    git clone "$PG_SRC_REPO"
+    git clone "$PG_SRC_REPO" postgresql
     retval=$?
     if [ $retval != 0 ]
     then

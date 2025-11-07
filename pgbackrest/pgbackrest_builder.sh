@@ -127,8 +127,14 @@ build_srpm(){
     cp -av rpm/pgbackrest.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-$PG_MAJOR" --define "dist .generic" \
-        --define "version ${PG_BCKREST_VERSION}" rpmbuild/SPECS/pgbackrest.spec
+    rpmbuild -bs \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-$PG_MAJOR" \
+        --define "dist .generic" \
+        --define "pgmajor ${PG_MAJOR}" \
+        --define "version ${PG_BCKREST_VERSION}" \
+        --define "release ${PG_BCKREST_RELEASE}" \
+        rpmbuild/SPECS/pgbackrest.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -178,7 +184,14 @@ build_rpm(){
     fi
     export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR}/
     export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR}/lib/:/usr/pgsql-${PG_MAJOR}/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-$PG_MAJOR" --define "dist .$OS_NAME" --define "version ${PG_BCKREST_VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-$PG_MAJOR" \
+        --define "dist .$OS_NAME" \
+        --define "pgmajor ${PG_MAJOR}" \
+        --define "version ${PG_BCKREST_VERSION}" \
+        --define "release ${PG_BCKREST_RELEASE}" \
+        --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -293,9 +306,6 @@ SDEB=0
 RPM=0
 DEB=0
 SOURCE=0
-OS_NAME=
-ARCH=
-OS=
 INSTALL=0
 REVISION=0
 DEBUG=0

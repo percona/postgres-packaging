@@ -7,5 +7,5 @@ Standards-Version: 31
 
 Package: percona-pg-gather
 Architecture: any
-Depends: percona-postgresql-17
+Depends: percona-postgresql-18
 Description: pg_gather consists of one sql-only script (gather.sql) for gathering performance and configuration data from PostgreSQL databases.

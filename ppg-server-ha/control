@@ -1,11 +1,11 @@
-Source: percona-ppg-server-ha-17
+Source: percona-ppg-server-ha-18
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 17.6.0
+Standards-Version: 18.0
 Homepage: www.percona.com
 
-Package: percona-ppg-server-ha-17
+Package: percona-ppg-server-ha-18
 Architecture: any
 Depends:
  etcd | etcd-server,

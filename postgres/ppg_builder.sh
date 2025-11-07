@@ -18,7 +18,7 @@ get_sources(){
     echo "VERSION=${PSM_VER}" >> percona-postgresql.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgresql.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgresql.properties
-    git clone "$PG_SRC_REPO"
+    git clone "$PG_SRC_REPO" postgresql
     retval=$?
     if [ $retval != 0 ]
     then
@@ -152,9 +152,16 @@ build_srpm(){
     rm -f call-home.sh part2.txt
     mv part1.txt percona-postgresql-$PG_MAJOR.spec
     cd ${WORKDIR}
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "pgmajorversion ${PG_MAJOR}" --define "pginstdir /usr/pgsql-${PG_MAJOR}"  --define "pgpackageversion ${PG_MAJOR}" \
-        --define "release ${BUILD_RELEASE}" rpmbuild/SPECS/percona-postgresql-${PG_MAJOR}.spec
+    rpmbuild -bs \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "dist .generic" \
+        --define "pgmajorversion ${PG_MAJOR}" \
+        --define "pginstdir /usr/pgsql-${PG_MAJOR}"  \
+        --define "pgpackageversion ${PG_MAJOR}" \
+        --define "version ${PG_VERSION}" \
+        --define "pg_release ${PG_RELEASE}" \
+        --define "release ${BUILD_RELEASE}" \
+        rpmbuild/SPECS/percona-postgresql-${PG_MAJOR}.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -202,8 +209,16 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "pgmajorversion ${PG_MAJOR}" --define "pginstdir /usr/pgsql-${PG_MAJOR}" --define "pgpackageversion ${PG_MAJOR}" \
-    --define "release ${BUILD_RELEASE}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "dist .$OS_NAME" \
+        --define "pgmajorversion ${PG_MAJOR}" \
+        --define "pginstdir /usr/pgsql-${PG_MAJOR}" \
+        --define "pgpackageversion ${PG_MAJOR}" \
+        --define "version ${PG_VERSION}" \
+        --define "pg_release ${PG_RELEASE}" \
+        --define "release ${BUILD_RELEASE}" \
+        --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -293,7 +308,7 @@ build_deb(){
     dpkg-source -x ${DSC}
 
     cd ${PPG_PRODUCT}-${PG_MAJOR}-${PG_VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${PG_VERSION}-${BUILD_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PG_VERSION}-${BUILD_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
         cd debian/
         wget "${TELEMETRY_AGENT}"
@@ -321,7 +336,7 @@ build_deb(){
 #main
 
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/percona-server-mongodb.properties
+VERSION_FILE=$CURDIR/percona-postgresql.properties
 args=
 WORKDIR=
 SRPM=0
@@ -329,9 +344,6 @@ SDEB=0
 RPM=0
 DEB=0
 SOURCE=0
-OS_NAME=
-ARCH=
-OS=
 INSTALL=0
 REVISION=0
 DEBUG=0
@@ -339,6 +351,7 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 
 if [ ${NIGHTLY} = 1 ]; then
    NIGHTLY_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+   PG_SRC_BRANCH=$PG_SRC_BRANCH_NIGHTLY
    if [ "x$OS" = "xrpm" ]; then
       BUILD_RELEASE=${NIGHTLY_TIMESTAMP}.${PG_RPM_RELEASE}
    else

@@ -1,11 +1,11 @@
 %global sname   percona-ppg-server-ha
-%global pgmajorversion 17
-%global version 6
+%global pgmajorversion %{pgmajor}
+%global version %{pgminorversion}
 
 Summary:        Percona selection of PostgreSQL%{pgmajorversion} HA components
 Name:           %{sname}%{pgmajorversion}
-Version:        %{pgmajorversion}.%{version}
-Release:        1%{?dist}
+Version:        %{pgmajorversion}.%{pgminorversion}
+Release:        %{release}%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases
 URL:            https://www.percona.com/software/postgresql-distribution

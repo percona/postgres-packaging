@@ -115,8 +115,13 @@ build_srpm(){
     cp -av rpm/percona-pgaudit${PG_MAJOR}_set_user.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-        --define "version ${SET_USER_VERSION}" rpmbuild/SPECS/percona-pgaudit${PG_MAJOR}_set_user.spec
+    rpmbuild -bs \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "dist .generic" \
+        --define "pgmajorversion ${PG_MAJOR}" \
+        --define "version ${SET_USER_VERSION}" \
+        --define "release ${SET_USER_RELEASE}" \
+        rpmbuild/SPECS/percona-pgaudit${PG_MAJOR}_set_user.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -167,7 +172,13 @@ build_rpm(){
     if [[ "${RHEL}" -eq 10 ]]; then
         export QA_RPATHS=0x0002
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pgmajorversion $PG_MAJOR" --define "dist .$OS_NAME" --define "version ${SET_USER_VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pgmajorversion $PG_MAJOR" \
+        --define "dist .$OS_NAME" \
+        --define "version ${SET_USER_VERSION}" \
+        --define "release ${SET_USER_RELEASE}" \
+        --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -272,9 +283,6 @@ SDEB=0
 RPM=0
 DEB=0
 SOURCE=0
-OS_NAME=
-ARCH=
-OS=
 INSTALL=0
 REVISION=0
 DEBUG=0

@@ -1,15 +1,12 @@
 %global         debug_package %{nil}
 
 %define         name python3-pysyncobj
-%define         version 0.3.10
-%define         unmangled_version 0.3.10
-%define         release 1
 
 Summary: A library for replicating your python class between multiple servers, based on raft protocol
 Name:           %{name}
 Version:        %{version}
 Release:        %{release}%{?dist}
-Source0:        %{name}-%{unmangled_version}.tar.gz
+Source0:        %{name}-%{version}.tar.gz
 License:        MIT
 Group:          Development/Libraries
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -23,7 +20,7 @@ BuildRequires:  python3-devel
 A library for replicating your python class between multiple servers, based on raft protocol
 
 %prep
-%setup -n %{name}-%{unmangled_version} -n %{name}-%{unmangled_version}
+%setup -n %{name}-%{version} -n %{name}-%{version}
 
 %build
 python3 setup.py build

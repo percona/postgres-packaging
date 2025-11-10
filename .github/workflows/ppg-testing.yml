@@ -328,7 +328,7 @@ jobs:
             echo "package version = $(rpm -qa | grep percona-pg_tde)"
             cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/pg_tde.control | grep 'version'
           else
-            echo "package version = $(dpkg -s percona-pg-tde-${{ env.PG_MAJOR }} | grep ^Version)"
+            echo "package version = $(dpkg -s percona-postgresql-${{ env.PG_MAJOR }}-pg-tde | grep ^Version)"
             cat /usr/share/postgresql/${{ env.PG_MAJOR }}/extension/pg_tde.control | grep 'version'
           fi
         shell: bash

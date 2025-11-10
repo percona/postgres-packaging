@@ -1,11 +1,11 @@
 %global sname   percona-ppg-server-ha
-%global pgmajorversion 15
-%global version 14
+%global pgmajorversion %{pgmajor}
+%global version %{pgminorversion}
 
 Summary:        Percona selection of PostgreSQL%{pgmajorversion} HA components
 Name:           %{sname}%{pgmajorversion}
-Version:        %{pgmajorversion}.%{version}
-Release:        1%{?dist}
+Version:        %{pgmajorversion}.%{pgminorversion}
+Release:        %{release}%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases
 URL:            https://www.percona.com/software/postgresql-distribution
@@ -18,7 +18,7 @@ Requires:       percona-patroni
 Requires:       percona-haproxy
 
 %description
-Essential / key PostgreSQL15 high availability components
+Essential / key PostgreSQL%{pgmajorversion} high availability components
 Percona Distribution for PostgreSQL features core components, tools and add-ons
 from the community, tested to work together in demanding enterprise environments
 

@@ -1,4 +1,4 @@
-%define pgmajorversion 14
+%define pgmajorversion %{pgmajor}
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global pname vector
 %global sname percona-pgvector_%{pgmajorversion}
@@ -14,8 +14,8 @@
 %endif
 
 Name:		%{sname}
-Version:	0.8.0
-Release:	3%{?dist}
+Version:	%{version}
+Release:	%{release}%{?dist}
 Summary:	Open-source vector similarity search for Postgres
 License:	PostgreSQL
 URL:		https://github.com/%{sname}/%{sname}/

@@ -131,7 +131,7 @@ jobs:
           PGBOUNCER="percona-pgbouncer"
           PGPOOL="percona-pgpool-II-pg${{ env.PG_MAJOR }} percona-pgpool-II-pg${{ env.PG_MAJOR }}-extensions"
           POSTGIS="percona-postgis33_${{ env.PG_MAJOR }} percona-postgis33_${{ env.PG_MAJOR }}-client percona-postgis33_${{ env.PG_MAJOR }}-client-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-devel percona-postgis33_${{ env.PG_MAJOR }}-docs percona-postgis33_${{ env.PG_MAJOR }}-gui percona-postgis33_${{ env.PG_MAJOR }}-gui-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-llvmjit percona-postgis33_${{ env.PG_MAJOR }}-utils"
-          if [[ "${{ env.PG_MAJOR }}" == 18 ]]; then
+          if [[ ${{ env.PG_MAJOR }} -eq 18 ]]; then
             POSTGIS="percona-postgis35_${{ env.PG_MAJOR }} percona-postgis35_${{ env.PG_MAJOR }}-client percona-postgis35_${{ env.PG_MAJOR }}-client-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-devel percona-postgis35_${{ env.PG_MAJOR }}-docs percona-postgis35_${{ env.PG_MAJOR }}-gui percona-postgis35_${{ env.PG_MAJOR }}-gui-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-llvmjit percona-postgis35_${{ env.PG_MAJOR }}-utils"
           fi
           WAL2JSON="percona-wal2json${{ env.PG_MAJOR }}"
@@ -143,7 +143,7 @@ jobs:
           fi
           HAPROXY="percona-haproxy"
           INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"
-          if [[ "${{ env.PG_MAJOR }}" >= 17 ]]; then
+          if [[ ${{ env.PG_MAJOR }} -ge 17 ]]; then
             PG_TDE="percona-pg_tde_${{ env.PG_MAJOR }} "
             INSTALL_LIST+=" $PG_TDE"
           fi
@@ -170,7 +170,7 @@ jobs:
           ETCD="etcd"
           HAPROXY="percona-haproxy"
           INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"
-          if [[ "${{ env.PG_MAJOR }}" >= 17 ]]; then
+          if [[ ${{ env.PG_MAJOR }} -ge 17 ]]; then
             PG_TDE="percona-pg-tde-${{ env.PG_MAJOR }} "
             INSTALL_LIST+=" $PG_TDE"
           fi

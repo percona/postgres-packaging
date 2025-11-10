@@ -175,6 +175,7 @@ jobs:
             INSTALL_LIST+=" $PG_TDE"
           fi
           echo "INSTALL_LIST="$INSTALL_LIST"" >> $GITHUB_ENV
+        shell: bash
                   
       - name: Install Packages
         run: |

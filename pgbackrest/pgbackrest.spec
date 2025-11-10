@@ -1,11 +1,11 @@
 %global debug_package %{nil}
-%global pgmajorversion 13
-%global pginstdir /usr/pgsql-13
+%global pgmajorversion %{pgmajor}
+%global pginstdir /usr/pgsql-%{pgmajorversion}
 
 Summary:        Reliable PostgreSQL Backup & Restore
 Name:           percona-pgbackrest
 Version:        %{version}
-Release:        1%{dist}
+Release:        %{release}%{dist}
 License:        MIT
 Group:          Applications/Databases
 URL:            http://www.pgbackrest.org

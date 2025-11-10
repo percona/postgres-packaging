@@ -1,4 +1,4 @@
-%define pgmajorversion 16
+%define pgmajorversion %{pgmajor}
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global sname percona-pg_cron_%{pgmajorversion}
 
@@ -14,8 +14,8 @@
 
 Summary:	Run periodic jobs in PostgreSQL
 Name:		%{sname}
-Version:	1.6.2
-Release:	2%{dist}
+Version:	%{version}
+Release:	%{release}%{dist}
 License:	AGPLv3
 Source0:	%{sname}-%{version}.tar.gz
 URL:		https://github.com/citusdata/pg_cron

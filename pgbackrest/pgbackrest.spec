@@ -1,11 +1,11 @@
 %global debug_package %{nil}
-%global pgmajorversion 16
-%global pginstdir /usr/pgsql-16
+%global pgmajorversion %{pgmajor}
+%global pginstdir /usr/pgsql-%{pgmajorversion}
 
 Summary:        Reliable PostgreSQL Backup & Restore
 Name:           percona-pgbackrest
 Version:        %{version}
-Release:        1%{dist}
+Release:        %{release}%{dist}
 License:        MIT
 Group:          Applications/Databases
 URL:            http://www.pgbackrest.org
@@ -81,7 +81,6 @@ meson setup builddir %{_builddir}/%{name}-%{version} \
   --buildtype=release
 
 ninja -C builddir
-
 
 %install
 %{__install} -D -d -m 0755 %{buildroot}%{perl_vendorlib} %{buildroot}%{_bindir}

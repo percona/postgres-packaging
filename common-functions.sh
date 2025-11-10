@@ -10,16 +10,13 @@ usage () {
 Usage: $0 [OPTIONS]
     The following options may be given :
         --builddir=DIR      Absolute path to the dir where all actions will be performed
+        --install_deps      Install build dependencies(root privilages are required)
         --nightly           If it is set - nightly build will be performed
         --get_sources       Source will be downloaded from github
         --build_src_rpm     If it is set - src rpm will be built
-        --build_src_deb  If it is set - source deb package will be built
+        --build_src_deb     If it is set - source deb package will be built
         --build_rpm         If it is set - rpm will be built
         --build_deb         If it is set - deb will be built
-        --install_deps      Install build dependencies(root privilages are required)
-        --branch            Branch for build
-        --repo              Repo for build
-        --version           Packaging repo
         --help) usage ;;
 Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
 EOF
@@ -42,27 +39,13 @@ parse_arguments() {
         val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
         case "$arg" in
             --builddir=*) WORKDIR="$val" ;;
+            --install_deps=*) INSTALL="$val" ;;
             --nightly=*) NIGHTLY="$val" ;;
+            --get_sources=*) SOURCE="$val" ;;
             --build_src_rpm=*) SRPM="$val" ;;
             --build_src_deb=*) SDEB="$val" ;;
-			--build_source_deb=*) SDEB="$val" ;;
             --build_rpm=*) RPM="$val" ;;
             --build_deb=*) DEB="$val" ;;
-            --get_sources=*) SOURCE="$val" ;;
-			--build_tarball=*) TARBALL="$val" ;;
-            --branch=*) BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
-			--pp_branch=*) BUILD_BRANCH="$val" ;;
-            --pp_repo=*) GIT_BUILD_REPO="$val" ;;
-            --version=*) VERSION=$(echo $val|awk -F'-' '{print $2}') ;;
-            --install_deps=*) INSTALL="$val" ;;
-            --postgis_branch=*) POSTGIS_BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
-            --postgis_gitrepo=*) POSTGIS_GITREPO="$val" ;;
-            --postgis_ver=*) POSTGIS_VERSION="$val" ;;
-            --rpm_release=*) RPM_RELEASE="$val" ;;
-            --deb_release=*) DEB_RELEASE="$val" ;;
-			--pg_release=*) PG_RELEASE="$val" ;;
             --help) usage ;;
             *)
               if test -n "$pick_args"

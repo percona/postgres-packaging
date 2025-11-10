@@ -146,6 +146,7 @@ build_srpm(){
     rpmbuild -bs \
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .generic" \
+        --define "pgmajor ${PG_MAJOR}" \
         --define "version ${PATRONI_VERSION}" \
         --define "release ${PATRONI_RELEASE}" \
         rpmbuild/SPECS/patroni.spec
@@ -195,6 +196,7 @@ build_rpm(){
     rpmbuild \
         --define "_topdir ${WORKDIR}/rb" \
         --define "dist .$OS_NAME" \
+        --define "pgmajor ${PG_MAJOR}" \
         --define "version ${PATRONI_VERSION}" \
         --define "release ${PATRONI_RELEASE}" \
         --rebuild rb/SRPMS/$SRC_RPM

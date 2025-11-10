@@ -8,8 +8,8 @@
 
 Summary:        A Template for PostgreSQL HA with ZooKeeper, etcd or Consul
 Name:           percona-patroni
-Version:        4.0.6
-Release:        1%{?dist}
+Version:        %{version}
+Release:        %{release}%{?dist}
 License:        MIT
 Source0:        %{name}-%{version}.tar.gz
 Source1:        %{sname}.service
@@ -39,7 +39,7 @@ Requires:      python3-pyyaml, python3-urllib3, python3-prettytable, python3-six
 Requires:      python36-six python2-pyyaml python36-urllib3 python36-prettytable python36-dateutil python36-click python36-psutil python36-PyYAML python36-psycopg2
 %endif
 Requires:      python3, libffi, postgresql-server, libyaml, python3-ydiff, ydiff, python3-pysyncobj
-Requires:      libffi, postgresql-server, libyaml, postgresql13-server
+Requires:      libffi, postgresql-server, libyaml, postgresql%{pgmajor}-server
 BuildRequires: libyaml-devel gcc
 Provides:      patroni
 Epoch:         1

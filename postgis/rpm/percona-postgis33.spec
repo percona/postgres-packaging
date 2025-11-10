@@ -1,9 +1,9 @@
 %undefine _debugsource_packages
-%global postgismajorversion 3.3
+%global postgismajorversion %{version}
 %global postgissomajorversion 3
-%global pgmajorversion 13
+%global pgmajorversion %{pgmajor}
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
-%global sname	postgis
+%global sname   postgis
 
 #%pgdg_set_gis_variables
 
@@ -96,7 +96,7 @@
 Summary:	Geographic Information Systems Extensions to PostgreSQL
 Name:		percona-postgis%{postgiscurrmajorversion}_%{pgmajorversion}
 Version:	%{postgismajorversion}.8
-Release:	2%{?dist}
+Release:	%{release}%{?dist}
 License:	GPLv2+
 Source0:	percona-postgis-%{version}.tar.gz
 Source2:        https://download.osgeo.org/postgis/docs/postgis-%{version}.pdf

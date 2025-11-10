@@ -1,11 +1,11 @@
 %global sname   percona-ppg-server
-%global pgmajorversion 13
-%global version 22
+%global pgmajorversion %{pgmajor}
+%global version %{pgminorversion}
 
 Summary:        Percona base selection of PostgreSQL%{pgmajorversion} components
 Name:           %{sname}%{pgmajorversion}
-Version:        %{pgmajorversion}.%{version}
-Release:        1%{?dist}
+Version:        %{pgmajorversion}.%{pgminorversion}
+Release:        %{release}%{?dist}
 License:        PostgreSQL
 Group:          Applications/Databases
 URL:            https://www.percona.com/software/postgresql-distribution
@@ -13,16 +13,16 @@ Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
 Requires:       percona-postgresql%{pgmajorversion}-server
-Requires:       percona-postgresql-common >= 13.22
+Requires:       percona-postgresql-common >= %{pgmajorversion}.%{pgminorversion}
 Requires:       percona-postgresql%{pgmajorversion}-contrib
 Requires:       percona-pg-stat-monitor%{pgmajorversion}
-Requires:       percona-postgresql-common > 13.22
-Requires:       percona-pgaudit13 > 13.21
+Requires:       percona-postgresql-common > %{pgmajorversion}.%{pgminorversion}
+Requires:       percona-pgaudit%{pgmajorversion} > %{expr: %{version} - 1}
 Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 
 %description
-Essential / key PostgreSQL13 components.
+Essential / key PostgreSQL%{pgmajorversion} components.
 Percona Distribution for PostgreSQL features core components, tools and add-ons 
 from the community, tested to work together in demanding enterprise environments.
 

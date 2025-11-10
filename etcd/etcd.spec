@@ -13,8 +13,8 @@
 %endif
 
 Name:		etcd
-Version:	3.5.21
-Release:	1%{?dist}
+Version:	%{version}
+Release:	%{release}%{?dist}
 Summary:	Distributed reliable key-value store
 License:	ASL 2.0
 URL:		https://github.com/%{name}-io/%{name}

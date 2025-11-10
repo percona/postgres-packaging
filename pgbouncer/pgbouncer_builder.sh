@@ -122,8 +122,13 @@ build_srpm(){
     cp -av rpm/percona-pgbouncer.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-$PG_MAJOR" --define "dist .generic" \
-        --define "version ${PGBOUNCER_VERSION}" rpmbuild/SPECS/percona-pgbouncer.spec
+    rpmbuild -bs \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-$PG_MAJOR" \
+        --define "dist .generic" \
+        --define "version ${PGBOUNCER_VERSION}" \
+        --define "release ${PGBOUNCER_RELEASE}" \
+        rpmbuild/SPECS/percona-pgbouncer.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -173,7 +178,13 @@ build_rpm(){
     fi
     export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR}/
     export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR}/lib/:/usr/pgsql-${PG_MAJOR}/include/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-$PG_MAJOR" --define "dist .$OS_NAME" --define "version ${PGBOUNCER_VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-$PG_MAJOR" \
+        --define "dist .$OS_NAME" \
+        --define "version ${PGBOUNCER_VERSION}" \
+        --define "release ${PGBOUNCER_RELEASE}" \
+        --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -286,14 +297,12 @@ SDEB=0
 RPM=0
 DEB=0
 SOURCE=0
-OS_NAME=
-ARCH=
-OS=
 INSTALL=0
 REVISION=0
 DEBUG=0
 
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
+
 check_workdir
 get_system
 #install_deps

@@ -170,7 +170,7 @@ jobs:
           ETCD="etcd"
           HAPROXY="percona-haproxy"
           INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"
-          if [[ ${{ env.PG_MAJOR }} -ge 17 ]]; then
+          if [ ${{ env.PG_MAJOR }} -ge 17 ]; then
             PG_TDE="percona-postgresql-{{ env.PG_MAJOR }}-pg-tde"
             INSTALL_LIST+=" $PG_TDE"
           fi

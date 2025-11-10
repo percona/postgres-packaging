@@ -131,6 +131,9 @@ jobs:
           PGBOUNCER="percona-pgbouncer"
           PGPOOL="percona-pgpool-II-pg${{ env.PG_MAJOR }} percona-pgpool-II-pg${{ env.PG_MAJOR }}-extensions"
           POSTGIS="percona-postgis33_${{ env.PG_MAJOR }} percona-postgis33_${{ env.PG_MAJOR }}-client percona-postgis33_${{ env.PG_MAJOR }}-client-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-devel percona-postgis33_${{ env.PG_MAJOR }}-docs percona-postgis33_${{ env.PG_MAJOR }}-gui percona-postgis33_${{ env.PG_MAJOR }}-gui-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-llvmjit percona-postgis33_${{ env.PG_MAJOR }}-utils"
+          if [[ "${{ env.PG_MAJOR }}" == 18 ]]; then
+            POSTGIS="percona-postgis35_${{ env.PG_MAJOR }} percona-postgis35_${{ env.PG_MAJOR }}-client percona-postgis35_${{ env.PG_MAJOR }}-client-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-devel percona-postgis35_${{ env.PG_MAJOR }}-docs percona-postgis35_${{ env.PG_MAJOR }}-gui percona-postgis35_${{ env.PG_MAJOR }}-gui-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-llvmjit percona-postgis35_${{ env.PG_MAJOR }}-utils"
+          fi
           WAL2JSON="percona-wal2json${{ env.PG_MAJOR }}"
           PGGATHER="percona-pg_gather"
           PGVECTOR="percona-pgvector_${{ env.PG_MAJOR }} percona-pgvector_${{ env.PG_MAJOR }}-debuginfo percona-pgvector_${{ env.PG_MAJOR }}-debugsource percona-pgvector_${{ env.PG_MAJOR }}-llvmjit"
@@ -139,7 +142,12 @@ jobs:
             ETCD="etcd python3.12-etcd"
           fi
           HAPROXY="percona-haproxy"
-          echo "INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"" >> $GITHUB_ENV
+          INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"
+          if [[ "${{ env.PG_MAJOR }}" >= 17 ]]; then
+            PG_TDE="percona-pg_tde_${{ env.PG_MAJOR }} "
+            INSTALL_LIST+=" $PG_TDE"
+          fi
+          echo "INSTALL_LIST="$INSTALL_LIST"" >> $GITHUB_ENV
 
       - name: Set DEB install list
         if: ${{ !contains(inputs.platform, 'linux') }}
@@ -161,7 +169,12 @@ jobs:
           PGVECTOR="percona-postgresql-${{ env.PG_MAJOR }}-pgvector"
           ETCD="etcd"
           HAPROXY="percona-haproxy"
-          echo "INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"" >> $GITHUB_ENV
+          INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY"
+          if [[ "${{ env.PG_MAJOR }}" >= 17 ]]; then
+            PG_TDE="percona-pg-tde-${{ env.PG_MAJOR }} "
+            INSTALL_LIST+=" $PG_TDE"
+          fi
+          echo "INSTALL_LIST="$INSTALL_LIST"" >> $GITHUB_ENV
                   
       - name: Install Packages
         run: |
@@ -304,6 +317,18 @@ jobs:
           else
             echo "package version = $(dpkg -s percona-postgresql-${{ env.PG_MAJOR }}-postgis-3 | grep ^Version)"
             cat /usr/share/postgresql/${{ env.PG_MAJOR }}/extension/postgis-3.control | grep 'version'
+          fi
+        shell: bash
+        continue-on-error: true
+
+      - name: pg_tde Version Check
+        run: |
+          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+            echo "package version = $(rpm -qa | grep percona-pg_tde)"
+            cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/pg_tde.control | grep 'version'
+          else
+            echo "package version = $(dpkg -s percona-pg-tde-${{ env.PG_MAJOR }} | grep ^Version)"
+            cat /usr/share/postgresql/${{ env.PG_MAJOR }}/extension/pg_tde.control | grep 'version'
           fi
         shell: bash
         continue-on-error: true

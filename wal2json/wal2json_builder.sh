@@ -51,7 +51,7 @@ get_sources(){
     wget ${PKG_RAW_URL}/wal2json/control
     wget ${PKG_RAW_URL}/wal2json/control.in
     wget ${PKG_RAW_URL}/wal2json/rules
-    echo 15 > pgversions
+    echo ${PG_MAJOR} > pgversions
     echo 9 > compat
     cd ../
     rm -rf deb_packaging
@@ -121,8 +121,14 @@ build_srpm(){
     cp -av rpm/percona-wal2json.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-$PG_MAJOR" --define "dist .generic" \
-        --define "version ${WAL2JSON_VERSION}" rpmbuild/SPECS/percona-wal2json.spec
+    rpmbuild -bs \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-$PG_MAJOR" \
+        --define "dist .generic" \
+        --define "pgmajor ${PG_MAJOR}" \
+        --define "version ${WAL2JSON_VERSION}" \
+        --define "release ${WAL2JSON_RELEASE}" \
+        rpmbuild/SPECS/percona-wal2json.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -175,7 +181,14 @@ build_rpm(){
     if [[ "${RHEL}" -eq 10 ]]; then
         export QA_RPATHS=0x0002
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-$PG_MAJOR" --define "dist .$OS_NAME" --define "version ${WAL2JSON_VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-$PG_MAJOR" \
+        --define "dist .$OS_NAME" \
+        --define "pgmajor ${PG_MAJOR}" \
+        --define "version ${WAL2JSON_VERSION}" \
+        --define "release ${WAL2JSON_RELEASE}" \
+        --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -280,9 +293,6 @@ SDEB=0
 RPM=0
 DEB=0
 SOURCE=0
-OS_NAME=
-ARCH=
-OS=
 INSTALL=0
 REVISION=0
 DEBUG=0

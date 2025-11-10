@@ -1,7 +1,7 @@
 %undefine _debugsource_packages
-%global postgismajorversion 3.3
+%global postgismajorversion %{version}
 %global postgissomajorversion 3
-%global pgmajorversion 16
+%global pgmajorversion %{pgmajor}
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
 %global sname   postgis
 
@@ -93,12 +93,12 @@
 %{!?sfcgal:%global    sfcgal 0}
 %endif
 
-Summary:        Geographic Information Systems Extensions to PostgreSQL
-Name:           percona-postgis%{postgiscurrmajorversion}_%{pgmajorversion}
-Version:        %{postgismajorversion}.8
-Release:        2%{?dist}
-License:        GPLv2+
-Source0:        percona-postgis-%{version}.tar.gz
+Summary:	Geographic Information Systems Extensions to PostgreSQL
+Name:		percona-postgis%{postgiscurrmajorversion}_%{pgmajorversion}
+Version:	%{postgismajorversion}.8
+Release:	%{release}%{?dist}
+License:	GPLv2+
+Source0:	percona-postgis-%{version}.tar.gz
 Source2:        https://download.osgeo.org/postgis/docs/postgis-%{version}.pdf
 Source4:        %{sname}%{postgiscurrmajorversion}-filter-requires-perl-Pg.sh
 Patch0:         %{sname}%{postgiscurrmajorversion}-%{postgismajorversion}.0-gdalfpic.patch

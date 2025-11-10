@@ -1,16 +1,16 @@
-%global  sname pgaudit16_set_user
-%define pginstdir /usr/pgsql-16/
+%global  sname pgaudit%{pgmajorversion}_set_user
+%define pginstdir /usr/pgsql-%{pgmajorversion}/
 
 Name:		percona-%{sname}
-Version:	4.1.0
-Release:	3%{?dist}
+Version:	%{version}
+Release:	%{release}%{?dist}
 Epoch:      1
-Provides:	pgaudit16_set_user = %{version}-%{release}
+Provides:	pgaudit%{pgmajorversion}_set_user = %{version}-%{release}
 URL:        https://github.com/pgaudit/set_user.git
 License:	PostgreSQL
 Group:		Applications/Database
 Source:		%{name}-%{version}.tar.gz
-Summary:	pgaudit16_set_user - PostgreSQL extension allowing privilege escalation with enhanced logging and control
+Summary:	pgaudit%{pgmajorversion}_set_user - PostgreSQL extension allowing privilege escalation with enhanced logging and control
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
@@ -30,7 +30,7 @@ The set_user part of that extension allows for extra logging with regard
 %setup -q -n %{name}-%{version}
 
 %build
-sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-16/bin/pg_config:' Makefile
+sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgmajorversion}/bin/pg_config:' Makefile
 %{__make} USE_PGXS=1 %{?_smp_mflags}
 
 %install

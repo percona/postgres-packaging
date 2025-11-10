@@ -1,8 +1,8 @@
 %global        debug_package %{nil}
 
 Name:           ydiff
-Version:        1.2
-Release:        11%{?dist}
+Version:        %{version}
+Release:        %{release}%{?dist}
 Summary:        View colored, incremental diff
 URL:            https://github.com/ymattw/ydiff
 License:        BSD

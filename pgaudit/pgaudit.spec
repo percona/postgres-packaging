@@ -1,8 +1,8 @@
-%define pginstdir /usr/pgsql-16/
+%define pginstdir /usr/pgsql-%{pgmajorversion}/
 
-Name:           percona-pgaudit16
-Version:        16.1
-Release:        1%{?dist}
+Name:           percona-pgaudit%{pgmajorversion}
+Version:        %{version}
+Release:        %{release}%{?dist}
 Summary:        PostgreSQL Audit Extension
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
@@ -14,15 +14,15 @@ Source0:        percona-pgaudit-%{version}.tar.gz
 Patch0:		all.patch
 
 BuildRequires:  gcc
-BuildRequires:  percona-postgresql16-server
-BuildRequires:  percona-postgresql16-devel
+BuildRequires:  percona-postgresql%{pgmajorversion}-server
+BuildRequires:  percona-postgresql%{pgmajorversion}-devel
 BuildRequires:  openssl-devel 
 
-Requires:       postgresql16
-Requires:       postgresql16-libs
-Requires:       postgresql16-server
+Requires:       postgresql%{pgmajorversion}
+Requires:       postgresql%{pgmajorversion}-libs
+Requires:       postgresql%{pgmajorversion}-server
 
-Provides:       pgaudit pgaudit16
+Provides:       pgaudit pgaudit%{pgmajorversion}
 %description
 The PostgreSQL Audit extension (pgaudit) provides detailed session
 and/or object audit logging via the standard PostgreSQL logging
@@ -43,7 +43,7 @@ trail or audit log. The term audit log is used in this documentation.
 %patch -P 0
 
 %build
-sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-16/bin/pg_config:' Makefile
+sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgmajorversion}/bin/pg_config:' Makefile
 %{__make} USE_PGXS=1 %{?_smp_mflags}
 
 
@@ -60,7 +60,7 @@ sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-16/bin/pg_config:' Makefi
 %defattr(-,root,root,-)
 %doc %{pginstdir}/doc/extension/README-pgaudit.md
 %{pginstdir}/lib/pgaudit.so
-%{pginstdir}/share/extension/pgaudit--16.*.sql
+%{pginstdir}/share/extension/pgaudit--%{pgmajorversion}.*.sql
 %{pginstdir}/lib/bitcode/pgaudit*.bc
 %{pginstdir}/lib/bitcode/pgaudit/pgaudit*.bc
 %{pginstdir}/share/extension/pgaudit.control

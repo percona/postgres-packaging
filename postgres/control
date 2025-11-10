@@ -1,4 +1,4 @@
-Source: percona-postgresql-17
+Source: percona-postgresql-18
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
@@ -16,6 +16,7 @@ Build-Depends:
  flex,
  gdb <!nocheck>,
  gettext,
+ libcurl4-openssl-dev [linux-any],
  krb5-multidev,
  libedit-dev,
  libicu-dev,
@@ -24,6 +25,7 @@ Build-Depends:
  libkrb5-dev,
  libldap2-dev,
  liblz4-dev,
+ libnuma-dev [linux-any],
  libpam0g-dev | libpam-dev,
  libperl-dev,
  libreadline-dev,
@@ -53,7 +55,7 @@ Depends:
  libssl-dev,
  ${misc:Depends},
  ${shlibs:Depends}
-Suggests: percona-postgresql-doc-17
+Suggests: percona-postgresql-doc-18
 Description: header files for libpq5 (PostgreSQL library)
  Header files and static library for compiling C programs to link
  with the libpq library in order to communicate with a PostgreSQL
@@ -66,6 +68,8 @@ Architecture: any
 Section: libs
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Pre-Depends: ${misc:Pre-Depends}
+Suggests:
+ libpq-oauth,
 Multi-Arch: same
 Description: PostgreSQL C client library
  libpq is a C library that enables user programs to communicate with
@@ -75,6 +79,31 @@ Description: PostgreSQL C client library
  .
  This package contains the run-time library, needed by packages using
  libpq.
+ .
+ PostgreSQL is an object-relational SQL database management system.
+
+Package: libpq-oauth
+Architecture: linux-any
+Section: libs
+Depends:
+ libpq5 (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends},
+Pre-Depends:
+ ${misc:Pre-Depends},
+Provides: libpq-oauth-18
+Multi-Arch: same
+Description: PostgreSQL C client library - OAuth flow
+ libpq-oauth is an optional module for libpq5 implementing the Device
+ Authorization flow for OAuth clients (RFC 8628). It is maintained as
+ its own shared library in order to isolate its dependency on libcurl.
+ (End users who don't want the Curl dependency can simply choose not
+ to install this module.)
+ .
+ If a connection string allows the use of OAuth, and the server asks
+ for it, and a libpq client has not installed its own custom OAuth
+ flow, libpq will attempt to delay-load this module using dlopen() and
+ the following ABI. Failure to load results in a failed connection.
  .
  PostgreSQL is an object-relational SQL database management system.
 
@@ -128,25 +157,25 @@ Section: libs
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
-Description: shared library libpgtypes for PostgreSQL 17
+Description: shared library libpgtypes for PostgreSQL 18
  The libpgtypes shared library is used by programs built with ecpg.
  (Embedded PostgreSQL for C).
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-17
+Package: percona-postgresql-18
 Architecture: any
 Depends:
  locales | locales-all,
- percona-postgresql-client-17,
+ percona-postgresql-client-18,
  percona-postgresql-common (>= 182~),
  ssl-cert,
  tzdata,
  curl,
- percona-pg-telemetry17,
+ percona-pg-telemetry18,
  ${misc:Depends},
  ${shlibs:Depends}
-Provides: percona-postgresql-contrib-17, postgresql-contrib-17 (= ${binary:Version}), postgresql-17 (= ${binary:Version})
+Provides: percona-postgresql-contrib-18, postgresql-contrib-18 (= ${binary:Version}), postgresql-18 (= ${binary:Version})
 Recommends: sysstat
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational
@@ -157,10 +186,10 @@ Description: The World's Most Advanced Open Source Relational Database
  a range of workloads, from single machines to data warehouses or Web services
  with many concurrent users.
  .
- This package provides the database server for PostgreSQL 17.
+ This package provides the database server for PostgreSQL 18.
 XB-Postgresql-Catversion: ${postgresql:Catversion}
 
-Package: percona-postgresql-client-17
+Package: percona-postgresql-client-18
 Architecture: any
 Multi-Arch: foreign
 Depends:
@@ -169,37 +198,37 @@ Depends:
  sensible-utils,
  ${misc:Depends},
  ${shlibs:Depends}
-Suggests: percona-postgresql-17, percona-postgresql-doc-17
-Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-17 (= ${binary:Version})
-Conflicts: postgresql-server-dev-17 (<< 17.6-1~)
-Replaces: postgresql-server-dev-17 (<< 17.6-1~)
-Description: front-end programs for PostgreSQL 17
+Suggests: percona-postgresql-18, percona-postgresql-doc-18
+Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-18 (= ${binary:Version})
+Conflicts: postgresql-server-dev-18 (<< 18.0-1~)
+Replaces: postgresql-server-dev-18 (<< 18.0-1~)
+Description: front-end programs for PostgreSQL 18
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and
  programs for creating and removing users and databases.
  .
- This is the client package for PostgreSQL 17. If you install
- PostgreSQL 17 on a standalone machine, you need the server package
- postgresql-17, too. On a network, you can install this package on
+ This is the client package for PostgreSQL 18. If you install
+ PostgreSQL 18 on a standalone machine, you need the server package
+ postgresql-18, too. On a network, you can install this package on
  many client machines, while the server package may be installed on
  only one machine.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-server-dev-17
+Package: percona-postgresql-server-dev-18
 Architecture: any
 Section: libdevel
 Depends:
  clang [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
- libpq-dev (>= 17~~),
+ libpq-dev (>= 18~~),
  llvm-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
- percona-postgresql-client-17, percona-postgresql-common (>= 162~),
+ percona-postgresql-client-18, percona-postgresql-common (>= 162~),
  ${misc:Depends},
  ${shlibs:Depends}
 Breaks:
  postgresql-server-dev-all (<< 181~)
-Provides: postgresql-server-dev-all, postgresql-server-dev-all-17
-Description: development files for PostgreSQL 17 server-side programming
+Provides: postgresql-server-dev-all, postgresql-server-dev-all-18
+Description: development files for PostgreSQL 18 server-side programming
  Header files for compiling SSI code to link into PostgreSQL's backend; for
  example, for C functions to be called from SQL.
  .
@@ -209,7 +238,7 @@ Description: development files for PostgreSQL 17 server-side programming
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-doc-17
+Package: percona-postgresql-doc-18
 Architecture: all
 Multi-Arch: foreign
 Section: doc
@@ -217,53 +246,53 @@ Depends: ${misc:Depends}
 Breaks: postgresql-common (<< 158~)
 Description: documentation for the PostgreSQL database management system
  This package contains all README files, user manual, and examples for
- PostgreSQL 17. The manual is in HTML format.
+ PostgreSQL 18. The manual is in HTML format.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-plperl-17
+Package: percona-postgresql-plperl-18
 Architecture: any
 Depends:
  perl,
- percona-postgresql-17 (= ${binary:Version}),
+ percona-postgresql-18 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Breaks: percona-postgresql-17 (<< 17~beta1)
-Replaces: percona-postgresql-17 (<< 17~beta1)
-Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-17
-Description: PL/Perl procedural language for PostgreSQL 17
+Breaks: percona-postgresql-18 (<< 18~beta1)
+Replaces: percona-postgresql-18 (<< 18~beta1)
+Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-18
+Description: PL/Perl procedural language for PostgreSQL 18
  PL/Perl enables an SQL developer to write procedural language functions
- for PostgreSQL 17 in Perl.  You need this package if you have any
- PostgreSQL 17 functions that use the languages plperl or plperlu.
+ for PostgreSQL 18 in Perl.  You need this package if you have any
+ PostgreSQL 18 functions that use the languages plperl or plperlu.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-plpython3-17
+Package: percona-postgresql-plpython3-18
 Architecture: any
 Depends:
- percona-postgresql-17 (= ${binary:Version}),
+ percona-postgresql-18 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Breaks: percona-postgresql-17 (<< 17~beta1)
-Replaces: percona-postgresql-17 (<< 17~beta1)
-Provides: postgresql-plpython3,postgresql-plpython3-17, percona-postgresql-plpython3
-Description: PL/Python 3 procedural language for PostgreSQL 17
+Breaks: percona-postgresql-18 (<< 18~beta1)
+Replaces: percona-postgresql-18 (<< 18~beta1)
+Provides: postgresql-plpython3,postgresql-plpython3-18, percona-postgresql-plpython3
+Description: PL/Python 3 procedural language for PostgreSQL 18
  PL/Python 3 enables an SQL developer to write procedural language functions
- for PostgreSQL 17 in Python 3.  You need this package if you have any
- PostgreSQL 17 functions that use the languages plpython3 or plpython3u.
+ for PostgreSQL 18 in Python 3.  You need this package if you have any
+ PostgreSQL 18 functions that use the languages plpython3 or plpython3u.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-pltcl-17
+Package: percona-postgresql-pltcl-18
 Architecture: any
 Depends:
- percona-postgresql-17 (= ${binary:Version}),
+ percona-postgresql-18 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Provides: percona-postgresql-pltcl, postgresql-pltcl, postgresql-17-pltcl
-Description: PL/Tcl procedural language for PostgreSQL 17
+Provides: percona-postgresql-pltcl, postgresql-pltcl, postgresql-18-pltcl
+Description: PL/Tcl procedural language for PostgreSQL 18
  PL/Tcl enables an SQL developer to write procedural language functions
- for PostgreSQL 17 in Tcl.  You need this package if you have any
- PostgreSQL 17 functions that use the languages pltcl or pltclu.
+ for PostgreSQL 18 in Tcl.  You need this package if you have any
+ PostgreSQL 18 functions that use the languages pltcl or pltclu.
  .
  PostgreSQL is an object-relational SQL database management system.

@@ -1,11 +1,11 @@
 %undefine _package_note_file
 
 # These are macros to be used with find_lang and other stuff
-%global packageversion 170
-%global pgpackageversion 17
-%global prevmajorversion 16
+%global packageversion %{pgmajorversion}0
+%global pgpackageversion %{pgmajorversion}
+%global prevmajorversion %{expr: %{pgmajorversion} - 1}
 %global sname postgresql
-%global vname postgresql17
+%global vname postgresql%{pgmajorversion}
 %global pgbaseinstdir	/usr/pgsql-%{pgmajorversion}
 
 # Macros that define the configure parameters:
@@ -54,17 +54,22 @@
 
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
-Version:        17.6
-Release:        %{release}%{?dist}
+Version:        %{version}
+Release:        %{pg_release}%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-Source0:        percona-postgresql-17.6.tar.gz
+Source0:        percona-postgresql-%{version}.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
+%if %{pgmajorversion} < 18
+Source6: postgresql-%{pgmajorversion}-README-systemd.rpm-dist
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
+%else
+Source6: postgresql-%{pgmajorversion}-README.rpm-dist
+%endif
 Source7:        %{sname}-%{pgmajorversion}-ecpg_config.h
 Source9:        %{sname}-%{pgmajorversion}-libs.conf
 Source12:       https://www.postgresql.org/files/documentation/pdf/%{pgpackageversion}/%{sname}-%{pgpackageversion}-A4.pdf
@@ -766,7 +771,7 @@ export PGDATA
 chown postgres: /var/lib/pgsql/.bash_profile
 chmod 700 /var/lib/pgsql/.bash_profile
 cp %SOURCE999 /tmp/ 2>/dev/null || :
-bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "17.6-1" -d "PACKAGE" &>/dev/null || :
+bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "%{version}-%{pg_release}" -d "PACKAGE" &>/dev/null || :
 chgrp percona-telemetry /usr/local/percona/telemetry_uuid &>/dev/null || :
 chmod 664 /usr/local/percona/telemetry_uuid &>/dev/null || :
 rm -f /tmp/call-home.sh
@@ -956,6 +961,10 @@ fi
 %{pgbaseinstdir}/lib/insert_username.so
 %{pgbaseinstdir}/lib/isn.so
 %{pgbaseinstdir}/lib/hstore.so
+%{pgbaseinstdir}/lib/pg_logicalinspect.so
+%{pgbaseinstdir}/lib/pg_overexplain.so
+%{pgbaseinstdir}/share/extension/pg_logicalinspect--1.0.sql
+%{pgbaseinstdir}/share/extension/pg_logicalinspect.control
 %{pgbaseinstdir}/lib/pg_tde.so
 %if %plperl
 %{pgbaseinstdir}/lib/hstore_plperl.so

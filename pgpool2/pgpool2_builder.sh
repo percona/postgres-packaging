@@ -228,9 +228,15 @@ build_srpm(){
     cp -av src/*.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    QA_RPATHS=$(( 0x0001|0x0002|0x0010 )) rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" \
-    --define "pgpool_version ${PGPOOL2_VERSION}" --define "pg_version ${PG_MAJOR}" --define "pghome /usr/pgsql-${PG_MAJOR}" \
-    --define "pgsql_ver ${PG_MAJOR}0" --define "with-pgsql-includedir /usr/pgsql-${PG_MAJOR}/include/" ${WORKDIR}/rpmbuild/SPECS/pgpool.spec
+    QA_RPATHS=$(( 0x0001|0x0002|0x0010 )) rpmbuild -bs \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "dist .generic" \
+        --define "pgpool_version ${PGPOOL2_VERSION}" \
+        --define "pg_version ${PG_MAJOR}" \
+        --define "pghome /usr/pgsql-${PG_MAJOR}" \
+        --define "pgsql_ver ${PG_MAJOR}0" \
+        --define "with-pgsql-includedir /usr/pgsql-${PG_MAJOR}/include/" \
+        ${WORKDIR}/rpmbuild/SPECS/pgpool.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -283,10 +289,16 @@ build_rpm(){
     if [[ "${RHEL}" -eq 10 ]]; then
         export QA_RPATHS=$(( 0x0001 | 0x0002 ))
     fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .$OS_NAME" --define "version ${PGPOOL2_VERSION}" \
-    --define "pgpool_version ${PGPOOL2_VERSION}" --define "pg_version ${PG_MAJOR}" --define "pghome /usr/pgsql-${PG_MAJOR}" \
-    --define "pgsql_ver ${PG_MAJOR}0" --define "with-pgsql-includedir /usr/pgsql-${PG_MAJOR}/include/" \
-    --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "dist .$OS_NAME" \
+        --define "version ${PGPOOL2_VERSION}" \
+        --define "pgpool_version ${PGPOOL2_VERSION}" \
+        --define "pg_version ${PG_MAJOR}" \
+        --define "pghome /usr/pgsql-${PG_MAJOR}" \
+        --define "pgsql_ver ${PG_MAJOR}0" \
+        --define "with-pgsql-includedir /usr/pgsql-${PG_MAJOR}/include/" \
+        --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -395,9 +407,6 @@ RPM=0
 DEB=0
 SOURCE=0
 TARBALL=0
-OS_NAME=
-ARCH=
-OS=
 REVISION=0
 INSTALL=0
 

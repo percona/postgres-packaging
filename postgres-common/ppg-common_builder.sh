@@ -156,7 +156,11 @@ build_srpm(){
     cp -av rpmbuild/SOURCES/*.spec rpmbuild/SPECS
 
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .generic" --define "version ${PPG_COMMON_MAJOR}"\
+    rpmbuild -bs \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "dist .generic" \
+        --define "version ${PPG_COMMON_MAJOR}" \
+        --define "release ${PPG_COMMON_MINOR}" \
         rpmbuild/SPECS/percona-postgresql-common.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -201,7 +205,12 @@ build_rpm(){
     cd $WORKDIR
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "version ${PPG_COMMON_MAJOR}" --define "dist .$OS_NAME" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "version ${PPG_COMMON_MAJOR}" \
+        --define "release ${PPG_COMMON_MINOR}" \
+        --define "dist .$OS_NAME" \
+        --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -310,9 +319,6 @@ SDEB=0
 RPM=0
 DEB=0
 SOURCE=0
-OS_NAME=
-ARCH=
-OS=
 INSTALL=0
 REVISION=0
 DEBUG=0

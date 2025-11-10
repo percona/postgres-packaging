@@ -1,15 +1,26 @@
-Source: percona-pg-tde
+Source: percona-pg-tde-18
 Section: database
 Priority: optional
 Maintainer: Percona Development Team info@percona.com
 Build-Depends:
  debhelper (>= 9),
  percona-postgresql-server-dev-all (>= 153~),
+ libcurl4-openssl-dev,
+ libssl-dev (>= 1.1.1),
+ zlib1g-dev,
+ libzstd-dev,
+ liblz4-dev,
+ libxml2-dev,
+ libxslt1-dev,
+ libselinux1-dev,
+ libpam0g-dev,
+ libgssapi-krb5-2,
+ libreadline-dev,
 Standards-Version: 4.6.2
 Rules-Requires-Root: no
 Homepage: https://github.com/Percona-Lab/pg_tde.git
 
-Package: percona-postgresql-17-pg-tde
+Package: percona-postgresql-18-pg-tde
 Architecture: any
 Depends:
  ${misc:Depends},

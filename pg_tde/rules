@@ -1,3 +1,4 @@
+
 #!/usr/bin/make -f
 
 include /usr/share/postgresql-common/pgxs_debian_control.mk
@@ -17,15 +18,24 @@ override_dh_auto_configure:
 	#dh_auto_configure
 
 override_dh_auto_build:
-	make USE_PGXS=1
+	make USE_PGXS=1 \
+	CFLAGS="$(pkg-config --cflags openssl) $$CFLAGS" \
+	LDFLAGS_EX="$$LDFLAGS_EX -L/usr/lib/postgresql/18/lib \
+	/usr/lib/postgresql/18/lib/libpgcommon.a \
+	/usr/lib/postgresql/18/lib/libpgport.a \
+	/usr/lib/postgresql/18/lib/libpgfeutils.a \
+	-lpq -lcurl $$(pkg-config --libs openssl)"
 
 override_dh_auto_install:
-	make USE_PGXS=1 install
+	make USE_PGXS=1 install DESTDIR=$(CURDIR)/debian/tmp \
+	CFLAGS="$(pkg-config --cflags openssl) $$CFLAGS" \
+	LDFLAGS_EX="$$LDFLAGS_EX -L/usr/lib/postgresql/18/lib \
+	/usr/lib/postgresql/18/lib/libpgcommon.a \
+	/usr/lib/postgresql/18/lib/libpgport.a \
+	/usr/lib/postgresql/18/lib/libpgfeutils.a \
+	-lpq -lcurl $$(pkg-config --libs openssl)"
 
 override_dh_auto_test:
 
 override_dh_installdocs:
 	dh_installdocs --all README.*
-
-#override_dh_builddeb:
-#	dh_builddeb -- -Zgzip

@@ -61,7 +61,7 @@ get_sources(){
     source etcd.properties
     #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    tar --owner=0 --group=0 --exclude=.* -czf ${ETCD_PRODUCT_FULL}.tar.gz ${ETCD_PRODUCT_FULL}
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
     echo "UPLOAD=UPLOAD/experimental/BUILDS/${ETCD_PRODUCT}/${ETCD_PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> etcd.properties
     mkdir $WORKDIR/source_tarball

@@ -21,7 +21,7 @@ Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 
 %description
-Essential / key PostgreSQL17 components.
+Essential / key PostgreSQL%{pgmajorversion} components.
 Percona Distribution for PostgreSQL features core components, tools and add-ons 
 from the community, tested to work together in demanding enterprise environments.
 

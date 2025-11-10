@@ -18,7 +18,7 @@ Requires:       percona-patroni
 Requires:       percona-haproxy
 
 %description
-Essential / key PostgreSQL17 high availability components
+Essential / key PostgreSQL%{pgmajorversion} high availability components
 Percona Distribution for PostgreSQL features core components, tools and add-ons
 from the community, tested to work together in demanding enterprise environments
 

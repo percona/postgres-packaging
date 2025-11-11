@@ -1,4 +1,4 @@
-Source: percona-postgresql-13
+Source: percona-postgresql-@@PGMAJOR@@
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
@@ -53,7 +53,7 @@ Depends:
  libssl-dev,
  ${misc:Depends},
  ${shlibs:Depends}
-Suggests: percona-postgresql-doc-13
+Suggests: percona-postgresql-doc-@@PGMAJOR@@
 Description: header files for libpq5 (PostgreSQL library)
  Header files and static library for compiling C programs to link
  with the libpq library in order to communicate with a PostgreSQL
@@ -128,25 +128,25 @@ Section: libs
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
-Description: shared library libpgtypes for PostgreSQL 13
+Description: shared library libpgtypes for PostgreSQL @@PGMAJOR@@
  The libpgtypes shared library is used by programs built with ecpg.
  (Embedded PostgreSQL for C).
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-13
+Package: percona-postgresql-@@PGMAJOR@@
 Architecture: any
 Depends:
  locales | locales-all,
- percona-postgresql-client-13,
+ percona-postgresql-client-@@PGMAJOR@@,
  percona-postgresql-common (>= 182~),
  ssl-cert,
  curl,
  tzdata,
- percona-pg-telemetry13,
+ percona-pg-telemetry@@PGMAJOR@@,
  ${misc:Depends},
  ${shlibs:Depends}
-Provides: percona-postgresql-contrib-13, postgresql-contrib-13 (= ${binary:Version}), postgresql-13 (= ${binary:Version})
+Provides: percona-postgresql-contrib-@@PGMAJOR@@, postgresql-contrib-@@PGMAJOR@@ (= ${binary:Version}), postgresql-@@PGMAJOR@@ (= ${binary:Version})
 Recommends: sysstat
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational
@@ -157,10 +157,10 @@ Description: The World's Most Advanced Open Source Relational Database
  a range of workloads, from single machines to data warehouses or Web services
  with many concurrent users.
  .
- This package provides the database server for PostgreSQL 13.
+ This package provides the database server for PostgreSQL @@PGMAJOR@@.
 XB-Postgresql-Catversion: ${postgresql:Catversion}
 
-Package: percona-postgresql-client-13
+Package: percona-postgresql-client-@@PGMAJOR@@
 Architecture: any
 Multi-Arch: foreign
 Depends:
@@ -169,37 +169,37 @@ Depends:
  sensible-utils,
  ${misc:Depends},
  ${shlibs:Depends}
-Suggests: percona-postgresql-13, percona-postgresql-doc-13
-Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-13 (= ${binary:Version})
-Conflicts: postgresql-server-dev-13 (<< 13.6-1~)
-Replaces: postgresql-server-dev-13 (<< 13.6-1~)
-Description: front-end programs for PostgreSQL 13
+Suggests: percona-postgresql-@@PGMAJOR@@, percona-postgresql-doc-@@PGMAJOR@@
+Provides: percona-postgresql-client, postgresql-client (= ${binary:Version}), postgresql-client-@@PGMAJOR@@ (= ${binary:Version})
+Conflicts: postgresql-server-dev-@@PGMAJOR@@ (<< @@PGMAJOR@@.6-1~)
+Replaces: postgresql-server-dev-@@PGMAJOR@@ (<< @@PGMAJOR@@.6-1~)
+Description: front-end programs for PostgreSQL @@PGMAJOR@@
  This package contains client and administrative programs for
  PostgreSQL: these are the interactive terminal client psql and
  programs for creating and removing users and databases.
  .
- This is the client package for PostgreSQL 13. If you install
- PostgreSQL 13 on a standalone machine, you need the server package
- postgresql-13, too. On a network, you can install this package on
+ This is the client package for PostgreSQL @@PGMAJOR@@. If you install
+ PostgreSQL @@PGMAJOR@@ on a standalone machine, you need the server package
+ postgresql-@@PGMAJOR@@, too. On a network, you can install this package on
  many client machines, while the server package may be installed on
  only one machine.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-server-dev-13
+Package: percona-postgresql-server-dev-@@PGMAJOR@@
 Architecture: any
 Section: libdevel
 Depends:
  clang [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
- libpq-dev (>= 13~~),
+ libpq-dev (>= @@PGMAJOR@@~~),
  llvm-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
- percona-postgresql-client-13, percona-postgresql-common (>= 142~),
+ percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 142~),
  ${misc:Depends},
  ${shlibs:Depends}
 Breaks:
  postgresql-server-dev-all (<< 181~)
-Provides: postgresql-server-dev-all, postgresql-server-dev-all-13
-Description: development files for PostgreSQL 13 server-side programming
+Provides: postgresql-server-dev-all, postgresql-server-dev-all-@@PGMAJOR@@
+Description: development files for PostgreSQL @@PGMAJOR@@ server-side programming
  Header files for compiling SSI code to link into PostgreSQL's backend; for
  example, for C functions to be called from SQL.
  .
@@ -209,7 +209,7 @@ Description: development files for PostgreSQL 13 server-side programming
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-doc-13
+Package: percona-postgresql-doc-@@PGMAJOR@@
 Architecture: all
 Multi-Arch: foreign
 Section: doc
@@ -217,53 +217,53 @@ Depends: ${misc:Depends}
 Breaks: postgresql-common (<< 158~)
 Description: documentation for the PostgreSQL database management system
  This package contains all README files, user manual, and examples for
- PostgreSQL 13. The manual is in HTML format.
+ PostgreSQL @@PGMAJOR@@. The manual is in HTML format.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-plperl-13
+Package: percona-postgresql-plperl-@@PGMAJOR@@
 Architecture: any
 Depends:
  perl,
- percona-postgresql-13 (= ${binary:Version}),
+ percona-postgresql-@@PGMAJOR@@ (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Breaks: percona-postgresql-13 (<< 13~beta4)
-Replaces: percona-postgresql-13 (<< 13~beta4)
-Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-13
-Description: PL/Perl procedural language for PostgreSQL 13
+Breaks: percona-postgresql-@@PGMAJOR@@ (<< @@PGMAJOR@@~beta4)
+Replaces: percona-postgresql-@@PGMAJOR@@ (<< @@PGMAJOR@@~beta4)
+Provides: percona-postgresql-plperl, postgresql-plperl, postgresql-plperl-@@PGMAJOR@@
+Description: PL/Perl procedural language for PostgreSQL @@PGMAJOR@@
  PL/Perl enables an SQL developer to write procedural language functions
- for PostgreSQL 13 in Perl.  You need this package if you have any
- PostgreSQL 13 functions that use the languages plperl or plperlu.
+ for PostgreSQL @@PGMAJOR@@ in Perl.  You need this package if you have any
+ PostgreSQL @@PGMAJOR@@ functions that use the languages plperl or plperlu.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-plpython3-13
+Package: percona-postgresql-plpython3-@@PGMAJOR@@
 Architecture: any
 Depends:
- percona-postgresql-13 (= ${binary:Version}),
+ percona-postgresql-@@PGMAJOR@@ (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Breaks: percona-postgresql-13 (<< 13~beta4)
-Replaces: percona-postgresql-13 (<< 13~beta4)
-Provides: postgresql-plpython3,postgresql-plpython3-13, percona-postgresql-plpython3
-Description: PL/Python 3 procedural language for PostgreSQL 13
+Breaks: percona-postgresql-@@PGMAJOR@@ (<< @@PGMAJOR@@~beta4)
+Replaces: percona-postgresql-@@PGMAJOR@@ (<< @@PGMAJOR@@~beta4)
+Provides: postgresql-plpython3,postgresql-plpython3-@@PGMAJOR@@, percona-postgresql-plpython3
+Description: PL/Python 3 procedural language for PostgreSQL @@PGMAJOR@@
  PL/Python 3 enables an SQL developer to write procedural language functions
- for PostgreSQL 13 in Python 3.  You need this package if you have any
- PostgreSQL 13 functions that use the languages plpython3 or plpython3u.
+ for PostgreSQL @@PGMAJOR@@ in Python 3.  You need this package if you have any
+ PostgreSQL @@PGMAJOR@@ functions that use the languages plpython3 or plpython3u.
  .
  PostgreSQL is an object-relational SQL database management system.
 
-Package: percona-postgresql-pltcl-13
+Package: percona-postgresql-pltcl-@@PGMAJOR@@
 Architecture: any
 Depends:
- percona-postgresql-13 (= ${binary:Version}),
+ percona-postgresql-@@PGMAJOR@@ (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends}
-Provides: percona-postgresql-pltcl, postgresql-pltcl, postgresql-13-pltcl
-Description: PL/Tcl procedural language for PostgreSQL 13
+Provides: percona-postgresql-pltcl, postgresql-pltcl, postgresql-@@PGMAJOR@@-pltcl
+Description: PL/Tcl procedural language for PostgreSQL @@PGMAJOR@@
  PL/Tcl enables an SQL developer to write procedural language functions
- for PostgreSQL 13 in Tcl.  You need this package if you have any
- PostgreSQL 13 functions that use the languages pltcl or pltclu.
+ for PostgreSQL @@PGMAJOR@@ in Tcl.  You need this package if you have any
+ PostgreSQL @@PGMAJOR@@ functions that use the languages pltcl or pltclu.
  .
  PostgreSQL is an object-relational SQL database management system.

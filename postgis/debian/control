@@ -66,16 +66,16 @@ Description: Geographic objects support for PostgreSQL -- documentation
  .
  This package contains the PostGIS documentation.
 
-Package: percona-postgresql-13-postgis-3
+Package: percona-postgresql-@@PGMAJOR@@-postgis-3
 Architecture: any
-Depends: percona-postgresql-13,
-         percona-postgresql-13-postgis-3-scripts,
+Depends: percona-postgresql-@@PGMAJOR@@,
+         percona-postgresql-@@PGMAJOR@@-postgis-3-scripts,
          ${shlibs:Depends},
          ${misc:Depends}
 Suggests: percona-postgis
 Breaks: percona-postgis (<< 1.2.1)
-Provides: percona-postgresql-13-postgis
-Description: Geographic objects support for PostgreSQL 13
+Provides: percona-postgresql-@@PGMAJOR@@-postgis
+Description: Geographic objects support for PostgreSQL @@PGMAJOR@@
  PostGIS adds support for geographic objects to the PostgreSQL
  object-relational database. In effect, PostGIS "spatially enables"
  the PostgreSQL server, allowing it to be used as a backend spatial
@@ -83,15 +83,15 @@ Description: Geographic objects support for PostgreSQL 13
  SDE or Oracle's Spatial extension. PostGIS follows the OpenGIS
  "Simple Features Specification for SQL".
 
-Package: percona-postgresql-13-postgis-3-scripts
+Package: percona-postgresql-@@PGMAJOR@@-postgis-3-scripts
 Architecture: any
 Multi-Arch: foreign
 Depends: ${perl:Depends},
          ${misc:Depends}
-Recommends: percona-postgresql-13-postgis-3
-Provides: percona-postgresql-13-postgis-scripts
-Replaces:percona-postgresql-13-postgis-scripts (<< 2.2.2+dfsg-3~)
-Description: Geographic objects support for PostgreSQL 13 -- SQL scripts
+Recommends: percona-postgresql-@@PGMAJOR@@-postgis-3
+Provides: percona-postgresql-@@PGMAJOR@@-postgis-scripts
+Replaces:percona-postgresql-@@PGMAJOR@@-postgis-scripts (<< 2.2.2+dfsg-3~)
+Description: Geographic objects support for PostgreSQL @@PGMAJOR@@ -- SQL scripts
  PostGIS adds support for geographic objects to the PostgreSQL
  object-relational database. In effect, PostGIS "spatially enables"
  the PostgreSQL server, allowing it to be used as a backend spatial
@@ -100,13 +100,13 @@ Description: Geographic objects support for PostgreSQL 13 -- SQL scripts
  "Simple Features Specification for SQL".
  .
  This package contains the SQL scripts for installing PostGIS in a PostgreSQL
- 13 database, and for upgrading from earlier PostGIS versions.
+ @@PGMAJOR@@ database, and for upgrading from earlier PostGIS versions.
 
 Package: percona-postgresql-postgis
 Architecture: any
 Section: metapackages
 Depends: percona-postgresql-postgis-scripts,
-         percona-postgresql-13-postgis-3,
+         percona-postgresql-@@PGMAJOR@@-postgis-3,
          ${misc:Depends}
 Description: Geographic objects support for PostgreSQL -- Metapackage
  PostGIS adds support for geographic objects to the PostgreSQL
@@ -116,12 +116,12 @@ Description: Geographic objects support for PostgreSQL -- Metapackage
  SDE or Oracle's Spatial extension. PostGIS follows the OpenGIS
  "Simple Features Specification for SQL".
  .
- This metapackage depends on the PostGIS package for PostgreSQL 13.
+ This metapackage depends on the PostGIS package for PostgreSQL @@PGMAJOR@@.
 
 Package: percona-postgresql-postgis-scripts
 Architecture: any
 Multi-Arch: foreign
-Depends: percona-postgresql-13-postgis-3-scripts,
+Depends: percona-postgresql-@@PGMAJOR@@-postgis-3-scripts,
          ${misc:Depends}
 Description: Geographic objects support for PostgreSQL -- SQL scripts metapackage
  PostGIS adds support for geographic objects to the PostgreSQL
@@ -132,4 +132,4 @@ Description: Geographic objects support for PostgreSQL -- SQL scripts metapackag
  "Simple Features Specification for SQL".
  .
  This metapackage depends on the PostGIS scripts package for
- PostgreSQL 13.
+ PostgreSQL @@PGMAJOR@@.

@@ -12,10 +12,10 @@ Vcs-Browser: https://salsa.debian.org/postgresql/pgaudit
 Vcs-Git: https://salsa.debian.org/postgresql/pgaudit.git
 Homepage: http://pgaudit.org/
 
-Package: percona-postgresql-PGVERSION-pgaudit
+Package: percona-postgresql-@@PGMAJOR@@-pgaudit
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-PGVERSION (>= 13.0) | percona-postgresql-PGVERSION (>= 13.0)
-Provides: pgaudit, postgresql-PGVERSION-pgaudit
+Depends: ${misc:Depends}, ${shlibs:Depends}, postgresql-@@PGMAJOR@@ (>= @@PGMAJOR@@.0) | percona-postgresql-@@PGMAJOR@@ (>= @@PGMAJOR@@.0)
+Provides: pgaudit, postgresql-@@PGMAJOR@@-pgaudit
 Description: PostgreSQL Audit Extension
  The pgAudit extension provides detailed session and/or object audit logging
  via the standard PostgreSQL logging facility.

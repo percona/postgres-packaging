@@ -45,6 +45,7 @@ get_sources(){
     wget ${PKG_RAW_URL}/pg_repack/rules
     wget ${PKG_RAW_URL}/pg_repack/control
     wget ${PKG_RAW_URL}/pg_repack/control.in
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in rules
     patch -p0 < Makefile.patch
     rm -rf Makefile.patch
     cd debian

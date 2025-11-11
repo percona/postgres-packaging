@@ -49,6 +49,8 @@ get_sources(){
     wget ${PKG_RAW_URL}/pgaudit_set_user/control.in
     wget ${PKG_RAW_URL}/pgaudit_set_user/copyright
     wget ${PKG_RAW_URL}/pgaudit_set_user/rules
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in rules 
+    sed -i "s/@@PGVERSION@@/${PG_VERSION}/g" control control.in
     cd ../ 
     mkdir rpm
     cd rpm

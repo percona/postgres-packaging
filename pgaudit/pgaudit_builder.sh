@@ -46,6 +46,8 @@ get_sources(){
     wget ${PKG_RAW_URL}/pgaudit/control.in
     wget ${PKG_RAW_URL}/pgaudit/all.patch
     wget ${PKG_RAW_URL}/pgaudit/rules
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in 
+    sed -i "s/@@PGVERSION@@/${PG_VERSION}/g" control control.in
     #mkdir -p debian/patches
     mv all.patch debian/patches/
     rm -rf debian/control*

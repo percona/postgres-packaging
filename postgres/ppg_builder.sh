@@ -59,6 +59,8 @@ get_sources(){
 	rm -f rules control
         wget ${PKG_RAW_URL}/postgres/rules
         wget ${PKG_RAW_URL}/postgres/control
+        sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control rules
+        sed -i "s/@@PGVERSION@@/${PG_VERSION}/g" control
         sed -i "s/postgresql-$PG_MAJOR/percona-postgresql-$PG_MAJOR/" percona-postgresql-$PG_MAJOR.templates
 	echo "10" > compat
 	sed -i '14d' patches/series

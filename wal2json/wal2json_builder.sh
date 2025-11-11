@@ -51,6 +51,7 @@ get_sources(){
     wget ${PKG_RAW_URL}/wal2json/control
     wget ${PKG_RAW_URL}/wal2json/control.in
     wget ${PKG_RAW_URL}/wal2json/rules
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in
     echo ${PG_MAJOR} > pgversions
     echo 9 > compat
     cd ../

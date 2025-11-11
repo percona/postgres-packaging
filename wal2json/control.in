@@ -6,9 +6,9 @@ Build-Depends: debhelper, percona-postgresql-all
 Standards-Version: 4.5.0
 Rules-Requires-Root: no
 
-Package: percona-postgresql-PGVERSION-wal2json
+Package: percona-postgresql-@@PGMAJOR@@-wal2json
 Architecture: any
-Depends: percona-postgresql-PGVERSION | postgresql-PGVERSION, ${misc:Depends}, ${shlibs:Depends}
+Depends: percona-postgresql-@@PGMAJOR@@ | postgresql-@@PGMAJOR@@, ${misc:Depends}, ${shlibs:Depends}
 Description: PostgreSQL logical decoding JSON output plugin
  wal2json is an output plugin for PostgreSQL's logical decoding. The plugin has
  access to tuples produced by INSERT and UPDATE. Also, UPDATE/DELETE old row

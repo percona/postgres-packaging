@@ -1,17 +1,17 @@
-Source: percona-ppg-server-ha-17
+Source: percona-ppg-server-ha-@@PGMAJOR@@
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 17.6.0
+Standards-Version: @@PGVERSION@@.0
 Homepage: www.percona.com
 
-Package: percona-ppg-server-ha-17
+Package: percona-ppg-server-ha-@@PGMAJOR@@
 Architecture: any
 Depends:
  etcd | etcd-server,
  etcd-client,
  percona-patroni,
  percona-haproxy
-Description: Essential / key PostgreSQL17 high availability components
+Description: Essential / key PostgreSQL@@PGMAJOR@@ high availability components
  Percona Distribution for PostgreSQL features core components, tools and add-ons
  from the community, tested to work together in demanding enterprise environments

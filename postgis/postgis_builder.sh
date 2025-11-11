@@ -58,6 +58,7 @@ get_sources(){
         wget ${PKG_RAW_URL}/postgis/debian/percona-postgresql-$PG_MAJOR-postgis-3-scripts.prerm
         wget ${PKG_RAW_URL}/postgis/debian/percona-postgresql-$PG_MAJOR-postgis-3.install
         wget ${PKG_RAW_URL}/postgis/debian/percona-postgresql-$PG_MAJOR-postgis-3.lintian-overrides
+        sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control percona-postgresql-$PG_MAJOR-postgis-3-scripts.install percona-postgresql-$PG_MAJOR-postgis-3-scripts.prerm percona-postgresql-$PG_MAJOR-postgis-3.install
 	cp control control.in
         # Remove the sfcgal patch entry from patches/series
         sed -i '/sfcgal/d' patches/series

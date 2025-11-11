@@ -41,6 +41,8 @@ get_sources(){
     cd debian/
     wget ${PKG_RAW_URL}/ppg-server-ha/control
     wget ${PKG_RAW_URL}/ppg-server-ha/rules
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control
+    sed -i "s/@@PGVERSION@@/${PG_VERSION}/g" control
     echo 9 > compat
     echo "percona-ppg-server-ha-$PG_MAJOR (${PG_VERSION}-${PPG_SERVER_HA_RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog

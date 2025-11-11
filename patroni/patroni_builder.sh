@@ -50,6 +50,7 @@ get_sources(){
     rm -f control
     rm -f postinst
     wget ${PKG_RAW_URL}/patroni/control
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     sed -i "s:'sphinx_github_style':#'sphinx_github_style':g" ../docs/conf.py

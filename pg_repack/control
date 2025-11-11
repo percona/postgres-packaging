@@ -8,10 +8,10 @@ Homepage: https://github.com/reorg/pg_repack
 Vcs-Browser: https://salsa.debian.org/postgresql/pg-repack
 Vcs-Git: https://salsa.debian.org/postgresql/pg-repack.git
 
-Package: percona-postgresql-17-repack
+Package: percona-postgresql-@@PGMAJOR@@-repack
 Architecture: any
-Depends: postgresql-17 (>= 17.6) | percona-postgresql-17 (>= 17.6), ${shlibs:Depends}, ${misc:Depends}
-Provides: pg-repack, postgresql-17-repack
+Depends: postgresql-@@PGMAJOR@@ (>= @@PGVERSION@@) | percona-postgresql-@@PGMAJOR@@ (>= @@PGVERSION@@), ${shlibs:Depends}, ${misc:Depends}
+Provides: pg-repack, postgresql-@@PGMAJOR@@-repack
 Description: reorganize tables in PostgreSQL databases with minimal locks
  pg_repack is a PostgreSQL extension which lets you remove bloat from tables
  and indexes, and optionally restore the physical order of clustered indexes.
@@ -20,4 +20,4 @@ Description: reorganize tables in PostgreSQL databases with minimal locks
  boot, with performance comparable to using CLUSTER directly.
  .
  This package contains the pg_repack program and the server extension for
- PostgreSQL 17.
+ PostgreSQL @@PGMAJOR@@.

@@ -1,1 +1,1 @@
-usr/share/postgresql/14 usr/share/postgresql/
+usr/share/postgresql/@@PGMAJOR@@ usr/share/postgresql/

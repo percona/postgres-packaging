@@ -45,6 +45,7 @@ get_sources(){
     wget ${PKG_RAW_URL}/pgvector/control
     wget ${PKG_RAW_URL}/pgvector/control.in
     wget ${PKG_RAW_URL}/pgvector/rules
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in
 
     patch -p1 <debian/patches/no-native
     sed -i 's|no-native|#no-native|g' debian/patches/series

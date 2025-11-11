@@ -5,7 +5,7 @@ include /usr/share/postgresql-common/pgxs_debian_control.mk
 override_dh_pgxs_test:
 	rm -rf /tmp/pg-repack-tablespace
 	mkdir /tmp/pg-repack-tablespace
-	+PATH=$(firstword $(wildcard $(CURDIR)/debian/postgresql-*-repack/usr/lib/postgresql/14/bin)):$(PATH) \
+	+PATH=$(firstword $(wildcard $(CURDIR)/debian/postgresql-*-repack/usr/lib/postgresql/@@PGMAJOR@@/bin)):$(PATH) \
 		pg_buildext -i'--auth=trust' installcheck . regress postgresql-%v-repack
 	rm -rf /tmp/pg-repack-tablespace
 

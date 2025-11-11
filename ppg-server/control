@@ -1,20 +1,20 @@
-Source: percona-ppg-server-16
+Source: percona-ppg-server-@@PGMAJOR@@
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 16.10
+Standards-Version: @@PGVERSION@@
 Homepage: https://www.percona.com/software/postgresql-distribution
 
-Package: percona-ppg-server-16
+Package: percona-ppg-server-@@PGMAJOR@@
 Architecture: any
 Depends: 
- percona-postgresql-16, 
+ percona-postgresql-@@PGMAJOR@@, 
  percona-postgresql-common, 
  percona-postgresql-contrib, 
- percona-postgresql-16-pgaudit, 
- percona-postgresql-16-repack, 
- percona-postgresql-16-wal2json, 
- percona-pg-stat-monitor16
-Description: Essential / key PostgreSQL16 components 
+ percona-postgresql-@@PGMAJOR@@-pgaudit, 
+ percona-postgresql-@@PGMAJOR@@-repack, 
+ percona-postgresql-@@PGMAJOR@@-wal2json, 
+ percona-pg-stat-monitor@@PGMAJOR@@
+Description: Essential / key PostgreSQL@@PGMAJOR@@ components 
  Percona Distribution for PostgreSQL features core components, tools and add-ons
  from the community, tested to work together in demanding enterprise environments.

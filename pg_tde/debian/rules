@@ -14,8 +14,6 @@ override_dh_auto_clean:
 
 override_dh_auto_configure:
 	cp /usr/bin/shtool .
-	#./configure --prefix=/usr
-	#dh_auto_configure
 
 override_dh_auto_build:
 	make USE_PGXS=1 \
@@ -34,6 +32,8 @@ override_dh_auto_install:
 	/usr/lib/postgresql/18/lib/libpgport.a \
 	/usr/lib/postgresql/18/lib/libpgfeutils.a \
 	-lpq -lcurl $$(pkg-config --libs openssl)"
+	mkdir -p $(CURDIR)/debian/tmp/usr/lib/postgresql/18/lib/pgxs/src/test/perl/PostgreSQL/Test
+	install -m 644 ci_scripts/perl/PostgreSQL/Test/TdeCluster.pm $(CURDIR)/debian/tmp/usr/lib/postgresql/18/lib/pgxs/src/test/perl/PostgreSQL/Test/
 
 override_dh_auto_test:
 

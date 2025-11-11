@@ -23,7 +23,6 @@ URL:		https://github.com/%{sname}/%{sname}/
 Source0:	%{name}-%{version}.tar.gz
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel chrpath json-c-devel openssl-devel libcurl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel
-
 Requires:	postgresql%{pgmajorversion}-server json-c curl openssl
 
 %description
@@ -56,9 +55,15 @@ USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make}
 %{__rm} -rf %{buildroot}
 USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR=%{buildroot}
 find %{buildroot}%{pginstdir} -type f \( -name '*.so' -o -name 'pg_tde_*' \) -exec chrpath --delete {} \; 2>/dev/null || true
+mkdir -p %{buildroot}/%{pginstdir}/lib/pgxs/src/test/perl/PostgreSQL/Test
+install -m 644 ci_scripts/perl/PostgreSQL/Test/TdeCluster.pm %{buildroot}/%{pginstdir}/lib/pgxs/src/test/perl/PostgreSQL/Test/
 
-#Remove header file, we don't need it right now:
-#%{__rm} %{buildroot}%{pginstdir}/include/server/extension/%{pname}/%{pname}.h
+%package devel
+Summary: Development files for %{name}
+Requires: %{name} = %{version}-%{release}
+
+%description devel
+Development and testing support files for pg_tde, including Perl test modules.
 
 %files
 %doc README.md
@@ -99,6 +104,9 @@ find %{buildroot}%{pginstdir} -type f \( -name '*.so' -o -name 'pg_tde_*' \) -ex
 %{pginstdir}/lib/bitcode/pg_tde/src/pg_tde_event_capture.bc
 %{pginstdir}/lib/bitcode/pg_tde/src/pg_tde_guc.bc
 %{pginstdir}/lib/bitcode/pg_tde/src/smgr/pg_tde_smgr.bc
+
+%files devel
+%{pginstdir}/lib/pgxs/src/test/perl/PostgreSQL/Test/TdeCluster.pm
 
 
 

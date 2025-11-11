@@ -40,10 +40,11 @@ get_sources(){
     mkdir debian
     cd debian
     #git checkout debian/${VERSION}-${RELEASE}
-    wget ${PKG_RAW_URL}/pg_tde/control
-    wget ${PKG_RAW_URL}/pg_tde/control.in
-    wget ${PKG_RAW_URL}/pg_tde/rules
-    wget ${PKG_RAW_URL}/pg_tde/install
+    wget ${PKG_RAW_URL}/pg_tde/debian/control
+    wget ${PKG_RAW_URL}/pg_tde/debian/control.in
+    wget ${PKG_RAW_URL}/pg_tde/debian/rules
+    wget ${PKG_RAW_URL}/pg_tde/debian/percona-postgresql-18-pg-tde.install
+    wget ${PKG_RAW_URL}/pg_tde/debian/percona-postgresql-18-pg-tde-client.install
     cd ../
 
     echo ${PG_MAJOR} > debian/pgversions

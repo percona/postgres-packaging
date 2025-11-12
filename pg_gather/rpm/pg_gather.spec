@@ -24,12 +24,10 @@ pg_gather consists of one sql-only script (gather.sql) for gathering performance
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{_bindir} $RPM_BUILD_ROOT/%{pginstdir}
-%{__install} -p -D -m 0755 gather.sql %{buildroot}%{_bindir}/gather.sql
-%{__install} -p -D -m 0755 gather.sql %{buildroot}%{pginstdir}/bin/gather.sql
+%{__install} -p -D -m 0755 gather.sql %{buildroot}%{pginstdir}/share/contrib/gather.sql
 
 %files
-%attr (755,root,root) %{pginstdir}/bin/gather.sql
-%{_bindir}/gather.sql
+%attr (755,root,root) %{pginstdir}/share/contrib/gather.sql
 
 %clean
 rm -rf $RPM_BUILD_ROOT

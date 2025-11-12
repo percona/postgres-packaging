@@ -1,1 +1,1 @@
-debian/tmp/gather.sql /usr/share/postgresql/17/contrib
+debian/tmp/gather.sql /usr/share/postgresql/@@PGMAJOR@@/contrib

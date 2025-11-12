@@ -1,4 +1,5 @@
-%define pgmajorversion 17
+
+%define pgmajorversion %{pgmajor}
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global pname pg_tde
 %global sname percona-pg_tde_%{pgmajorversion}
@@ -21,7 +22,7 @@ License:	PostgreSQL
 URL:		https://github.com/%{sname}/%{sname}/
 Source0:	%{name}-%{version}.tar.gz
 
-BuildRequires:	percona-postgresql%{pgmajorversion}-devel json-c-devel libcurl-devel openssl-devel
+BuildRequires:	percona-postgresql%{pgmajorversion}-devel chrpath json-c-devel openssl-devel libcurl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel
 Requires:	postgresql%{pgmajorversion}-server json-c curl openssl
 
 %description
@@ -32,24 +33,12 @@ It seamlessly encrypts and decrypts data in PostgreSQL databases, ensuring secur
 %package llvmjit
 Summary:	Just-in-time compilation support for pg_tde
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-#%%if 0%%{?rhel} && 0%%{?rhel} == 7
-#%%ifarch aarch64
-#Requires:	llvm-toolset-7.0-llvm >= 7.0.1
-#%%else
-#Requires:	llvm5.0 >= 5.0
-#%%endif
-#%%endif
 %if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
 BuildRequires:	llvm6-devel clang6-devel
-#Requires:	llvm6
 %endif
 %if 0%{?suse_version} >= 1500
 BuildRequires:	llvm15-devel clang15-devel
-#Requires:	llvm15
 %endif
-#%%if 0%%{?fedora} || 0%%{?rhel} >= 8
-#Requires:	llvm => 13.0
-#%%endif
 
 %description llvmjit
 This packages provides JIT support for pg_tde
@@ -59,39 +48,71 @@ This packages provides JIT support for pg_tde
 %setup -q -n %{sname}-%{version}
 
 %build
-#%%configure
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgmajorversion}/bin/pg_config:' Makefile
-USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} #%{?_smp_mflags}
+USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make}
 
 %install
 %{__rm} -rf %{buildroot}
 USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR=%{buildroot}
+find %{buildroot}%{pginstdir} -type f \( -name '*.so' -o -name 'pg_tde_*' \) -exec chrpath --delete {} \; 2>/dev/null || true
+mkdir -p %{buildroot}/%{pginstdir}/lib/pgxs/src/test/perl/PostgreSQL/Test
+install -m 644 ci_scripts/perl/PostgreSQL/Test/TdeCluster.pm %{buildroot}/%{pginstdir}/lib/pgxs/src/test/perl/PostgreSQL/Test/
 
-#Remove header file, we don't need it right now:
-#%{__rm} %{buildroot}%{pginstdir}/include/server/extension/%{pname}/%{pname}.h
+%package devel
+Summary: Development files for %{name}
+Requires: %{name} = %{version}-%{release}
+
+%description devel
+Development and testing support files for pg_tde, including Perl test modules.
 
 %files
 %doc README.md
-%license LICENSE
+%license COPYRIGHT
+%{pginstdir}/bin/pg_tde_change_key_provider
+%{pginstdir}/bin/pg_tde_archive_decrypt
+%{pginstdir}/bin/pg_tde_restore_encrypt
 %{pginstdir}/lib/%{pname}.so
 %{pginstdir}/share/extension//%{pname}.control
 %{pginstdir}/share/extension/%{pname}*sql
-%if %llvm
-%files llvmjit
-   %{pginstdir}/lib/bitcode/%{pname}*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/access/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src17/access/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/catalog/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/common/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/encryption/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/keyring/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/transam/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/smgr/*.bc
-   %{pginstdir}/lib/bitcode/%{pname}/src/libkmip/libkmip/src/*.bc
-%endif
+%{pginstdir}/bin/pg_tde_basebackup
+%{pginstdir}/bin/pg_tde_checksums
+%{pginstdir}/bin/pg_tde_resetwal
+%{pginstdir}/bin/pg_tde_rewind
+%{pginstdir}/bin/pg_tde_waldump
+%{pginstdir}/lib/bitcode/pg_tde.index.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/access/pg_tde_tdemap.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/access/pg_tde_xlog.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/access/pg_tde_xlog_keys.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/access/pg_tde_xlog_smgr.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/catalog/tde_keyring.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/catalog/tde_keyring_parse_opts.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/catalog/tde_principal_key.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/common/pg_tde_utils.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/encryption/enc_aes.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/encryption/enc_tde.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/keyring/keyring_api.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/keyring/keyring_curl.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/keyring/keyring_file.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/keyring/keyring_kmip.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/keyring/keyring_kmip_impl.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/keyring/keyring_vault.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/libkmip/libkmip/src/kmip.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/libkmip/libkmip/src/kmip_bio.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/libkmip/libkmip/src/kmip_locate.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/libkmip/libkmip/src/kmip_memset.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/pg_tde.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/pg_tde_event_capture.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/pg_tde_guc.bc
+%{pginstdir}/lib/bitcode/pg_tde/src/smgr/pg_tde_smgr.bc
+
+%files devel
+%{pginstdir}/lib/pgxs/src/test/perl/PostgreSQL/Test/TdeCluster.pm
+
+
 
 %changelog
+* Wed Nov 5 2025 Manika Singhal <manika.singhal@percona.com> - 2.1-1
+- Update 2.1
+
 * Tue Apr 2 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> - 1.0.0-1
 - Initial build 1.0.0
-

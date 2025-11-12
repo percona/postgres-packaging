@@ -48,8 +48,8 @@
 %endif
 
 #Filter out some Perl "dependencies"
-%global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib|PostgreSQL::Test::(BackgroundPsql|TdeCluster))
-%global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib|PostgreSQL::Test::(BackgroundPsql|TdeCluster))
+%global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib|PostgreSQL::Test::(BackgroundPsql))
+%global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib|PostgreSQL::Test::(BackgroundPsql))
 
 
 Summary:        PostgreSQL client programs and libraries
@@ -490,10 +490,6 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 	--docdir=%{pgbaseinstdir}/doc \
 	--htmldir=%{pgbaseinstdir}/doc/html
 
-#cd contrib/pg_tde
-#./configure
-#cd ../..
-
 cd src/backend
 MAKELEVEL=0 %{__make} submake-generated-headers
 cd ../..
@@ -667,9 +663,6 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/share/man/
 %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7 %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/pgsql
-
-# These file(s) should not be packaged:
-%{__rm} %{buildroot}%{pgbaseinstdir}/lib/libpgfeutils.a
 
 # initialize file lists
 %{__cp} /dev/null main.lst
@@ -902,9 +895,6 @@ fi
 %{pgbaseinstdir}/bin/psql
 %{pgbaseinstdir}/bin/reindexdb
 %{pgbaseinstdir}/bin/vacuumdb
-%{pgbaseinstdir}/bin/pg_tde_change_key_provider
-%{pgbaseinstdir}/bin/pg_tde_archive_decrypt
-%{pgbaseinstdir}/bin/pg_tde_restore_encrypt
 %{pgbaseinstdir}/share/errcodes.txt
 %{pgbaseinstdir}/share/man/man1/clusterdb.*
 %{pgbaseinstdir}/share/man/man1/createdb.*
@@ -956,7 +946,6 @@ fi
 %{pgbaseinstdir}/lib/insert_username.so
 %{pgbaseinstdir}/lib/isn.so
 %{pgbaseinstdir}/lib/hstore.so
-%{pgbaseinstdir}/lib/pg_tde.so
 %if %plperl
 %{pgbaseinstdir}/lib/hstore_plperl.so
 %{pgbaseinstdir}/lib/jsonb_plperl.so
@@ -1021,8 +1010,6 @@ fi
 %{pgbaseinstdir}/share/extension/fuzzystrmatch*
 %{pgbaseinstdir}/share/extension/hstore.control
 %{pgbaseinstdir}/share/extension/hstore--*.sql
-%{pgbaseinstdir}/share/extension/pg_tde.control
-%{pgbaseinstdir}/share/extension/pg_tde--*.sql
 %if %plperl
 %{pgbaseinstdir}/share/extension/hstore_plperl*
 %endif
@@ -1171,6 +1158,7 @@ fi
 %{pgbaseinstdir}/lib/pgxs/*
 %{pgbaseinstdir}/lib/pkgconfig/*
 %{pgbaseinstdir}/share/man/man1/ecpg.*
+%{pgbaseinstdir}/lib/libpgfeutils.a
 
 %if %llvm
 %files llvmjit

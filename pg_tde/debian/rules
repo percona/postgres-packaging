@@ -1,0 +1,41 @@
+
+#!/usr/bin/make -f
+
+include /usr/share/postgresql-common/pgxs_debian_control.mk
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
+override_dh_auto_clean:
+	rm -rf build
+
+override_dh_auto_configure:
+	cp /usr/bin/shtool .
+
+override_dh_auto_build:
+	make USE_PGXS=1 \
+	CFLAGS="$(pkg-config --cflags openssl) $$CFLAGS" \
+	LDFLAGS_EX="$$LDFLAGS_EX -L/usr/lib/postgresql/@@PGMAJOR@@/lib \
+	/usr/lib/postgresql/@@PGMAJOR@@/lib/libpgcommon.a \
+	/usr/lib/postgresql/@@PGMAJOR@@/lib/libpgport.a \
+	/usr/lib/postgresql/@@PGMAJOR@@/lib/libpgfeutils.a \
+	-lpq -lcurl $$(pkg-config --libs openssl)"
+
+override_dh_auto_install:
+	make USE_PGXS=1 install DESTDIR=$(CURDIR)/debian/tmp \
+	CFLAGS="$(pkg-config --cflags openssl) $$CFLAGS" \
+	LDFLAGS_EX="$$LDFLAGS_EX -L/usr/lib/postgresql/@@PGMAJOR@@/lib \
+	/usr/lib/postgresql/@@PGMAJOR@@/lib/libpgcommon.a \
+	/usr/lib/postgresql/@@PGMAJOR@@/lib/libpgport.a \
+	/usr/lib/postgresql/@@PGMAJOR@@/lib/libpgfeutils.a \
+	-lpq -lcurl $$(pkg-config --libs openssl)"
+	mkdir -p $(CURDIR)/debian/tmp/usr/lib/postgresql/@@PGMAJOR@@/lib/pgxs/src/test/perl/PostgreSQL/Test
+	install -m 644 ci_scripts/perl/PostgreSQL/Test/TdeCluster.pm $(CURDIR)/debian/tmp/usr/lib/postgresql/@@PGMAJOR@@/lib/pgxs/src/test/perl/PostgreSQL/Test/
+
+override_dh_auto_test:
+
+override_dh_installdocs:
+	dh_installdocs --all README.*

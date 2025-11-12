@@ -48,8 +48,8 @@
 %endif
 
 #Filter out some Perl "dependencies"
-%global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib|PostgreSQL::Test::(BackgroundPsql|TdeCluster))
-%global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib|PostgreSQL::Test::(BackgroundPsql|TdeCluster))
+%global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib|PostgreSQL::Test::(BackgroundPsql))
+%global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib|PostgreSQL::Test::(BackgroundPsql))
 
 
 Summary:        PostgreSQL client programs and libraries
@@ -65,10 +65,9 @@ Source0:        percona-postgresql-%{version}.tar.gz
 Source4:        %{sname}-%{pgmajorversion}-Makefile.regress
 Source5:        %{sname}-%{pgmajorversion}-pg_config.h
 %if %{pgmajorversion} < 18
-Source6: postgresql-%{pgmajorversion}-README-systemd.rpm-dist
 Source6:        %{sname}-%{pgmajorversion}-README-systemd.rpm-dist
 %else
-Source6: postgresql-%{pgmajorversion}-README.rpm-dist
+Source6:        %{sname}-%{pgmajorversion}-README.rpm-dist
 %endif
 Source7:        %{sname}-%{pgmajorversion}-ecpg_config.h
 Source9:        %{sname}-%{pgmajorversion}-libs.conf
@@ -673,9 +672,6 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7 %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/pgsql
 
-# These file(s) should not be packaged:
-%{__rm} %{buildroot}%{pgbaseinstdir}/lib/libpgfeutils.a
-
 # initialize file lists
 %{__cp} /dev/null main.lst
 %{__cp} /dev/null libs.lst
@@ -907,9 +903,6 @@ fi
 %{pgbaseinstdir}/bin/psql
 %{pgbaseinstdir}/bin/reindexdb
 %{pgbaseinstdir}/bin/vacuumdb
-%{pgbaseinstdir}/bin/pg_tde_change_key_provider
-%{pgbaseinstdir}/bin/pg_tde_archive_decrypt
-%{pgbaseinstdir}/bin/pg_tde_restore_encrypt
 %{pgbaseinstdir}/share/errcodes.txt
 %{pgbaseinstdir}/share/man/man1/clusterdb.*
 %{pgbaseinstdir}/share/man/man1/createdb.*
@@ -965,7 +958,6 @@ fi
 %{pgbaseinstdir}/lib/pg_overexplain.so
 %{pgbaseinstdir}/share/extension/pg_logicalinspect--1.0.sql
 %{pgbaseinstdir}/share/extension/pg_logicalinspect.control
-%{pgbaseinstdir}/lib/pg_tde.so
 %if %plperl
 %{pgbaseinstdir}/lib/hstore_plperl.so
 %{pgbaseinstdir}/lib/jsonb_plperl.so
@@ -1030,8 +1022,6 @@ fi
 %{pgbaseinstdir}/share/extension/fuzzystrmatch*
 %{pgbaseinstdir}/share/extension/hstore.control
 %{pgbaseinstdir}/share/extension/hstore--*.sql
-%{pgbaseinstdir}/share/extension/pg_tde.control
-%{pgbaseinstdir}/share/extension/pg_tde--*.sql
 %if %plperl
 %{pgbaseinstdir}/share/extension/hstore_plperl*
 %endif
@@ -1180,6 +1170,7 @@ fi
 %{pgbaseinstdir}/lib/pgxs/*
 %{pgbaseinstdir}/lib/pkgconfig/*
 %{pgbaseinstdir}/share/man/man1/ecpg.*
+%{pgbaseinstdir}/lib/libpgfeutils.a
 
 %if %llvm
 %files llvmjit

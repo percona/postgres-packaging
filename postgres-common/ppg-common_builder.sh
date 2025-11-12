@@ -57,6 +57,7 @@ get_sources(){
         wget ${PKG_RAW_URL}/postgres-common/postgresql-common.install
         wget ${PKG_RAW_URL}/postgres-common/percona-postgresql-common-dev.install
         wget ${PKG_RAW_URL}/postgres-common/percona-postgresql-server-dev-all.install
+        sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" rules
         cp postgresql-common.tmpfiles postgresql-common.conf
         sudo chmod +x supported-versions
         patch -p0 < maintscripts-functions.patch

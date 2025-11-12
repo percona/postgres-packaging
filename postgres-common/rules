@@ -11,8 +11,8 @@ else ifneq ($(findstring pgdg,$(DEB_VERSION)),)
 else
 	FLAVOR := default
 endif
-SUPPORTED_VERSIONS := 18
-DEFAULT_VER := 18
+SUPPORTED_VERSIONS := @@PGMAJOR@@
+DEFAULT_VER := @@PGMAJOR@@
 
 #py2#PYTHON2_PACKAGE=postgresql-plpython-$v
 

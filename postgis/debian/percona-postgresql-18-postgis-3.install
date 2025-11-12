@@ -1,1 +1,1 @@
-usr/lib/postgresql/18/lib usr/lib/postgresql/18/
+usr/lib/postgresql/@@PGMAJOR@@/lib usr/lib/postgresql/@@PGMAJOR@@/

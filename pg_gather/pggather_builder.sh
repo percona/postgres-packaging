@@ -30,6 +30,7 @@ get_sources(){
     wget ${PKG_RAW_URL}/pg_gather/debian/rules
     wget ${PKG_RAW_URL}/pg_gather/debian/control
     wget ${PKG_RAW_URL}/pg_gather/debian/percona-pg-gather.install
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control
     cd ../
     echo 9 > debian/compat
     cd rpm

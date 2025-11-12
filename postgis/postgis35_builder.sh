@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -x
 # Versions and other variables
-source versions.sh "postgis"
+source versions.sh "postgis35"
 # Common functions
 source common-functions.sh
 
@@ -16,7 +16,7 @@ get_sources(){
     echo "PRODUCT=${POSTGIS_PRODUCT}" > percona-postgis.properties
 
     echo "PRODUCT_FULL=${POSTGIS_PRODUCT_FULL}" >> percona-postgis.properties
-    echo "VERSION=${POSTGIS_VERSION}" >> percona-postgis.properties
+    echo "VERSION=${POSTGIS35_VERSION}" >> percona-postgis.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgis.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgis.properties
     git clone "$POSTGIS_SRC_REPO"
@@ -180,7 +180,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget ${PKG_RAW_URL}/postgis/postgis-${POSTGIS_VERSION}.${POSTGIS_RELEASE}.pdf
+    wget ${PKG_RAW_URL}/postgis/postgis-${POSTGIS35_VERSION}.${POSTGIS35_RELEASE}.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis35.spec rpmbuild/SPECS
     #
@@ -193,8 +193,8 @@ build_srpm(){
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .generic" \
         --define "pgmajor ${PG_MAJOR}" \
-        --define "version ${POSTGIS_VERSION}" \
-	--define "release ${POSTGIS_RELEASE}" \
+        --define "version ${POSTGIS35_VERSION}" \
+	--define "release ${POSTGIS35_RELEASE}" \
         --define "pginstdir /usr/pgsql-$PG_MAJOR" \
         rpmbuild/SPECS/percona-postgis35.spec
     mkdir -p ${WORKDIR}/srpm
@@ -251,8 +251,8 @@ build_rpm(){
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .$OS_NAME" \
         --define "pgmajor ${PG_MAJOR}" \
-        --define "version ${POSTGIS_VERSION}" \
-	--define "release ${POSTGIS_RELEASE}" \
+        --define "version ${POSTGIS35_VERSION}" \
+	--define "release ${POSTGIS35_RELEASE}" \
         --define "pginstdir /usr/pgsql-$PG_MAJOR" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
 
@@ -288,18 +288,18 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${POSTGIS_PRODUCT}_${POSTGIS_VERSION}.${POSTGIS_RELEASE}.orig.tar.gz
+    mv ${TARFILE} ${POSTGIS_PRODUCT}_${POSTGIS35_VERSION}.${POSTGIS35_RELEASE}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-postgis (${POSTGIS_VERSION}.${POSTGIS_RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgis (${POSTGIS35_VERSION}.${POSTGIS35_RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
  
     cd ../
     
-    dch -D unstable --force-distribution -v "${POSTGIS_VERSION}.${POSTGIS_RELEASE}-${POSTGIS_DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${POSTGIS_VERSION}.${POSTGIS_RELEASE}-${POSTGIS_DEB_RELEASE}"
+    dch -D unstable --force-distribution -v "${POSTGIS35_VERSION}.${POSTGIS35_RELEASE}-${POSTGIS_DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${POSTGIS35_VERSION}.${POSTGIS35_RELEASE}-${POSTGIS_DEB_RELEASE}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -344,7 +344,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${POSTGIS_PRODUCT_FULL}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${POSTGIS_VERSION}.${POSTGIS_RELEASE}-${POSTGIS_DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${POSTGIS35_VERSION}.${POSTGIS35_RELEASE}-${POSTGIS_DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
 #    if [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbionic" ]
 #    then

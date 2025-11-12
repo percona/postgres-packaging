@@ -59,6 +59,7 @@ get_sources(){
         wget ${PKG_RAW_URL}/postgis/debian/percona-postgresql-$PG_MAJOR-postgis-3.install
         wget ${PKG_RAW_URL}/postgis/debian/percona-postgresql-$PG_MAJOR-postgis-3.lintian-overrides
         sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control percona-postgresql-$PG_MAJOR-postgis-3-scripts.install percona-postgresql-$PG_MAJOR-postgis-3-scripts.prerm percona-postgresql-$PG_MAJOR-postgis-3.install
+        sed -i "s/@@POSTGISVERSION@@/${POSTGIS_SRC_BRANCH}/g" control
 	cp control control.in
         # Remove the sfcgal patch entry from patches/series
         sed -i '/sfcgal/d' patches/series
@@ -179,9 +180,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget ${PKG_RAW_URL}/postgis/postgis-3.5.3.pdf
-    #wget --no-check-certificate https://download.osgeo.org/postgis/docs/postgis-3.3.8.pdf
-    #wget --no-check-certificate https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
+    wget ${PKG_RAW_URL}/postgis/postgis-${POSTGIS_VERSION}.${POSTGIS_RELEASE}.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis35.spec rpmbuild/SPECS
     #

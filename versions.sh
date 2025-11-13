@@ -53,7 +53,6 @@ case "$1" in
         PG_SRC_REPO="https://git.postgresql.org/git/postgresql.git"
         PG_SRC_REPO_DEB="https://salsa.debian.org/postgresql/postgresql.git"
         PG_DOC="https://www.postgresql.org/files/documentation/pdf/${PG_MAJOR}/postgresql-${PG_MAJOR}-A4.pdf"
-        TELEMETRY_AGENT="https://raw.githubusercontent.com/Percona-Lab/telemetry-agent/phase-0/call-home.sh"
     ;;
 
 

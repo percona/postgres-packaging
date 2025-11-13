@@ -33,7 +33,6 @@ get_sources(){
         git clean -xdf
         git checkout "$PG_SRC_BRANCH"
         git submodule update --init --recursive
-	sed -i "s|#shared_preload_libraries = ''|shared_preload_libraries = 'percona_pg_telemetry'|g" src/backend/utils/misc/postgresql.conf.sample
 	sed -i 's:enable_tap_tests=no:enable_tap_tests=yes:' configure
     fi
     REVISION=$(git rev-parse --short HEAD)
@@ -135,19 +134,7 @@ build_srpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    wget "${TELEMETRY_AGENT}"
-    mv call-home.sh rpmbuild/SOURCES
-    cd ${WORKDIR}/rpmbuild/SPECS
-    line_number=$(grep -n SOURCE999 percona-postgresql-$PG_MAJOR.spec | awk -F ':' '{print $1}')
-    cp ../SOURCES/call-home.sh ./
-    awk -v n=$line_number 'NR <= n {print > "part1.txt"} NR > n {print > "part2.txt"}' percona-postgresql-$PG_MAJOR.spec
-    head -n -1 part1.txt > temp && mv temp part1.txt
-    echo "cat <<'CALLHOME' > /tmp/call-home.sh" >> part1.txt
-    cat call-home.sh >> part1.txt
-    echo "CALLHOME" >> part1.txt
-    cat part2.txt >> part1.txt
-    rm -f call-home.sh part2.txt
-    mv part1.txt percona-postgresql-$PG_MAJOR.spec
+
     cd ${WORKDIR}
     rpmbuild -bs \
         --define "_topdir ${WORKDIR}/rpmbuild" \
@@ -307,19 +294,6 @@ build_deb(){
     cd ${PPG_PRODUCT}-${PG_MAJOR}-${PG_VERSION}
     dch -m -D "${DEBIAN}" --force-distribution -v "1:${PG_VERSION}-${BUILD_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
-        cd debian/
-        wget "${TELEMETRY_AGENT}"
-        sed -i 's:exit 0::' percona-postgresql-$PG_MAJOR.postinst
-        echo "cat <<'CALLHOME' > /tmp/call-home.sh" >> percona-postgresql-$PG_MAJOR.postinst
-        cat call-home.sh >> percona-postgresql-$PG_MAJOR.postinst
-        echo "CALLHOME" >> percona-postgresql-$PG_MAJOR.postinst
-        echo "bash +x /tmp/call-home.sh -f \"PRODUCT_FAMILY_POSTGRESQL\" -v \"${PG_VERSION}-${PG_DEB_RELEASE}\" -d \"PACKAGE\" || :" >> percona-postgresql-$PG_MAJOR.postinst
-	echo "chgrp percona-telemetry /usr/local/percona/telemetry_uuid &>/dev/null || :" >> percona-postgresql-$PG_MAJOR.postinst
-        echo "chmod 664 /usr/local/percona/telemetry_uuid &>/dev/null || :" >> percona-postgresql-$PG_MAJOR.postinst
-        echo "rm -rf /tmp/call-home.sh" >> percona-postgresql-$PG_MAJOR.postinst
-        echo "exit 0" >> percona-postgresql-$PG_MAJOR.postinst
-        rm -f call-home.sh
-    cd ../
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
     mkdir -p $WORKDIR/deb

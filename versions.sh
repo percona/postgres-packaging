@@ -151,9 +151,9 @@ case "$1" in
         PG_REPACK_PRODUCT_DEB=percona-pg-repack
         PG_REPACK_PRODUCT_FULL=${PG_REPACK_PRODUCT}-${PG_REPACK_VERSION}
         PG_REPACK_SRC_BRANCH="ver_${PG_REPACK_VERSION}"
-        PG_REPACK_RPM_RELEASE='2'
-        PG_REPACK_DEB_RELEASE='2'
-        PG_REPACK_RELEASE='2'
+        PG_REPACK_RPM_RELEASE='1'
+        PG_REPACK_DEB_RELEASE='1'
+        PG_REPACK_RELEASE='1'
 
         # urls
         PG_REPACK_SRC_REPO="https://github.com/reorg/pg_repack.git"
@@ -182,9 +182,9 @@ case "$1" in
         SET_USER_PRODUCT_DEB="percona-pgaudit${PG_MAJOR}-set-user"
         SET_USER_PRODUCT_FULL=${SET_USER_PRODUCT}-${SET_USER_VERSION}
         SET_USER_SRC_BRANCH="REL${SET_USER_VERSION//./_}"
-        SET_USER_RPM_RELEASE='2'
-        SET_USER_DEB_RELEASE='2'
-        SET_USER_RELEASE='3'
+        SET_USER_RPM_RELEASE='1'
+        SET_USER_DEB_RELEASE='1'
+        SET_USER_RELEASE='1'
 
         # urls
         SET_USER_SRC_REPO="https://github.com/pgaudit/set_user.git"
@@ -226,9 +226,9 @@ case "$1" in
         PGBOUNCER_PRODUCT=percona-pgbouncer
         PGBOUNCER_PRODUCT_FULL=${PGBOUNCER_PRODUCT}-${PGBOUNCER_VERSION}
         PGBOUNCER_SRC_BRANCH="pgbouncer_${PGBOUNCER_VERSION//./_}"
-        PGBOUNCER_RPM_RELEASE='2'
-        PGBOUNCER_DEB_RELEASE='2'
-        PGBOUNCER_RELEASE='2'
+        PGBOUNCER_RPM_RELEASE='1'
+        PGBOUNCER_DEB_RELEASE='1'
+        PGBOUNCER_RELEASE='1'
 
         # urls
         PGBOUNCER_SRC_REPO="https://github.com/pgbouncer/pgbouncer.git"

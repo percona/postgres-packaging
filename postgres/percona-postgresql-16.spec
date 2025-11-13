@@ -73,7 +73,6 @@ Source17:       %{sname}-%{pgmajorversion}-setup
 Source10:       %{sname}-%{pgmajorversion}-check-db-dir
 Source18:       %{sname}-%{pgmajorversion}.service
 Source19:       %{sname}-%{pgmajorversion}-tmpfiles.d
-Source999:      call-home.sh
 
 Patch1:         %{sname}-%{pgmajorversion}-rpm-pgsql.patch
 Patch3:         %{sname}-%{pgmajorversion}-conf.patch
@@ -204,7 +203,6 @@ Summary:        The programs needed to create and run a PostgreSQL server
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
 Requires(pre):  /usr/sbin/useradd /usr/sbin/groupadd
-Requires:       percona-pg-telemetry%{pgmajorversion}
 # for /sbin/ldconfig
 Requires(post):         glibc
 Requires(postun):       glibc
@@ -761,10 +759,6 @@ export PGDATA
 chown postgres: /var/lib/pgsql/.bash_profile
 chmod 700 /var/lib/pgsql/.bash_profile
 cp %SOURCE999 /tmp/ 2>/dev/null || :
-bash /tmp/call-home.sh -f "PRODUCT_FAMILY_POSTGRESQL" -v "%{version}-%{pg_release}" -d "PACKAGE" &>/dev/null || :
-chgrp percona-telemetry /usr/local/percona/telemetry_uuid &>/dev/null || :
-chmod 664 /usr/local/percona/telemetry_uuid &>/dev/null || :
-rm -f /tmp/call-home.sh
 
 
 %preun server

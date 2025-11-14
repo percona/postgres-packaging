@@ -46,6 +46,7 @@ case "$1" in
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
         PG_SRC_BRANCH="REL_${PG_MAJOR}_${PG_MINOR}"
+        PG_RELEASE='1'
         PG_RPM_RELEASE='1'
         PG_DEB_RELEASE='1'
 

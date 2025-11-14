@@ -45,7 +45,7 @@ index 93fa9e070e8..8768cfee9a2 100644
        -l*) LLVM_LIBS="$LLVM_LIBS $pgac_option";;
      esac
 diff --git a/configure b/configure
-index b84ee31cbb5..369236b3888 100755
+index 91df3898875..765b3478a90 100755
 --- a/configure
 +++ b/configure
 @@ -5139,20 +5139,20 @@ fi

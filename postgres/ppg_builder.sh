@@ -320,6 +320,12 @@ REVISION=0
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 
+if [ "x$OS" = "xrpm" ]; then
+    BUILD_RELEASE=${PG_RPM_RELEASE}
+else
+    BUILD_RELEASE=${PG_DEB_RELEASE}
+fi
+
 check_workdir
 get_system
 

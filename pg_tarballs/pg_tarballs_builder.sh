@@ -280,7 +280,7 @@ build_libedit(){
 	build_status "start" "libedit"
 	cd /source
 	rm -rf libedit*
-	wget "https://osdn.net/frs/g_redir.php?m=jaist&f=libedit%2Flibedit%2Flibedit-${LIBEDIT_VERSION}%2Flibedit-${LIBEDIT_VERSION}.tar.gz" -O libedit-${LIBEDIT_VERSION}.tar.gz
+	wget "https://sourceforge.net/projects/libedit/files/libedit/libedit-${LIBEDIT_VERSION}/libedit-${LIBEDIT_VERSION}.tar.gz/download" -O libedit-${LIBEDIT_VERSION}.tar.gz
 	tar -xvzf libedit-${LIBEDIT_VERSION}.tar.gz
 	cd libedit
 	./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes --enable-ssl=${SSL_INSTALL_PATH} --includedir=${DEPENDENCY_LIBS_PATH}/include

@@ -81,7 +81,7 @@ export NCURSES_VERSION=6.5
 export LIBEDIT_VERSION=0.3
 export LIBUUID_VERSION=1.0.2
 #export LIBXML2_VERSION=2.13.5   # Latest version deprecated xmlNanoHTTPCleanup symbol required for SPATIALITE and GDAL
-export LIBXML2_VERSION=2.12.9
+export LIBXML2_VERSION=2.12.10
 export LIBXML2_MAJOR_VERSION=$(echo ${LIBXML2_VERSION}|  cut -f1,2 -d'.')
 export LIBXSLT_VERSION=1.1.43
 export LIBXSLT_MAJOR_VERSION=$(echo ${LIBXSLT_VERSION}|  cut -f1,2 -d'.')
@@ -123,16 +123,17 @@ export SFCGAL_VERSION=1.5.0
 export LIBXCRYPT_VERSION=4.4.36
 
 export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
-export PGBOUNCER_VERSION=1.24.1
-export PGPOOL_VERSION=4.6.2
+export PGBOUNCER_VERSION=1.25.0
+export PGPOOL_VERSION=4.6.3
 export HAPROXY_VERSION=2.8
 export LIBFFI_VERSION=3.4.2
 export PERL_VERSION=5.38.2
 export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
 export TCL_VERSION=8.6.16
-export ETCD_VERSION=3.5.21
-export POSTGIS_VERSION=3.5.3
+export ETCD_VERSION=3.5.24
+export POSTGIS_VERSION=3.3.8
+export POSTGIS35_VERSION=3.5.4
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
 export PGBOUNCER_PREFIX=/opt/percona-pgbouncer
@@ -1830,6 +1831,56 @@ build_postgis(){
 	build_status "ends" "postgis"
 }
 
+build_postgis35(){
+
+	build_status "start" "postgis35"
+	mkdir -p /source
+	cd /source
+	wget "https://download.osgeo.org/postgis/source/postgis-${POSTGIS35_VERSION}.tar.gz"
+	tar -xvzf postgis-${POSTGIS35_VERSION}.tar.gz
+	cd postgis-${POSTGIS35_VERSION}
+
+	export PATH=${POSTGRESQL_PREFIX}/bin:${DEPENDENCY_LIBS_PATH}/bin:$PATH
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib -L${DEPENDENCY_LIBS_PATH}/lib64" ./configure --with-pgconfig=${POSTGRESQL_PREFIX}/bin/pg_config \
+		--enable-lto \
+		--with-projdir=${DEPENDENCY_LIBS_PATH} \
+		--with-sfcgal=${DEPENDENCY_LIBS_PATH}/bin/sfcgal-config \
+		--with-gui \
+		--with-protobuf \
+		--with-geosconfig=${DEPENDENCY_LIBS_PATH}/bin/geos-config \
+		--with-gdalconfig=${DEPENDENCY_LIBS_PATH}/bin/gdal-config
+
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH make USE_PGXS=1 -j4
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH make USE_PGXS=1 -j4 install
+
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeos_c*.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libproj.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libSFCGAL.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libiconv.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeos.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libsqlite3* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libtiff.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmpfr* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libgmp* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libqhull_r* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libjpeg.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeotiff* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libpng16* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libpcre2-* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libspatialit* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libfreexl* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libjson-c* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libprotobuf-c* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcurl* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libboost_* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgdal.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libminizip.* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmd.* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libbsd* ${POSTGRESQL_PREFIX}/lib/
+
+	build_status "ends" "postgis35"
+}
+
 set_rpath(){
 
         directory="$1"  # Change this to your target directory
@@ -2001,6 +2052,9 @@ build_etcd
 if [ "${PG_MAJOR_VERSION}" -ne 12 ]; then
     build_pgvector
 fi
-build_postgis
+if [ "$PG_MAJOR_VERSION" -lt 18 ]; then
+    build_postgis
+fi
+build_postgis35
 set_rpath_all_products
 create_tarball

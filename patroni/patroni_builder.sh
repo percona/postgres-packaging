@@ -54,6 +54,7 @@ get_sources(){
     sed -i 's:service-info-only-in-pretty-format.patch::' patches/series
     sed -i 's:patronictl-reinit-wait-rebased-1.6.0.patch::' patches/series
     sed -i "s:'sphinx_github_style':#'sphinx_github_style':g" ../docs/conf.py
+    sed -i 's:-/usr/bin/sudo /:-+/:' patches/better-startup-script.patch
 
     export DEBIAN=$(lsb_release -sc)
     if [ "x${DEBIAN}" = "xbuster" ]; then

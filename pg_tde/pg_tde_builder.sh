@@ -235,6 +235,7 @@ build_source_deb(){
     cd ../
     
     dch -D unstable --force-distribution -v "${PG_TDE_VERSION}-${PG_TDE_RELEASE}" "Update to new pg-tde version ${PG_TDE_VERSION}"
+    pg_buildext updatecontrol
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb

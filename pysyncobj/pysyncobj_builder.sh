@@ -112,7 +112,7 @@ build_srpm(){
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .generic" \
         --define "version ${PYSYNCOBJ_VERSION}" \
-        --define "release ${PYSYNCOBJ_RELEASE}" \
+        --define "pysyncobj_release ${PYSYNCOBJ_RELEASE}" \
         rpmbuild/SPECS/python3-pysyncobj.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -161,7 +161,7 @@ build_rpm(){
         --define "_topdir ${WORKDIR}/rb" \
         --define "dist .$OS_NAME" \
         --define "version ${PYSYNCOBJ_VERSION}" \
-        --define "release ${PYSYNCOBJ_RELEASE}" \
+        --define "pysyncobj_release ${PYSYNCOBJ_RELEASE}" \
         --rebuild rb/SRPMS/$SRC_RPM
 
     return_code=$?

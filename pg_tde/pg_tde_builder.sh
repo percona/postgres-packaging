@@ -42,7 +42,7 @@ get_sources(){
     #git checkout debian/${VERSION}-${RELEASE}
     wget ${PKG_RAW_URL}/pg_tde/debian/control
     wget ${PKG_RAW_URL}/pg_tde/debian/control.in
-    wget https://raw.githubusercontent.com/Manika-Percona/postgres-packaging/refs/heads/18.1/pg_tde/debian/rules
+    wget ${PKG_RAW_URL}/pg_tde/debian/rules
     wget ${PKG_RAW_URL}/pg_tde/debian/percona-postgresql-18-pg-tde.install
     wget ${PKG_RAW_URL}/pg_tde/debian/percona-postgresql-18-pg-tde-client.install
     sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in rules percona-postgresql-${PG_MAJOR}-pg-tde.install percona-postgresql-${PG_MAJOR}-pg-tde-client.install

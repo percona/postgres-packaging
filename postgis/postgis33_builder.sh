@@ -181,7 +181,7 @@ build_srpm(){
     #
     cp -av rpm/* rpmbuild/SOURCES
     cd rpmbuild/SOURCES
-    wget ${PKG_RAW_URL}/postgis/postgis-${POSTGIS33_VERSION}.${POSTGIS33_RELEASE}.pdf
+    wget ${PKG_RAW_URL}/postgis/postgis-${POSTGIS33_VERSION}.${POSTGIS33_MINOR}.pdf
     cd ../../
     cp -av rpmbuild/SOURCES/percona-postgis33.spec rpmbuild/SPECS
     #
@@ -195,7 +195,8 @@ build_srpm(){
         --define "dist .generic" \
         --define "pgmajor ${PG_MAJOR}" \
         --define "version ${POSTGIS33_VERSION}" \
-	--define "release ${POSTGIS33_RELEASE}" \
+	    --define "minor ${POSTGIS33_MINOR}" \
+	    --define "postgis_release ${POSTGIS33_RELEASE}" \
         --define "pginstdir /usr/pgsql-$PG_MAJOR" \
         rpmbuild/SPECS/percona-postgis35.spec
     mkdir -p ${WORKDIR}/srpm
@@ -253,7 +254,8 @@ build_rpm(){
         --define "dist .$OS_NAME" \
         --define "pgmajor ${PG_MAJOR}" \
         --define "version ${POSTGIS33_VERSION}" \
-	--define "release ${POSTGIS33_RELEASE}" \
+	    --define "minor ${POSTGIS33_MINOR}" \
+	    --define "postgis_release ${POSTGIS33_RELEASE}" \
         --define "pginstdir /usr/pgsql-$PG_MAJOR" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
 
@@ -289,18 +291,18 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${POSTGIS_PRODUCT}_${POSTGIS33_VERSION}.${POSTGIS33_RELEASE}.orig.tar.gz
+    mv ${TARFILE} ${POSTGIS_PRODUCT}_${POSTGIS33_VERSION}.${POSTGIS33_MINOR}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-postgis (${POSTGIS33_VERSION}.${POSTGIS33_RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-postgis (${POSTGIS33_VERSION}.${POSTGIS33_MINOR}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
  
     cd ../
     
-    dch -D unstable --force-distribution -v "${POSTGIS33_VERSION}.${POSTGIS33_RELEASE}-${POSTGIS_DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${POSTGIS33_VERSION}.${POSTGIS33_RELEASE}-${POSTGIS_DEB_RELEASE}"
+    dch -D unstable --force-distribution -v "${POSTGIS33_VERSION}.${POSTGIS33_MINOR}-${POSTGIS_DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${POSTGIS33_VERSION}.${POSTGIS33_MINOR}-${POSTGIS_DEB_RELEASE}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -345,7 +347,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${POSTGIS_PRODUCT_FULL}
-    dch -m -D "${DEBIAN}" --force-distribution -v "2:${POSTGIS33_VERSION}.${POSTGIS33_RELEASE}-${POSTGIS_DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${POSTGIS33_VERSION}.${POSTGIS33_MINOR}-${POSTGIS_DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
 #    if [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbionic" ]
 #    then

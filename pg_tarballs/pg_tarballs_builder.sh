@@ -1098,7 +1098,7 @@ build_tcl(){
 
         mkdir -p /source
         cd /source/
-		wget https://sourceforge.net/projects/tcl/files/Tcl/${TCL_VERSION}/tcl${TCL_VERSION}-src.tar.gz/download
+		wget https://sourceforge.net/projects/tcl/files/Tcl/${TCL_VERSION}/tcl${TCL_VERSION}-src.tar.gz/download -O tcl${TCL_VERSION}-src.tar.gz
         tar xvf tcl${TCL_VERSION}-src.tar.gz
         cd tcl${TCL_VERSION}/unix
         ./configure --prefix=${TCL_PREFIX} --enable-shared=yes

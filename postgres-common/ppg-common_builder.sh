@@ -161,7 +161,7 @@ build_srpm(){
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .generic" \
         --define "version ${PPG_COMMON_MAJOR}" \
-        --define "release ${PPG_COMMON_MINOR}" \
+        --define "ppg_cmn_release ${PPG_COMMON_RELEASE}" \
         rpmbuild/SPECS/percona-postgresql-common.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
@@ -209,7 +209,7 @@ build_rpm(){
     rpmbuild \
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "version ${PPG_COMMON_MAJOR}" \
-        --define "release ${PPG_COMMON_MINOR}" \
+        --define "ppg_cmn_release ${PPG_COMMON_RELEASE}" \
         --define "dist .$OS_NAME" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
 

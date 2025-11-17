@@ -165,7 +165,7 @@ fi
 SETUSER_BRANCH="REL4_2_0"
 PG_REPACK_BRANCH="ver_1.5.3"
 WAL2JSON_BRANCH="wal2json_2_6"
-PG_STAT_MONITOR_BRANCH="2.3.1"
+PG_STAT_MONITOR_BRANCH="main" #to be able to build 2.3.1
 PGBACKREST_BRANCH="release/2.57.0"
 PGBADGER_BRANCH="v13.1"
 PATRONI_BRANCH="v4.1.0"
@@ -280,7 +280,7 @@ build_libedit(){
 	build_status "start" "libedit"
 	cd /source
 	rm -rf libedit*
-	wget "https://osdn.net/frs/g_redir.php?m=jaist&f=libedit%2Flibedit%2Flibedit-${LIBEDIT_VERSION}%2Flibedit-${LIBEDIT_VERSION}.tar.gz" -O libedit-${LIBEDIT_VERSION}.tar.gz
+	wget "https://sourceforge.net/projects/libedit/files/libedit/libedit-${LIBEDIT_VERSION}/libedit-${LIBEDIT_VERSION}.tar.gz/download" -O libedit-${LIBEDIT_VERSION}.tar.gz
 	tar -xvzf libedit-${LIBEDIT_VERSION}.tar.gz
 	cd libedit
 	./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes --enable-ssl=${SSL_INSTALL_PATH} --includedir=${DEPENDENCY_LIBS_PATH}/include
@@ -1098,7 +1098,7 @@ build_tcl(){
 
         mkdir -p /source
         cd /source/
-        wget https://fossies.org/linux/misc/tcl${TCL_VERSION}-src.tar.gz
+		wget https://sourceforge.net/projects/tcl/files/Tcl/${TCL_VERSION}/tcl${TCL_VERSION}-src.tar.gz/download -O tcl${TCL_VERSION}-src.tar.gz
         tar xvf tcl${TCL_VERSION}-src.tar.gz
         cd tcl${TCL_VERSION}/unix
         ./configure --prefix=${TCL_PREFIX} --enable-shared=yes

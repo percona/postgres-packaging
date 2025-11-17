@@ -22,7 +22,7 @@ PGBOUNCER_VERSION=1.25.0
 PGPOOL2_VERSION=4.6.3
 PGVECTOR_VERSION=0.8.1
 POSTGIS35_VERSION=3.5
-POSTGIS35_RELEASE=4
+POSTGIS35_MINOR=4
 PYSYNCOBJ_VERSION=0.3.10
 WAL2JSON_VERSION=2.6
 YDIFF_VERSION=1.2
@@ -30,12 +30,12 @@ YDIFF_VERSION=1.2
 #-------------------------------------- COMMON URLs --------------------------------------
 
 # Github Packaging Repo
-PKG_GIT_REPO="https://github.com/percona/postgres-packaging.git"
+PKG_GIT_REPO="https://github.com/Manika-Percona/postgres-packaging.git"
 PKG_GIT_BRANCH=${PG_VERSION}
 PGRPMS_GIT_REPO="https://git.postgresql.org/git/pgrpms.git"
 
 # Raw files URLs
-PKG_RAW_URL="https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}"
+PKG_RAW_URL="https://raw.githubusercontent.com/Manika-Percona/postgres-packaging/${PG_VERSION}"
 
 # Percona Repos
 YUM_REPO="https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
@@ -271,8 +271,9 @@ case "$1" in
     postgis35)
         # versions
         POSTGIS_PRODUCT=percona-postgis
-        POSTGIS_PRODUCT_FULL=${POSTGIS_PRODUCT}-${POSTGIS35_VERSION}.${POSTGIS35_RELEASE}
-        POSTGIS_SRC_BRANCH="${POSTGIS35_VERSION}.${POSTGIS35_RELEASE}"
+        POSTGIS_PRODUCT_FULL=${POSTGIS_PRODUCT}-${POSTGIS35_VERSION}.${POSTGIS35_MINOR}
+        POSTGIS35_RELEASE='1'
+        POSTGIS_SRC_BRANCH="${POSTGIS35_VERSION}.${POSTGIS35_MINOR}"
         POSTGIS_RPM_RELEASE='1'
         POSTGIS_DEB_RELEASE='1'
 

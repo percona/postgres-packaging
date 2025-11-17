@@ -46,6 +46,7 @@ get_sources(){
     wget ${PKG_RAW_URL}/pg_tde/debian/percona-postgresql-${PG_MAJOR}-pg-tde.install
     wget ${PKG_RAW_URL}/pg_tde/debian/percona-postgresql-${PG_MAJOR}-pg-tde-client.install
     sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in rules percona-postgresql-${PG_MAJOR}-pg-tde.install percona-postgresql-${PG_MAJOR}-pg-tde-client.install
+    sudo chmod +x rules
     cd ../
 
     echo ${PG_MAJOR} > debian/pgversions
@@ -234,6 +235,7 @@ build_source_deb(){
     cd ../
     
     dch -D unstable --force-distribution -v "${PG_TDE_VERSION}-${PG_TDE_RELEASE}" "Update to new pg-tde version ${PG_TDE_VERSION}"
+    pg_buildext updatecontrol
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb

@@ -5,7 +5,7 @@
 Summary: A library for replicating your python class between multiple servers, based on raft protocol
 Name:           %{name}
 Version:        %{version}
-Release:        %{release}%{?dist}
+Release:        %{pysyncobj_release}%{?dist}
 Source0:        %{name}-%{version}.tar.gz
 License:        MIT
 Group:          Development/Libraries

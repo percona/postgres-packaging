@@ -117,7 +117,7 @@ build_srpm(){
     rpmbuild -bs \
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .generic" \
-        --define "pgmajorversion ${PG_MAJOR}" \
+        --define "pgmajor ${PG_MAJOR}" \
         --define "pgminorversion ${PG_MINOR}" \
         --define "release ${PPG_SERVER_RELEASE}" \
         rpmbuild/SPECS/ppg-server.spec
@@ -169,7 +169,7 @@ build_rpm(){
     rpmbuild \
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .$OS_NAME" \
-        --define "pgmajorversion ${PG_MAJOR}" \
+        --define "pgmajor ${PG_MAJOR}" \
         --define "pgminorversion ${PG_MINOR}" \
         --define "release ${PPG_SERVER_RELEASE}" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM

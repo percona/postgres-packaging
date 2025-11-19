@@ -16,8 +16,7 @@ Requires:       percona-postgresql%{pgmajorversion}-server
 Requires:       percona-postgresql-common >= %{pgmajorversion}.%{pgminorversion}
 Requires:       percona-postgresql%{pgmajorversion}-contrib
 Requires:       percona-pg-stat-monitor%{pgmajorversion}
-Requires:       percona-postgresql-common > %{pgmajorversion}.%{pgminorversion}
-Requires:       percona-pgaudit%{pgmajorversion} > %{expr: %{version} - 1}
+Requires:       percona-pgaudit%{pgmajorversion} >= %{pgmajorversion}.%{pgminorversion}
 Requires:       percona-pg_repack%{pgmajorversion}
 Requires:       percona-wal2json%{pgmajorversion}
 

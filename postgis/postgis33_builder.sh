@@ -198,7 +198,7 @@ build_srpm(){
 	    --define "minor ${POSTGIS33_MINOR}" \
 	    --define "postgis_release ${POSTGIS33_RELEASE}" \
         --define "pginstdir /usr/pgsql-$PG_MAJOR" \
-        rpmbuild/SPECS/percona-postgis35.spec
+        rpmbuild/SPECS/percona-postgis33.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm

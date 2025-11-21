@@ -188,6 +188,8 @@ override_dh_compress:
 
 override_dh_install-arch:
 	dh_install -a
+	# Remove JIT from main package so it is only in percona-postgresql-$(MAJOR_VER)-jit
+	rm -f debian/percona-postgresql-$(MAJOR_VER)/usr/lib/postgresql/$(MAJOR_VER)/lib/llvmjit.so
 
 	# link README.Debian.gz to postgresql-common
 	mkdir -p debian/percona-postgresql-$(MAJOR_VER)/usr/share/doc/postgresql-$(MAJOR_VER)

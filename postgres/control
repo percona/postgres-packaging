@@ -7,7 +7,7 @@ Rules-Requires-Root: no
 Build-Depends:
  autoconf,
  bison,
- clang [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ clang [amd64 arm64 mips64el ppc64 ppc64el s390x],
  debhelper,
  dh-exec (>= 0.13~),
  docbook-xml,
@@ -35,7 +35,7 @@ Build-Depends:
  libxml2-dev,
  libxml2-utils,
  libxslt1-dev,
- llvm-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ llvm-dev [amd64 arm64 mips64el ppc64 ppc64el riscv64 s390x],
  mawk,
  perl (>= 5.8),
  pkg-config,
@@ -175,7 +175,7 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-@@PGMAJOR@@, postgresql-contrib-@@PGMAJOR@@ (= ${binary:Version}), postgresql-@@PGMAJOR@@ (= ${binary:Version})
-Recommends: sysstat
+Recommends: percona-postgresql-@@PGMAJOR@@-jit, sysstat
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational
  database management system (RDBMS) emphasizing extensibility and SQL
@@ -218,9 +218,9 @@ Package: percona-postgresql-server-dev-@@PGMAJOR@@
 Architecture: any
 Section: libdevel
 Depends:
- clang [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ clang [amd64 arm64 mips64el ppc64 ppc64el s390x],
  libpq-dev (>= @@PGMAJOR@@~~),
- llvm-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ llvm-dev [amd64 arm64 mips64el ppc64 ppc64el s390x],
  percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 162~),
  ${misc:Depends},
  ${shlibs:Depends}
@@ -295,3 +295,28 @@ Description: PL/Tcl procedural language for PostgreSQL @@PGMAJOR@@
  PostgreSQL @@PGMAJOR@@ functions that use the languages pltcl or pltclu.
  .
  PostgreSQL is an object-relational SQL database management system.
+
+Package: percona-postgresql-@@PGMAJOR@@-jit
+Architecture: any
+Depends:
+ percona-postgresql-@@PGMAJOR@@ (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends},
+Provides:
+ percona-postgresql-@@PGMAJOR@@-jit-llvm (= ${llvm:Version}),
+Replaces:
+ percona-postgresql-@@PGMAJOR@@ (<= @@PGMAJOR@@~~devel),
+ percona-postgresql-plperl-@@PGMAJOR@@ (<= @@PGMAJOR@@~~devel),
+ percona-postgresql-plpython3-@@PGMAJOR@@ (<= @@PGMAJOR@@~~devel),
+ percona-postgresql-pltcl-@@PGMAJOR@@ (<= @@PGMAJOR@@~~devel),
+Description: The World's Most Advanced Open Source Relational Database
+ PostgreSQL, also known as Postgres, is a free and open-source relational
+ database management system (RDBMS) emphasizing extensibility and SQL
+ compliance. It features transactions with Atomicity, Consistency, Isolation,
+ Durability (ACID) properties, automatically updatable views, materialized
+ views, triggers, foreign keys, and stored procedures. It is designed to handle
+ a range of workloads, from single machines to data warehouses or Web services
+ with many concurrent users.
+ .
+ This package provides LLVM-based query JITing for PostgreSQL @@PGMAJOR@@.${cassert}
+

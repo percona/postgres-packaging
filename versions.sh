@@ -75,8 +75,8 @@ case "$1" in
 
     pg_tde)
         # versions
-        PG_TDE_PRODUCT=percona-pg_tde_${PG_MAJOR}
-        PG_TDE_PRODUCT_DEB=percona-pg-tde-${PG_MAJOR}
+        PG_TDE_PRODUCT=percona-pg_tde${PG_MAJOR}
+        PG_TDE_PRODUCT_DEB=percona-pg-tde${PG_MAJOR}
         PG_TDE_PRODUCT_FULL=${PG_TDE_PRODUCT}-${PG_TDE_VERSION}
         PG_TDE_RELEASE='1'
         PG_TDE_SRC_BRANCH="release-${PG_TDE_VERSION}"

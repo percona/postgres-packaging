@@ -87,6 +87,7 @@ PGBADGER_BRANCH="v13.1"
 PATRONI_BRANCH="v4.1.0"
 HAPROXY_BRANCH="v2.8.16"
 PGVECTOR_BRANCH="v0.8.1"
+PG_TDE_BRANCH="release-2.1"
 
 create_build_environment(){
 
@@ -174,6 +175,21 @@ build_postgres_server(){
 	fi
 
 	build_status "ends" "PostgreSQL Server"
+}
+
+build_pg_tde(){
+
+        build_status "start" "pgTDE"
+        mkdir -p /source
+        cd /source
+        git clone https://github.com/percona/pg_tde.git
+        cd pg_tde
+        if [ ! -z "${PG_TDE_BRANCH}" ]; then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PG_TDE_BRANCH}"
+        fi
+	build_status "ends" "pgTDE"
 }
 
 build_pgbouncer(){
@@ -464,6 +480,9 @@ build_lua
 build_ydiff
 build_pysyncobj
 build_postgres_server
+if (( ${PG_MAJOR_VERSION} > 16 )); then
+    build_pg_tde
+fi
 build_pgbouncer
 build_pgpool
 build_pgaudit

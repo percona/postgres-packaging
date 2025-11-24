@@ -1274,7 +1274,7 @@ build_pg_tde(){
     build_status "start" "pgTDE"
     mkdir -p /source
     cd /source
-    git clon --recursive https://github.com/percona/pg_tde.git
+    git clone --recursive https://github.com/percona/pg_tde.git
     cd pg_tde
     if [ ! -z "${PG_TDE_BRANCH}" ]
     then

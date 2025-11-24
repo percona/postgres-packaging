@@ -145,8 +145,14 @@ install_percona_postgres() {
 	percona-pgbackrest \
 	percona-pgbadger \
 	percona-pgpool-II-pg${PG_MAJOR_VERSION} \
-	percona-postgis33_${PG_MAJOR_VERSION} \
+	percona-postgis35_${PG_MAJOR_VERSION} \
 	etcd
+  if [[ ${PG_MAJOR_VERSION} -gt 16 ]]; then
+    dnf install -y percona-pg_tde${PG_MAJOR_VERSION}
+  fi
+  if [[ ${PG_MAJOR_VERSION} -lt 18 ]]; then
+    dnf install -y percona-postgis33_${PG_MAJOR_VERSION}
+  fi
       ;;
     ubuntu|debian)
       # Install Percona repo on Ubuntu/Debian
@@ -193,6 +199,9 @@ install_percona_postgres() {
 	etcd \
 	etcd-client \
 	etcd-server
+  if [[ ${PG_MAJOR_VERSION} -gt 16 ]]; then
+    apt-get install -y percona-pg-tde${PG_MAJOR_VERSION}
+  fi
       ;;
     *)
       echo "Unsupported platform: $PLATFORM_ID"

@@ -292,7 +292,7 @@ build_deb(){
     dpkg-source -x ${DSC}
 
     cd ${PPG_PRODUCT}-${PG_MAJOR}-${PG_VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PG_VERSION}-${BUILD_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "2:${PG_VERSION}-${BUILD_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

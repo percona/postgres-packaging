@@ -1,4 +1,4 @@
-Source: percona-pg-tde-@@PGMAJOR@@
+Source: percona-pg-tde@@PGMAJOR@@
 Section: database
 Priority: optional
 Maintainer: Percona Development Team info@percona.com
@@ -20,7 +20,7 @@ Standards-Version: 4.6.2
 Rules-Requires-Root: no
 Homepage: https://github.com/Percona-Lab/pg_tde.git
 
-Package: percona-postgresql-@@PGMAJOR@@-pg-tde
+Package: percona-pg-tde@@PGMAJOR@@
 Architecture: any
 Depends:
  ${misc:Depends},
@@ -29,9 +29,9 @@ Depends:
 Description: pg_tde is a PostgreSQL extension enabling transparent data encryption.
  It seamlessly encrypts and decrypts data in PostgreSQL databases, ensuring security and compliance.
 
-Package: percona-postgresql-@@PGMAJOR@@-pg-tde-client
+Package: percona-pg-tde@@PGMAJOR@@-client
 Architecture: any
-Depends: percona-postgresql-@@PGMAJOR@@-pg-tde (= ${binary:Version}), ${misc:Depends}
+Depends: percona-pg-tde@@PGMAJOR@@ (= ${binary:Version}), ${misc:Depends}
 Description: Client utilities for pg_tde
  Client-side utilities for managing pg_tde.
 

@@ -2,7 +2,7 @@
 %define pgmajorversion %{pgmajor}
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global pname pg_tde
-%global sname percona-pg_tde_%{pgmajorversion}
+%global sname percona-pg_tde%{pgmajorversion}
 
 %ifarch ppc64 ppc64le s390 s390x armv7hl
  %if 0%{?rhel} && 0%{?rhel} == 7

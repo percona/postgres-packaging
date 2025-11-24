@@ -43,8 +43,8 @@ get_sources(){
     wget ${PKG_RAW_URL}/pg_tde/debian/control
     wget ${PKG_RAW_URL}/pg_tde/debian/control.in
     wget ${PKG_RAW_URL}/pg_tde/debian/rules
-    wget ${PKG_RAW_URL}/pg_tde/debian/percona-postgresql-18-pg-tde.install
-    wget ${PKG_RAW_URL}/pg_tde/debian/percona-postgresql-18-pg-tde-client.install
+    wget ${PKG_RAW_URL}/pg_tde/debian/percona-pg-tde18.install
+    wget ${PKG_RAW_URL}/pg_tde/debian/percona-pg-tde18-client.install
     sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in rules percona-postgresql-${PG_MAJOR}-pg-tde.install percona-postgresql-${PG_MAJOR}-pg-tde-client.install
     sudo chmod +x rules
     cd ../

@@ -146,7 +146,11 @@ BuildRequires:  selinux-policy >= 3.9.13
 %endif
 %endif
 
-BuildRequires:  openssl-devel
+%if 0%{?rhel} == 9
+BuildRequires: openssl-devel >= 3.5
+%else
+BuildRequires: openssl-devel
+%endif
 
 BuildRequires:  libuuid-devel
 

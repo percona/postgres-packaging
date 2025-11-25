@@ -144,6 +144,7 @@ Depends:
  tzdata,
  curl,
  percona-pg-telemetry@@PGMAJOR@@,
+ percona-pg-tde@@PGMAJOR@@,
  ${misc:Depends},
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-@@PGMAJOR@@, postgresql-contrib-@@PGMAJOR@@ (= ${binary:Version}), postgresql-@@PGMAJOR@@ (= ${binary:Version})

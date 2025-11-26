@@ -88,7 +88,7 @@ install_dependencies() {
       # Install dependencies for Ubuntu/Debian
       PLATFORM=$(echo "$VERSION_CODENAME" | tr '[:upper:]' '[:lower:]')
       apt update
-      apt install -y curl gnupg jq lsb-release tzdata
+      apt install -y curl gnupg jq lsb-release tzdata wget
       apt --fix-broken install -y  # Fix broken dependencies
 	  export DEBIAN=$(lsb_release -sc)
 	  if [[ "x${DEBIAN}" == "xbullseye" ]]; then

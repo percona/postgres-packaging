@@ -755,7 +755,7 @@ build_mpfr(){
 	build_status "start" "mpfr"
         mkdir -p /source
         cd /source
-        wget https://www.mpfr.org/mpfr-current/mpfr-${MPFR_VERSION}.tar.xz
+        wget https://ftp.gnu.org/gnu/mpfr/mpfr-${MPFR_VERSION}.tar.xz
         tar -Jxvf mpfr-${MPFR_VERSION}.tar.xz
         cd mpfr-${MPFR_VERSION}
         ./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-gmp=${DEPENDENCY_LIBS_PATH} --enable-shared=yes --enable-static=no

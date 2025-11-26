@@ -150,9 +150,6 @@ install_percona_postgres() {
   if [[ ${PG_MAJOR_VERSION} -gt 16 ]]; then
     dnf install -y percona-pg_tde${PG_MAJOR_VERSION}
   fi
-  if [[ ${PG_MAJOR_VERSION} -lt 18 ]]; then
-    dnf install -y percona-postgis33_${PG_MAJOR_VERSION}
-  fi
       ;;
     ubuntu|debian)
       # Install Percona repo on Ubuntu/Debian

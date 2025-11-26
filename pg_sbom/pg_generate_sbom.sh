@@ -90,6 +90,13 @@ install_dependencies() {
       apt update
       apt install -y curl gnupg jq lsb-release tzdata
       apt --fix-broken install -y  # Fix broken dependencies
+	  export DEBIAN=$(lsb_release -sc)
+	  if [[ "x${DEBIAN}" == "xbullseye" ]]; then
+    	DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
+    	wget https://apt.llvm.org/llvm.sh
+    	chmod +x llvm.sh
+    	./llvm.sh 14 bullseye
+	  fi
       ;;
     *)
       echo "Unsupported platform: $PLATFORM_ID"

@@ -3,7 +3,7 @@
 # These are macros to be used with find_lang and other stuff
 %global packageversion %{pgmajorversion}0
 %global pgpackageversion %{pgmajorversion}
-%global prevmajorversion %{expr: %{pgmajorversion} - 1}
+%global prevmajorversion 13
 %global sname postgresql
 %global vname postgresql%{pgmajorversion}
 %global pgbaseinstdir   /usr/pgsql-%{pgmajorversion}
@@ -162,7 +162,11 @@ BuildRequires:  selinux-policy >= 3.9.13
 %endif
 %endif
 
-BuildRequires:  openssl-devel
+%if 0%{?rhel} == 9
+BuildRequires: openssl-devel >= 3.5
+%else
+BuildRequires: openssl-devel
+%endif
 
 BuildRequires:  libuuid-devel
 

@@ -3,7 +3,7 @@
 # These are macros to be used with find_lang and other stuff
 %global packageversion %{pgmajorversion}0
 %global pgpackageversion %{pgmajorversion}
-%global prevmajorversion %{expr: %{pgmajorversion} - 1}
+%global prevmajorversion 17
 %global sname postgresql
 %global vname postgresql%{pgmajorversion}
 %global pgbaseinstdir	/usr/pgsql-%{pgmajorversion}

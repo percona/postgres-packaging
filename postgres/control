@@ -147,7 +147,7 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-@@PGMAJOR@@, postgresql-contrib-@@PGMAJOR@@ (= ${binary:Version}), postgresql-@@PGMAJOR@@ (= ${binary:Version}),
-postgresql-@@PGMAJOR@@-jit-llvm (= ${llvm:Version}) [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ postgresql-@@PGMAJOR@@-jit-llvm (= ${llvm:Version}) [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
 Recommends: sysstat
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational

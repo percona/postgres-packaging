@@ -193,7 +193,7 @@ Depends:
  clang [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  libpq-dev (>= @@PGMAJOR@@~~),
  llvm-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
- percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 152~),
+ percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 142~),
  ${misc:Depends},
  ${shlibs:Depends}
 Breaks:

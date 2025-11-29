@@ -128,7 +128,7 @@ deb_deps() {
     DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
     wget https://apt.llvm.org/llvm.sh
     chmod +x llvm.sh
-    ./llvm.sh 14 bullseye
+    ./llvm.sh 13 bullseye
     if [[ "$COMPONENT" == "pgbackrest" ]]; then
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install dh_systemd
     fi

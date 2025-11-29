@@ -7,7 +7,7 @@ Rules-Requires-Root: no
 Build-Depends:
  autoconf,
  bison,
- clang [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ clang [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  debhelper,
  dh-exec (>= 0.13~),
  docbook-xml,
@@ -33,7 +33,7 @@ Build-Depends:
  libxml2-dev,
  libxml2-utils,
  libxslt1-dev,
- llvm-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ llvm-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  mawk,
  perl (>= 5.8),
  pkg-config,
@@ -146,7 +146,8 @@ Depends:
  percona-pg-telemetry@@PGMAJOR@@,
  ${misc:Depends},
  ${shlibs:Depends}
-Provides: percona-postgresql-contrib-@@PGMAJOR@@, postgresql-contrib-@@PGMAJOR@@ (= ${binary:Version}), postgresql-@@PGMAJOR@@ (= ${binary:Version})
+Provides: percona-postgresql-contrib-@@PGMAJOR@@, postgresql-contrib-@@PGMAJOR@@ (= ${binary:Version}), postgresql-@@PGMAJOR@@ (= ${binary:Version}),
+ postgresql-@@PGMAJOR@@-jit-llvm (= ${llvm:Version}) [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
 Recommends: sysstat
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational
@@ -190,9 +191,9 @@ Package: percona-postgresql-server-dev-@@PGMAJOR@@
 Architecture: any
 Section: libdevel
 Depends:
- clang [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ clang [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  libpq-dev (>= @@PGMAJOR@@~~),
- llvm-dev [!alpha !hppa !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ llvm-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
  percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 142~),
  ${misc:Depends},
  ${shlibs:Depends}

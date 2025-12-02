@@ -27,6 +27,8 @@ Depends:
  ${misc:Depends},
  ${postgresql:Depends},
  ${shlibs:Depends},
+Replaces: percona-postgresql-17 (<< 2:17.7)
+Breaks: percona-postgresql-17 (<< 2:17.7)
 Description: pg_tde is a PostgreSQL extension enabling transparent data encryption.
  It seamlessly encrypts and decrypts data in PostgreSQL databases, ensuring security and compliance.
 

@@ -21,6 +21,14 @@
 %{!?icu:%global icu 1}
 %{!?kerberos:%global kerberos 1}
 %{!?ldap:%global ldap 1}
+%{!?libnuma:%global libnuma 1}
+# RHEL 8 does not have io_uring support:
+%if 0%{?rhel} == 8
+%{!?liburing:%global liburing 0}
+%else
+%{!?liburing:%global liburing 1}
+%endif
+%{!?llvm:%global llvm 1}
 %{!?nls:%global nls 1}
 %{!?pam:%global pam 1}
 
@@ -55,7 +63,7 @@
 Summary:        PostgreSQL client programs and libraries
 Name:           percona-postgresql%{pgmajorversion}
 Version:        %{version}
-Release:        %{pg_release}%{?dist}
+Release:        %{release}%{?dist}
 License:        PostgreSQL
 Url:            https://www.postgresql.org/
 Packager:       Percona Development Team <https://jira.percona.com>
@@ -146,6 +154,20 @@ BuildRequires:  selinux-policy >= 3.9.13
 %endif
 %endif
 
+%if %libnuma
+%if 0%{?rhel} || 0%{?fedora}
+BuildRequires:	numactl-devel
+Requires:	numactl-libs
+%else
+BuildRequires:	libnuma-devel
+Requires:	libnuma1
+%endif
+%endif
+
+%if %liburing
+BuildRequires:	liburing-devel
+%endif
+
 %if 0%{?rhel} == 9
 BuildRequires: openssl-devel >= 3.5
 %else
@@ -210,6 +232,13 @@ Summary:        The programs needed to create and run a PostgreSQL server
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
 Requires(pre):  /usr/sbin/useradd /usr/sbin/groupadd
+%if %liburing
+%if 0%{?fedora} || 0%{?rhel}
+Requires:	liburing
+%else
+Requires:	liburing2
+%endif
+%endif
 # for /sbin/ldconfig
 Requires(post):         glibc
 Requires(postun):       glibc
@@ -311,6 +340,26 @@ The postgresql%{pgmajorversion}-llvmjit package contains support for
 just-in-time compiling parts of PostgreSQL queries. Using LLVM it
 compiles e.g. expressions and tuple deforming into native code, with the
 goal of accelerating analytics queries.
+
+%package libs-oauth
+Summary:	The shared libraries required for any PostgreSQL clients - OAuth flow
+Provides:	postgresql-libs-oauth = %{pgmajorversion}
+Requires:	postgresql%{pgmajorversion}-libs%{?_isa} = %{version}-%{release}
+
+%if 0%{?suse_version} >= 1500
+Requires:	libcurl4
+%else
+Requires:	curl
+%endif
+
+%description libs-oauth
+The postgresql%{pgmajorversion}-libs-oauth is an optional module for
+postgresql%{pgmajorversion}-libs implementing the Device Authorization flow for
+OAuth clients (RFC 8628). It is maintained as its own shared library in order
+to isolate its dependency on libcurl. If a connection string allows the use of
+OAuth, and the server asks for it, and a libpq client has not installed its own
+custom OAuth flow, libpq will attempt to delay-load this module using dlopen()
+and the following ABI. Failure to load results in a failed connection.
 
 
 
@@ -444,6 +493,12 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %if %icu
         --with-icu \
 %endif
+%if %libnuma
+        --with-libnuma \
+%endif
+%if %liburing
+        --with-liburing \
+%endif
 %if %llvm
         --with-llvm \
 %endif
@@ -490,15 +545,12 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %if %selinux
         --with-selinux \
 %endif
+        --with-libcurl \
 	--with-systemd \
 	--with-system-tzdata=%{_datadir}/zoneinfo \
 	--sysconfdir=/etc/sysconfig/pgsql \
 	--docdir=%{pgbaseinstdir}/doc \
 	--htmldir=%{pgbaseinstdir}/doc/html
-
-#cd contrib/pg_tde
-#./configure
-#cd ../..
 
 cd src/backend
 MAKELEVEL=0 %{__make} submake-generated-headers
@@ -1077,6 +1129,10 @@ fi
 %{pgbaseinstdir}/lib/libpqwalreceiver.so
 %config(noreplace) %attr (644,root,root) %{pgbaseinstdir}/share/%{sname}-%{pgmajorversion}-libs.conf
 
+%files libs-oauth
+%defattr(-,root,root)
+%{pgbaseinstdir}/lib/libpq-oauth-%{pgmajorversion}.so
+
 %files server -f pg_server.lst
 %defattr(-,root,root)
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-setup
@@ -1155,6 +1211,7 @@ fi
 %{pgbaseinstdir}/lib/libpq.so
 %{pgbaseinstdir}/lib/libecpg.so
 %{pgbaseinstdir}/lib/libpq.a
+%{pgbaseinstdir}/lib/libpq-oauth.a
 %{pgbaseinstdir}/lib/libecpg.a
 %{pgbaseinstdir}/lib/libecpg_compat.so
 %{pgbaseinstdir}/lib/libecpg_compat.a

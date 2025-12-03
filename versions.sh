@@ -49,8 +49,8 @@ case "$1" in
         PG_RELEASE='1'
         PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}.${PG_RELEASE}"
         PG_SRC_BRANCH_NIGHTLY="TDE_REL_${PG_MAJOR}_STABLE"
-        PG_RPM_RELEASE='1'
-        PG_DEB_RELEASE='1'
+        PG_RPM_RELEASE='2'
+        PG_DEB_RELEASE='2'
 
         # urls
         PG_SRC_REPO="https://github.com/Percona-Lab/postgres.git"

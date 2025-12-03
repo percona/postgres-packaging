@@ -157,7 +157,7 @@ case "$COMPONENT" in
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST+="wget git vim rpm-build chrpath rpmdevtools clang perl-generators bison flex gettext patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed selinux-policy systemd systemd-devel systemtap-sdt-devel perl-IPC-Run perl-Test-Simple binutils gcc gcc-c++ cmake cyrus-sasl-devel make docbook-xsl "
-      INSTALL_LIST+="clang-devel python3-devel llvm-devel glibc-devel e2fsprogs-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel readline-devel tcl-devel zlib-devel lz4-devel libzstd-devel bzip2-devel libcurl-devel"
+      INSTALL_LIST+="clang-devel python3-devel llvm-devel glibc-devel e2fsprogs-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel readline-devel tcl-devel zlib-devel lz4-devel libzstd-devel bzip2-devel libcurl-devel numactl-devel liburing-devel"
       dnf -y install ${INSTALL_LIST}
       if [ ! -f  /usr/bin/llvm-config ]; then
         ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
@@ -167,7 +167,7 @@ case "$COMPONENT" in
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb liblz4-dev libcurl4-openssl-dev libzstd-dev libnuma-dev"
+      INSTALL_LIST+="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb liblz4-dev libcurl4-openssl-dev libzstd-dev libnuma-dev liburing-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
       # generate a temporary numa.pc file if libnuma-dev does not provide it
       if ! pkg-config --exists numa 2>/dev/null; then

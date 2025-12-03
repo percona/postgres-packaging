@@ -97,7 +97,7 @@ endif
 
 ifeq ($(DEB_HOST_ARCH_OS),linux)
   ifeq ($(call version_ge,18),y)
-    CONFIGURE_FLAGS += --with-oauth --with-libcurl --with-libnuma
+    CONFIGURE_FLAGS += --with-oauth --with-libcurl --with-libnuma --with-liburing
   endif
 endif
 

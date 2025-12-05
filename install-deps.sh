@@ -299,7 +299,7 @@ EOF
   postgis)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget git vim which binutils gcc gcc-c++ rpm-build rpmdevtools SFCGAL SFCGAL-devel xerces-c-devel clang-devel clang llvm-devel autoconf libtool flex rpmlint percona-postgresql${PG_MAJOR}-devel make geos geos-devel libgeotiff-devel gmp-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config docbook-xsl libxslt-devel"
+      INSTALL_LIST+="wget git vim which binutils gcc gcc-c++ rpm-build rpmdevtools SFCGAL SFCGAL-devel xerces-c-devel clang-devel clang llvm-devel autoconf libtool flex rpmlint percona-postgresql${PG_MAJOR}-devel make geos geos-devel libgeotiff-devel gmp-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config docbook-xsl libxslt-devel numactl-devel"
       dnf -y install ${INSTALL_LIST}
       if [ ! -f  /usr/bin/llvm-config ]; then
         ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
@@ -320,7 +320,7 @@ EOF
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST+="wget git vim binutils gcc gcc-c++ rpm-build rpmdevtools clang-devel clang perl-generators bison flex patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server selinux-policy systemd systemd-devel systemtap-sdt-devel "
-      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel tcl-devel zlib-devel"
+      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel tcl-devel zlib-devel numactl-devel"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -333,7 +333,7 @@ EOF
   pgpool2)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget git vim binutils gcc gcc-c++ make autoconf libtool bison flex byacc chrpath clang-devel clang rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel libxslt"
+      INSTALL_LIST+="wget git vim binutils gcc gcc-c++ make autoconf libtool bison flex byacc chrpath clang-devel clang rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel libxslt numactl-devel"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -425,7 +425,7 @@ EOF
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST+="wget git vim binutils gcc gcc-c++ rpm-build rpmdevtools clang-devel clang percona-postgresql${PG_MAJOR} perl-generators bison flex patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server selinux-policy systemd systemd-devel systemtap-sdt-devel "
-      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel openssl-libs pam-devel readline-devel tcl-devel zlib-devel libzstd-devel lz4-devel libcurl-devel"
+      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel openssl-libs pam-devel readline-devel tcl-devel zlib-devel libzstd-devel lz4-devel libcurl-devel numactl-devel"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps

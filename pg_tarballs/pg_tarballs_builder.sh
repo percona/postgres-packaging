@@ -180,7 +180,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y meson  bzip2-devel libxml2-devel vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath libyaml-devel patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel
+	yum install -y meson  bzip2-devel libxml2-devel vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath libyaml-devel patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel numactl-devel liburing-devel
 	yum -y install lz4 lz4-devel || true
     git clone https://github.com/ianlancetaylor/libbacktrace.git
     cd libbacktrace/
@@ -1148,7 +1148,7 @@ build_postgres_server(){
                 fi
 	fi
 
-	CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
+	CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-libnuma --with-liburing --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make
 	cd src/backend
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH MAKELEVEL=0 make submake-generated-headers

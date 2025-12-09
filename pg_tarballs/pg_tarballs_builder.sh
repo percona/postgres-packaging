@@ -36,6 +36,7 @@ parse_arguments() {
             --version=*) PG_VERSION="$val" ;;
 	    --use_system_ssl=*) USE_SYSTEM_SSL="$val" ;;
 		--use_ssl35=*) USE_SSL35="$val" ;;
+	    --include_liburing=*) INCLUDE_LIBURING="$val" ;;
 	    --build_dependencies=*) BUILD_DEPENDENCIES="$val" ;;
             --help) usage ;;
             *)
@@ -78,6 +79,9 @@ export ZLIB_VERSION=1.3
 export KRB5_VERSION=1.21.3
 export KEYUTILS_VERSION=1.6.1
 export NCURSES_VERSION=6.5
+if [ "$INCLUDE_LIBURING" = "1" ]; then
+	export LIBURING_VERSION=2.2
+fi
 export LIBEDIT_VERSION=0.3
 export LIBUUID_VERSION=1.0.2
 #export LIBXML2_VERSION=2.13.5   # Latest version deprecated xmlNanoHTTPCleanup symbol required for SPATIALITE and GDAL
@@ -180,7 +184,7 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y meson  bzip2-devel libxml2-devel vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath libyaml-devel patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel numactl-devel liburing-devel
+	yum install -y meson  bzip2-devel libxml2-devel vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath libyaml-devel patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel numactl-devel
 	yum -y install lz4 lz4-devel || true
     git clone https://github.com/ianlancetaylor/libbacktrace.git
     cd libbacktrace/
@@ -275,6 +279,22 @@ build_ncurses(){
 	make install
 	build_status "ends" "ncurses"
 }
+
+build_liburing() {
+
+    build_status "start" "liburing ${LIBURING_VERSION}"
+    cd /source
+    rm -rf liburing-${LIBURING_VERSION}*
+    wget https://github.com/axboe/liburing/archive/refs/tags/liburing-${LIBURING_VERSION}.tar.gz \
+        -O liburing-${LIBURING_VERSION}.tar.gz
+    tar -xvzf liburing-${LIBURING_VERSION}.tar.gz
+    cd liburing-liburing-${LIBURING_VERSION}
+    ./configure --prefix=${DEPENDENCY_LIBS_PATH}
+    make
+    make install
+    build_status "ends" "liburing ${LIBURING_VERSION}"
+}
+
 
 build_libedit(){
 
@@ -1148,7 +1168,12 @@ build_postgres_server(){
                 fi
 	fi
 
-	CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-libnuma --with-liburing --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
+        if [ "$INCLUDE_LIBURING" = "1" ]; then
+		export PKG_CONFIG_PATH="${DEPENDENCY_LIBS_PATH}/lib/pkgconfig"
+		CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-libnuma --with-liburing --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
+        else
+		CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
+	fi
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make
 	cd src/backend
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH MAKELEVEL=0 make submake-generated-headers
@@ -1244,6 +1269,9 @@ EOT
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/liblber* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libicudata.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libedit.* ${POSTGRESQL_PREFIX}/lib/
+	if [ "$INCLUDE_LIBURING" = "1" ]; then
+		cp -rp ${DEPENDENCY_LIBS_PATH}/lib/liburing.* ${POSTGRESQL_PREFIX}/lib/
+	fi
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libicui18n.so* ${POSTGRESQL_PREFIX}/lib/
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libssl.* ${POSTGRESQL_PREFIX}/lib/
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libcrypto.* ${POSTGRESQL_PREFIX}/lib/
@@ -1989,6 +2017,9 @@ if [ "${BUILD_DEPENDENCIES}" = "1" ]; then
 		else	
 			build_openssl
 		fi
+	fi
+        if [ "$INCLUDE_LIBURING" = "1" ]; then
+		build_liburing
 	fi
 	build_zlib
 	build_krb5

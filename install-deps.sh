@@ -382,7 +382,7 @@ EOF
         make
         make install
       cd ../
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools lz4-libs libyaml-devel percona-postgresql${PG_MAJOR}-devel systemd systemd-devel bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libssh-devel libzstd-devel lz4-devel meson libtool cmake"
+      INSTALL_LIST+="wget libcurl-devel git vim rpm-build rpmdevtools lz4-libs libyaml-devel percona-postgresql${PG_MAJOR}-devel systemd systemd-devel bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libssh-devel libzstd-devel lz4-devel meson libtool cmake"
       dnf -y install ${INSTALL_LIST}
       dnf -y install lz4 || true
       dnf -y install perl-libxml-perl || true

@@ -8,9 +8,9 @@
 %global vname postgresql%{pgmajorversion}
 %global pgbaseinstdir	/usr/pgsql-%{pgmajorversion}
 
+%global beta 0
 # Macros that define the configure parameters:
 %{!?kerbdir:%global kerbdir "/usr"}
-%{!?disablepgfts:%global disablepgfts 0}
 
 %if 0%{?suse_version} >= 1315
 %{!?enabletaptests:%global enabletaptests 0}
@@ -431,11 +431,11 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
         --datadir=%{pgbaseinstdir}/share \
         --libdir=%{pgbaseinstdir}/lib \
         --with-lz4 \
-%if 0%{?rhel} || 0%{?suse_version} >= 1499 || 0%{?fedora}
-	--with-zstd \
-%endif
+        --with-zstd \
+%if %beta
         --enable-debug \
         --enable-cassert \
+%endif
 %if %enabletaptests
         --enable-tap-tests \
 %endif
@@ -471,9 +471,6 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %endif
 %if %sdt
         --enable-dtrace \
-%endif
-%if %disablepgfts
-        --disable-thread-safety \
 %endif
 %if %uuid
         --with-uuid=e2fs \
@@ -1240,4 +1237,3 @@ fi
 
 * Thu Jun 24 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-alpha
 - Initial cut for PostgreSQL 15
-

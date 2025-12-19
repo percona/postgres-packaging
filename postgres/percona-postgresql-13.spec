@@ -8,6 +8,8 @@
 %global vname postgresql%{pgmajorversion}
 %global pgbaseinstdir   /usr/pgsql-%{pgmajorversion}
 
+%global beta 0
+
 # Macros that define the configure parameters:
 %{!?kerbdir:%global kerbdir "/usr"}
 %{!?disablepgfts:%global disablepgfts 0}
@@ -452,8 +454,10 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
         --libdir=%{pgbaseinstdir}/lib \
         --with-lz4 \
         --with-extra-version=" - Percona Distribution" \
+%if %beta
         --enable-debug \
         --enable-cassert \
+%endif
 %if %enabletaptests
         --enable-tap-tests \
 %endif
@@ -490,6 +494,9 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %if %sdt
         --enable-dtrace \
 %endif
+%if %disablepgfts
+        --disable-thread-safety \
+%endif
 %if %uuid
         --with-uuid=e2fs \
 %endif
@@ -505,12 +512,6 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %endif
 %if %{systemd_enabled}
         --with-systemd \
-%endif
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch ppc64 ppc64le
-        --with-includes=%{atpath}/include \
-        --with-libraries=%{atpath}/lib64 \
-%endif
 %endif
 	--with-system-tzdata=%{_datadir}/zoneinfo \
 	--sysconfdir=/etc/sysconfig/pgsql \

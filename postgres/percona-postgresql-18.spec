@@ -7,10 +7,9 @@
 %global sname postgresql
 %global vname postgresql%{pgmajorversion}
 %global pgbaseinstdir	/usr/pgsql-%{pgmajorversion}
-
+%global beta 0
 # Macros that define the configure parameters:
 %{!?kerbdir:%global kerbdir "/usr"}
-%{!?disablepgfts:%global disablepgfts 0}
 
 %if 0%{?suse_version} >= 1315
 %{!?enabletaptests:%global enabletaptests 0}
@@ -482,16 +481,21 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
         --datadir=%{pgbaseinstdir}/share \
         --libdir=%{pgbaseinstdir}/lib \
         --with-lz4 \
-%if 0%{?rhel} || 0%{?suse_version} >= 1499 || 0%{?fedora}
-	--with-zstd \
-%endif
+        --with-zstd \
+%if %beta
         --enable-debug \
         --enable-cassert \
+%endif
 %if %enabletaptests
         --enable-tap-tests \
 %endif
 %if %icu
         --with-icu \
+%endif
+%if %kerberos
+        --with-gssapi \
+        --with-includes=%{_includedir} \
+        --with-libraries=%{_libdir} \
 %endif
 %if %libnuma
         --with-libnuma \
@@ -499,8 +503,17 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %if %liburing
         --with-liburing \
 %endif
+%if %ldap
+        --with-ldap \
+%endif
 %if %llvm
         --with-llvm \
+%endif
+%if %nls
+        --enable-nls \
+%endif
+%if %pam
+        --with-pam \
 %endif
 %if %plperl
         --with-perl \
@@ -512,25 +525,14 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
         --with-tcl \
         --with-tclconfig=%{_libdir} \
 %endif
-%if %ssl
-        --with-openssl \
-%endif
-%if %pam
-        --with-pam \
-%endif
-%if %kerberos
-        --with-gssapi \
-        --with-includes=%{kerbdir}/include \
-        --with-libraries=%{kerbdir}/%{_lib} \
-%endif
-%if %nls
-        --enable-nls \
-%endif
 %if %sdt
         --enable-dtrace \
 %endif
-%if %disablepgfts
-        --disable-thread-safety \
+%if %selinux
+        --with-selinux \
+%endif
+%if %ssl
+        --with-openssl \
 %endif
 %if %uuid
         --with-uuid=e2fs \
@@ -538,12 +540,6 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %if %xml
         --with-libxml \
         --with-libxslt \
-%endif
-%if %ldap
-        --with-ldap \
-%endif
-%if %selinux
-        --with-selinux \
 %endif
         --with-libcurl \
 	--with-systemd \
@@ -1307,4 +1303,3 @@ fi
 
 * Thu Jun 24 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 15.1-alpha
 - Initial cut for PostgreSQL 15
-

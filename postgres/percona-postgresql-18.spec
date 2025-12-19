@@ -7,7 +7,7 @@
 %global sname postgresql
 %global vname postgresql%{pgmajorversion}
 %global pgbaseinstdir	/usr/pgsql-%{pgmajorversion}
-
+%global beta 0
 # Macros that define the configure parameters:
 %{!?kerbdir:%global kerbdir "/usr"}
 

@@ -7,7 +7,7 @@
 %global sname postgresql
 %global vname postgresql%{pgmajorversion}
 %global pgbaseinstdir	/usr/pgsql-%{pgmajorversion}
-
+%global beta 0
 # Macros that define the configure parameters:
 %{!?kerbdir:%global kerbdir "/usr"}
 %{!?disablepgfts:%global disablepgfts 0}
@@ -468,8 +468,10 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
 %if 0%{?rhel} || 0%{?suse_version} >= 1499 || 0%{?fedora}
 	--with-zstd \
 %endif
+%if %beta
         --enable-debug \
         --enable-cassert \
+%endif
 %if %enabletaptests
         --enable-tap-tests \
 %endif

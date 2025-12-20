@@ -63,7 +63,7 @@ case "$1" in
         # versions
         PPG_COMMON_PRODUCT=percona-postgresql-common
         PPG_COMMON_PRODUCT_FULL=${PPG_COMMON_PRODUCT}-${PPG_COMMON_MAJOR}
-        PPG_COMMON_RELEASE='1'
+        PPG_COMMON_RELEASE='2'
         PPG_COMMON_SRC_BRANCH="debian/${PPG_COMMON_MAJOR}"
         PPG_COMMON_RPM_RELEASE='2'
         PPG_COMMON_DEB_RELEASE='2'
@@ -78,7 +78,7 @@ case "$1" in
         PG_TDE_PRODUCT=percona-pg_tde${PG_MAJOR}
         PG_TDE_PRODUCT_DEB=percona-pg-tde${PG_MAJOR}
         PG_TDE_PRODUCT_FULL=${PG_TDE_PRODUCT}-${PG_TDE_VERSION}
-        PG_TDE_RELEASE='1'
+        PG_TDE_RELEASE='2'
         PG_TDE_SRC_BRANCH="release-${PG_TDE_VERSION}"
         PG_TDE_RPM_RELEASE='2'
         PG_TDE_DEB_RELEASE='2'
@@ -93,7 +93,7 @@ case "$1" in
         ETCD_PRODUCT_FULL=${ETCD_PRODUCT}-${ETCD_VERSION}
         ETCD_RPM_RELEASE='2'
         ETCD_DEB_RELEASE='2'
-        ETCD_RELEASE='1'
+        ETCD_RELEASE='2'
 
         # urls
         ETCD_SRC_REPO="https://github.com/etcd-io/etcd/releases/download/v${ETCD_VERSION}"
@@ -108,7 +108,7 @@ case "$1" in
         PATRONI_SRC_BRANCH="v${PATRONI_VERSION}"
         PATRONI_RPM_RELEASE='2'
         PATRONI_DEB_RELEASE='2'
-        PATRONI_RELEASE='1'
+        PATRONI_RELEASE='2'
 
         # urls
         PATRONI_SRC_REPO="https://github.com/zalando/patroni.git"
@@ -124,7 +124,7 @@ case "$1" in
         PG_CRON_SRC_BRANCH="v${PG_CRON_VERSION}"
         PG_CRON_RPM_RELEASE='3'
         PG_CRON_DEB_RELEASE='3'
-        PG_CRON_RELEASE='2'
+        PG_CRON_RELEASE='3'
 
         # urls
         PG_CRON_SRC_REPO="https://github.com/citusdata/pg_cron.git"
@@ -139,7 +139,7 @@ case "$1" in
         PG_GATHER_PRODUCT_FULL=${PG_GATHER_PRODUCT}-${PG_GATHER_VERSION}
         PG_GATHER_SRC_BRANCH=${PG_VERSION}
         PG_GATHER_RPM_RELEASE='2'
-        PG_GATHER_RELEASE='1'
+        PG_GATHER_RELEASE='2'
 
         # urls
         PG_GATHER_SRC_URL="https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather"
@@ -154,7 +154,7 @@ case "$1" in
         PG_REPACK_SRC_BRANCH="ver_${PG_REPACK_VERSION}"
         PG_REPACK_RPM_RELEASE='3'
         PG_REPACK_DEB_RELEASE='3'
-        PG_REPACK_RELEASE='2'
+        PG_REPACK_RELEASE='3'
 
         # urls
         PG_REPACK_SRC_REPO="https://github.com/reorg/pg_repack.git"
@@ -169,7 +169,7 @@ case "$1" in
         PGAUDIT_SRC_BRANCH=${PGAUDIT_VERSION}
         PGAUDIT_RPM_RELEASE='2'
         PGAUDIT_DEB_RELEASE='2'
-        PGAUDIT_RELEASE='1'
+        PGAUDIT_RELEASE='2'
 
         # urls
         PGAUDIT_SRC_REPO="https://github.com/pgaudit/pgaudit.git"
@@ -185,7 +185,7 @@ case "$1" in
         SET_USER_SRC_BRANCH="REL${SET_USER_VERSION//./_}"
         SET_USER_RPM_RELEASE='3'
         SET_USER_DEB_RELEASE='3'
-        SET_USER_RELEASE='3'
+        SET_USER_RELEASE='4'
 
         # urls
         SET_USER_SRC_REPO="https://github.com/pgaudit/set_user.git"
@@ -200,7 +200,7 @@ case "$1" in
         PG_BCKREST_DEB_TAG="debian/${PG_BCKREST_VERSION}-1"
         PG_BCKREST_RPM_RELEASE='2'
         PG_BCKREST_DEB_RELEASE='2'
-        PG_BCKREST_RELEASE='1'
+        PG_BCKREST_RELEASE='2'
 
         # urls
         PG_BCKREST_SRC_REPO="https://github.com/pgbackrest/pgbackrest.git"
@@ -215,7 +215,7 @@ case "$1" in
         PGBADGER_SRC_BRANCH="v${PGBADGER_VERSION}"
         PGBADGER_RPM_RELEASE='3'
         PGBADGER_DEB_RELEASE='3'
-        PGBADGER_RELEASE='2'
+        PGBADGER_RELEASE='3'
 
         # urls
         PGBADGER_SRC_REPO="https://github.com/darold/pgbadger.git"
@@ -229,7 +229,7 @@ case "$1" in
         PGBOUNCER_SRC_BRANCH="pgbouncer_${PGBOUNCER_VERSION//./_}"
         PGBOUNCER_RPM_RELEASE='3'
         PGBOUNCER_DEB_RELEASE='3'
-        PGBOUNCER_RELEASE='2'
+        PGBOUNCER_RELEASE='3'
 
         # urls
         PGBOUNCER_SRC_REPO="https://github.com/pgbouncer/pgbouncer.git"
@@ -243,8 +243,8 @@ case "$1" in
         PGPOOL2_PRODUCT_FULL=${PGPOOL2_PRODUCT}-${PGPOOL2_VERSION}
         PGPOOL2_SRC_BRANCH="V${PGPOOL2_VERSION//./_}"
         PGPOOL2_BUILD_BRANCH=${PG_VERSION}
-        PGPOOL2_RPM_RELEASE='2'
-        PGPOOL2_DEB_RELEASE='2'
+        PGPOOL2_RPM_RELEASE='3'
+        PGPOOL2_DEB_RELEASE='3'
 
         # urls
         PGPOOL2_SRC_REPO="https://git.postgresql.org/git/pgpool2.git"
@@ -260,7 +260,7 @@ case "$1" in
         PGVECTOR_SRC_BRANCH="v${PGVECTOR_VERSION}"
         PGVECTOR_RPM_RELEASE='4'
         PGVECTOR_DEB_RELEASE='4'
-        PGVECTOR_RELEASE='3'
+        PGVECTOR_RELEASE='4'
 
         # urls
         PGVECTOR_SRC_REPO="https://github.com/pgvector/pgvector.git"
@@ -272,7 +272,7 @@ case "$1" in
         # versions
         POSTGIS_PRODUCT=percona-postgis
         POSTGIS_PRODUCT_FULL=${POSTGIS_PRODUCT}-${POSTGIS33_VERSION}.${POSTGIS33_MINOR}
-        POSTGIS33_RELEASE='1'
+        POSTGIS33_RELEASE='2'
         POSTGIS_SRC_BRANCH="${POSTGIS33_VERSION}.${POSTGIS33_MINOR}"
         POSTGIS_RPM_RELEASE='2'
         POSTGIS_DEB_RELEASE='2'
@@ -287,7 +287,7 @@ case "$1" in
         # versions
         POSTGIS_PRODUCT=percona-postgis
         POSTGIS_PRODUCT_FULL=${POSTGIS_PRODUCT}-${POSTGIS35_VERSION}.${POSTGIS35_MINOR}
-        POSTGIS35_RELEASE='1'
+        POSTGIS35_RELEASE='2'
         POSTGIS_SRC_BRANCH="${POSTGIS35_VERSION}.${POSTGIS35_MINOR}"
         POSTGIS_RPM_RELEASE='2'
         POSTGIS_DEB_RELEASE='2'
@@ -306,7 +306,7 @@ case "$1" in
         PPG_SERVER_SRC_BRANCH=${PG_VERSION}
         PPG_SERVER_RPM_RELEASE='2'
         PPG_SERVER_DEB_RELEASE='2'
-        PPG_SERVER_RELEASE='1'
+        PPG_SERVER_RELEASE='2'
 
         # urls
         PPG_SERVER_SRC_REPO=${PKG_GIT_REPO}
@@ -321,7 +321,7 @@ case "$1" in
         PPG_SERVER_HA_SRC_BRANCH=${PG_VERSION}
         PPG_SERVER_HA_RPM_RELEASE='2'
         PPG_SERVER_HA_DEB_RELEASE='2'
-        PPG_SERVER_HA_RELEASE='1'
+        PPG_SERVER_HA_RELEASE='2'
 
         # urls
         PPG_SERVER_HA_SRC_REPO=${PKG_GIT_REPO}

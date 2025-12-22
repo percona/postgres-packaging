@@ -228,7 +228,7 @@ case "$1" in
         PGPOOL2_SRC_BRANCH="V${PGPOOL2_VERSION//./_}"
         PGPOOL2_BUILD_BRANCH=${PG_VERSION}
         PGPOOL2_RPM_RELEASE='2'
-        PGPOOL2_DEB_RELEASE='2
+        PGPOOL2_DEB_RELEASE='2'
 
         # urls
         PGPOOL2_SRC_REPO="https://git.postgresql.org/git/pgpool2.git"

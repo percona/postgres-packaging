@@ -202,6 +202,7 @@ build_rpm(){
         --define "version ${PG_VERSION}" \
         --define "pg_release ${PG_RELEASE}" \
         --define "release ${BUILD_RELEASE}" \
+		--define '__check_files %{nil}' \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?

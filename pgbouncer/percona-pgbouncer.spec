@@ -59,6 +59,7 @@ sed -i.fedora \
         --without-cares \
 %endif
         --with-systemd \
+        --with-ldap \
         --with-pam
 
 %{__make} %{?_smp_mflags} V=1

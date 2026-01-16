@@ -10,6 +10,7 @@ usage () {
 Usage: $0 [OPTIONS]
     The following options may be given :
         --builddir=DIR      Absolute path to the dir where all actions will be performed
+        --repo_component=COMP    Repo to be used like testing, experimental, release
         --install_deps      Install build dependencies(root privilages are required)
         --nightly           If it is set - nightly build will be performed
         --get_sources       Source will be downloaded from github
@@ -39,6 +40,7 @@ parse_arguments() {
         val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
         case "$arg" in
             --builddir=*) WORKDIR="$val" ;;
+            --repo_component=*) REPO_COMP="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
             --nightly=*) NIGHTLY="$val" ;;
             --get_sources=*) SOURCE="$val" ;;
@@ -80,7 +82,7 @@ switch_to_vault_repo() {
 add_percona_yum_repo(){
     yum -y install ${YUM_REPO}
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
+    percona-release enable ppg-${PG_VERSION} ${REPO_COMP}
     return
 }
 
@@ -89,7 +91,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
+    percona-release enable ppg-${PG_VERSION} ${REPO_COMP}
     return
 }
 

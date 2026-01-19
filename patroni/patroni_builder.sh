@@ -272,6 +272,7 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
+    rm -rf percona-patroni*
     for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
     do
         get_deb_sources $file

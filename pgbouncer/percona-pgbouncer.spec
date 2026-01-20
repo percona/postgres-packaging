@@ -17,10 +17,41 @@ Source4:	%{sname}.service
 Source5:	%{sname}.service.rhel7
 Patch0:		%{sname}-ini.patch
 
-BuildRequires:	libevent-devel libtool pandoc
-Requires:	libevent-devel
-Requires:	python3-psycopg2
+BuildRequires:	libevent-devel >= 2.0 libtool pandoc
+Requires:	libevent >= 2.0
+Requires:	python3 python3-psycopg2
 BuildRequires:	openssl-devel pam-devel
+
+%if 0%{?suse_version} >= 1500
+Requires:	libopenssl3
+BuildRequires:	libopenssl-3-devel
+%endif
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
+Requires:	openssl-libs >= 1.1.1k
+BuildRequires:	openssl-devel
+%endif
+
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 9
+BuildRequires:	c-ares-devel >= 1.13
+Requires:	c-ares >= 1.13
+%endif
+%if 0%{?suse_version} >= 1500
+BuildRequires:	c-ares-devel >= 1.13
+Requires:	libcares2 >= 1.19
+%endif
+
+%if 0%{?suse_version} == 1500
+BuildRequires:	openldap2-devel
+Requires:	libldap-2_4-2
+%endif
+%if 0%{?suse_version} == 1600
+BuildRequires:	openldap2-devel
+Requires:	libldap-2
+%endif
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 9
+BuildRequires:	openldap-devel
+Requires:	openldap
+%endif
 
 %if %{systemd_enabled}
 BuildRequires:		systemd
@@ -59,6 +90,7 @@ sed -i.fedora \
         --without-cares \
 %endif
         --with-systemd \
+        --with-ldap \
         --with-pam
 
 %{__make} %{?_smp_mflags} V=1

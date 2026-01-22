@@ -8,7 +8,8 @@ Release:	%{release}%{?dist}
 License:	PostgreSQL
 Source0:	%{name}-%{version}.tar.gz
 URL:		https://github.com/darold/%{sname}
-Requires:	perl-Text-CSV_XS
+BuildRequires:        perl make
+Requires:	perl-Text-CSV_XS perl
 Provides:       pgbadger
 Epoch:          1
 Packager:       Percona Development Team <https://jira.percona.com>

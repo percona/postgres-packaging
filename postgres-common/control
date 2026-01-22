@@ -62,7 +62,7 @@ Depends:
  adduser,
  debconf (>= 0.5.00) | debconf-2.0,
  libjson-perl,
- lsb-base (>= 3.0-3),
+ sysvinit-utils (>= 3.05-4~) | lsb-base (>= 3.0-3),
  perl (>= 5.14),
  percona-postgresql-client-common | postgresql-client-common,
  percona-postgresql-common,
@@ -237,6 +237,7 @@ Depends:
  libecpg-dev,
  libpq-dev,
  percona-postgresql-server-dev-all,
+ percona-postgresql-common,
  ${postgresql-all-depends},
  ${misc:Depends}
 Provides: postgresql-all

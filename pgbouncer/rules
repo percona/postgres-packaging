@@ -1,9 +1,15 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/architecture.mk
+
 export V=1
 
 PG_CONFIG=pg_config
 PGBINDIR=$(shell $(PG_CONFIG) --bindir)
+
+ifeq ($(DEB_HOST_ARCH_OS),linux)
+        SYSTEMD = --with-systemd
+endif
 
 %:
 	dh $@
@@ -22,7 +28,9 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		--bindir=/usr/sbin \
 		--with-cares=yes \
-		--with-pam
+		--with-pam \
+		--with-ldap\
+		$(SYSTEMD)
 
 # "make check" broken in 1.12: https://github.com/pgbouncer/pgbouncer/issues/431
 override_dh_auto_test:
@@ -38,6 +46,9 @@ override_dh_auto_install:
 
 override_dh_installinit:
 	dh_installinit -R
+
+override_dh_installsystemd:
+	dh_installsystemd pgbouncer.service
 
 #dbg#override_dh_strip:
 #dbg#	dh_strip --dbg-package=percona-pgbouncer-dbg

@@ -2,7 +2,7 @@ Source: percona-pgbadger
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Build-Depends: debhelper, libjson-xs-perl
+Build-Depends: debhelper, libjson-xs-perl, libtext-csv-xs-perl
 
 Package: percona-pgbadger
 Architecture: any

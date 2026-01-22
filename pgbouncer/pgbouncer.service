@@ -30,6 +30,8 @@ ExecStart=/usr/bin/pgbouncer ${BOUNCERCONF}
 ExecReload=/usr/bin/kill -HUP $MAINPID
 KillSignal=SIGINT
 
+Restart=on-failure
+
 # Give a reasonable amount of time for the server to start up/shut down
 TimeoutSec=300
 

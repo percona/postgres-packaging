@@ -1,5 +1,28 @@
 %global        debug_package %{nil}
 
+%if 0%{?fedora} && 0%{?fedora} == 43
+%global __ospython %{_bindir}/python3.14
+%global python3_pkgversion 3.14
+%endif
+%if 0%{?fedora} && 0%{?fedora} <= 42
+%global        __ospython %{_bindir}/python3.13
+%global        python3_pkgversion 3.13
+%endif
+%if 0%{?rhel} && 0%{?rhel} <= 10
+%global        __ospython %{_bindir}/python3.12
+%global        python3_pkgversion 3.12
+%endif
+%if 0%{?suse_version} == 1500
+%global        __ospython %{_bindir}/python3.11
+%global        python3_pkgversion 311
+%endif
+%if 0%{?suse_version} == 1600
+%global        __ospython %{_bindir}/python3.13
+%global        python3_pkgversion 313
+%endif
+%{expand: %%global py3ver %(echo `%{__ospython} -c "import sys; sys.stdout.write(sys.version[:4])"`)}
+%global python3_sitelib %(%{__ospython} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+
 Name:           ydiff
 Version:        %{version}
 Release:        %{release}%{?dist}
@@ -7,7 +30,8 @@ Summary:        View colored, incremental diff
 URL:            https://github.com/ymattw/ydiff
 License:        BSD
 Source0:        %{name}-%{version}.tar.gz
-BuildRequires:  python3-devel
+BuildRequires:  python%{python3_pkgversion}-devel
+Requires:        less
 Requires:       python%{python3_pkgversion}-%{name}
 
 %description
@@ -18,7 +42,9 @@ pager support.
 
 %package -n     python3-%{name}
 Summary:        %{summary}
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1500
 %{?python_provide:%python_provide python3-%{name}}
+%endif
 %description -n python3-%{name}
 Python library that implements API used by ydiff tool.
 
@@ -29,11 +55,12 @@ Python library that implements API used by ydiff tool.
 
 
 %build
-%py3_build
+%{__ospython} setup.py build
 
 
 %install
-%py3_install
+%{__rm} -rf %{buildroot}
+%{__ospython} setup.py install --root %{buildroot} -O1 --skip-build
 
 
 %files
@@ -45,7 +72,7 @@ Python library that implements API used by ydiff tool.
 %files -n python3-%{name}
 %{python3_sitelib}/__pycache__/*
 %{python3_sitelib}/%{name}.py
-%{python3_sitelib}/%{name}-%{version}-py%{python3_version}.egg-info
+%{python3_sitelib}/%{name}-%{version}-py%{py3ver}.egg-info
 
 
 %changelog

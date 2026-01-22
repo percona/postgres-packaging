@@ -8,8 +8,8 @@ PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 PPG_COMMON_MAJOR=287
 PPG_COMMON_MINOR=1
-PG_TDE_VERSION=2.1
-ETCD_VERSION=3.5.24
+PG_TDE_VERSION=2.1.1
+ETCD_VERSION=3.5.26
 PATRONI_VERSION=4.1.0
 PG_CRON_VERSION=1.6.2
 PG_GATHER_VERSION=32
@@ -17,8 +17,8 @@ PG_REPACK_VERSION=1.5.3
 PGAUDIT_VERSION=18.0
 SET_USER_VERSION=4.2.0
 PG_BCKREST_VERSION=2.57.0
-PGBADGER_VERSION=13.1
-PGBOUNCER_VERSION=1.25.0
+PGBADGER_VERSION=13.2
+PGBOUNCER_VERSION=1.25.1
 PGPOOL2_VERSION=4.6.3
 PGVECTOR_VERSION=0.8.1
 POSTGIS35_VERSION=3.5
@@ -91,8 +91,8 @@ case "$1" in
         # versions
         ETCD_PRODUCT=etcd
         ETCD_PRODUCT_FULL=${ETCD_PRODUCT}-${ETCD_VERSION}
-        ETCD_RPM_RELEASE='2'
-        ETCD_DEB_RELEASE='2'
+        ETCD_RPM_RELEASE='1'
+        ETCD_DEB_RELEASE='1'
         ETCD_RELEASE='1'
 
         # urls
@@ -213,9 +213,15 @@ case "$1" in
         PGBADGER_PRODUCT=percona-pgbadger
         PGBADGER_PRODUCT_FULL=${PGBADGER_PRODUCT}-${PGBADGER_VERSION}
         PGBADGER_SRC_BRANCH="v${PGBADGER_VERSION}"
+<<<<<<< HEAD
         PGBADGER_RPM_RELEASE='3'
         PGBADGER_DEB_RELEASE='3'
         PGBADGER_RELEASE='2'
+=======
+        PGBADGER_RPM_RELEASE='4'
+        PGBADGER_DEB_RELEASE='4'
+        PGBADGER_RELEASE='4'
+>>>>>>> ff7346f ([PKG-1254]: build pgbouncer-1.25.1, pgbadger-13.2, etcd-3.5.21, update packaging files for postgres-common, patroni, ydiff (PG-15.16))
 
         # urls
         PGBADGER_SRC_REPO="https://github.com/darold/pgbadger.git"
@@ -227,9 +233,15 @@ case "$1" in
         PGBOUNCER_PRODUCT=percona-pgbouncer
         PGBOUNCER_PRODUCT_FULL=${PGBOUNCER_PRODUCT}-${PGBOUNCER_VERSION}
         PGBOUNCER_SRC_BRANCH="pgbouncer_${PGBOUNCER_VERSION//./_}"
+<<<<<<< HEAD
         PGBOUNCER_RPM_RELEASE='2'
         PGBOUNCER_DEB_RELEASE='2'
         PGBOUNCER_RELEASE='1'
+=======
+        PGBOUNCER_RPM_RELEASE='4'
+        PGBOUNCER_DEB_RELEASE='4'
+        PGBOUNCER_RELEASE='4'
+>>>>>>> ff7346f ([PKG-1254]: build pgbouncer-1.25.1, pgbadger-13.2, etcd-3.5.21, update packaging files for postgres-common, patroni, ydiff (PG-15.16))
 
         # urls
         PGBOUNCER_SRC_REPO="https://github.com/pgbouncer/pgbouncer.git"

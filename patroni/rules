@@ -38,6 +38,7 @@ override_dh_auto_build:
 	(cd docs; $(MAKE) html)
 
 override_dh_auto_test:
+	python3 -m pytest tests
 
 
 # dh_make generated override targets

@@ -228,7 +228,7 @@ EOF
   ydiff)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools python3-devel python3-setuptools"
+      INSTALL_LIST+="wget git vim rpm-build rpmdevtools python3.12-devel python3.12-setuptools"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -366,7 +366,7 @@ EOF
       dnf -y install lz4 || true
     else
       deb_deps
-      INSTALL_LIST+="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec libxml-libxml-perl libcontextual-return-perl libxml-checker-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-common libbz2-dev libzstd-dev libevent-dev libc-ares-dev pandoc libjson-xs-perl libpod-markdown-perl"
+      INSTALL_LIST+="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec libxml-libxml-perl libtext-csv-xs-perl libcontextual-return-perl libxml-checker-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-common libbz2-dev libzstd-dev libevent-dev libc-ares-dev pandoc libjson-xs-perl libpod-markdown-perl"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
     fi

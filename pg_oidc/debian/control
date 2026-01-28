@@ -1,0 +1,28 @@
+Source: percona-pg-oidc-validator@@PGMAJOR@@
+Section: database
+Priority: optional
+Maintainer: Percona Development Team info@percona.com
+Build-Depends:
+ debhelper (>= 9),
+ percona-postgresql-server-dev-all (>= 153~),
+ libcurl4-openssl-dev,
+ libssl-dev (>= 1.1.1),
+ libjwt-dev,
+ zlib1g-dev,
+ libkrb5-dev,
+ libxml2-dev,
+ libxslt1-dev,
+ libreadline-dev,
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/Percona-Lab/pg_oidc_validator.git
+
+Package: percona-pg-oidc-validator@@PGMAJOR@@
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${postgresql:Depends},
+ ${shlibs:Depends},
+Description: pg-oidc-validator is a PostgreSQL extension.
+ It is an OAuth validator library for PostgreSQL @@PGMAJOR@@.
+

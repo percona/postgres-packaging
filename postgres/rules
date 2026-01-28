@@ -95,6 +95,12 @@ ifeq ($(call version_ge,17),y)
   CONFIGURE_FLAGS += --with-lz4
 endif
 
+ifeq ($(call version_ge,15),y)
+  ifeq ($(filter pkg.postgresql.nozstd,$(DEB_BUILD_PROFILES)),)
+    CONFIGURE_FLAGS += --with-zstd
+  endif
+endif
+
 ifeq ($(DEB_HOST_ARCH_OS),linux)
   ifeq ($(call version_ge,18),y)
     CONFIGURE_FLAGS += --with-oauth --with-libcurl --with-libnuma --with-liburing

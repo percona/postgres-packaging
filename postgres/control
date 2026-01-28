@@ -2,13 +2,13 @@ Source: percona-postgresql-@@PGMAJOR@@
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
-Standards-Version: 4.5.0
+Standards-Version: 4.7.2
 Rules-Requires-Root: no
 Build-Depends:
  autoconf,
  bison,
  clang [amd64 arm64 mips64el ppc64 ppc64el s390x],
- debhelper,
+ debhelper-compat (= 13),
  dh-exec (>= 0.13~),
  docbook-xml,
  docbook-xsl (>= 1.77),
@@ -17,8 +17,6 @@ Build-Depends:
  gdb <!nocheck>,
  gettext,
  libcurl4-openssl-dev [linux-any],
- krb5-multidev,
- libedit-dev,
  libicu-dev,
  libio-pty-perl <!nocheck>,
  libipc-run-perl <!nocheck>,
@@ -36,17 +34,23 @@ Build-Depends:
  libxml2-dev,
  libxml2-utils,
  libxslt1-dev,
- llvm-dev [amd64 arm64 mips64el ppc64 ppc64el riscv64 s390x],
+ libzstd-dev (>= 1.4.0),
+ llvm-dev [amd64 arm64 mips64el ppc64 ppc64el s390x],
+ lz4 | liblz4-tool,
  mawk,
  openssl,
  perl (>= 5.8),
- pkg-config,
+ pkgconf,
+ percona-postgresql-common-dev,
  python3-dev,
- systemtap-sdt-dev,
+ systemtap-sdt-dev [linux-any],
  tcl-dev,
+ tzdata <!nocheck>,
+ tzdata-legacy <!nocheck> | tzdata (<< 2023c-8) <!nocheck>,
  uuid-dev,
  xsltproc,
- zlib1g-dev | libz-dev
+ zlib1g-dev | libz-dev,
+ zstd (>= 1.4.0),
 Homepage: http://www.postgresql.org/
 
 Package: libpq-dev
@@ -70,6 +74,8 @@ Architecture: any
 Section: libs
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Pre-Depends: ${misc:Pre-Depends}
+Recommends:
+ ca-certificates,
 Suggests:
  libpq-oauth,
 Multi-Arch: same
@@ -80,7 +86,8 @@ Description: PostgreSQL C client library
  with servers from PostgreSQL 8.2 or later.
  .
  This package contains the run-time library, needed by packages using
- libpq.
+ libpq. SSL certificate validation (the sslrootcert=system connection
+ option) requires the ca-certificates package.
  .
  PostgreSQL is an object-relational SQL database management system.
 
@@ -170,7 +177,7 @@ Architecture: any
 Depends:
  locales | locales-all,
  percona-postgresql-client-@@PGMAJOR@@,
- percona-postgresql-common (>= 182~),
+ percona-postgresql-common (>= 275~),
  ssl-cert,
  tzdata,
  curl,
@@ -178,6 +185,8 @@ Depends:
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-@@PGMAJOR@@, postgresql-contrib-@@PGMAJOR@@ (= ${binary:Version}), postgresql-@@PGMAJOR@@ (= ${binary:Version})
 Recommends: percona-postgresql-@@PGMAJOR@@-jit, sysstat
+Breaks:
+ dbconfig-common (<< 2.0.22~),
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational
  database management system (RDBMS) emphasizing extensibility and SQL
@@ -220,10 +229,10 @@ Package: percona-postgresql-server-dev-@@PGMAJOR@@
 Architecture: any
 Section: libdevel
 Depends:
- clang [amd64 arm64 mips64el ppc64 ppc64el s390x],
+ clang-${llvm:Version} [amd64 arm64 mips64el ppc64 ppc64el s390x],
  libpq-dev (>= @@PGMAJOR@@~~),
- llvm-dev [amd64 arm64 mips64el ppc64 ppc64el s390x],
- percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 162~),
+ llvm-${llvm:Version}-dev [amd64 arm64 mips64el ppc64 ppc64el s390x],
+ percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 142~),
  ${misc:Depends},
  ${shlibs:Depends}
 Breaks:

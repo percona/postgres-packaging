@@ -61,10 +61,10 @@ case "$1" in
         # versions
         PPG_COMMON_PRODUCT=percona-postgresql-common
         PPG_COMMON_PRODUCT_FULL=${PPG_COMMON_PRODUCT}-${PPG_COMMON_MAJOR}
-        PPG_COMMON_RELEASE='2'
+        PPG_COMMON_RELEASE='1'
         PPG_COMMON_SRC_BRANCH="debian/${PPG_COMMON_MAJOR}"
-        PPG_COMMON_RPM_RELEASE='2'
-        PPG_COMMON_DEB_RELEASE='2'
+        PPG_COMMON_RPM_RELEASE='1'
+        PPG_COMMON_DEB_RELEASE='1'
 
         # urls
         PPG_COMMON_SRC_REPO="https://salsa.debian.org/postgresql/postgresql-common.git"

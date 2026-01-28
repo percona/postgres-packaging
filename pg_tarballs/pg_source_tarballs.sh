@@ -88,6 +88,7 @@ PATRONI_BRANCH="v4.1.0"
 HAPROXY_BRANCH="v2.8.16"
 PGVECTOR_BRANCH="v0.8.1"
 PG_TDE_BRANCH="release-2.1"
+PG_OIDC_BRANCH="0.2"
 
 create_build_environment(){
 
@@ -190,6 +191,21 @@ build_pg_tde(){
           git checkout "${PG_TDE_BRANCH}"
         fi
 	build_status "ends" "pgTDE"
+}
+
+build_pg_oidc(){
+
+        build_status "start" "pgOIDC"
+        mkdir -p /source
+        cd /source
+        git clone https://github.com/Percona-Lab/pg_oidc_validator.git
+        cd pg_oidc_validator
+        if [ ! -z "${PG_OIDC_BRANCH}" ]; then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PG_OIDC_BRANCH}"
+        fi
+	build_status "ends" "pgOIDC"
 }
 
 build_pgbouncer(){
@@ -482,6 +498,9 @@ build_pysyncobj
 build_postgres_server
 if (( ${PG_MAJOR_VERSION} > 16 )); then
     build_pg_tde
+fi
+if (( ${PG_MAJOR_VERSION} >= 18 )); then
+    build_pg_oidc
 fi
 build_pgbouncer
 build_pgpool

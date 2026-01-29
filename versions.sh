@@ -26,6 +26,7 @@ POSTGIS35_MINOR=4
 PYSYNCOBJ_VERSION=0.3.10
 WAL2JSON_VERSION=2.6
 YDIFF_VERSION=1.2
+PG_OIDC_VERSION=0.2
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -84,6 +85,19 @@ case "$1" in
         PG_TDE_DEB_RELEASE='2'
         # urls
         PG_TDE_SRC_REPO="https://github.com/percona/pg_tde.git"
+    ;;
+
+    pg_oidc)
+        # versions
+        PG_OIDC_PRODUCT=percona-pg_oidc_validator${PG_MAJOR}
+        PG_OIDC_PRODUCT_DEB=percona-pg-oidc-validator${PG_MAJOR}
+        PG_OIDC_PRODUCT_FULL=${PG_OIDC_PRODUCT}-${PG_OIDC_VERSION}
+        PG_OIDC_RELEASE='1'
+        PG_OIDC_SRC_BRANCH="${PG_OIDC_VERSION}"
+        PG_OIDC_RPM_RELEASE='1'
+        PG_OIDC_DEB_RELEASE='1'
+        # urls
+        PG_OIDC_SRC_REPO="https://github.com/Percona-Lab/pg_oidc_validator.git"
     ;;
 
 

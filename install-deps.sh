@@ -20,10 +20,13 @@ rpm_deps() {
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel pcre-devel "
     fi
+    if [[ "$COMPONENT" == "pg_oidc" ]]; then
+      INSTALL_LIST+="gcc-toolset-14 "
+    fi
   fi
 
   if [[ "${RHEL}" -eq 9 ]]; then
-    if [[ "$COMPONENT" == "postgresql" || "$COMPONENT" == "pg_repack" ]]; then
+    if [[ "$COMPONENT" == "postgresql" || "$COMPONENT" == "pg_repack" || "$COMPONENT" == "pg_oidc" ]]; then
       INSTALL_LIST+="gcc-toolset-14 "
     fi
     if [[ "$COMPONENT" == "pgpool2" ]]; then
@@ -37,6 +40,9 @@ rpm_deps() {
   if [[ "${RHEL}" -eq 10 ]]; then
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal311-devel proj96-devel geos313-devel pcre2-devel "
+    fi
+    if [[ "$COMPONENT" == "pg_oidc" ]]; then
+      INSTALL_LIST+="libstdc++-static "
     fi
   fi
   
@@ -124,7 +130,7 @@ deb_deps() {
     fi
   fi
 
-  if [[ "x${DEBIAN}" == "xbullseye" ]]; then
+  if [[ "x${DEBIAN}" == "xbullseye" && "$COMPONENT" != "pg_oidc" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
     wget https://apt.llvm.org/llvm.sh
     chmod +x llvm.sh
@@ -132,6 +138,14 @@ deb_deps() {
     if [[ "$COMPONENT" == "pgbackrest" ]]; then
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install dh_systemd
     fi
+  fi
+
+  if [[ "$COMPONENT" == "pg_oidc" ]]; then
+    DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
+    wget https://apt.llvm.org/llvm.sh
+    chmod +x llvm.sh
+    ./llvm.sh 21 all
+    apt-get install libc++-21-dev libc++abi-21-dev clang-21 clang++-21
   fi
   
   return;  
@@ -220,6 +234,22 @@ EOF
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
       INSTALL_LIST+="sudo build-essential debhelper clang git libjson-c-dev pkg-config libcurl4-openssl-dev liblz4-dev libssl-dev zlib1g-dev libzstd-dev libxml2-dev libxml2-utils libxslt-dev libxslt1-dev libselinux1-dev libpam0g-dev krb5-multidev libkrb5-dev libreadline-dev shtool devscripts percona-postgresql-common percona-postgresql-server-dev-all libnuma-dev"
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
+    fi
+    ;;
+
+
+  pg_oidc)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST+="sudo wget git vim rpm-build libcurl-devel krb5-devel openssl-devel percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server rpmdevtools binutils make gcc gcc-c++"
+      dnf -y install ${INSTALL_LIST}
+    else
+      deb_deps
+      DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
+      ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+      dpkg-reconfigure --frontend noninteractive tzdata
+      INSTALL_LIST+="sudo build-essential debhelper clang git libjwt-dev libcurl4-openssl-dev libssl-dev libreadline-dev libkrb5-dev zlib1g-dev libxml2-dev libxslt1-dev uuid-dev flex bison pkg-config percona-postgresql-${PG_MAJOR} percona-postgresql-server-dev-all"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;

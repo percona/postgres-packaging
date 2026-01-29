@@ -1325,7 +1325,7 @@ build_pg_oidc(){
     mkdir -p /source
     cd /source
     git clone https://github.com/Percona-Lab/pg_oidc_validator.git
-    cd pg_oidc
+    cd pg_oidc_validator
     if [ ! -z "${PG_OIDC_BRANCH}" ]
     then
         git reset --hard

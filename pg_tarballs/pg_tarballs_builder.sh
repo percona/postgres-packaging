@@ -176,7 +176,7 @@ PATRONI_BRANCH="v4.1.0"
 HAPROXY_BRANCH="v2.8.16"
 PGVECTOR_BRANCH="v0.8.1"
 PG_TDE_BRANCH="release-2.1.1"
-PG_OIDC_BRANCH="0.2"
+PG_OIDC_BRANCH="main"
 
 create_build_environment(){
 
@@ -1333,9 +1333,11 @@ build_pg_oidc(){
         git checkout "${PG_OIDC_BRANCH}"
     fi
 
+	yum install -y gcc-toolset-14 gcc-toolset-14-gcc-c++
+    source /opt/rh/gcc-toolset-14/enable
 	export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
-    make USE_PGXS=1 -j4
-    make USE_PGXS=1 -j4 install
+    make USE_PGXS=1 -j4 with_llvm=no
+    make USE_PGXS=1 -j4 install with_llvm=no
 
 	build_status "ends" "pgOIDC"
 }

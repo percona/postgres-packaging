@@ -2023,6 +2023,9 @@ create_tarball(){
 	mkdir -p ${CWD}/tarballs-${PG_VERSION}
         pushd /opt
 	ARCH=$(uname -m)
+        # Remove compiled Python files (.pyc) from ppg tarballs
+        find ./percona-python3 -type f -name '*.pyc' -delete
+        find ./percona-python3 -type d -name '__pycache__' -exec rm -rf {} +
         find . \( -type d -name 'percona-*' \) -exec tar czvf ${CWD}/tarballs-${PG_VERSION}/percona-postgresql-${PG_VERSION}-${SSL_VERSION}-linux-${ARCH}.tar.gz {} +
         popd
 }

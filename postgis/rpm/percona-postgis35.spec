@@ -83,7 +83,7 @@
 %{!?raster:%global     raster 1}
 %endif
 
-%if 0%{?fedora} >= 30 || 0%{?rhel} >= 7 || 0%{?suse_version} >= 1315
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 7 || 0%{?suse_version} >= 1500
 %ifnarch ppc64 ppc64le
 # TODO
 %{!?sfcgal:%global     sfcgal 1}
@@ -107,13 +107,11 @@ URL:		https://www.postgis.net/
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel geos%{geosmajorversion}-devel >= %{geosfullversion}
 BuildRequires:	libgeotiff%{libgeotiffmajorversion}-devel libxml2 libxslt autoconf
-BuildRequires:	pgdg-srpm-macros >= 1.0.49 gmp-devel
-%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
-BuildRequires:  pcre2-devel
+BuildRequires:	pgdg-srpm-macros >= 1.0.52 gmp-devel pcre2-devel
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
 Requires:       pcre2
 %else
-BuildRequires:  pcre-devel
-Requires:       pcre
+Requires:       libpcre2-8-0
 %endif
 %if 0%{?suse_version} >= 1500
 Requires:	libgmp10
@@ -121,7 +119,7 @@ Requires:	libgmp10
 Requires:	gmp
 %endif
 %if 0%{?suse_version}
-%if 0%{?suse_version} >= 1315
+%if 0%{?suse_version} >= 1500
 BuildRequires:	libjson-c-devel proj%{projmajorversion}-devel >= %{projfullversion}
 %endif
 %else
@@ -132,16 +130,25 @@ BuildRequires:	libxml2-devel
 BuildRequires:	gtk2-devel > 2.8.0
 %endif
 %if %{sfcgal}
-BuildRequires:	SFCGAL-devel SFCGAL
-Requires:	SFCGAL
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 9
+BuildRequires:	SFCGAL SFCGAL-devel >= 2.1.0
 %endif
+%if 0%{?rhel} == 8 || 0%{?suse_version} >= 1500
+BuildRequires:        SFCGAL SFCGAL-devel
+%endif
+%endif
+
 %if %{raster}
 BuildRequires:	gdal%{gdalmajorversion}-devel >= %{gdalfullversion}
-Requires:       gdal%{gdalmajorversion}-libs >= %{gdalfullversion}
+Requires:	gdal%{gdalmajorversion}-libs >= %{gdalfullversion}
 %endif
 
-
-%if 0%{?fedora} >= 31 || 0%{?rhel} >= 8
+%if 0%{?suse_version} >= 1500
+Requires:	libprotobuf-c1
+BuildRequires:	libprotobuf-c-devel
+%else
+# Fedora/RHEL:
+Requires:	protobuf-c >= 1.1.0
 BuildRequires:	protobuf-c-devel >= 1.1.0
 %endif
 
@@ -149,23 +156,23 @@ Requires:	percona-postgresql%{pgmajorversion} geos%{geosmajorversion} >= %{geosf
 Requires:	percona-postgresql%{pgmajorversion}-contrib proj%{projmajorversion} >= %{projfullversion}
 Requires:	libgeotiff%{libgeotiffmajorversion}
 Requires:	hdf5
+Requires: gdal%{gdalmajorversion}-libs >= %{gdalfullversion}
 
-%if %{raster}
-Requires:	gdal%{gdalmajorversion}-libs >= %{gdalfullversion}
-%endif
-
-%if 0%{?suse_version} >= 1315
+%if 0%{?suse_version} >= 1500
 Requires:	libjson-c5
-Requires:	libxerces-c-3_1
-%else
+Requires:	libxerces-c-3_2
+BuildRequires:        libxerces-c-devel
+%endif
+%if 0%{?suse_version} == 1600
+Requires:        libjson-c5
+Requires:        libxerces-c-3_3
+BuildRequires:        libxerces-c-devel
+%endif
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
 Requires:	json-c xerces-c
 BuildRequires:  xerces-c-devel
 %endif
 Requires(post):	%{_sbindir}/update-alternatives
-
-%if 0%{?fedora} >= 31 || 0%{?rhel} >= 8
-Requires:	protobuf-c >= 1.1.0
-%endif
 
 Provides:	%{sname} = %{version}-%{release}
 Obsoletes:	%{sname}3_%{pgmajorversion} <= %{postgismajorversion}.0-1
@@ -237,24 +244,17 @@ The %{name}-utils package provides the utilities for PostGIS.
 %package llvmjit
 Summary:	Just-in-time compilation support for postgis35
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-#%%if 0%%{?rhel} && 0%%{?rhel} == 7
-#%%ifarch aarch64
-#Requires:	llvm-toolset-7.0-llvm >= 7.0.1
-#%%else
-#Requires:	llvm5.0 >= 5.0
-#%%endif
-#%%endif
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-BuildRequires:  llvm6-devel clang6-devel
-#Requires:	llvm6
+%if 0%{?suse_version} == 1500
+BuildRequires:  llvm17-devel clang17-devel
+Requires:	llvm17
 %endif
-%if 0%{?suse_version} >= 1500
-BuildRequires:  llvm13-devel clang13-devel
-#Requires:	llvm13
+%if 0%{?suse_version} == 1600
+BuildRequires:  llvm19-devel clang19-devel
+Requires:	llvm19
 %endif
-#%%if 0%%{?fedora} || 0%%{?rhel} >= 8
-#Requires:	llvm => 12.0
-#%%endif
+%if 0%{?fedora} || 0%{?rhel} >= 8
+Requires:	llvm => 19.0
+%%endif
 
 %description llvmjit
 This packages provides JIT support for postgis35
@@ -283,6 +283,9 @@ sh -x autogen.sh
 autoconf
 
 %configure --with-pgconfig=%{pginstdir}/bin/pg_config \
+        --bindir=%{pginstdir}/bin/ \
+	      --datadir=%{pginstdir}/share/ \
+	      --mandir=%{_mandir}/%{name} \
         --enable-lto \
         --with-projdir=%{projinstdir} \
 %if !%raster
@@ -294,7 +297,7 @@ autoconf
 %if %{shp2pgsqlgui}
 	--with-gui \
 %endif
-%if 0%{?fedora} >= 31 || 0%{?rhel} >= 8
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8  || 0%{?suse_version} >= 1500
 	--with-protobuf \
 %else
 	--without-protobuf \
@@ -341,12 +344,12 @@ fi
 %defattr(-,root,root)
 %doc COPYING CREDITS NEWS TODO README.%{sname} doc/html loader/README.* doc/%{sname}.xml doc/ZMSgeoms.txt
 %license LICENSE.TXT
-%{_bindir}/postgis
+%{pginstdir}/bin/postgis
+%{pginstdir}/bin/postgis_restore
 %{pginstdir}/doc/extension/README.address_standardizer
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_comments.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/postgis_upgrade*.sql
-%{_bindir}/postgis_restore
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/uninstall_postgis.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/legacy*.sql
 %{pginstdir}/share/contrib/%{sname}-%{postgismajorversion}/*topology*.sql
@@ -385,13 +388,13 @@ fi
 
 %files client
 %defattr(644,root,root)
-%attr(755,root,root) %{_bindir}/pgsql2shp
+%attr(755,root,root) %{pginstdir}/bin/pgsql2shp
 %if %{raster}
-%attr(755,root,root) %{_bindir}/raster2pgsql
+%attr(755,root,root) %{pginstdir}/bin/raster2pgsql
 %endif
-%attr(755,root,root) %{_bindir}/shp2pgsql
-%attr(755,root,root) %{_bindir}/pgtopo_export
-%attr(755,root,root) %{_bindir}/pgtopo_import
+%attr(755,root,root) %{pginstdir}/bin/shp2pgsql
+%attr(755,root,root) %{pginstdir}/bin/pgtopo_export
+%attr(755,root,root) %{pginstdir}/bin/pgtopo_import
 
 %files devel
 %defattr(644,root,root)
@@ -400,19 +403,19 @@ fi
 %files docs
 %defattr(-,root,root)
 %doc %{sname}-%{version}.pdf
-%{_mandir}/man1/pgsql2shp.1.*
-%{_mandir}/man1/pgtopo_export.1.*
-%{_mandir}/man1/pgtopo_import.1.*
-%{_mandir}/man1/postgis.1.*
-%{_mandir}/man1/postgis_restore.1.*
-%{_mandir}/man1/shp2pgsql.1.*
+%{_mandir}/%{name}/man1/pgsql2shp.1.*
+%{_mandir}/%{name}/man1/pgtopo_export.1.*
+%{_mandir}/%{name}/man1/pgtopo_import.1.*
+%{_mandir}/%{name}/man1/postgis.1.*
+%{_mandir}/%{name}/man1/postgis_restore.1.*
+%{_mandir}/%{name}/man1/shp2pgsql.1.*
 
 %if %shp2pgsqlgui
 %files gui
 %defattr(-,root,root)
-%{_bindir}/shp2pgsql-gui
-%{_datadir}/applications/shp2pgsql-gui.desktop
-%{_datadir}/icons/hicolor/*/apps/shp2pgsql-gui.png
+%{pginstdir}/bin/shp2pgsql-gui
+%{pginstdir}/share/applications/shp2pgsql-gui.desktop
+%{pginstdir}/share/icons/hicolor/*/apps/shp2pgsql-gui.png
 %endif
 
 %if %llvm
@@ -441,31 +444,105 @@ fi
 %endif
 
 %changelog
-* Mon Dec 05 2022 Devrim Gündüz <devrim@gunduz.org>-  3.3.2-2
-- Get rid of AT and switch to GCC on RHEL 7 - ppc64le
+* Mon Dec 8 2025  Devrim Gunduz <devrim@gunduz.org> - 3.5.4-4PGDG
+- Build with GDAL 3.12 on all platforms except RHEL 8 and SLES 15.
 
-* Sun Nov 13 2022 Devrim Gunduz <devrim@gunduz.org> - 3.3.2-1
-- Update to 3.3.2, per changes described at:
-  https://git.osgeo.org/gitea/postgis/postgis/raw/tag/3.3.2/NEWS
+* Wed Nov 12 2025 Devrim Gunduz <devrim@gunduz.org> - 3.5.4-3PGDG
+- Fix pcre2 dependency on RHEL 8 and 9. Per report from Christopher Lorenz:
+  https://www.postgresql.org/message-id/fc8e323142484d98b5d1720e0811ce9c%40ZIT-BB.Brandenburg.de
 
-* Fri Oct 14 2022 Devrim Gunduz <devrim@gunduz.org> - 3.3.1-2
-- Use GDAL 3.4 on RHEL 7
+* Mon Nov 10 2025 Devrim Gunduz <devrim@gunduz.org> - 3.5.4-2PGDG
+- Update pcre2 and libxerces dependencies on SLES.
 
-* Sat Sep 10 2022 Devrim Gunduz <devrim@gunduz.org> - 3.3.1-1
-- Update to 3.3.1 (needed only for PostgreSQL 15 beta 4)
+* Fri Oct 17 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.4-1PGDG
+- Update to 3.5.4 per changes described at:
+  https://git.osgeo.org/gitea/postgis/postgis/raw/tag/3.5.4/NEWS
 
-* Sun Aug 28 2022 Devrim Gunduz <devrim@gunduz.org> - 3.3.0-1
-- Update to 3.3.0
+* Wed Oct 15 2025 Devrim Gunduz <devrim@gunduz.org> - 3.5.3-8PGDG
+- Fix SLES 16 support
 
-* Tue Aug 23 2022 Devrim Gunduz <devrim@gunduz.org> - 3.3.0rc2-1
-- Update to 3.3.0 rc2
+* Tue Oct 7 2025 Devrim Gunduz <devrim@gunduz.org> - 3.5.3-7PGDG
+- Rebuild against PROJ 9.7 on all platforms except RHEL 8
+- Add SLES 16 support
 
-* Fri Aug 19 2022 Devrim Gunduz <devrim@gunduz.org> - 3.3.0rc1-1
-- Update to 3.3.0 rc1
-- Use PROJ 9.0.X
+* Wed Oct 01 2025 Yogesh Sharma <yogesh.sharma@catprosystems.com> - 3.5.3-6PGDG.1
+- Bump release number (missed in previous commit)
 
-* Thu Jul 14 2022 Devrim Gunduz <devrim@gunduz.org> - 3.3.0beta2-1
-- Update to 3.3.0 beta2
+* Tue Sep 30 2025 Yogesh Sharma <yogesh.sharma@catprosystems.com>
+- Change => to >= in Requires and BuildRequires
 
-* Wed Jul 13 2022 Devrim Gunduz <devrim@gunduz.org> - 3.3.0beta1-1
-- Initial cut for PostGIS 3.3.0 beta 1
+* Tue Sep 23 2025 Devrim Gunduz <devrim@gunduz.org> - 3.5.3-5PGDG.1
+- Rebuild for Fedora 43
+
+* Wed Aug 27 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.3-5PGDG
+- Rebuild against GeOS 3.14
+
+* Thu Jul 31 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.3-4PGDG
+- Rebuild against GDAL 3.11.3
+
+* Thu Jul 17 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.3-3PGDG
+- Use GDAL 3.11 and PROJ 9.6 on RHEL 8 and SLES 15 as well.
+
+* Sun Jun 1 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.3-2PGDG
+- Fix SLES 15 linker issue.
+
+* Tue May 20 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.3-1PGDG
+- Update to 3.5.3 per changes described at:
+  https://git.osgeo.org/gitea/postgis/postgis/raw/tag/3.5.3/NEWS
+- Keep using PROJ 9.5 and GDAL 3.10. Use GDAL 3.11 where available.
+
+* Wed Apr 16 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.2-5PGDG
+- Rebuild against PROJ 9.6
+
+* Sat Mar 8 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.2-4PGDG
+- Enable SFCGAL support on RHEL 9 - ppc64le
+
+* Wed Feb 26 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.2-3PGDG
+- Add missing BRs
+
+* Thu Jan 30 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.2-2PGDG
+- Add RHEL 10 support
+
+* Thu Jan 23 2025 Devrim Gündüz <devrim@gunduz.org> - 3.5.2-1PGDG
+- Update to 3.5.2 per changes described at:
+  https://git.osgeo.org/gitea/postgis/postgis/raw/tag/3.5.2/NEWS
+
+* Sat Dec 28 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.1-2PGDG
+* Fix SLES 15 builds by adding --with-projdir option back. Also fix
+  PROJ path.
+
+* Tue Dec 24 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.1-1PGDG
+- Update to 3.5.1 per changes described at:
+  https://git.osgeo.org/gitea/postgis/postgis/raw/tag/3.5.1/NEWS
+- Rebuild against GDAL 3.10 on Fedora, RHEL 9 and SLES 15.
+
+* Wed Dec 18 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.0-4PGDG
+- Fix changelog date
+
+* Sun Nov 3 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.0-3PGDG
+- Install man files to another location to avoid packaging conflict
+  with other PostGIS RPMs.
+
+* Sat Oct 12 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.0-2PGDG
+- Rebuild against SFCGAL 2.0.0 on RHEL 9 and Fedora
+
+* Thu Sep 26 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.0-1PGDG
+- Update to 3.5.0 per changes described at:
+  https://git.osgeo.org/gitea/postgis/postgis/raw/tag/3.5.0/NEWS
+
+* Mon Sep 23 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.0rc1-1PGDG
+- Update to 3.5.0 RC1
+
+* Mon Sep 16 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.0beta1-1PGDG
+- Update to 3.5.0 beta1
+- Rebuild against PROJ 9.5, GeOS 3.13
+- Rebuild against GDAL 3.9 on Fedora, RHEL 9 and SLES 15.
+
+* Mon Jul 29 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.0alpha2-2PGDG
+- Update LLVM dependencies
+
+* Tue Jul 9 2024 Devrim Gunduz <devrim@gunduz.org> - 3.5.0alpha2-1PGDG
+- Update to 3.5.0 Alpha2
+
+* Fri Jul 5 2024 Devrim Gunduz <devrim@gunduz.org> - 3.5.0alpha1-1PGDG
+- Initial cut for PostGIS 3.5.0 alpha1

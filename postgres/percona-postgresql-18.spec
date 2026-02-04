@@ -204,6 +204,7 @@ Requires:	libnuma1
 Requires:	libopenssl3
 BuildRequires:	libopenssl-3-devel
 %endif
+%endif
 
 %if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
 Requires:	openssl-libs >= 1.1.1k

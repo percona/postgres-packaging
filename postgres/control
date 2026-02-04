@@ -34,9 +34,8 @@ Build-Depends:
  libxml2-dev,
  libxml2-utils,
  libxslt1-dev,
- libzstd-dev (>= 1.4.0),
+ zstd (>= 1.4.0) | libzstd-dev (>= 1.4.0),
  llvm-dev [amd64 arm64 mips64el ppc64 ppc64el s390x],
- lz4 | liblz4-tool,
  mawk,
  openssl,
  perl (>= 5.8),
@@ -46,11 +45,9 @@ Build-Depends:
  systemtap-sdt-dev [linux-any],
  tcl-dev,
  tzdata <!nocheck>,
- tzdata-legacy <!nocheck> | tzdata (<< 2023c-8) <!nocheck>,
  uuid-dev,
  xsltproc,
  zlib1g-dev | libz-dev,
- zstd (>= 1.4.0),
 Homepage: http://www.postgresql.org/
 
 Package: libpq-dev

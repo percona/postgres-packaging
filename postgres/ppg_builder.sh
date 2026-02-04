@@ -55,7 +55,6 @@ get_sources(){
         sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control rules
         sed -i "s/@@PGVERSION@@/${PG_VERSION}/g" control
         sed -i "s/postgresql-$PG_MAJOR/percona-postgresql-$PG_MAJOR/" percona-postgresql-$PG_MAJOR.templates
-	echo "10" > compat
 	sed -i 's:focal-arm64-outline-atomics::' patches/series
     cd ../
     git clone $PGRPMS_GIT_REPO

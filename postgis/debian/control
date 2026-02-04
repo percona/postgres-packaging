@@ -5,9 +5,7 @@ Section: misc
 Priority: optional
 Build-Depends: bison,
                dctrl-tools,
-               dblatex,
-               docbook,
-               docbook-xsl,
+               debhelper-compat (= 13),
                dpkg-dev (>= 1.16.1~),
                flex,
                imagemagick,
@@ -16,20 +14,19 @@ Build-Depends: bison,
                libgeos-dev (>= 3.6),
                libjson-c-dev | libjson0-dev (>= 0.9~),
                libpcre2-dev,
-               libproj-dev (>= 4.9.0),
+               libproj-dev (>= 5.2.0),
                libprotobuf-c-dev,
-               libsfcgal-dev (>= 1.3.1) [!armel !armhf],
+               libsfcgal-dev (>= 1.3.1),
                libxml2-dev (>= 2.5.0~),
                lsb-release,
-               pkg-config,
+               pkgconf,
                po-debconf,
                percona-postgresql-all,
                percona-postgresql-common (>= 148~),
                percona-postgresql-server-dev-all,
                protobuf-c-compiler,
-               rdfind,
-               xsltproc
-Standards-Version: @@POSTGISVERSION@@
+               rdfind
+Standards-Version: 4.7.3
 Homepage: https://postgis.net/
 Rules-Requires-Root: no
 

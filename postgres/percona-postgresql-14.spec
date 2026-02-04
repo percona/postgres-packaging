@@ -9,12 +9,13 @@
 %global pgbaseinstdir   /usr/pgsql-%{pgmajorversion}
 
 %global beta 0
+%{?beta:%global __os_install_post /usr/lib/rpm/brp-compress}
 
 # Macros that define the configure parameters:
 %{!?kerbdir:%global kerbdir "/usr"}
 %{!?disablepgfts:%global disablepgfts 0}
 
-%if 0%{?rhel} || 0%{?suse_version} >= 1315
+%if 0%{?suse_version} >= 1315
 %{!?enabletaptests:%global enabletaptests 0}
 %else
 %{!?enabletaptests:%global enabletaptests 1}
@@ -40,8 +41,12 @@
 
 %{!?pltcl:%global pltcl 1}
 %{!?plperl:%global plperl 1}
-%{!?plpython3:%global plpython3 1}
 %{!?ssl:%global ssl 1}
+%if 0%{?fedora} >= 43
+%{!?sysuserd:%global sysuserd 1}
+%else
+%{!?sysuserd:%global sysuserd 0}
+%endif
 %{!?test:%global test 1}
 %{!?runselftest:%global runselftest 0}
 %{!?uuid:%global uuid 1}
@@ -55,9 +60,17 @@
  %{!?sdt:%global sdt 1}
 %endif
 
-%{!?llvm:%global llvm 1}
-
 %{!?selinux:%global selinux 1}
+
+%ifarch ppc64 ppc64le s390 s390x armv7hl
+ %if 0%{?rhel} && 0%{?rhel} == 7
+  %{!?llvm:%global llvm 0}
+ %else
+  %{!?llvm:%global llvm 1}
+ %endif
+%else
+ %{!?llvm:%global llvm 1}
+%endif
 
 %if 0%{?fedora} > 30
 %global _hardened_build 1
@@ -93,6 +106,9 @@ Source19:       %{sname}-%{pgmajorversion}-tmpfiles.d
 %else
 Source3:        %{sname}-%{pgmajorversion}.init
 %endif
+%if %sysuserd
+Source20:        %{sname}-%{pgmajorversion}-sysusers.conf
+%endif
 
 Patch1:         %{sname}-%{pgmajorversion}-rpm-pgsql.patch
 Patch3:         %{sname}-%{pgmajorversion}-conf.patch
@@ -106,23 +122,22 @@ BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  readline-devel zlib-devel >= 1.0.4
 BuildRequires:  chrpath
 
-%if 0%{?rhel} || 0%{?fedora}
-BuildRequires:  lz4-devel
-Requires:       lz4-libs
+# lz4 dependency
+%if 0%{?suse_version} >= 1315
+BuildRequires:	liblz4-devel
+Requires:	liblz4-1
 %endif
-
-# zstd dependency
-%if 0%{?suse_version} >= 1499
-BuildRequires:	libzstd-devel >= 1.4.0
-Requires:	libzstd1 >= 1.4.0
+%if 0%{?rhel} >= 8 || 0%{?fedora}
+BuildRequires:	lz4-devel
+Requires:	lz4-libs
 %endif
-%if 0%{?rhel} || 0%{?fedora}
-BuildRequires:	libzstd-devel >= 1.4.0
-Requires:	libzstd >= 1.4.0
+%if 0%{?rhel} == 7
+BuildRequires:	lz4-devel
+Requires:	lz4
 %endif
 
 # This dependency is needed for Source 16:
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:  perl-generators
 %endif
 
@@ -133,55 +148,131 @@ BuildRequires:  libicu-devel
 Requires:       libicu
 %endif
 
-BuildRequires:  llvm-devel => 13.0 clang-devel >= 13.0
+%if %llvm
+%if 0%{?rhel} && 0%{?rhel} == 7
+# Packages come from EPEL and SCL:
+%ifarch aarch64
+BuildRequires:        llvm-toolset-7.0-llvm-devel >= 7.0.1 llvm-toolset-7.0-clang >= 7.0.1
+%else
+BuildRequires:        llvm5.0-devel >= 5.0 llvm-toolset-7-clang >= 4.0.1
+%endif
+%endif
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+BuildRequires:        llvm6-devel clang6-devel
+%endif
+%if 0%{?suse_version} == 1500
+BuildRequires:        llvm17-devel clang17-devel
+%endif
+%if 0%{?suse_version} == 1600
+BuildRequires:        llvm19-devel clang19-devel
+%endif
+%if 0%{?fedora} || 0%{?rhel} >= 8
+BuildRequires:        llvm-devel >= 19.0 clang-devel >= 19.0
+%endif
+%endif
 
+%if %kerberos
 BuildRequires:  krb5-devel
 BuildRequires:  e2fsprogs-devel
+%endif
 
-BuildRequires:  openldap-devel
+%if %ldap
+%if 0%{?suse_version}
+%if 0%{?suse_version} >= 1315
+BuildRequires:        openldap2-devel
+%endif
+%else
+BuildRequires:        openldap-devel
+%endif
+%endif
 
-BuildRequires:  gettext >= 0.10.35
+%if %nls
+BuildRequires:	gettext >= 0.10.35
+%endif
 
-BuildRequires:  pam-devel
+%if %pam
+BuildRequires:	pam-devel
+%endif
 
-BuildRequires:  perl-ExtUtils-Embed
+%if %plperl
+%if 0%{?rhel} && 0%{?rhel} >= 7
+BuildRequires:	perl-ExtUtils-Embed
+%endif
+%if 0%{?fedora} >= 22
+BuildRequires:	perl-ExtUtils-Embed
+%endif
+%endif
 
-BuildRequires:  python3-devel
+%if %plpython3
+BuildRequires:	python3-devel
+%endif
 
-BuildRequires:  tcl-devel
+%if %pltcl
+BuildRequires:	tcl-devel
+%endif
 
-BuildRequires:  systemtap-sdt-devel
+%if %sdt
+BuildRequires:	systemtap-sdt-devel
+%endif
 
 %if %selinux
 # All supported distros have libselinux-devel package:
-BuildRequires:  libselinux-devel >= 2.0.93
+BuildRequires:        libselinux-devel >= 2.0.93
 # SLES: SLES 15 does not have selinux-policy package. Use
 # it only on SLES 12:
-
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+BuildRequires:        selinux-policy >= 3.9.13
+%endif
 # RHEL/Fedora has selinux-policy:
 %if 0%{?rhel} || 0%{?fedora}
-BuildRequires:  selinux-policy >= 3.9.13
+BuildRequires:        selinux-policy >= 3.9.13
 %endif
 %endif
 
+%if %ssl
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+BuildRequires:	libopenssl-devel
+%endif
+%if 0%{?suse_version} >= 1500
+BuildRequires:	libopenssl-3-devel
+%endif
 %if 0%{?rhel} == 9
 BuildRequires: openssl-devel >= 3.5
-%else
-BuildRequires: openssl-devel
+%endif
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
+BuildRequires:	openssl-devel
+%endif
+%if 0%{?fedora} >= 41
+BuildRequires:	openssl-devel-engine
+%endif
 %endif
 
-BuildRequires:  libuuid-devel
-
-BuildRequires:  libxml2-devel libxslt-devel
+%if %uuid
+%if 0%{?suse_version}
+%if 0%{?suse_version} >= 1315
+BuildRequires:        uuid-devel
+%endif
+%else
+BuildRequires:        libuuid-devel
+%endif
+%endif
+%if %xml
+BuildRequires:        libxml2-devel libxslt-devel
+%endif
 
 %if %{systemd_enabled}
-BuildRequires:          systemd, systemd-devel
+BuildRequires:                systemd, systemd-devel
 # We require this to be present for %%{_prefix}/lib/tmpfiles.d
-Requires:               systemd
-Requires(post):         systemd-sysv
-Requires(post):         systemd
+Requires:                systemd
+%if 0%{?suse_version}
+%if 0%{?suse_version} <= 1315
+Requires(post):                systemd-sysvinit
+%endif
+%else
+Requires(post):                systemd
 Requires(preun):        systemd
-Requires(postun):       systemd
+Requires(postun):        systemd
+%endif
 %endif
 
 Requires:       %{name}-libs >= %{version}-%{release}
@@ -219,6 +310,24 @@ Obsoletes:      %{vname}-libs <= %{version}-%{release}
 
 Epoch:          1
 
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+Requires:        libopenssl1_0_0
+%endif
+%if 0%{?suse_version} == 1500
+Requires:        libopenssl3
+%endif
+%if 0%{?suse_version} == 1600
+Requires:        libopenssl3
+%endif
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
+Requires:        openssl-libs >= 1.1.1k
+%endif
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
+
 %description libs
 The postgresql%{pgmajorversion}-libs package provides the essential shared libraries for any
 PostgreSQL client program or interface. You will need to install this package
@@ -229,12 +338,13 @@ PostgreSQL server.
 Summary:        The programs needed to create and run a PostgreSQL server
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
+%if ! %sysuserd
 Requires(pre):  /usr/sbin/useradd /usr/sbin/groupadd
+%endif
 Requires:       percona-pg-telemetry%{pgmajorversion}
 # for /sbin/ldconfig
 Requires(post):         glibc
 Requires(postun):       glibc
-Requires:		curl
 %if %{systemd_enabled}
 # pre/post stuff needs systemd too
 
@@ -255,6 +365,12 @@ Obsoletes:      %{sname}-server <= %{version}-%{release}
 Obsoletes:      %{vname}-server <= %{version}-%{release}
 
 Epoch:          1
+
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
 
 %description server
 PostgreSQL is an advanced Object-Relational database management system (DBMS).
@@ -290,6 +406,12 @@ Obsoletes:      %{vname}-contrib <= %{version}-%{release}
 
 Epoch:          1
 
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
+
 %description contrib
 The postgresql%{pgmajorversion}-contrib package contains various extension modules that are
 included in the PostgreSQL distribution.
@@ -299,13 +421,44 @@ Summary:        PostgreSQL development header files and libraries
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
-Requires:       llvm-devel => 17.0 clang-devel >= 17.0
+%if %llvm
+%if 0%{?rhel} && 0%{?rhel} == 7
+# Packages come from EPEL and SCL:
+%ifarch aarch64
+Requires:        llvm-toolset-7.0-llvm-devel >= 7.0.1 llvm-toolset-7.0-clang >= 7.0.1
+%else
+Requires:        llvm5.0-devel >= 5.0 llvm-toolset-7-clang >= 4.0.1
+%endif
+%endif
+%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
+Requires:        llvm6-devel clang6-devel
+%endif
+%if 0%{?suse_version} == 1500
+Requires:        llvm17-devel clang17-devel
+%endif
+%if 0%{?suse_version} == 1600
+Requires:        llvm19-devel clang19-devel
+%endif
+%if 0%{?fedora} || 0%{?rhel} >= 8
+Requires:        llvm-devel >= 19.0 clang-devel >= 19.0
+%endif
+%endif
+%if %icu
 Requires:       libicu-devel
+%endif
 
 %if %enabletaptests
+%if 0%{?suse_version} && 0%{?suse_version} >= 1315
+Requires:        perl-IPC-Run
+BuildRequires:        perl-IPC-Run
+%endif
 %if 0%{?rhel}
-Requires:       perl-Test-Simple
-BuildRequires:  perl-Test-Simple perl-IPC-Run perl-Time-HiRes
+Requires:        perl-Test-Simple
+BuildRequires:        perl-Test-Simple perl-IPC-Run perl-Time-HiRes
+%endif
+%if 0%{?fedora}
+Requires:        perl-IPC-Run
+BuildRequires:        perl-Test-Simple perl-IPC-Run perl-Time-HiRes
 %endif
 %endif
 
@@ -318,6 +471,12 @@ Obsoletes:      %{vname}-devel <= %{version}-%{release}
 
 Epoch:          1
 
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
+
 %description devel
 The postgresql%{pgmajorversion}-devel package contains the header files and libraries
 needed to compile C or C++ applications which will directly interact
@@ -325,10 +484,29 @@ with a PostgreSQL database management server. It also contains the ecpg
 Embedded C Postgres preprocessor. You need to install this package if you want
 to develop applications which will interact with a PostgreSQL server.
 
+%if %llvm
 %package llvmjit
 Summary:        Just-in-time compilation support for PostgreSQL
 Requires:       %{name}-server >= %{version}-%{release}
-Requires:       llvm => 13
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch aarch64
+Requires:        llvm-toolset-7.0-llvm >= 7.0.1
+%else
+Requires:        llvm5.0 >= 5.0
+%endif
+%endif
+%if 0%{?suse_version} == 1315
+Requires:        llvm
+%endif
+%if 0%{?suse_version} == 1500
+Requires:        libLLVM17
+%endif
+%if 0%{?suse_version} == 1600
+Requires:        libLLVM19
+%endif
+%if 0%{?fedora} || 0%{?rhel} >= 8
+Requires:        llvm >= 19.0
+%endif
 
 Provides:       postgresql-llvmjit >= %{version}-%{release}
 Provides:       %{vname}-llvmjit = %{epoch}:%{version}-%{release}
@@ -338,16 +516,27 @@ Obsoletes:      %{vname}-llvmjit <= %{version}-%{release}
 
 Epoch:          1
 
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
+
 %description llvmjit
 The postgresql%{pgmajorversion}-llvmjit package contains support for
 just-in-time compiling parts of PostgreSQL queries. Using LLVM it
 compiles e.g. expressions and tuple deforming into native code, with the
 goal of accelerating analytics queries.
+%endif
 
+%if %plperl
 %package plperl
 Summary:        The Perl procedural language for PostgreSQL
 Requires:       %{name}-server >= %{version}-%{release}
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+%ifarch ppc ppc64
+BuildRequires:        perl-devel
+%endif
 Obsoletes:      postgresql%{pgmajorversion}-pl <= %{version}-%{release}
 Provides:       postgresql-plperl >= %{version}-%{release}
 Provides:       %{vname}-plperl = %{epoch}:%{version}-%{release}
@@ -357,19 +546,31 @@ Obsoletes:      %{vname}-plperl <= %{version}-%{release}
 
 Epoch:          1
 
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
+
 %description plperl
 The postgresql%{pgmajorversion}-plperl package contains the PL/Perl procedural language,
 which is an extension to the PostgreSQL database server.
 Install this if you want to write database functions in Perl.
+%endif
 
-
+%if %plpython3
 %package plpython3
 Summary:        The Python3 procedural language for PostgreSQL
 Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-server >= %{version}-%{release}
 Obsoletes:      %{name}-pl <= %{version}-%{release}
 Provides:       postgresql-plpython3 >= %{version}-%{release}
+%if 0%{?suse_version} >= 1315
+Requires:        python3-base
+%else
+# We support Python3 natively on RHEL/CentOS 7 as of 7.7.
 Requires:       python3-libs
+%endif
 Provides:       %{vname}-plpython3 = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-plpython3 = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-plpython3 <= %{version}-%{release}
@@ -377,11 +578,19 @@ Obsoletes:      %{vname}-plpython3 <= %{version}-%{release}
 
 Epoch:          1
 
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
+
 %description plpython3
 The postgresql%{pgmajorversion}-plpython3 package contains the PL/Python3 procedural language,
 which is an extension to the PostgreSQL database server.
 Install this if you want to write database functions in Python 3.
+%endif
 
+%if %pltcl
 %package pltcl
 Summary:        The Tcl procedural language for PostgreSQL
 Requires:       %{name} >= %{version}-%{release}
@@ -396,11 +605,19 @@ Obsoletes:      %{vname}-pltcl <= %{version}-%{release}
 
 Epoch:          1
 
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
+
 %description pltcl
 PostgreSQL is an advanced Object-Relational database management
 system. The %{name}-pltcl package contains the PL/Tcl language
 for the backend.
+%endif
 
+%if %test
 %package test
 Summary:        The test suite distributed with PostgreSQL
 Requires:       %{name}-server >= %{version}-%{release}
@@ -413,10 +630,17 @@ Obsoletes:      %{vname}-test <= %{version}-%{release}
 
 Epoch:          1
 
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch ppc64 ppc64le
+AutoReq:        0
+%endif
+%endif
+
 %description test
 The postgresql%{pgmajorversion}-test package contains files needed for various tests for the
 PostgreSQL database management system, including regression tests and
 benchmarks.
+%endif
 
 %prep
 %setup -q -n percona-postgresql-%{version}
@@ -449,12 +673,20 @@ LDFLAGS="-Wl,--as-needed"; export LDFLAGS
 
 export CFLAGS
 
-# We need to export these even though they are under the standard
-# path. Buildfarm utilises ccache which may not be available on
-# users' instances, and that breaks extension builds as shown here:
-# https://www.postgresql.org/message-id/CACMiCkV%2BfQ4yAZqygyWx7ZQ8eWsj1AjoC6CGEUoyxY9jUm7paA%40mail.gmail.com
-# Previously reported by Muralikrishna Bandaru.
+%if %plpython3
+export PYTHON=/usr/bin/python3
+%endif
+
+%if 0%{?rhel} && 0%{?rhel} == 7
+%ifarch aarch64
+        export CLANG=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang LLVM_CONFIG=/opt/rh/llvm-toolset-7.0/root/usr/bin/llvm-config
+%else
+        export CLANG=/opt/rh/llvm-toolset-7/root/usr/bin/clang LLVM_CONFIG=%{_libdir}/llvm5.0/bin/llvm-config
+%endif
+%endif
+%if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} >= 1315
 export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
+%endif
 
 # These configure options must match main build
 ./configure --enable-rpath \
@@ -546,7 +778,6 @@ sed "s|C=\`pwd\`;|C=%{pgbaseinstdir}/lib/tutorial;|" < src/tutorial/Makefile > s
 %{__make} %{?_smp_mflags} -C src/tutorial NO_PGXS=1 all
 %{__rm} -f src/tutorial/GNUmakefile
 
-%{__mkdir} -p %{buildroot}%{pgbaseinstdir}/share/extensions/
 MAKELEVEL=0 %{__make} %{?_smp_mflags} all
 %{__make} %{?_smp_mflags} -C contrib all
 %if %uuid
@@ -682,6 +913,11 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %{__install} -d -m 755 %{buildroot}%{pgbaseinstdir}/share/
 %{__install} -m 700 %{SOURCE9} %{buildroot}%{pgbaseinstdir}/share/
 
+%if %sysuserd
+# Install sysusers.d config file to allow rpm to create users/groups automatically.
+%{__install} -m 0644 -D %{SOURCE20} %{buildroot}%{_sysusersdir}/%{sname}%{pgpackageversion}-pgdg.conf
+%endif
+
 %if %test
 	# tests. There are many files included here that are unnecessary,
 	# but include them anyway for completeness.  We replace the original
@@ -704,12 +940,10 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 	chmod 0644 %{buildroot}%{pgbaseinstdir}/lib/test/regress/Makefile
 %endif
 
-%if %plpython3
-       # Quick hack:
-       %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpython2u*
-       %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpythonu-*
-       %{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*_plpythonu.control
-%endif
+# Quick hack:
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpython2u*
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*plpythonu-*
+%{__rm} -f %{buildroot}/%{pgbaseinstdir}/share/extension/*_plpythonu.control
 
 # Fix some more documentation
 # gzip doc/internals.ps
@@ -788,9 +1022,16 @@ cat postgres-%{pgmajorversion}.lang pg_resetwal-%{pgmajorversion}.lang pg_checks
 %endif
 
 %pre server
+%if %sysuserd
+# We need this user to be created ASAP so that we can set up
+# ownership of some directories:
+%sysusers_create_package %{name} %SOURCE20
+%else
+# This is replaced by sysusers.d in recent OSes:
 groupadd -g 26 -o -r postgres >/dev/null 2>&1 || :
 useradd -M -g postgres -o -r -d /var/lib/pgsql -s /bin/bash \
         -c "PostgreSQL Server" -u 26 postgres >/dev/null 2>&1 || :
+%endif
 
 %post server
 /sbin/ldconfig
@@ -981,11 +1222,7 @@ fi
 
 %files contrib -f pg_contrib.lst
 %defattr(-,root,root)
-%if 0%{?rhel} && 0%{?rhel} == 7
 %doc %{pgbaseinstdir}/doc/extension/*.example
-%else
-%doc %{pgbaseinstdir}/doc/extension/*.example
-%endif
 %{pgbaseinstdir}/lib/_int.so
 %{pgbaseinstdir}/lib/adminpack.so
 %{pgbaseinstdir}/lib/amcheck.so
@@ -1133,6 +1370,9 @@ fi
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-setup
 %{_bindir}/%{sname}-%{pgmajorversion}-setup
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-check-db-dir
+%if %sysuserd
+%{_sysusersdir}/%{sname}%{pgpackageversion}-pgdg.conf
+%endif
 %{_tmpfilesdir}/%{sname}-%{pgmajorversion}.conf
 %{_unitdir}/%{sname}-%{pgmajorversion}.service
 %else
@@ -1176,12 +1416,7 @@ fi
 %{pgbaseinstdir}/share/system_functions.sql
 %{pgbaseinstdir}/share/system_views.sql
 %{pgbaseinstdir}/share/*.sample
-%if 0%{?rhel} && 0%{?rhel} == 7
 %{pgbaseinstdir}/share/timezonesets/*
-%else
-%{pgbaseinstdir}/share/timezonesets/*
-#%{pgbaseinstdir}/share/timezone/*
-%endif
 %{pgbaseinstdir}/share/tsearch_data/*.affix
 %{pgbaseinstdir}/share/tsearch_data/*.dict
 %{pgbaseinstdir}/share/tsearch_data/*.ths
@@ -1268,123 +1503,307 @@ fi
 %endif
 
 %changelog
-* Tue May 18 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.3-2PGDG
-- Rebuild against new CLANG and LLVM on RHEL 8.4
+* Wed Dec 24 2025 Devrim Gündüz <devrim@gunduz.org> - 14.20-5PGDG
+- Add Restart=on-failure to unit file. Per
+  https://github.com/pgdg-packaging/pgdg-rpms/issues/127
 
-* Thu May 13 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.3-1PGDG
-- Update to 13.3, for changes described at:
-  https://www.postgresql.org/docs/release/13.3/
+* Wed Nov 19 2025 Devrim Gündüz <devrim@gunduz.org> - 14.20-4PGDG
+- Rebuild on RHEL 7 because of package signing issue
 
-* Tue Feb 9 2021 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.2-1PGDG
-- Update to 13.2
+* Tue Nov 18 2025 Devrim Gündüz <devrim@gunduz.org> - 14.20-3PGDG
+- Fix installation of -devel subpackage on RHEL 7.
 
-* Wed Dec 16 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.1-3PGDG
-- Drop Advance Toolchain on RHEL 8 - ppc64le.
-- Enable LLVM support on RHEL 8 - ppc64le
+* Tue Nov 18 2025 Devrim Gündüz <devrim@gunduz.org> - 14.20-2PGDG
+- Fix builds on RHEL 7.
 
-* Tue Dec 8 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.1-2PGDG
-- Move pg_receivewal and pg_waldump to client package. Fixes #6060.
+* Tue Nov 11 2025 Devrim Gündüz <devrim@gunduz.org> - 14.20-1PGDG
+- Update to 14.20, per changes described at
+  https://www.postgresql.org/docs/release/14.20/
 
-* Mon Nov 9 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.1-1PGDG
-- Update to 13.1
+* Fri Nov 7 2025 Devrim Gunduz <devrim@gunduz.org> - 14.19-6PGDG
+- Build against OpenSSL 3 on SLES 15.
 
-* Wed Nov 4 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.0-2PGDG
-- Rebuild against new CLANG and LLVM on RHEL 8.3
+* Tue Oct 14 2025 Devrim Gunduz <devrim@gunduz.org> - 14.19-5PGDG
+- Add SLES 16 support
 
-* Tue Sep 22 2020 Devrim GÃ¼ndÃ¼z <devrim@gunduz.org> - 13.0-1PGDG
-- Update to 13.0!
-- Add setup script under $PATH
+* Wed Oct 01 2025 Yogesh Sharma <yogesh.sharma@catprosystems.com> - 14.19-4PGDG
+- Bump release number (missed in previous commit)
 
-* Tue Sep 15 2020 Devrim Gündüz <devrim@gunduz.org> - 13rc1-1
-- Update to v13 rc1
+* Tue Sep 30 2025 Yogesh Sharma <yogesh.sharma@catprosystems.com>
+- Change => to >= in Requires and BuildRequires
 
-* Tue Aug 25 2020 Devrim Gündüz <devrim@gunduz.org> - 13beta3_3
-- Use correct dependencies to enable LLVM build on RHEL 7 and aarch64
+* Sun Sep 21 2025 Devrim Gunduz <devrim@gunduz.org> - 14.19-3PGDG
+- Add a temp patch from upstream to fix builds on Fedora 43 (LLVM 21).
+  Will be removed in next minor release set.
+- Add sysusers.d config file to allow rpm to create users/groups automatically.
+  Only for Fedora 43+.
 
-* Wed Aug 12 2020 Devrim Gündüz <devrim@gunduz.org> - 12.4-1PGDG
-- Update to 12.4, per changes described at
-  https://www.postgresql.org/docs/release/12.4/
+* Wed Aug 27 2025 Devrim Gunduz <devrim@gunduz.org> - 14.19-2PGDG
+- Rebuild against new GCC on Fedora 42
 
-* Mon Jun 15 2020 Devrim Gündüz <devrim@gunduz.org> - 12.3-6PGDG
-- Fix builds if plperl macro is disabled. Per report and patch from
-  Floris Van Nee.
+* Tue Aug 12 2025 Devrim Gündüz <devrim@gunduz.org> - 14.19-1PGDG
+- Update to 14.19, per changes described at
+  https://www.postgresql.org/docs/release/14.19/
 
-* Sun Jun 14 2020 Devrim Gündüz <devrim@gunduz.org> - 12.3-5PGDG
-- Oops, disable PY2 on Fedora 33.
-- Fix LLVM dependency
+* Wed May 14 2025 Devrim Gündüz <devrim@gunduz.org> - 14.18-2PGDG
+- Rebuild against LLVM 19 on RHEL 8
 
-* Thu Jun 11 2020 Devrim Gündüz <devrim@gunduz.org> - 12.3-4PGDG
-- Obsolete libpq-devel that comes with the OS.
+* Tue May 6 2025 Devrim Gündüz <devrim@gunduz.org> - 14.18-1PGDG
+- Update to 14.18, per changes described at
+  https://www.postgresql.org/docs/release/14.18/
 
-* Wed Jun 10 2020 Devrim Gündüz <devrim@gunduz.org> - 12.3-3PGDG
-- Fix RHEL 6 builds, where PY3 is not available. Per report from
-  Aparna Patil.
+* Tue Apr 15 2025 Devrim Gunduz <devrim@gunduz.org> - 14.17-4PGDG
+- Rebuild against new GCC on Fedora 42
 
-* Fri May 29 2020 Devrim Gündüz <devrim@gunduz.org> - 12.3-2PGDG
-- Fix spec file breakage when plpython2 macro is disabled.
-  Disable PL/Python2 builds on platforms that don't have PY2.
-  This is probably needed for at least Fedora 33, and also will be
-  useful for SLES 15 as well.
+* Mon Mar 24 2025 Devrim Gunduz <devrim@gunduz.org> - 14.17-3PGDG
+- Remove explicit calls to CLANG and LLVM_CONFIG on RHEL 8+, Fedora
+  and SLES as they are the same across all distros (and also
+  llvm-config-64 is removed from Fedora 42).
 
-* Wed May 13 2020 Devrim Gündüz <devrim@gunduz.org> - 12.3-1PGDG
-- Update to 12.3, per changes described at
-  https://www.postgresql.org/docs/release/12.3/
-- Fix RHEL 8 builds: Paths changed in 8.2...
+* Fri Mar 07 2025 Devrim Gunduz <devrim@gunduz.org> - 14.17-2PGDG
+- Remove redundant BR
 
-* Tue Apr 28 2020 2020 Devrim Gündüz <devrim@gunduz.org> - 12.2-3PGDG
-- Fix F-32 PL/Python2 dependency. Fedora 32 is the last version which
-  supports PL/Python2 package.
+* Mon Feb 17 2025 Devrim Gündüz <devrim@gunduz.org> - 14.17-1PGDG
+- Update to 14.17, per changes described at
+  https://www.postgresql.org/docs/release/14.17/
 
-* Mon Feb 17 2020 Devrim Gündüz <devrim@gunduz.org> - 12.2-2PGDG
-- Re-add debuginfo package
+* Tue Feb 11 2025 Devrim Gündüz <devrim@gunduz.org> - 14.16-1PGDG
+- Update to 14.16, per changes described at
+  https://www.postgresql.org/docs/release/14.16/
 
-* Tue Feb 11 2020 Devrim Gündüz <devrim@gunduz.org> - 12.2-1PGDG
-- Update to 12.2, per changes described at
-  https://www.postgresql.org/docs/release/12.2/
+* Thu Dec 19 2024 Devrim Gündüz <devrim@gunduz.org> - 14.15-2PGDG
+- Make sure that llvm-devel and clang-devel are pulled along with
+  the -devel subpackage on SLES 15, RHEL 9 and RHEL 8. Report and patch
+  from Muralikrishna Bandaru. Fixes https://redmine.postgresql.org/issues/8071
 
-* Tue Nov 19 2019 Devrim Gündüz <devrim@gunduz.org> - 12.1-2PGDG
-- Re-enable llvmjit subpackage on SLES 12
-- Fix PL/Python 3 packaging.
+* Mon Nov 18 2024 Devrim Gündüz <devrim@gunduz.org> - 14.15-1PGDG
+- Update to 14.15, per changes described at
+  https://www.postgresql.org/docs/release/14.15/
 
-* Mon Nov 11 2019 Devrim Gündüz <devrim@gunduz.org> - 12.1-1PGDG
-- Update to 12.1, per changes described at
-  https://www.postgresql.org/docs/release/12.1/
-- Fix Python dependency issue in the main package, and move all
-  plpython* packages into their respective subpackages.
+* Tue Nov 12 2024 Devrim Gündüz <devrim@gunduz.org> - 14.14-1PGDG
+- Update to 14.14, per changes described at
+  https://www.postgresql.org/docs/release/14.14/
 
-* Mon Oct 28 2019 Devrim Gündüz <devrim@gunduz.org> - 12.0-2PGDG
-- Remove obsoleted tmpfiles_create macro. We don't need it anyway,
-  already manually install the file.
+* Thu Sep 19 2024 Devrim Gündüz <devrim@gunduz.org> - 14.13-3PGDG
+- Add new BR for Fedora 41
 
-* Tue Oct 1 2019 Devrim Gündüz <devrim@gunduz.org> - 12.0-1
-- Please welcome PostgreSQL 12.0!
+* Fri Aug 9 2024 Devrim Gündüz <devrim@gunduz.org> - 14.13-2PGDG
+- Add a patch to virtually provide PostgreSQL::Test::Utils dependency.
+  Per report from John Harvey and others. Patch from Noah Misch.
 
-* Fri Sep 27 2019 Devrim Gündüz <devrim@gunduz.org> - 12rc1_2
-- Update to PostgreSQL 12 RC1
-- Fix RHEL 6 init script for rc, per patch and report from Justin Pryzby.
-- Fix RHEL 6 packaging. Per report from Justin Pryzby.
+* Tue Aug 6 2024 Devrim Gündüz <devrim@gunduz.org> - 14.13-1PGDG
+- Update to 14.13, per changes described at
+  https://www.postgresql.org/docs/release/14.13/
+- Tighten lz4 dependency on RHEL 8+ per report from Florian Apolloner.
+  Fixes https://redmine.postgresql.org/issues/8023
 
-* Fri Sep 13 2019 Devrim Gündüz <devrim@gunduz.org> - 12beta4_1PGDG
-- Update to PostgreSQL 12 Beta 4.
+* Mon Jul 29 2024 Devrim Gunduz <devrim@gunduz.org> - 14.12-4PGDG
+- Update LLVM dependencies
 
-* Sun Sep 1 2019 Devrim Gündüz <devrim@gunduz.org> - 12beta3_2PGDG
-- Initial attempt to support PL/Python3 on RHEL 7. Python2 is almost
-  EOL, so this is a sane move now.
-  Per https://redmine.postgresql.org/issues/2701
+* Thu May 23 2024 Devrim Gündüz <devrim@gunduz.org> - 14.12-3PGDG
+- Rebuild against LLVM 17 on RHEL 8
 
-* Tue Aug 6 2019 Devrim Gündüz <devrim@gunduz.org> - 12beta3_1PGDG
-- Update to 12beta3
+* Sun May 12 2024 Devrim Gündüz <devrim@gunduz.org> - 14.12-2PGDG
+- Rebuild against LLVM 17 on RHEL 9 - aarch64
 
-* Wed Jun 19 2019 Devrim Gündüz <devrim@gunduz.org> - 12beta2_1PGDG
-- Update to 12beta2
+* Wed May 8 2024 Devrim Gündüz <devrim@gunduz.org> - 14.12-1PGDG
+- Update to 14.12, per changes described at
+  https://www.postgresql.org/docs/release/14.12/
 
-* Thu May 23 2019 Devrim Gündüz <devrim@gunduz.org> - 12beta1_1PGDG
-- Update to 12beta1
-- Re-arrange changelog (after removing daily build macro)
+* Tue Feb 6 2024 Devrim Gündüz <devrim@gunduz.org> - 14.11-1PGDG
+- Update to 14.11, per changes described at
+  https://www.postgresql.org/docs/release/14.11/
 
-* Fri Feb 15 2019 Devrim Gündüz <devrim@gunduz.org> - 12.0-devel
-- Disable jit on s390. Patch from Mark Wong.
-- Initial attempt for RHEL 8 packaging updates.
-- Rename plpython macro to plpython2, to stress that it is for Python 2.
-- Initial cut for PostgreSQL 12
+* Mon Jan 8 2024 Devrim Gunduz <devrim@gunduz.org> - 14.10-5PGDG
+- SuSE upstream packages have release numbers like 150200.5.19.1
+  which overrides our packages. Increase our release number on SuSE.
+
+* Fri Jan 5 2024 Devrim Gunduz <devrim@gunduz.org> - 14.10-4PGDG
+- Fix a couple of BR for SLES 15. Per report from Muralikrishna Bandaru.
+
+* Mon Dec 4 2023 Devrim Gündüz <devrim@gunduz.org> - 14.10-3PGDG
+- Update legacy path /var/run to /run. Also use macros in the spec file for
+  that.
+
+* Mon Nov 20 2023 Devrim Gündüz <devrim@gunduz.org> - 14.10-2PGDG
+- Rebuild against new LLVM on RHEL 8.9
+
+* Tue Nov 7 2023 Devrim Gündüz <devrim@gunduz.org> - 14.10-1PGDG
+- Update to 14.10, per changes described at
+  https://www.postgresql.org/docs/release/14.10/
+
+* Tue Nov 7 2023 Devrim Gündüz <devrim@gunduz.org> - 14.10-1PGDG
+- Update to 14.10, per changes described at
+  https://www.postgresql.org/docs/release/14.10/
+
+* Fri Oct 27 2023 Devrim Gunduz <devrim@gunduz.org> - 14.9-4PGDG
+- Export CLANG and LLVM on all distros. Per report from Greg Hennessy:
+  https://www.postgresql.org/message-id/CA%2BmZaON9nDxWrg%3DABBczU3DuYwQ3Q02atsY%2BXhb0ogAgHzmYVg%40mail.gmail.com
+
+* Wed Oct 18 2023 Devrim Gunduz <devrim@gunduz.org> - 14.9-3PGDG
+- Add temp patches to support newer LLVM until 14.10 is out.
+
+* Fri Aug 11 2023 Devrim Gündüz <devrim@gunduz.org> - 14.9-2PGDG
+- Rebuild due to error in previous build.
+
+* Tue Aug 8 2023 Devrim Gündüz <devrim@gunduz.org> - 14.9-1PGDG
+- Update to 14.9, per changes described at
+  https://www.postgresql.org/docs/release/14.9/
+
+* Sat Jun 3 2023 Devrim Gündüz <devrim@gunduz.org> - 14.8-3PGDG
+- Rebuild against LLVM 15 on SLES 15
+
+* Wed May 17 2023 Devrim Gündüz <devrim@gunduz.org> - 14.8-2PGDG
+- Rebuild against new LLVM on RHEL 8.8
+
+* Tue May 9 2023 Devrim Gündüz <devrim@gunduz.org> - 14.8-1PGDG
+- Update to 14.8, per changes described at
+  https://www.postgresql.org/docs/release/14.8/
+
+* Mon Apr 24 2023 Devrim Gunduz <devrim@gunduz.org> - 14.7-2PGDG.1
+- Modernise %%patch usage, which has been deprecated in Fedora 38
+
+* Mon Feb 13 2023 John Harvey <john.harvey@crunchydata.com> - 14.7-2PGDG
+- Fix enabling of TAP tests on RHEL
+
+* Tue Feb 7 2023 Devrim Gündüz <devrim@gunduz.org> - 14.7-1PGDG
+- Update to 14.7, per changes described at
+  https://www.postgresql.org/docs/release/14.7/
+- Enable TAP tests on all RHEL versions, per report from Bill Smith.
+  Commit 4f08cb8d41b8 is now obsolete, it seems.
+
+* Mon Jan 2 2023 Devrim Gündüz <devrim@gunduz.org> - 14.6-4PGDG
+- Use network-online.target instead of network.target in unit file.
+  Per https://www.postgresql.org/message-id/e6d2c602-db46-0709-6519-ade189fa5203%40comcast.net
+
+* Mon Dec 05 2022 Devrim Gündüz <devrim@gunduz.org> - 14.6-3PGDG
+- Get rid of AT and switch to GCC on RHEL 7 - ppc64le
+
+* Tue Nov 29 2022 Devrim Gündüz <devrim@gunduz.org> - 14.6-2PGDG
+- Rebuild against new LLVM on RHEL 9 - aarch64
+
+* Wed Nov 9 2022 Devrim Gündüz <devrim@gunduz.org> - 14.6-1PGDG
+- Update to 14.6, per changes described at
+  https://www.postgresql.org/docs/release/14.6/
+- Remove temp patch added in 14.5-3
+
+* Wed Oct 19 2022 Devrim Gündüz <devrim@gunduz.org> - 14.5-3
+- Add a temp patch to build against LLVM 15. Needed for Fedora 37.
+
+* Fri Aug 12 2022 - John Harvey <john.harvey@crunchydata.com> 14.5-2PGDG
+- Fix macro for consistency
+
+* Tue Aug 9 2022 Devrim Gündüz <devrim@gunduz.org> - 14.5-1PGDG
+- Update to 14.5, per changes described at
+  https://www.postgresql.org/docs/release/14.5/
+- Require LLVM and clang 13 on SLES 15, as SP4 is out and SP2 is already EOLed.
+- Fix long standing "absolute symlink" error while building the package
+- Create a symlink of pg_regress instead of full copy to fix "duplicate
+  build-id"  warning while building the package.
+
+* Tue Jul 26 2022 Devrim Gündüz <devrim@gunduz.org> - 14.4-3PGDG
+- Add gcc-c++ BR expliclity.
+
+* Fri Jun 24 2022 Devrim Gündüz <devrim@gunduz.org> - 14.4-2PGDG
+- Enable LLVM on ppc64le except on RHEL 7, per report from Chuan Hua Zhao
+- Fix builds when plpython3 macro is disabled, per report from Shteryu Hristov.
+
+* Thu Jun 16 2022 Devrim Gündüz <devrim@gunduz.org> - 14.4-1PGDG
+- Update to 14.4, per changes described at
+  https://www.postgresql.org/docs/release/14.4/
+
+* Thu May 19 2022 Devrim Gündüz <devrim@gunduz.org> - 14.3-2PGDG
+- Undefine _package_note_file macro. This is needed for Fedora 36+,
+  but does not hurt to use in all distros.
+  Per https://fedoraproject.org/wiki/Changes/Package_information_on_ELF_objects
+  and help from Fedora developers on IRC.
+
+* Wed May 11 2022 Devrim Gündüz <devrim@gunduz.org> - 14.3-1PGDG
+- Update to 14.3, per changes described at
+  https://www.postgresql.org/docs/release/14.3/
+
+* Tue May 10 2022 Devrim Gündüz <devrim@gunduz.org> - 14.2-4PGDG
+- Rebuild on RHEL 8 against new LLVM and GCC.
+
+* Mon Feb 21 2022 Devrim Gündüz <devrim@gunduz.org> - 14.2-3PGDG
+- Fix broken dependency on SLES.
+
+* Fri Feb 18 2022 Devrim Gündüz <devrim@gunduz.org> - 14.2-2PGDG
+- Rebuild on Fedora 34 because of LLVM and GCC updates.
+
+* Tue Feb 8 2022 Devrim Gündüz <devrim@gunduz.org> - 14.2-1PGDG
+- Update to 14.2, per changes described at
+  https://www.postgresql.org/docs/release/14.2/
+
+* Tue Feb 1 2022 Devrim Gündüz <devrim@gunduz.org> - 14.1-5PGDG
+- Rebuild on Fedora 35 and RHEL 9 because of LLVM and GCC updates.
+
+* Wed Jan 26 2022 John Harvey <john.harvey@crunchydata.com> - 14.1-4PGDG
+- Fix PAM support on suse
+
+* Thu Dec 23 2021 Devrim Gündüz <devrim@gunduz.org> - 14.1-3PGDG
+- Require libLLVM11 on SLES 15, not llvm11 (compiler). Per report from
+  Tiago ANASTACIO: https://redmine.postgresql.org/issues/7007
+
+* Thu Nov 25 2021 Devrim Gündüz <devrim@gunduz.org> - 14.1-2PGDG
+- Rebuild against LLVM 12 on RHEL 8 / aarch64.
+
+* Mon Nov 8 2021 Devrim Gündüz <devrim@gunduz.org> - 14.1-1PGDG
+- Update to 14.1, per changes described at
+  https://www.postgresql.org/docs/release/14.1/
+- Configure systemd to not sigkill the postmaster, per Justin Pryzby.
+
+* Mon Nov 8 2021 John Harvey <john.harvey@crunchydata.com> - 14.0-4PGDG
+- Ensure that /var/lib/pgsql is postgres-owned on SLES. This fixes
+  postgres startup on SLES when using the default logfile path.
+
+* Mon Nov 1 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-3PGDG
+- Fix PL/Python3 dependency on SLES 12 and 15.
+
+* Tue Oct 19 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-2PGDG
+- Fix Makefile.regress, so that regression tests can actually be run.
+  Per report from Tomoaki Sato.
+
+* Wed Sep 29 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-1
+- Update to 14.0!
+
+* Thu Sep 16 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0rc1-1
+- Update ro rc1
+- Fix setup script, so that it uses the right pwfile.
+
+* Fri Sep 10 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta3_3
+- Fix setup script, put back scram auth.
+
+* Thu Sep 2 2021 - John Harvey <john.harvey@crunchydata.com> 14.0-beta3_2
+- Fix macro for consistency
+
+* Wed Aug 11 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta3_1
+- Update to beta3
+
+* Tue Jul 13 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta2_3
+- Rebuild against clang11 and llvm11 on SLES 15 SP3
+
+* Thu Jun 24 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta2_2
+- Build with GCC on RHEL 8 - ppc64le
+
+* Mon Jun 21 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta2_1
+- Update to beta2
+
+* Fri May 21 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta1_4
+- Remove redundant __perl_excludes, per Andrew Dunstan.
+- Filter out some perl dependencies, per Andrew. This will probably
+  be removed in v15.
+
+* Fri May 21 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta1_3
+- Add a temp patch (by Andrew Dunstan) to properly fix the PostgresVersion
+  dependency issue. This patch will be removed in Beta 2.
+
+* Thu May 20 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta1_2
+- Filter out PostgresVersion "dependency", per hint from Honza Horak.
+
+* Tue May 18 2021 Devrim Gündüz <devrim@gunduz.org> - 14.0-beta1_1
+- Update to beta1
+
+* Thu Sep 17 2020 Devrim Gündüz <devrim@gunduz.org> - 14.0-alpha1
+- Initial cut for PostgreSQL 14
 

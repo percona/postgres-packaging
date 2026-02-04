@@ -340,6 +340,7 @@ build_source_deb(){
     DEBEMAIL="info@percona.com"
     dch -D unstable --force-distribution -v "${PGPOOL2_VERSION}-${PGPOOL2_DEB_RELEASE}" "Update to new percona-pgpool2 pg${PG_VERSION} version ${PGPOOL2_VERSION}"
     pg_buildext updatecontrol
+    rm .git-blame-ignore-revs
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb

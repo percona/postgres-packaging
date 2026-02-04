@@ -59,12 +59,10 @@ get_sources(){
         wget ${PKG_RAW_URL}/postgis/debian/percona-postgresql-$PG_MAJOR-postgis-3.install
         wget ${PKG_RAW_URL}/postgis/debian/percona-postgresql-$PG_MAJOR-postgis-3.lintian-overrides
         sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control percona-postgresql-$PG_MAJOR-postgis-3-scripts.install percona-postgresql-$PG_MAJOR-postgis-3-scripts.prerm percona-postgresql-$PG_MAJOR-postgis-3.install
-        sed -i "s/@@POSTGISVERSION@@/${POSTGIS_SRC_BRANCH}/g" control
 	cp control control.in
         # Remove the sfcgal patch entry from patches/series
         sed -i '/sfcgal/d' patches/series
        # sed -i 's/postgresql-12/percona-postgresql-12/' percona-postgresql-12.templates
-        echo "9" > compat
     cd ../
     #{relax-test-timing-constraints.patch
     sed -i 's:200:500:g' regress/core/interrupt_relate.sql
@@ -327,6 +325,7 @@ build_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
+    rm -rf percona-postgis*
     for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
     do
         get_deb_sources $file

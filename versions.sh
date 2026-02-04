@@ -4,7 +4,7 @@ PG_MAJOR=17
 PG_MINOR=7
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
-PPG_COMMON_MAJOR=287
+PPG_COMMON_MAJOR=288
 PPG_COMMON_MINOR=1
 PG_TDE_VERSION=2.1.1
 ETCD_VERSION=3.5.26
@@ -14,13 +14,11 @@ PG_GATHER_VERSION=32
 PG_REPACK_VERSION=1.5.3
 PGAUDIT_VERSION=17.1
 SET_USER_VERSION=4.2.0
-PG_BCKREST_VERSION=2.57.0
+PG_BCKREST_VERSION=2.58.0
 PGBADGER_VERSION=13.2
 PGBOUNCER_VERSION=1.25.1
-PGPOOL2_VERSION=4.6.3
+PGPOOL2_VERSION=4.7.0
 PGVECTOR_VERSION=0.8.1
-POSTGIS33_VERSION=3.3
-POSTGIS33_MINOR=8
 POSTGIS35_VERSION=3.5
 POSTGIS35_MINOR=4
 PYSYNCOBJ_VERSION=0.3.10
@@ -46,7 +44,7 @@ case "$1" in
         # versions
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
-        PG_RELEASE='2'
+        PG_RELEASE='1'
         PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}.${PG_RELEASE}"
         PG_SRC_BRANCH_NIGHTLY="TDE_REL_${PG_MAJOR}_STABLE"
         PG_RPM_RELEASE='2'
@@ -63,10 +61,10 @@ case "$1" in
         # versions
         PPG_COMMON_PRODUCT=percona-postgresql-common
         PPG_COMMON_PRODUCT_FULL=${PPG_COMMON_PRODUCT}-${PPG_COMMON_MAJOR}
-        PPG_COMMON_RELEASE='2'
+        PPG_COMMON_RELEASE='1'
         PPG_COMMON_SRC_BRANCH="debian/${PPG_COMMON_MAJOR}"
-        PPG_COMMON_RPM_RELEASE='2'
-        PPG_COMMON_DEB_RELEASE='2'
+        PPG_COMMON_RPM_RELEASE='1'
+        PPG_COMMON_DEB_RELEASE='1'
 
         # urls
         PPG_COMMON_SRC_REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -198,9 +196,9 @@ case "$1" in
         PG_BCKREST_PRODUCT_FULL=${PG_BCKREST_PRODUCT}-${PG_BCKREST_VERSION}
         PG_BCKREST_SRC_BRANCH="release/${PG_BCKREST_VERSION}"
         PG_BCKREST_DEB_TAG="debian/${PG_BCKREST_VERSION}-1"
-        PG_BCKREST_RPM_RELEASE='2'
-        PG_BCKREST_DEB_RELEASE='2'
-        PG_BCKREST_RELEASE='2'
+        PG_BCKREST_RPM_RELEASE='1'
+        PG_BCKREST_DEB_RELEASE='1'
+        PG_BCKREST_RELEASE='1'
 
         # urls
         PG_BCKREST_SRC_REPO="https://github.com/pgbackrest/pgbackrest.git"
@@ -213,9 +211,9 @@ case "$1" in
         PGBADGER_PRODUCT=percona-pgbadger
         PGBADGER_PRODUCT_FULL=${PGBADGER_PRODUCT}-${PGBADGER_VERSION}
         PGBADGER_SRC_BRANCH="v${PGBADGER_VERSION}"
-        PGBADGER_RPM_RELEASE='4'
-        PGBADGER_DEB_RELEASE='4'
-        PGBADGER_RELEASE='4'
+        PGBADGER_RPM_RELEASE='1'
+        PGBADGER_DEB_RELEASE='1'
+        PGBADGER_RELEASE='1'
 
         # urls
         PGBADGER_SRC_REPO="https://github.com/darold/pgbadger.git"
@@ -227,9 +225,9 @@ case "$1" in
         PGBOUNCER_PRODUCT=percona-pgbouncer
         PGBOUNCER_PRODUCT_FULL=${PGBOUNCER_PRODUCT}-${PGBOUNCER_VERSION}
         PGBOUNCER_SRC_BRANCH="pgbouncer_${PGBOUNCER_VERSION//./_}"
-        PGBOUNCER_RPM_RELEASE='4'
-        PGBOUNCER_DEB_RELEASE='4'
-        PGBOUNCER_RELEASE='4'
+        PGBOUNCER_RPM_RELEASE='1'
+        PGBOUNCER_DEB_RELEASE='1'
+        PGBOUNCER_RELEASE='1'
 
         # urls
         PGBOUNCER_SRC_REPO="https://github.com/pgbouncer/pgbouncer.git"
@@ -243,8 +241,8 @@ case "$1" in
         PGPOOL2_PRODUCT_FULL=${PGPOOL2_PRODUCT}-${PGPOOL2_VERSION}
         PGPOOL2_SRC_BRANCH="V${PGPOOL2_VERSION//./_}"
         PGPOOL2_BUILD_BRANCH=${PG_VERSION}
-        PGPOOL2_RPM_RELEASE='3'
-        PGPOOL2_DEB_RELEASE='3'
+        PGPOOL2_RPM_RELEASE='1'
+        PGPOOL2_DEB_RELEASE='1'
 
         # urls
         PGPOOL2_SRC_REPO="https://git.postgresql.org/git/pgpool2.git"
@@ -265,21 +263,6 @@ case "$1" in
         # urls
         PGVECTOR_SRC_REPO="https://github.com/pgvector/pgvector.git"
         PGVECTOR_SRC_REPO_DEB="https://salsa.debian.org/postgresql/pgvector.git"
-    ;;
-
-
-    postgis33)
-        # versions
-        POSTGIS_PRODUCT=percona-postgis
-        POSTGIS_PRODUCT_FULL=${POSTGIS_PRODUCT}-${POSTGIS33_VERSION}.${POSTGIS33_MINOR}
-        POSTGIS33_RELEASE='2'
-        POSTGIS_SRC_BRANCH="${POSTGIS33_VERSION}.${POSTGIS33_MINOR}"
-        POSTGIS_RPM_RELEASE='2'
-        POSTGIS_DEB_RELEASE='2'
-
-        # urls
-        POSTGIS_SRC_REPO="https://github.com/postgis/postgis.git"
-        POSTGIS_SRC_REPO_DEB="https://salsa.debian.org/debian-gis-team/postgis.git"
     ;;
 
 

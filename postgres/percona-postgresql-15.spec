@@ -547,7 +547,6 @@ Summary:        The Perl procedural language for PostgreSQL
 Requires:       %{name}-server >= %{version}-%{release}
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 %ifarch ppc ppc64
-Obsoletes:      postgresql%{pgmajorversion}-pl <= %{version}-%{release}
 BuildRequires:        perl-devel
 %endif
 Obsoletes:      postgresql%{pgmajorversion}-pl <= %{version}-%{release}

@@ -18,7 +18,7 @@ rpm_deps() {
       INSTALL_LIST+="perl lz4-libs c-ares-devel "
     fi
     if [[ "$COMPONENT" == "postgis" ]]; then
-      INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel pcre-devel "
+      INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel "
     fi
   fi
 
@@ -30,13 +30,13 @@ rpm_deps() {
       sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/oracle-linux-ol9.repo
     fi
     if [[ "$COMPONENT" == "postgis" ]]; then
-      INSTALL_LIST+="gdal311-devel proj95-devel geos311-devel pcre-devel "
+      INSTALL_LIST+="gdal311-devel proj95-devel geos311-devel "
     fi
   fi
 
   if [[ "${RHEL}" -eq 10 ]]; then
     if [[ "$COMPONENT" == "postgis" ]]; then
-      INSTALL_LIST+="gdal311-devel proj96-devel geos313-devel pcre2-devel "
+      INSTALL_LIST+="gdal311-devel proj96-devel geos313-devel "
     fi
   fi
   
@@ -167,7 +167,7 @@ case "$COMPONENT" in
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="bison build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl pkg-config python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb liblz4-dev libcurl4-openssl-dev libzstd-dev libnuma-dev"
+      INSTALL_LIST+="bison pkgconf build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb liblz4-dev libcurl4-openssl-dev libzstd-dev libnuma-dev percona-postgresql-common-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
       # generate a temporary numa.pc file if libnuma-dev does not provide it
       if ! pkg-config --exists numa 2>/dev/null; then
@@ -299,7 +299,7 @@ EOF
   postgis)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget git vim which binutils gcc gcc-c++ rpm-build rpmdevtools SFCGAL SFCGAL-devel xerces-c-devel clang-devel clang llvm-devel autoconf libtool flex rpmlint percona-postgresql${PG_MAJOR}-devel make geos geos-devel libgeotiff-devel gmp-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config docbook-xsl libxslt-devel"
+      INSTALL_LIST+="wget git vim which binutils gcc gcc-c++ rpm-build rpmdevtools SFCGAL SFCGAL-devel pcre2-devel xerces-c-devel clang-devel clang llvm-devel autoconf libtool flex rpmlint percona-postgresql${PG_MAJOR}-devel make geos geos-devel libgeotiff-devel gmp-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config docbook-xsl libxslt-devel"
       dnf -y install ${INSTALL_LIST}
       if [ ! -f  /usr/bin/llvm-config ]; then
         ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
@@ -309,7 +309,7 @@ EOF
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="bison build-essential debconf debhelper devscripts dh-exec dpkg-dev flex gcc cmake vim dctrl-tools docbook docbook-xsl libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev pkg-config po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-${PG_MAJOR_VERSION} protobuf-c-compiler rdfind xsltproc"
+      INSTALL_LIST+="bison build-essential debconf pkgconf debhelper devscripts dh-exec dpkg-dev flex gcc cmake vim dctrl-tools docbook docbook-xsl libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-${PG_MAJOR} protobuf-c-compiler rdfind xsltproc"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
       apt-get install -y dblatex || true
     fi
@@ -378,17 +378,17 @@ EOF
       rpm_deps
       git clone https://github.com/ianlancetaylor/libbacktrace.git
       cd libbacktrace/
-        ./configure --prefix=/usr/local
+        ./configure CFLAGS="-fPIC" --prefix=/usr
         make
         make install
       cd ../
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools libcurl-devel lz4-libs libyaml-devel percona-postgresql${PG_MAJOR}-devel systemd systemd-devel bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libssh-devel libzstd-devel lz4-devel meson libtool cmake"
+      INSTALL_LIST+="wget git vim rpm-build rpmdevtools libssh2-devel libcurl-devel lz4-devel lz4-libs libyaml-devel percona-postgresql${PG_MAJOR}-devel systemd systemd-devel bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libssh-devel libzstd-devel lz4-devel meson libtool cmake"
       dnf -y install ${INSTALL_LIST}
       dnf -y install lz4 || true
       dnf -y install perl-libxml-perl || true
     else
       deb_deps
-      INSTALL_LIST+="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-${PG_MAJOR} percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev meson python3-setuptools"
+      INSTALL_LIST+="build-essential pkgconf liblz4-dev libssh2-1-dev debconf debhelper devscripts dh-exec libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-${PG_MAJOR} percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev meson python3-setuptools"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;

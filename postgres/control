@@ -7,8 +7,8 @@ Rules-Requires-Root: no
 Build-Depends:
  autoconf,
  bison,
- clang [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
- debhelper,
+ clang [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32]  <!pkg.postgresql.nollvm>,
+ debhelper-compat (= 13),
  dh-exec (>= 0.13~),
  docbook-xml,
  docbook-xsl (>= 1.77),
@@ -16,8 +16,6 @@ Build-Depends:
  flex,
  gdb <!nocheck>,
  gettext,
- krb5-multidev,
- libedit-dev,
  libicu-dev,
  libio-pty-perl <!nocheck>,
  libipc-run-perl <!nocheck>,
@@ -33,16 +31,19 @@ Build-Depends:
  libxml2-dev,
  libxml2-utils,
  libxslt1-dev,
- llvm-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ libzstd-dev (>= 1.4.0) <!pkg.postgresql.nozstd>,
+ llvm-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
  mawk,
  perl (>= 5.8),
- pkg-config,
+ pkgconf,
+ percona-postgresql-common-dev,
  python3-dev,
- systemtap-sdt-dev,
+ systemtap-sdt-dev [linux-any],
  tcl-dev,
+ tzdata <!nocheck>,
  uuid-dev,
  xsltproc,
- zlib1g-dev | libz-dev
+ zlib1g-dev | libz-dev,
 Homepage: http://www.postgresql.org/
 
 Package: libpq-dev
@@ -191,9 +192,9 @@ Package: percona-postgresql-server-dev-@@PGMAJOR@@
 Architecture: any
 Section: libdevel
 Depends:
- clang [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ clang-${llvm:Version} [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
  libpq-dev (>= @@PGMAJOR@@~~),
- llvm-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ llvm-${llvm:Version}-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
  percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 162~),
  ${misc:Depends},
  ${shlibs:Depends}

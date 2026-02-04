@@ -18,7 +18,7 @@ include /usr/share/dpkg/pkg-info.mk
 include /usr/share/postgresql-common/pgxs_debian_control.mk
 
 # Ignore testsuite failures on these architectures
-IGNORE_TEST_FAILURE_ARCHS = mips mips64el mipsel s390x alpha hppa hurd-i386 kfreebsd-i386 powerpc ppc64 sparc64
+IGNORE_TEST_FAILURE_ARCHS = ppc64el s390x alpha ppc64 sparc64
 ifneq (,$(filter $(DEB_BUILD_ARCH),$(IGNORE_TEST_FAILURE_ARCHS)))
 	TEST_FAIL_COMMAND = echo "Ignoring test failures"
 else
@@ -113,8 +113,7 @@ override_dh_auto_configure:
 	@echo "### PostgreSQL $(NEWEST_POSTGRES_VERSION) configure ###"
 	./configure $(COMMON_CONFIGURE_ARGS) \
 		--datadir=\$${prefix}/share/postgresql-$(NEWEST_POSTGRES_VERSION)-postgis \
-		--with-pgconfig=/usr/lib/postgresql/$(NEWEST_POSTGRES_VERSION)/bin/pg_config \
-		--with-sfcgal=/usr/bin/sfcgal-config
+		--with-pgconfig=/usr/lib/postgresql/$(NEWEST_POSTGRES_VERSION)/bin/pg_config
 
 #	PostGIS for all older Postgres versions
 	(set -e; \
@@ -123,8 +122,7 @@ override_dh_auto_configure:
 		cd $(CURDIR)/debian/build-$$PGVER; \
 		./configure $(COMMON_CONFIGURE_ARGS) \
 			--datadir=\$${prefix}/share/postgresql-$$PGVER-postgis \
-			--with-pgconfig=/usr/lib/postgresql/$$PGVER/bin/pg_config \
-			--with-sfcgal=/usr/bin/sfcgal-config ; \
+			--with-pgconfig=/usr/lib/postgresql/$$PGVER/bin/pg_config; \
 	done)
 
 override_dh_auto_build:
@@ -217,20 +215,11 @@ override_dh_auto_install:
 #	Move binaries from the NEWEST_POSTGRES_VERSION build to the
 #	'postgis' binary package.
 	mkdir -p $(CURDIR)/debian/postgis/usr/bin
-ifeq ($(POSTGIS_VERSION),3.3.8)
-	mv $(CURDIR)/debian/tmp/usr/lib/postgresql/$(NEWEST_POSTGRES_VERSION)/bin/* \
-		$(CURDIR)/debian/postgis/usr/bin/
-else
 	mv $(CURDIR)/debian/tmp/usr/bin/* \
 		$(CURDIR)/debian/postgis/usr/bin/
-endif
 
 #	Set executable bit for postgis_restore.pl
-ifeq ($(POSTGIS_VERSION),3.3.8)
-	chmod 755 $(CURDIR)/debian/*/usr/share/postgresql/*/contrib/postgis-*/postgis_restore.pl
-else
 	chmod 755 $(CURDIR)/debian/postgis/usr/bin/postgis_restore
-endif
 
 #	De-duplicate upgrade scripts - using hard-links for exactly one
 #	directory (so we don't generate cross-directory hard ones).
@@ -244,15 +233,13 @@ endif
 	rm -rf debian/postgresql-*-postgis-*-scripts/usr/share/postgresql/*/applications
 	rm -rf debian/postgresql-*-postgis-*-scripts/usr/share/postgresql/*/icons
 
-override_dh_install:
+execute_before_dh_install:
 	$(RM) $(CURDIR)/debian/tmp/usr/lib/postgresql/*/bin/*
 	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/postgis/README.postgis
 	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/postgresql-doc-*/extension/README.address_standardizer
-ifeq ($(POSTGIS_VERSION),3.3.8)	
-	mv $(CURDIR)/debian/tmp/usr/share/doc/postgis/* $(CURDIR)/debian/tmp/usr/share/doc/
-endif
-
-	dh_install
+	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/*.html
+	$(RM) $(CURDIR)/debian/tmp/usr/share/doc/*.css
+	rm -rf $(CURDIR)/debian/tmp/usr/share/doc/images
 
 override_dh_makeshlibs:
 	dh_makeshlibs -Xusr/lib/postgis -- -v$(UPSTREAM_VERSION)

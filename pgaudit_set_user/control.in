@@ -1,4 +1,4 @@
-Source: percona-pgaudit15-set-user
+Source: percona-pgaudit@@PGMAJOR@@-set-user
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>

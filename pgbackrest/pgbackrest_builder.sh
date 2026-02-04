@@ -56,7 +56,6 @@ get_sources(){
     cd ../
     sed -i "s|Upstream-Name: pgbackrest|Upstream-Name: percona-pgbackrest|" debian/copyright
     sed -i 's:debian/pgbackrest:debian/percona-pgbackrest:' debian/rules
-    echo 10 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm

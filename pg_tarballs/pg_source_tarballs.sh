@@ -52,16 +52,15 @@ fi
 
 export LUA_VERSION=5.3.6
 export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
-export PGBOUNCER_VERSION=1.25.0
-export PGPOOL_VERSION=4.6.3
+export PGBOUNCER_VERSION=1.25.1
+export PGPOOL_VERSION=4.7.0
 export HAPROXY_VERSION=2.8
 export LIBFFI_VERSION=3.4.2
 export PERL_VERSION=5.38.2
 export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
 export TCL_VERSION=8.6.16
-export ETCD_VERSION=3.5.24
-export POSTGIS_VERSION=3.3.8
+export ETCD_VERSION=3.5.26
 export POSTGIS35_VERSION=3.5.4
 
 CWD=$(pwd)
@@ -81,14 +80,14 @@ fi
 SETUSER_BRANCH="REL4_2_0"
 PG_REPACK_BRANCH="ver_1.5.3"
 WAL2JSON_BRANCH="wal2json_2_6"
-PG_STAT_MONITOR_BRANCH="release-2.3.1"
-PGBACKREST_BRANCH="release/2.57.0"
-PGBADGER_BRANCH="v13.1"
+PG_STAT_MONITOR_BRANCH="release-2.3.2"
+PGBACKREST_BRANCH="release/2.58.0"
+PGBADGER_BRANCH="v13.2"
 PATRONI_BRANCH="v4.1.0"
-HAPROXY_BRANCH="v2.8.16"
+HAPROXY_BRANCH="v2.8.18"
 PGVECTOR_BRANCH="v0.8.1"
-PG_TDE_BRANCH="release-2.1"
-PG_OIDC_BRANCH="0.2"
+PG_TDE_BRANCH="release-2.1.2"
+PG_OIDC_BRANCH="0.3"
 
 create_build_environment(){
 
@@ -438,18 +437,6 @@ build_pgvector(){
         build_status "ends" "pgvector"
 }
 
-build_postgis(){
-
-	build_status "start" "postgis"
-	mkdir -p /source
-	cd /source
-	wget "https://download.osgeo.org/postgis/source/postgis-${POSTGIS_VERSION}.tar.gz"
-	tar -xvzf postgis-${POSTGIS_VERSION}.tar.gz
-	rm -f postgis-${POSTGIS_VERSION}.tar.gz
-
-	build_status "ends" "postgis"
-}
-
 build_postgis35(){
 
 	build_status "start" "postgis35"
@@ -516,8 +503,5 @@ build_patroni
 build_haproxy
 build_etcd
 build_pgvector
-if [ "$PG_MAJOR_VERSION" -lt 18 ]; then
-    build_postgis
-fi
 build_postgis35
 create_tarball

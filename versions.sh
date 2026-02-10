@@ -93,7 +93,7 @@ case "$1" in
         PG_OIDC_PRODUCT_DEB=percona-pg-oidc-validator${PG_MAJOR}
         PG_OIDC_PRODUCT_FULL=${PG_OIDC_PRODUCT}-${PG_OIDC_VERSION}
         PG_OIDC_RELEASE='1'
-        PG_OIDC_SRC_BRANCH="${PG_OIDC_VERSION}"
+        PG_OIDC_SRC_BRANCH="release-${PG_OIDC_VERSION}"
         PG_OIDC_RPM_RELEASE='1'
         PG_OIDC_DEB_RELEASE='1'
         # urls

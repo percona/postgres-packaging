@@ -76,10 +76,10 @@ case "$1" in
         PG_TDE_PRODUCT=percona-pg_tde${PG_MAJOR}
         PG_TDE_PRODUCT_DEB=percona-pg-tde${PG_MAJOR}
         PG_TDE_PRODUCT_FULL=${PG_TDE_PRODUCT}-${PG_TDE_VERSION}
-        PG_TDE_RELEASE='2'
+        PG_TDE_RELEASE='1'
         PG_TDE_SRC_BRANCH="release-${PG_TDE_VERSION}"
-        PG_TDE_RPM_RELEASE='2'
-        PG_TDE_DEB_RELEASE='2'
+        PG_TDE_RPM_RELEASE='1'
+        PG_TDE_DEB_RELEASE='1'
         # urls
         PG_TDE_SRC_REPO="https://github.com/percona/pg_tde.git"
     ;;

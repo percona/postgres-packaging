@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 PG_MAJOR=16
-PG_MINOR=11
+PG_MINOR=12
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 PPG_COMMON_MAJOR=288
@@ -44,9 +44,9 @@ case "$1" in
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
         PG_SRC_BRANCH="REL_${PG_MAJOR}_${PG_MINOR}"
-        PG_RELEASE='2'
-        PG_RPM_RELEASE='2'
-        PG_DEB_RELEASE='2'
+        PG_RELEASE='1'
+        PG_RPM_RELEASE='1'
+        PG_DEB_RELEASE='1'
 
         # urls
         PG_SRC_REPO="https://git.postgresql.org/git/postgresql.git"

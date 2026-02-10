@@ -127,16 +127,15 @@ export SFCGAL_VERSION=1.5.0
 export LIBXCRYPT_VERSION=4.4.36
 
 export PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
-export PGBOUNCER_VERSION=1.25.0
-export PGPOOL_VERSION=4.6.3
+export PGBOUNCER_VERSION=1.25.1
+export PGPOOL_VERSION=4.7.0
 export HAPROXY_VERSION=2.8
 export LIBFFI_VERSION=3.4.2
 export PERL_VERSION=5.38.2
 export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
 export TCL_VERSION=8.6.16
-export ETCD_VERSION=3.5.24
-export POSTGIS_VERSION=3.3.8
+export ETCD_VERSION=3.5.26
 export POSTGIS35_VERSION=3.5.4
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
@@ -169,14 +168,14 @@ fi
 SETUSER_BRANCH="REL4_2_0"
 PG_REPACK_BRANCH="ver_1.5.3"
 WAL2JSON_BRANCH="wal2json_2_6"
-PG_STAT_MONITOR_BRANCH="release-2.3.1"
-PGBACKREST_BRANCH="release/2.57.0"
-PGBADGER_BRANCH="v13.1"
+PG_STAT_MONITOR_BRANCH="release-2.3.2"
+PGBACKREST_BRANCH="release/2.58.0"
+PGBADGER_BRANCH="v13.2"
 PATRONI_BRANCH="v4.1.0"
-HAPROXY_BRANCH="v2.8.16"
+HAPROXY_BRANCH="v2.8.18"
 PGVECTOR_BRANCH="v0.8.1"
-PG_TDE_BRANCH="release-2.1.1"
-PG_OIDC_BRANCH="main"
+PG_TDE_BRANCH="release-2.1.2"
+PG_OIDC_BRANCH="0.3"
 
 create_build_environment(){
 
@@ -185,11 +184,11 @@ create_build_environment(){
 	yum groupinstall -y "Development Tools"
 	yum install -y epel-release
 	yum config-manager --enable ol${RHEL}_codeready_builder
-	yum install -y meson  bzip2-devel libxml2-devel vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath libyaml-devel patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel numactl-devel
+	yum install -y meson  bzip2-devel libxml2-devel vim python3-devel perl tcl-devel pam-devel tcl python3 flex bison wget bzip2-devel chrpath libyaml-devel patchelf perl-Pod-Markdown readline-devel cmake sqlite-devel minizip-devel openssl-devel libffi-devel protobuf protobuf-devel numactl-devel pandoc opensp openjade docbook-utils docbook-style-dsssl docbook-dtds
 	yum -y install lz4 lz4-devel || true
     git clone https://github.com/ianlancetaylor/libbacktrace.git
     cd libbacktrace/
-        ./configure --prefix=/usr/local
+        ./configure CFLAGS="-fPIC" --prefix=/usr/local
         make
         make install
     cd ../
@@ -245,7 +244,7 @@ build_krb5(){
 	build_status "start" "krb5"
 	cd /source
 	rm -rf krb5-${KRB5_VERSION}*
-	wget https://fossies.org/linux/misc/krb5-${KRB5_VERSION}.tar.gz
+	wget https://web.mit.edu/kerberos/dist/krb5/1.21/krb5-${KRB5_VERSION}.tar.gz
 	tar -xvzf krb5-${KRB5_VERSION}.tar.gz
 	cd krb5-${KRB5_VERSION}/src
 	./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -571,7 +570,6 @@ build_libtiff(){
 	mkdir -p /source
         cd /source
         wget https://gitlab.com/libtiff/libtiff/-/archive/v${LIBTIFF_VERSION}/libtiff-v${LIBTIFF_VERSION}.tar.gz
-        wget https://gitlab.com/libtiff/libtiff/-/archive/branch-${LIBTIFF_VERSION}/libtiff-branch-${LIBTIFF_VERSION}.tar.gz
         tar -xvzf libtiff-v${LIBTIFF_VERSION}.tar.gz
         cd libtiff-v${LIBTIFF_VERSION}
 
@@ -663,7 +661,7 @@ build_libqhull(){
 
         tar -xvzf qhull-${LIBQHULL_VERSION}.tar.gz
         cd "qhull-${LIBQHULL_VERSION}"
-        mkdir build
+        mkdir -p build
         cd build/
         LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} -DCMAKE_INSTALL_RPATH="${DEPENDENCY_LIBS_PATH}/lib64" ..
         LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH cmake --build .
@@ -815,7 +813,8 @@ build_expat(){
         cmake \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DBUILD_SHARED_LIBS=ON \
-                -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH}
+                -DCMAKE_INSTALL_PREFIX=${DEPENDENCY_LIBS_PATH} \
+				-DEXPAT_BUILD_DOCS=OFF
 	make
 	make install
 	build_status "ends" "libexpat"
@@ -978,7 +977,7 @@ build_libxcrypt(){
         tar -xf libxcrypt-${LIBXCRYPT_VERSION}.tar.xz
         cd libxcrypt-${LIBXCRYPT_VERSION}
 
-        ./autogen.sh
+        ./autogen.sh || true
         ./configure --prefix=${DEPENDENCY_LIBS_PATH}
         make
         make install
@@ -1052,7 +1051,7 @@ build_python(){
 	make install
 
 	export LD_LIBRARY_PATH=${PYTHON_PREFIX}/lib:${PYTHON_SSL_PATH}:${LD_LIBRARY_PATH}
-
+	rm ${PYTHON_PREFIX}/bin/python3 ${PYTHON_PREFIX}/bin/pip3
 	ln -s ${PYTHON_PREFIX}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/python3
 	ln -s ${PYTHON_PREFIX}/bin/pip$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_PREFIX}/bin/pip3
 
@@ -1171,6 +1170,7 @@ build_postgres_server(){
 
         if [ "$INCLUDE_LIBURING" = "1" ]; then
 		export PKG_CONFIG_PATH="${DEPENDENCY_LIBS_PATH}/lib/pkgconfig"
+		export XML_CATALOG_FILES=/etc/xml/catalog
 		CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-libnuma --with-liburing --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
         else
 		CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
@@ -1350,9 +1350,10 @@ build_pgbouncer(){
         wget https://www.pgbouncer.org/downloads/files/${PGBOUNCER_VERSION}/pgbouncer-${PGBOUNCER_VERSION}.tar.gz
         tar -xvzf pgbouncer-${PGBOUNCER_VERSION}.tar.gz
         cd pgbouncer-${PGBOUNCER_VERSION}
-        LIBEVENT_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -levent" LIBEVENT_CFLAGS=-I${DEPENDENCY_LIBS_PATH}/include/ LDFLAGS=-L${DEPENDENCY_LIBS_PATH}/lib64 ./configure \
+        LIBEVENT_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -levent" LIBEVENT_CFLAGS=-I${DEPENDENCY_LIBS_PATH}/include/ CFLAGS=-I${DEPENDENCY_LIBS_PATH}/include/ LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" ./configure \
                     --prefix=${PGBOUNCER_PREFIX} \
-                    --with-openssl=${SSL_INSTALL_PATH}
+                    --with-openssl=${SSL_INSTALL_PATH} \
+					--with-ldap
 
         make -j4 V=1
         make install
@@ -1855,56 +1856,6 @@ build_pgvector(){
         build_status "ends" "pgvector"
 }
 
-build_postgis(){
-
-	build_status "start" "postgis"
-	mkdir -p /source
-	cd /source
-	wget "https://download.osgeo.org/postgis/source/postgis-${POSTGIS_VERSION}.tar.gz"
-	tar -xvzf postgis-${POSTGIS_VERSION}.tar.gz
-	cd postgis-${POSTGIS_VERSION}
-
-	export PATH=${POSTGRESQL_PREFIX}/bin:${DEPENDENCY_LIBS_PATH}/bin:$PATH
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib -L${DEPENDENCY_LIBS_PATH}/lib64" ./configure --with-pgconfig=${POSTGRESQL_PREFIX}/bin/pg_config \
-		--enable-lto \
-		--with-projdir=${DEPENDENCY_LIBS_PATH} \
-		--with-sfcgal=${DEPENDENCY_LIBS_PATH}/bin/sfcgal-config \
-		--with-gui \
-		--with-protobuf \
-		--with-geosconfig=${DEPENDENCY_LIBS_PATH}/bin/geos-config \
-		--with-gdalconfig=${DEPENDENCY_LIBS_PATH}/bin/gdal-config
-
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH make USE_PGXS=1 -j4
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH make USE_PGXS=1 -j4 install
-
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeos_c*.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libproj.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libSFCGAL.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libiconv.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeos.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libsqlite3* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libtiff.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmpfr* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libgmp* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libqhull_r* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libjpeg.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgeotiff* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libpng16* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libpcre2-* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libspatialit* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libfreexl* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libjson-c* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libprotobuf-c* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcurl* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libboost_* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libgdal.so* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libminizip.* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmd.* ${POSTGRESQL_PREFIX}/lib/
-	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libbsd* ${POSTGRESQL_PREFIX}/lib/
-
-	build_status "ends" "postgis"
-}
-
 build_postgis35(){
 
 	build_status "start" "postgis35"
@@ -2135,12 +2086,7 @@ build_pgbadger
 build_patroni
 build_haproxy
 build_etcd
-if [ "${PG_MAJOR_VERSION}" -ne 12 ]; then
-    build_pgvector
-fi
-if [ "$PG_MAJOR_VERSION" -lt 18 ]; then
-    build_postgis
-fi
+build_pgvector
 build_postgis35
 set_rpath_all_products
 create_tarball

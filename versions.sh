@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 PG_MAJOR=17
-PG_MINOR=7
+PG_MINOR=8
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 PPG_COMMON_MAJOR=288
 PPG_COMMON_MINOR=1
-PG_TDE_VERSION=2.1.1
+PG_TDE_VERSION=2.1.2
 ETCD_VERSION=3.5.26
 PATRONI_VERSION=4.1.0
 PG_CRON_VERSION=1.6.2
@@ -47,8 +47,8 @@ case "$1" in
         PG_RELEASE='1'
         PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}.${PG_RELEASE}"
         PG_SRC_BRANCH_NIGHTLY="TDE_REL_${PG_MAJOR}_STABLE"
-        PG_RPM_RELEASE='2'
-        PG_DEB_RELEASE='2'
+        PG_RPM_RELEASE='1'
+        PG_DEB_RELEASE='1'
 
         # urls
         PG_SRC_REPO="https://github.com/Percona-Lab/postgres.git"

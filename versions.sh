@@ -20,7 +20,7 @@ PGBOUNCER_VERSION=1.25.1
 PGPOOL2_VERSION=4.7.0
 PGVECTOR_VERSION=0.8.1
 POSTGIS35_VERSION=3.5
-POSTGIS35_MINOR=4
+POSTGIS35_MINOR=5
 PYSYNCOBJ_VERSION=0.3.10
 WAL2JSON_VERSION=2.6
 YDIFF_VERSION=1.2
@@ -104,9 +104,9 @@ case "$1" in
         PATRONI_PRODUCT=percona-patroni
         PATRONI_PRODUCT_FULL=${PATRONI_PRODUCT}-${PATRONI_VERSION}
         PATRONI_SRC_BRANCH="v${PATRONI_VERSION}"
-        PATRONI_RPM_RELEASE='2'
-        PATRONI_DEB_RELEASE='2'
-        PATRONI_RELEASE='2'
+        PATRONI_RPM_RELEASE='1'
+        PATRONI_DEB_RELEASE='1'
+        PATRONI_RELEASE='1'
 
         # urls
         PATRONI_SRC_REPO="https://github.com/zalando/patroni.git"
@@ -136,8 +136,8 @@ case "$1" in
         PG_GATHER_PRODUCT_DEB=percona-pg-gather
         PG_GATHER_PRODUCT_FULL=${PG_GATHER_PRODUCT}-${PG_GATHER_VERSION}
         PG_GATHER_SRC_BRANCH=${PG_VERSION}
-        PG_GATHER_RPM_RELEASE='2'
-        PG_GATHER_RELEASE='2'
+        PG_GATHER_RPM_RELEASE='1'
+        PG_GATHER_RELEASE='1'
 
         # urls
         PG_GATHER_SRC_URL="https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather"
@@ -270,10 +270,10 @@ case "$1" in
         # versions
         POSTGIS_PRODUCT=percona-postgis
         POSTGIS_PRODUCT_FULL=${POSTGIS_PRODUCT}-${POSTGIS35_VERSION}.${POSTGIS35_MINOR}
-        POSTGIS35_RELEASE='2'
+        POSTGIS35_RELEASE='1'
         POSTGIS_SRC_BRANCH="${POSTGIS35_VERSION}.${POSTGIS35_MINOR}"
-        POSTGIS_RPM_RELEASE='2'
-        POSTGIS_DEB_RELEASE='2'
+        POSTGIS_RPM_RELEASE='1'
+        POSTGIS_DEB_RELEASE='1'
 
         # urls
         POSTGIS_SRC_REPO="https://github.com/postgis/postgis.git"

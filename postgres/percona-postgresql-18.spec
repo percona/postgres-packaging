@@ -822,9 +822,6 @@ touch -r %{SOURCE10} %{sname}-%{pgmajorversion}-check-db-dir
 %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7 %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/pgsql
 
-# These file(s) should not be packaged:
-%{__rm} %{buildroot}%{pgbaseinstdir}/lib/libpgfeutils.a
-
 # Initialize file lists
 %{__cp} /dev/null main.lst
 %{__cp} /dev/null libs.lst
@@ -1322,6 +1319,7 @@ fi
 %{pgbaseinstdir}/lib/pgxs/*
 %{pgbaseinstdir}/lib/pkgconfig/*
 %{pgbaseinstdir}/share/man/man1/ecpg.*
+%{pgbaseinstdir}/lib/libpgfeutils.a
 
 %if %llvm
 %files llvmjit

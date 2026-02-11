@@ -57,5 +57,5 @@ make USE_PGXS=1 install DESTDIR=%{buildroot} with_llvm=no COMPILER='g++ $(CXXFLA
 %{pginstdir}/lib/%{pname}.so
 
 %changelog
-* Wed Jan 21 2026 Manika Singhal <manika.singhal@percona.com> - 0.2-1
-- Initial build 0.2
+* Wed Feb 11 2026 Manika Singhal <manika.singhal@percona.com> - 1.0-1
+- Initial build 1.0

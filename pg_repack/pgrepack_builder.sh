@@ -55,7 +55,6 @@ get_sources(){
     mv ../control.in ./
     cd ../
     echo $PG_MAJOR > debian/pgversions
-    echo 10 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm

@@ -12,6 +12,11 @@ override_dh_auto_clean:
 	rm -rf build
 
 override_dh_auto_build:
+ifeq ($(shell dpkg-vendor --derives-from Debian && . /etc/os-release && echo $$VERSION_CODENAME),trixie)
+	make USE_PGXS=1 \
+	PG_CONFIG=/usr/lib/postgresql/@@PGMAJOR@@/bin/pg_config \
+	with_llvm=no
+else
 	make USE_PGXS=1 \
     CXX="clang++-21" \
     CXXFLAGS="-stdlib=libc++" \
@@ -19,6 +24,7 @@ override_dh_auto_build:
     PG_CONFIG=/usr/lib/postgresql/@@PGMAJOR@@/bin/pg_config \
     USE_LIBCXX=1 \
     with_llvm=no
+endif
 
 override_dh_auto_install:
 	make USE_PGXS=1 install DESTDIR=$(CURDIR)/debian/tmp \

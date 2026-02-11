@@ -130,7 +130,7 @@ deb_deps() {
     fi
   fi
 
-  if [[ "x${DEBIAN}" == "xbullseye" && "$COMPONENT" != "pg_oidc" ]]; then
+  if [[ "x${DEBIAN}" == "xbullseye" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
     wget https://apt.llvm.org/llvm.sh
     chmod +x llvm.sh

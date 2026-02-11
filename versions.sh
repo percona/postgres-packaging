@@ -26,7 +26,7 @@ POSTGIS35_MINOR=4
 PYSYNCOBJ_VERSION=0.3.10
 WAL2JSON_VERSION=2.6
 YDIFF_VERSION=1.2
-PG_OIDC_VERSION=0.3
+PG_OIDC_VERSION=1.0
 
 #-------------------------------------- COMMON URLs --------------------------------------
 

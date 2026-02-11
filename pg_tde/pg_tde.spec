@@ -23,7 +23,7 @@ URL:		https://github.com/%{sname}/%{sname}/
 Source0:	%{name}-%{version}.tar.gz
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel chrpath json-c-devel openssl-devel libcurl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel
-Requires:	postgresql%{pgmajorversion}-server json-c curl openssl
+Requires:	json-c curl openssl
 
 %description
 pg_tde is a PostgreSQL extension enabling transparent data encryption.

@@ -375,6 +375,7 @@ EOF
 
   pgbackrest)
     if [ "x$OS" = "xrpm" ]; then
+      dnf -y install git
       rpm_deps
       git clone https://github.com/ianlancetaylor/libbacktrace.git
       cd libbacktrace/

@@ -249,7 +249,7 @@ EOF
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="sudo build-essential debhelper clang git libjwt-dev libcurl4-openssl-dev libssl-dev libreadline-dev libkrb5-dev zlib1g-dev libxml2-dev libxslt1-dev uuid-dev flex bison pkg-config percona-postgresql-${PG_MAJOR} percona-postgresql-server-dev-all"
+      INSTALL_LIST+="sudo build-essential debhelper devscripts clang git libjwt-dev libcurl4-openssl-dev libssl-dev libreadline-dev libkrb5-dev zlib1g-dev libxml2-dev libxslt1-dev uuid-dev flex bison pkg-config percona-postgresql-${PG_MAJOR} percona-postgresql-server-dev-all"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;

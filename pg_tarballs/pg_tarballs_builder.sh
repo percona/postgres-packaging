@@ -136,7 +136,7 @@ export PERL_MAJOR_VERSION=5.0
 export PYTHON_VERSION=3.12.3
 export TCL_VERSION=8.6.16
 export ETCD_VERSION=3.5.26
-export POSTGIS35_VERSION=3.5.4
+export POSTGIS35_VERSION=3.5.5
 
 export POSTGRESQL_PREFIX=/opt/percona-postgresql${PG_MAJOR_VERSION}
 export PGBOUNCER_PREFIX=/opt/percona-pgbouncer

@@ -6,15 +6,14 @@ on:
       ppg-repo:
         description: ppg repo to be tested
         required: true
-        default: ppg-15.14
+        default: ppg-15.16
         type: choice
         options:
-          - ppg-18.1
-          - ppg-17.7
-          - ppg-16.11
-          - ppg-15.15
-          - ppg-14.20
-          - ppg-13.23
+          - ppg-18.2
+          - ppg-17.8
+          - ppg-16.12
+          - ppg-15.16
+          - ppg-14.21
 
       ppg-repo-type:
         description: ppg repo type
@@ -147,6 +146,10 @@ jobs:
             PG_TDE="percona-pg_tde${{ env.PG_MAJOR }} "
             INSTALL_LIST+=" $PG_TDE"
           fi
+          if [[ ${{ env.PG_MAJOR }} -ge 18 ]]; then
+            PG_OIDC="percona-pg_oidc_validator${{ env.PG_MAJOR }} "
+            INSTALL_LIST+=" $PG_OIDC"
+          fi
           echo "INSTALL_LIST="$INSTALL_LIST"" >> $GITHUB_ENV
 
       - name: Set DEB install list
@@ -173,6 +176,10 @@ jobs:
           if [[ ${{ env.PG_MAJOR }} -ge 17 ]]; then
             PG_TDE="percona-pg-tde${{ env.PG_MAJOR }}"
             INSTALL_LIST+=" $PG_TDE"
+          fi
+          if [[ ${{ env.PG_MAJOR }} -ge 18 ]]; then
+            PG_OIDC="percona-pg-oidc-validator${{ env.PG_MAJOR }}"
+            INSTALL_LIST+=" $PG_OIDC"
           fi
           echo "INSTALL_LIST="$INSTALL_LIST"" >> $GITHUB_ENV
         shell: bash
@@ -323,6 +330,7 @@ jobs:
         continue-on-error: true
 
       - name: pg_tde Version Check
+        if: ${{ fromJSON(env.PG_MAJOR) > 16 }}
         run: |
           if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pg_tde)"
@@ -330,6 +338,17 @@ jobs:
           else
             echo "package version = $(dpkg -s percona-pg-tde${{ env.PG_MAJOR }} | grep ^Version)"
             cat /usr/share/postgresql/${{ env.PG_MAJOR }}/extension/pg_tde.control | grep 'version'
+          fi
+        shell: bash
+        continue-on-error: true
+
+      - name: pg_oidc Version Check
+        if: ${{ fromJSON(env.PG_MAJOR) > 17 }}
+        run: |
+          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+            echo "package version = $(rpm -qa | grep percona-pg_oidc_validator)"
+          else
+            echo "package version = $(dpkg -s percona-pg-oidc-validator${{ env.PG_MAJOR }} | grep ^Version)"
           fi
         shell: bash
         continue-on-error: true

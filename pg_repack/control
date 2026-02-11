@@ -2,7 +2,7 @@ Source: percona-pg-repack
 Priority: optional
 Section: database
 Maintainer: Percona Development Team <info@percona.com>
-Build-Depends: debhelper (>= 13), percona-postgresql-server-dev-all (>= 153~)
+Build-Depends: debhelper-compat (= 13), percona-postgresql-server-dev-all (>= 153~)
 Rules-Requires-Root: no
 Homepage: https://github.com/reorg/pg_repack
 Vcs-Browser: https://salsa.debian.org/postgresql/pg-repack

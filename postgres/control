@@ -226,9 +226,9 @@ Package: percona-postgresql-server-dev-@@PGMAJOR@@
 Architecture: any
 Section: libdevel
 Depends:
- clang-${llvm:Version} [amd64 arm64 mips64el ppc64 ppc64el s390x],
+ clang [amd64 arm64 mips64el ppc64 ppc64el s390x],
  libpq-dev (>= @@PGMAJOR@@~~),
- llvm-${llvm:Version}-dev [amd64 arm64 mips64el ppc64 ppc64el s390x],
+ llvm-dev [amd64 arm64 mips64el ppc64 ppc64el s390x],
  percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 142~),
  ${misc:Depends},
  ${shlibs:Depends}

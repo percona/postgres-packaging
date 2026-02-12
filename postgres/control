@@ -193,9 +193,9 @@ Package: percona-postgresql-server-dev-@@PGMAJOR@@
 Architecture: any
 Section: libdevel
 Depends:
- clang-${llvm:Version} [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
+ clang [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
  libpq-dev (>= @@PGMAJOR@@~~),
- llvm-${llvm:Version}-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
+ llvm-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
  percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 162~),
  ${misc:Depends},
  ${shlibs:Depends}

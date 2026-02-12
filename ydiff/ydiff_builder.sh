@@ -211,6 +211,7 @@ build_source_deb(){
     cd ${BUILDDIR}
 
     dch -D unstable --force-distribution -v "${YDIFF_VERSION}-${YDIFF_RELEASE}" "Update to new ydiff version ${YDIFF_VERSION}"
+    rm -rf .github
     dpkg-buildpackage -S || true
     cd ../
     mkdir -p $WORKDIR/source_deb

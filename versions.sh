@@ -23,7 +23,7 @@ POSTGIS35_VERSION=3.5
 POSTGIS35_MINOR=5
 PYSYNCOBJ_VERSION=0.3.10
 WAL2JSON_VERSION=2.6
-YDIFF_VERSION=1.2
+YDIFF_VERSION=1.4.2
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -346,9 +346,9 @@ case "$1" in
         YDIFF_PRODUCT=python3-ydiff
         YDIFF_PRODUCT_FULL=${YDIFF_PRODUCT}-${YDIFF_VERSION}
         YDIFF_SRC_BRANCH="${YDIFF_VERSION}"
-        YDIFF_RPM_RELEASE='2'
-        YDIFF_DEB_RELEASE='2'
-        YDIFF_RELEASE='2'
+        YDIFF_RPM_RELEASE='1'
+        YDIFF_DEB_RELEASE='1'
+        YDIFF_RELEASE='1'
 
         # urls
         YDIFF_SRC_REPO="https://github.com/ymattw/ydiff.git"

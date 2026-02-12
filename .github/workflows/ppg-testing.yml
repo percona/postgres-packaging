@@ -129,10 +129,7 @@ jobs:
           PGBADGER="percona-pgbadger"
           PGBOUNCER="percona-pgbouncer"
           PGPOOL="percona-pgpool-II-pg${{ env.PG_MAJOR }} percona-pgpool-II-pg${{ env.PG_MAJOR }}-extensions"
-          POSTGIS="percona-postgis33_${{ env.PG_MAJOR }} percona-postgis33_${{ env.PG_MAJOR }}-client percona-postgis33_${{ env.PG_MAJOR }}-client-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-devel percona-postgis33_${{ env.PG_MAJOR }}-docs percona-postgis33_${{ env.PG_MAJOR }}-gui percona-postgis33_${{ env.PG_MAJOR }}-gui-debuginfo percona-postgis33_${{ env.PG_MAJOR }}-llvmjit percona-postgis33_${{ env.PG_MAJOR }}-utils"
-          if [[ ${{ env.PG_MAJOR }} -eq 18 ]]; then
-            POSTGIS="percona-postgis35_${{ env.PG_MAJOR }} percona-postgis35_${{ env.PG_MAJOR }}-client percona-postgis35_${{ env.PG_MAJOR }}-client-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-devel percona-postgis35_${{ env.PG_MAJOR }}-docs percona-postgis35_${{ env.PG_MAJOR }}-gui percona-postgis35_${{ env.PG_MAJOR }}-gui-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-llvmjit percona-postgis35_${{ env.PG_MAJOR }}-utils"
-          fi
+          POSTGIS="percona-postgis35_${{ env.PG_MAJOR }} percona-postgis35_${{ env.PG_MAJOR }}-client percona-postgis35_${{ env.PG_MAJOR }}-client-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-devel percona-postgis35_${{ env.PG_MAJOR }}-docs percona-postgis35_${{ env.PG_MAJOR }}-gui percona-postgis35_${{ env.PG_MAJOR }}-gui-debuginfo percona-postgis35_${{ env.PG_MAJOR }}-llvmjit percona-postgis35_${{ env.PG_MAJOR }}-utils"
           WAL2JSON="percona-wal2json${{ env.PG_MAJOR }}"
           PGGATHER="percona-pg_gather"
           PGVECTOR="percona-pgvector_${{ env.PG_MAJOR }} percona-pgvector_${{ env.PG_MAJOR }}-debuginfo percona-pgvector_${{ env.PG_MAJOR }}-debugsource percona-pgvector_${{ env.PG_MAJOR }}-llvmjit"

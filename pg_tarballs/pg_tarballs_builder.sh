@@ -1864,7 +1864,8 @@ build_postgis35(){
 	wget "https://download.osgeo.org/postgis/source/postgis-${POSTGIS35_VERSION}.tar.gz"
 	tar -xvzf postgis-${POSTGIS35_VERSION}.tar.gz
 	cd postgis-${POSTGIS35_VERSION}
-
+        yum install -y gcc-toolset-14 gcc-toolset-14-gcc-c++
+        source /opt/rh/gcc-toolset-14/enable
 	export PATH=${POSTGRESQL_PREFIX}/bin:${DEPENDENCY_LIBS_PATH}/bin:$PATH
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${POSTGRESQL_PREFIX}/lib:$LD_LIBRARY_PATH CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib -L${DEPENDENCY_LIBS_PATH}/lib64" ./configure --with-pgconfig=${POSTGRESQL_PREFIX}/bin/pg_config \
 		--enable-lto \

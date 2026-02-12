@@ -357,11 +357,10 @@ included in the PostgreSQL distribution.
 %package devel
 Summary:        PostgreSQL development header files and libraries
 Requires:       %{name} >= %{version}-%{release}
-Requires:       %{name} >= %{version}-%{release}
 Requires:       %{name}-libs >= %{version}-%{release}
 
 %if %llvm
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} >= %{version}-%{release}
 %if 0%{?suse_version} == 1500
 Requires:	llvm17-devel clang17-devel
 %endif

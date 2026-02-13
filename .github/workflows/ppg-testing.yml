@@ -25,20 +25,14 @@ on:
           - testing
           - release
 
-      platform:
-        description: platform to be tested on
+      arch:
+        description: architecture
         required: true
-        default: oraclelinux:10
+        default: amd64
         type: choice
         options:
-            - oraclelinux:10
-            - oraclelinux:9
-            - oraclelinux:8
-            - ubuntu:noble
-            - ubuntu:jammy
-            - debian:bookworm
-            - debian:bullseye
-            - debian:trixie
+          - amd64
+          - arm64
 
       debugging:
         description: tmate session required
@@ -47,16 +41,30 @@ on:
         
 jobs:
   test-package:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - oraclelinux:10
+          - oraclelinux:9
+          - oraclelinux:8
+          - ubuntu:noble
+          - ubuntu:jammy
+          - debian:bookworm
+          - debian:bullseye
+          - debian:trixie
+
     container:
-      image: ${{ inputs.platform }}
+      image: ${{ matrix.platform }}
 
     steps:
       - name: Install basic tools
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             dnf makecache
-            dnf install -y wget vim ca-certificates gcc gcc-c++ make perl-core
+            dnf install -y wget vim ca-certificates gcc gcc-c++ make perl-core dnf-plugins-core
           else
             apt-get update
             apt-get install -y wget curl vim lsb-release ca-certificates build-essential perl
@@ -68,7 +76,7 @@ jobs:
 
       - name: Get OS version
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             OS_VER=$(rpm --eval %rhel)
           else
             OS_VER="$(lsb_release -sc)"
@@ -88,7 +96,7 @@ jobs:
       - name: Enable required repositories
         run: |
           set -x
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             dnf config-manager --set-enabled ol${{ env.OS_VER }}_codeready_builder
             dnf clean all
             rm -r /var/cache/dnf
@@ -104,7 +112,7 @@ jobs:
 
       - name: Enable ppg repository
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
           else
             wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
@@ -116,7 +124,7 @@ jobs:
         shell: bash
 
       - name: Set RPM install list
-        if: ${{ contains(inputs.platform, 'linux') }}
+        if: ${{ contains(matrix.platform, 'linux') }}
         run: | 
           PG="percona-postgresql${{ env.PG_MAJOR }} percona-postgresql${{ env.PG_MAJOR }}-server percona-postgresql${{ env.PG_MAJOR }}-contrib percona-postgresql${{ env.PG_MAJOR }}-devel percona-postgresql${{ env.PG_MAJOR }}-docs percona-postgresql${{ env.PG_MAJOR }}-libs percona-postgresql${{ env.PG_MAJOR }}-llvmjit percona-postgresql${{ env.PG_MAJOR }}-plpython3 percona-postgresql${{ env.PG_MAJOR }}-plperl percona-postgresql${{ env.PG_MAJOR }}-pltcl percona-postgresql${{ env.PG_MAJOR }}-test"
           PG_COMMON="percona-postgresql-common percona-postgresql-client-common"
@@ -150,7 +158,7 @@ jobs:
           echo "INSTALL_LIST="$INSTALL_LIST"" >> $GITHUB_ENV
 
       - name: Set DEB install list
-        if: ${{ !contains(inputs.platform, 'linux') }}
+        if: ${{ !contains(matrix.platform, 'linux') }}
         run: | 
           PG="percona-postgresql percona-postgresql-${{ env.PG_MAJOR }} percona-postgresql-all percona-postgresql-contrib percona-postgresql-doc percona-postgresql-doc-${{ env.PG_MAJOR }} percona-postgresql-plperl-${{ env.PG_MAJOR }} percona-postgresql-plpython3-${{ env.PG_MAJOR }} percona-postgresql-pltcl-${{ env.PG_MAJOR }} percona-postgresql-server-dev-${{ env.PG_MAJOR }} percona-postgresql-server-dev-all percona-postgresql-${{ env.PG_MAJOR }}-dbgsym percona-postgresql-plperl-${{ env.PG_MAJOR }}-dbgsym percona-postgresql-plpython3-${{ env.PG_MAJOR }}-dbgsym percona-postgresql-pltcl-${{ env.PG_MAJOR }}-dbgsym percona-postgresql-plpython3-${{ env.PG_MAJOR }} percona-postgresql-plpython3-${{ env.PG_MAJOR }}-dbgsym"
           PG_COMMON="percona-postgresql-client percona-postgresql-client-${{ env.PG_MAJOR }} percona-postgresql-common percona-postgresql-client-${{ env.PG_MAJOR }}-dbgsym postgresql-client-common postgresql-common"
@@ -183,7 +191,7 @@ jobs:
                   
       - name: Install Packages
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             yum -y install ${{ env.INSTALL_LIST }}
           else
             DEBIAN_FRONTEND=noninteractive apt-get -y install ${{ env.INSTALL_LIST }}
@@ -192,7 +200,7 @@ jobs:
 
       - name: postgresql Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-postgresql)"
           else
             echo "package version = $(dpkg -s percona-postgresql-${{ env.PG_MAJOR }} | grep ^Version)"
@@ -202,7 +210,7 @@ jobs:
 
       - name: postgresql-common Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-postgresql-common)"
             rpm -qi percona-postgresql-common | grep ^Version
           else
@@ -214,7 +222,7 @@ jobs:
 
       - name: pgbackrest Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pgbackrest)"
           else
             echo "package version = $(dpkg -s percona-pgbackrest | grep ^Version)"
@@ -225,7 +233,7 @@ jobs:
 
       - name: pg_stat_monitor Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pg_stat_monitor)"
             cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/pg_stat_monitor.control | grep 'version'
           else
@@ -237,7 +245,7 @@ jobs:
 
       - name: pg_repack Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pg_repack)"
           else
             echo "package version = $(dpkg -s percona-postgresql-${{ env.PG_MAJOR }}-repack  | grep ^Version)"
@@ -248,7 +256,7 @@ jobs:
 
       - name: pgaudit Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pgaudit)"
             cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/pgaudit.control | grep 'version'
           else
@@ -260,7 +268,7 @@ jobs:
 
       - name: patroni Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-patroni)"
           else
             echo "package version = $(dpkg -s percona-patroni | grep ^Version)"
@@ -271,7 +279,7 @@ jobs:
 
       - name: pgaudit_set_user Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep set_user)"
             cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/set_user.control | grep 'version'
           else
@@ -283,7 +291,7 @@ jobs:
 
       - name: pgbadger Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pgbadger)"
           else
             echo "package version = $(dpkg -s percona-pgbadger | grep ^Version)"
@@ -294,7 +302,7 @@ jobs:
 
       - name: pgbouncer Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pgbouncer)"
           else
             echo "package version = $(dpkg -s percona-pgbouncer | grep ^Version)"
@@ -305,7 +313,7 @@ jobs:
 
       - name: pgpool2 Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pgpool)"
           else
             echo "package version = $(dpkg -s percona-pgpool2 | grep ^Version)"
@@ -316,7 +324,7 @@ jobs:
 
       - name: postgis Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-postgis)"
             cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/postgis.control | grep 'version'
           else
@@ -329,7 +337,7 @@ jobs:
       - name: pg_tde Version Check
         if: ${{ fromJSON(env.PG_MAJOR) > 16 }}
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pg_tde)"
             cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/pg_tde.control | grep 'version'
           else
@@ -342,7 +350,7 @@ jobs:
       - name: pg_oidc Version Check
         if: ${{ fromJSON(env.PG_MAJOR) > 17 }}
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pg_oidc_validator)"
           else
             echo "package version = $(dpkg -s percona-pg-oidc-validator${{ env.PG_MAJOR }} | grep ^Version)"
@@ -352,7 +360,7 @@ jobs:
 
       - name: wal2json Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-wal2json)"
             rpm -qi percona-wal2json${{ env.PG_MAJOR }} | grep ^Version
           else
@@ -364,7 +372,7 @@ jobs:
 
       - name: haproxy Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-haproxy)"
           else
             echo "package version = $(dpkg -s percona-haproxy | grep ^Version)"
@@ -375,7 +383,7 @@ jobs:
 
       - name: etcd Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep etcd)"
           else
             echo "package version = $(dpkg -s etcd | grep ^Version)"
@@ -386,7 +394,7 @@ jobs:
 
       - name: pg_gather Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pg_gather)"
             rpm -qi percona-pg_gather | grep ^Version
           else
@@ -398,7 +406,7 @@ jobs:
 
       - name: pg_vector Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pgvector)"
             cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/vector.control | grep 'version'
           else
@@ -410,7 +418,7 @@ jobs:
 
       - name: telemetry Version Check
         run: |
-          if [[ "${{ inputs.platform }}" == *"linux"* ]]; then
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             echo "package version = $(rpm -qa | grep percona-pg-telemetry)"
             cat /usr/pgsql-${{ env.PG_MAJOR }}/share/extension/percona_pg_telemetry.control | grep 'version'
           else

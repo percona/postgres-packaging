@@ -61,6 +61,15 @@ on:
           - experimental
           - testing
 
+      arch:
+        description: architecture
+        required: true
+        default: amd64
+        type: choice
+        options:
+          - amd64
+          - arm64
+
       debugging:
         description: tmate session required
         default: false
@@ -99,7 +108,7 @@ jobs:
          path: pkg/
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     needs: prepare
 
     strategy:

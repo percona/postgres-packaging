@@ -141,7 +141,6 @@ EOT
     sed -i "s|#unix_socket_directories = '/tmp'|#unix_socket_directories = '/var/run/postgresql'|g" src/sample/pgpool.conf.sample
     sed -i "s|#pcp_socket_dir = '/tmp'|#pcp_socket_dir = '/var/run/postgresql'|g" src/sample/pgpool.conf.sample
     sed -i "s|#pid_file_name = '/var/run/pgpool/pgpool.pid'|#pid_file_name = '/var/run/postgresql/pgpool.pid'|g" src/sample/pgpool.conf.sample
-    sed -i "s|#logdir = '/tmp'|#logdir = '/var/log/postgresql'|g" src/sample/pgpool.conf.sample
 
     cd ${WORKDIR}
     #
@@ -326,13 +325,18 @@ build_source_deb(){
     TARFILE=$(basename $(find . -name 'percona-pgpool-II*.tar.gz' | sort | tail -n1))
     DEBIAN=$(lsb_release -sc)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
+    tar -zxf "${TARFILE}"
+    BUILDDIR="${TARFILE%.tar.gz}"
+    cd ${BUILDDIR}
+    sed -i "s|#work_dir = '/tmp'|work_dir = '/var/run/postgresql'|g" src/sample/pgpool.conf.sample
+    cd ..
+    tar -zcf "${TARFILE}" "${BUILDDIR}"
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
     #
 
     mv ${TARFILE} percona-pgpool2_${PGPOOL2_VERSION}.orig.tar.gz
     cd ${BUILDDIR}
-    sed -i "s|#work_dir = '/tmp'|#work_dir = '/var/run/postgresql'|g" src/sample/pgpool.conf.sample
     sed -i '/architecture-is-64-bit/d' debian/control
     sed -i '/architecture-is-64-bit/d' debian/control.in
     rm -rf .pc

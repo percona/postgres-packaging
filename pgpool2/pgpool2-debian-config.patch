@@ -1,8 +1,18 @@
-diff --git a/src/include/pool.h b/src/include/pool.h
-index 56ddbeb1..aec73481 100644
+From: Marco Nenciarini <mnencia@debian.org>
+Date: Wed, 24 Feb 2016 12:33:25 +0100
+Subject: pgpool2 debian config
+
+---
+ src/include/pool.h                         |  6 +++---
+ src/sample/pgpool.conf.sample              | 10 +++++-----
+ src/sample/pgpool.conf.sample-master-slave | 10 +++++-----
+ src/sample/pgpool.conf.sample-replication  | 10 +++++-----
+ src/sample/pgpool.conf.sample-stream       | 10 +++++-----
+ 5 files changed, 23 insertions(+), 23 deletions(-)
+
 --- a/src/include/pool.h
 +++ b/src/include/pool.h
-@@ -56,16 +56,16 @@
+@@ -58,16 +58,16 @@
  #define HBA_CONF_FILE_NAME "pool_hba.conf"
  
  /* pid file directory */
@@ -22,3 +32,38 @@ index 56ddbeb1..aec73481 100644
  
  /* status file name */
  #define STATUS_FILE_NAME "pgpool_status"
+--- a/src/sample/pgpool.conf.sample
++++ b/src/sample/pgpool.conf.sample
+@@ -40,7 +40,7 @@ backend_clustering_mode = streaming_repl
+ #port = 9999
+                                    # Port number
+                                    # (change requires restart)
+-#unix_socket_directories = '/tmp'
++#unix_socket_directories = '/var/run/postgresql'
+                                    # Unix domain socket path(s)
+                                    # The Debian package defaults to
+                                    # /var/run/postgresql
+@@ -67,7 +67,7 @@ backend_clustering_mode = streaming_repl
+ #pcp_port = 9898
+                                    # Port number for pcp
+                                    # (change requires restart)
+-#pcp_socket_dir = '/tmp'
++#pcp_socket_dir = '/var/run/postgresql'
+                                    # Unix domain socket path(s) for pcp
+                                    # The Debian package defaults to
+                                    # /var/run/postgresql
+@@ -345,13 +345,13 @@ backend_clustering_mode = streaming_repl
+ # FILE LOCATIONS
+ #------------------------------------------------------------------------------
+ 
+-#pid_file_name = '/var/run/pgpool/pgpool.pid'
++#pid_file_name = '/var/run/postgresql/pgpool.pid'
+                                    # PID file name
+                                    # Can be specified as relative to the"
+                                    # location of pgpool.conf file or
+                                    # as an absolute path
+                                    # (change requires restart)
+-#work_dir = '/tmp'
++#work_dir = '/var/run/postgresql'
+                                    # Directory for pgpool_status and lock files.
+                                    # (change requires restart)

@@ -1363,6 +1363,7 @@ build_pgbouncer(){
 	#cp -rp ${DEPENDENCY_LIBS_PATH}/lib64/libcrypto.* ${PGBOUNCER_PREFIX}/lib
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libevent* ${PGBOUNCER_PREFIX}/lib
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libldap.* ${PGBOUNCER_PREFIX}/lib
+        cp -rp "${DEPENDENCY_LIBS_PATH}/lib/liblber"* ${PGBOUNCER_PREFIX}/lib
 	chmod 755 ${PGBOUNCER_PREFIX}/lib/*.so*
 
         mkdir -p ${PGBOUNCER_PREFIX}/etc

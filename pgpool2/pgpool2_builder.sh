@@ -142,6 +142,7 @@ EOT
     sed -i "s|#pcp_socket_dir = '/tmp'|#pcp_socket_dir = '/var/run/postgresql'|g" src/sample/pgpool.conf.sample
     sed -i "s|#pid_file_name = '/var/run/pgpool/pgpool.pid'|#pid_file_name = '/var/run/postgresql/pgpool.pid'|g" src/sample/pgpool.conf.sample
     sed -i "s|#logdir = '/tmp'|#logdir = '/var/log/postgresql'|g" src/sample/pgpool.conf.sample
+    sed -i "s|#work_dir = '/tmp'|#work_dir = '/var/run/postgresql'|g" src/sample/pgpool.conf.sample
 
     cd ${WORKDIR}
     #

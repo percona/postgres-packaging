@@ -16,6 +16,7 @@ Requires:       etcd
 Requires:       python3-etcd
 Requires:       percona-patroni
 Requires:       percona-haproxy
+Requires:       percona-postgresql%{pgmajorversion}-server
 
 %description
 Essential / key PostgreSQL%{pgmajorversion} high availability components

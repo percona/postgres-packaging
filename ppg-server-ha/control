@@ -11,7 +11,8 @@ Depends:
  etcd | etcd-server,
  etcd-client,
  percona-patroni,
- percona-haproxy
+ percona-haproxy,
+ percona-postgresql-@@PGMAJOR@@
 Description: Essential / key PostgreSQL@@PGMAJOR@@ high availability components
  Percona Distribution for PostgreSQL features core components, tools and add-ons
  from the community, tested to work together in demanding enterprise environments

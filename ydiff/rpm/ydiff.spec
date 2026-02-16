@@ -1,3 +1,4 @@
+
 %global        debug_package %{nil}
 
 %if 0%{?fedora} && 0%{?fedora} == 43
@@ -8,9 +9,13 @@
 %global        __ospython %{_bindir}/python3.13
 %global        python3_pkgversion 3.13
 %endif
-%if 0%{?rhel} && 0%{?rhel} <= 10
-%global        __ospython %{_bindir}/python3.12
-%global        python3_pkgversion 3.12
+%if 0%{?rhel} && 0%{?rhel} == 8
+%global __ospython %{_bindir}/python3
+%global python3_pkgversion 3
+%endif
+%if 0%{?rhel} && 0%{?rhel} >= 9
+%global	__ospython %{_bindir}/python3.12
+%global	python3_pkgversion 3.12
 %endif
 %if 0%{?suse_version} == 1500
 %global        __ospython %{_bindir}/python3.11
@@ -20,7 +25,7 @@
 %global        __ospython %{_bindir}/python3.13
 %global        python3_pkgversion 313
 %endif
-%{expand: %%global py3ver %(echo `%{__ospython} -c "import sys; sys.stdout.write(sys.version[:4])"`)}
+%{expand: %%global py3ver %(echo `%{__ospython} -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')" `)}
 %global python3_sitelib %(%{__ospython} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 
 Name:           ydiff
@@ -33,6 +38,8 @@ Source0:        %{name}-%{version}.tar.gz
 BuildRequires:  python%{python3_pkgversion}-devel
 Requires:        less
 Requires:       python%{python3_pkgversion}-%{name}
+
+Provides:        python%{python3_pkgversion}dist(ydiff)
 
 %description
 Term based tool to view colored, incremental diff in a Git/Mercurial/Svn

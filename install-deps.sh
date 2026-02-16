@@ -11,7 +11,7 @@ rpm_deps() {
 
   if [[ "${RHEL}" -eq 8 ]]; then
     dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
-    if [[ "$COMPONENT" == "pgrepack" ]]; then
+    if [[ "$COMPONENT" == "pgrepack" || "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
       INSTALL_LIST+="python3-devel "
     fi
     if [[ "$COMPONENT" == "ppg-server-ha" ]]; then
@@ -19,6 +19,19 @@ rpm_deps() {
     fi
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel "
+    fi
+    if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
+      INSTALL_LIST+="python3-setuptools "
+    fi
+     if [[ "$COMPONENT" == "patroni" ]]; then
+      INSTALL_LIST+="python3-psycopg2 "
+    fi
+  else
+    if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
+      INSTALL_LIST+="python3.12-setuptools python3.12-devel "
+    fi
+     if [[ "$COMPONENT" == "patroni" ]]; then
+      INSTALL_LIST+="python3.12-psycopg2 "
     fi
   fi
 
@@ -228,7 +241,7 @@ EOF
   ydiff)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools python3.12-devel python3.12-setuptools"
+      INSTALL_LIST+="wget git vim rpm-build rpmdevtools"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -466,7 +479,7 @@ EOF
   patroni)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget git vim rpm-build python3-virtualenv python3.12-setuptools libyaml-devel gcc python3.12-psycopg2 python3.12-devel"
+      INSTALL_LIST+="wget git vim rpm-build python3-virtualenv libyaml-devel gcc"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps

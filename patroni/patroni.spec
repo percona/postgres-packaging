@@ -8,7 +8,11 @@
 %global	__ospython %{_bindir}/python3.13
 %global	python3_pkgversion 3.13
 %endif
-%if 0%{?rhel} && 0%{?rhel} <= 10
+%if 0%{?rhel} && 0%{?rhel} == 8
+%global __ospython %{_bindir}/python3
+%global python3_pkgversion 3
+%endif
+%if 0%{?rhel} && 0%{?rhel} >= 9
 %global	__ospython %{_bindir}/python3.12
 %global	python3_pkgversion 3.12
 %endif
@@ -38,6 +42,7 @@ BuildRequires:  python%{python3_pkgversion}-setuptools python%{python3_pkgversio
 Requires:       python%{python3_pkgversion}-six python%{python3_pkgversion}-dateutil
 Requires:        python3-ydiff < 1.5
 Requires:        python3-ydiff >= 1.4.2
+Requires:     %{name}-etcd
 
 
 %if 0%{?fedora} && 0%{?fedora} <= 43
@@ -46,7 +51,18 @@ Requires:        python3-prettytable python%{python3_pkgversion}-pyyaml
 Requires:        python3-urllib3 >= 1.19.1 python3-psycopg2 python3-wcwidth
 %endif
 
-%if 0%{?rhel} && 0%{?rhel} <= 9
+%if 0%{?rhel} && 0%{?rhel} == 8
+Requires:        python3-click
+Requires:        python3-cryptography >= 1.4
+Requires:        python3-prettytable
+Requires:        python3-psutil
+Requires:        python3-psycopg2
+Requires:        python3-pyyaml
+Requires:        python3-urllib3 >= 1.19.1
+Requires:        python3-wcwidth
+%endif
+
+%if 0%{?rhel} && 0%{?rhel} == 9
 Requires:        python%{python3_pkgversion}-click >= 8.1.7
 Requires:        python%{python3_pkgversion}-cryptography >= 1.4
 Requires:        python%{python3_pkgversion}-prettytable
@@ -91,15 +107,15 @@ caveats. Use wisely.
 
 %package -n %{name}-consul
 Summary:        Related components to use patroni with Consul
-Requires:        %{name} = %{version}-%{release}
+Requires:        %{name} = %{epoch}:%{version}-%{release}
 Requires:        consul py-consul >= 1.6.0
 %if 0%{?fedora} && 0%{?fedora} <= 43
 Requires:        python3-requests
 %endif
-%if 0%{?rhel} && 0%{?rhel} < 10
+%if 0%{?rhel} && 0%{?rhel} == 9
 Requires:        python%{python3_pkgversion}-requests
 %endif
-%if 0%{?rhel} && 0%{?rhel} == 10
+%if 0%{?rhel} && 0%{?rhel} != 9
 Requires:        python3-requests
 %endif
 %if 0%{?suse_version} >= 1500
@@ -110,15 +126,20 @@ Meta package to pull consul related dependencies for patroni
 
 %package -n %{name}-etcd
 Summary:        Related components to use patroni with etcd
-Requires:        %{name} = %{version}-%{release}
+Requires:        %{name} = %{epoch}:%{version}-%{release}
+%if 0%{?rhel} && 0%{?rhel} == 9
 Requires:        python%{python3_pkgversion}-etcd >= 0.4.3
+%endif
+%if 0%{?rhel} && 0%{?rhel} != 9
+Requires:        python3-etcd >= 0.4.3
+%endif
 %if 0%{?fedora} && 0%{?fedora} <= 43
 Requires:        python3-dns
 %endif
-%if 0%{?rhel} && 0%{?rhel} < 10
+%if 0%{?rhel} && 0%{?rhel} == 9
 Requires:        python%{python3_pkgversion}-dns
 %endif
-%if 0%{?rhel} && 0%{?rhel} == 10
+%if 0%{?rhel} && 0%{?rhel} != 9
 Requires:        python3-dns
 %endif
 %if 0%{?suse_version} >= 1500
@@ -129,14 +150,14 @@ Meta package to pull etcd related dependencies for patroni
 
 %package -n %{name}-aws
 Summary:        Related components to use patroni on AWS
-Requires:        %{name} = %{version}-%{release}
+Requires:        %{name} = %{epoch}:%{version}-%{release}
 %if 0%{?fedora} && 0%{?fedora} <= 43
 Requires:        python3-boto3
 %endif
-%if 0%{?rhel} && 0%{?rhel} < 10
+%if 0%{?rhel} && 0%{?rhel} == 9
 Requires:        python%{python3_pkgversion}-boto3
 %endif
-%if 0%{?rhel} && 0%{?rhel} == 10
+%if 0%{?rhel} && 0%{?rhel} != 9
 Requires:        python3-boto3
 %endif
 %if 0%{?suse_version} >= 1500
@@ -147,14 +168,14 @@ Meta package to pull AWS related dependencies for patroni
 
 %package -n %{name}-zookeeper
 Summary:        Related components to use patroni with Zookeeper
-Requires:        %{name} = %{version}-%{release}
+Requires:        %{name} = %{epoch}:%{version}-%{release}
 %if 0%{?fedora} && 0%{?fedora} <= 43
 Requires:        python3-kazoo >= 1.3.1
 %endif
-%if 0%{?rhel} && 0%{?rhel} <= 10
+%if 0%{?rhel} && 0%{?rhel} == 9
 Requires:        python%{python3_pkgversion}-kazoo >= 1.3.1
 %endif
-%if 0%{?rhel} && 0%{?rhel} == 10
+%if 0%{?rhel} && 0%{?rhel} != 9
 Requires:        python3-kazoo >= 1.3.1
 %endif
 %if 0%{?suse_version} >= 1500

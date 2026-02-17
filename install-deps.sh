@@ -482,7 +482,7 @@ EOF
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
-      INSTALL_LIST+="build-essential debconf debhelper clang devscripts dh-exec fakeroot dh-virtualenv python3-psycopg2 libyaml-dev python3-virtualenv ruby ruby-dev rubygems golang libjs-mathjax pyflakes3 python3-dateutil python3-dnspython python3-etcd python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-dev python3-pip python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python python3-pysyncobj python3-sphinxcontrib.apidoc python3-ydiff"
+      INSTALL_LIST+="build-essential debconf debhelper clang devscripts dh-exec fakeroot dh-virtualenv python3-psycopg2 libyaml-dev python3-virtualenv ruby ruby-dev rubygems golang libjs-mathjax pyflakes3 python3-dateutil python3-dnspython python3-etcd python3-flake8 python3-kazoo python3-mccabe python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-dev python3-pip python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python python3-pysyncobj python3-sphinxcontrib.apidoc python3-ydiff"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;

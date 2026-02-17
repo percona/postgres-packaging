@@ -3,7 +3,7 @@
 #-------------------------------------- VERSIONS OF ALL COMPONENTS --------------------------------------
 
 PG_MAJOR=18
-PG_MINOR=2
+PG_MINOR=3
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 PPG_COMMON_MAJOR=289

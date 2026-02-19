@@ -1,7 +1,20 @@
 #!/bin/bash
+set -eo pipefail
 
 shell_quote_string() {
   echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
+}
+
+wget_retry() {
+    local max_retries=5
+    local delay=10
+    for i in $(seq 1 $max_retries); do
+        wget "$@" && return 0
+        echo "Download failed (attempt $i/$max_retries), retrying in ${delay}s..."
+        sleep $delay
+    done
+    echo "ERROR: Download failed after $max_retries attempts"
+    return 1
 }
 
 usage () {
@@ -202,7 +215,7 @@ build_openssl(){
 	build_status "start" "openssl" 
 	cd /source
 	rm -rf openssl-${OPENSSL_VERSION}* || true
-	wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz
+	wget_retry https://www.openssl.org/soure/openssl-${OPENSSL_VERSION}.tar.gz
 	tar -xvzf openssl-${OPENSSL_VERSION}.tar.gz
 	cd openssl-${OPENSSL_VERSION}
 	./Configure --prefix=${DEPENDENCY_LIBS_PATH} --openssldir=${DEPENDENCY_LIBS_PATH} '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)'
@@ -216,7 +229,7 @@ build_openssl35(){
 	build_status "start" "openssl35" 
 	cd /source
 	rm -rf openssl-${OPENSSL_VERSION_35}* || true
-	wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION_35}.tar.gz
+	wget_retry https://www.openssl.org/source/openssl-${OPENSSL_VERSION_35}.tar.gz
 	tar -xvzf openssl-${OPENSSL_VERSION_35}.tar.gz
 	cd openssl-${OPENSSL_VERSION_35}
 	./Configure --prefix=${DEPENDENCY_LIBS_PATH} --openssldir=${DEPENDENCY_LIBS_PATH} '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)'
@@ -230,7 +243,7 @@ build_zlib(){
 	build_status "start" "zlib"
 	cd /source
 	rm -rf zlib-${ZLIB_VERSION}*
-	wget https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.gz
+	wget_retry https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.gz
 	tar -xvzf zlib-${ZLIB_VERSION}.tar.gz
 	cd zlib-${ZLIB_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -244,7 +257,7 @@ build_krb5(){
 	build_status "start" "krb5"
 	cd /source
 	rm -rf krb5-${KRB5_VERSION}*
-	wget https://web.mit.edu/kerberos/dist/krb5/1.21/krb5-${KRB5_VERSION}.tar.gz
+	wget_retry https://web.mit.edu/kerberos/dist/krb5/1.21/krb5-${KRB5_VERSION}.tar.gz
 	tar -xvzf krb5-${KRB5_VERSION}.tar.gz
 	cd krb5-${KRB5_VERSION}/src
 	./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -257,7 +270,7 @@ build_keyutils(){
 
 	build_status "start" "keyutils"
         cd /source
-        wget --no-check-certificate https://people.redhat.com/~dhowells/keyutils/keyutils-${KEYUTILS_VERSION}.tar.bz2
+        wget_retry --no-check-certificate https://people.redhat.com/~dhowells/keyutils/keyutils-${KEYUTILS_VERSION}.tar.bz2
         tar -xvf keyutils-${KEYUTILS_VERSION}.tar.bz2
         cd keyutils-${KEYUTILS_VERSION}
         #./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -271,7 +284,7 @@ build_ncurses(){
 	build_status "start" "ncurses"
 	cd /source
 	rm -rf ncurses-${NCURSES_VERSION}*
-	wget https://fossies.org/linux/misc/ncurses-${NCURSES_VERSION}.tar.gz
+	wget_retry https://fossies.org/linux/misc/ncurses-${NCURSES_VERSION}.tar.gz
 	tar -xvzf ncurses-${NCURSES_VERSION}.tar.gz
 	cd ncurses-${NCURSES_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-shared --disable-static
@@ -285,7 +298,7 @@ build_liburing() {
     build_status "start" "liburing ${LIBURING_VERSION}"
     cd /source
     rm -rf liburing-${LIBURING_VERSION}*
-    wget https://github.com/axboe/liburing/archive/refs/tags/liburing-${LIBURING_VERSION}.tar.gz \
+    wget_retry https://github.com/axboe/liburing/archive/refs/tags/liburing-${LIBURING_VERSION}.tar.gz \
         -O liburing-${LIBURING_VERSION}.tar.gz
     tar -xvzf liburing-${LIBURING_VERSION}.tar.gz
     cd liburing-liburing-${LIBURING_VERSION}
@@ -301,7 +314,7 @@ build_libedit(){
 	build_status "start" "libedit"
 	cd /source
 	rm -rf libedit*
-	wget "https://sourceforge.net/projects/libedit/files/libedit/libedit-${LIBEDIT_VERSION}/libedit-${LIBEDIT_VERSION}.tar.gz/download" -O libedit-${LIBEDIT_VERSION}.tar.gz
+	wget_retry "https://sourceforge.net/projects/libedit/files/libedit/libedit-${LIBEDIT_VERSION}/libedit-${LIBEDIT_VERSION}.tar.gz/download" -O libedit-${LIBEDIT_VERSION}.tar.gz
 	tar -xvzf libedit-${LIBEDIT_VERSION}.tar.gz
 	cd libedit
 	./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes --enable-ssl=${SSL_INSTALL_PATH} --includedir=${DEPENDENCY_LIBS_PATH}/include
@@ -317,7 +330,7 @@ build_libuuid(){
 
 	build_status "start" "libuuid"
 	cd /source
-	wget https://sourceforge.net/projects/libuuid/files/libuuid-${LIBUUID_VERSION}.tar.gz/download -O libuuid-${LIBUUID_VERSION}.tar.gz
+	wget_retry https://sourceforge.net/projects/libuuid/files/libuuid-${LIBUUID_VERSION}.tar.gz/download -O libuuid-${LIBUUID_VERSION}.tar.gz
 	tar -xvzf libuuid-${LIBUUID_VERSION}.tar.gz
 	cd libuuid-${LIBUUID_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-shared=yes
@@ -330,7 +343,7 @@ build_libxml2(){
 
 	build_status "start" "libxml2"
 	cd /source
-	wget https://download.gnome.org/sources/libxml2/${LIBXML2_MAJOR_VERSION}/libxml2-${LIBXML2_VERSION}.tar.xz
+	wget_retry https://download.gnome.org/sources/libxml2/${LIBXML2_MAJOR_VERSION}/libxml2-${LIBXML2_VERSION}.tar.xz
 	tar -Jxvf libxml2-${LIBXML2_VERSION}.tar.xz
 	cd libxml2-${LIBXML2_VERSION}
 	#vim configure.ac           # Correct version to 1.16.1 for RHEL8 and 1.13.4 for RHEL7
@@ -346,7 +359,7 @@ build_libxslt(){
 
 	build_status "start" "libxslt"
 	cd /source
-	wget https://download.gnome.org/sources/libxslt/${LIBXSLT_MAJOR_VERSION}/libxslt-${LIBXSLT_VERSION}.tar.xz
+	wget_retry https://download.gnome.org/sources/libxslt/${LIBXSLT_MAJOR_VERSION}/libxslt-${LIBXSLT_VERSION}.tar.xz
 	tar -Jxvf libxslt-${LIBXSLT_VERSION}.tar.xz
 	cd libxslt-${LIBXSLT_VERSION}
 	sed -i 's|1.16.3|1.16.1|g' configure.ac
@@ -361,7 +374,7 @@ build_libiconv(){
 
 	build_status "start" "libiconv"
 	cd /source
-	wget https://ftp.gnu.org/gnu/libiconv/libiconv-${LIBICONV_VERSION}.tar.gz
+	wget_retry https://ftp.gnu.org/gnu/libiconv/libiconv-${LIBICONV_VERSION}.tar.gz
 	tar -xvzf libiconv-${LIBICONV_VERSION}.tar.gz
 	cd libiconv-${LIBICONV_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -374,7 +387,7 @@ build_ldap(){
 
 	build_status "start" "libldap"
 	cd /source
-	wget https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-${OPENLDAP_VERSION}.tgz
+	wget_retry https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-${OPENLDAP_VERSION}.tgz
 	tar -xvzf openldap-${OPENLDAP_VERSION}.tgz
 	cd openldap-${OPENLDAP_VERSION}
 
@@ -397,7 +410,7 @@ build_cyrus_sasl(){
 
 	build_status "start" "cyrus_sasl"
 	cd /source
-	wget https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-${CYRUS_SASL_VERSION}/cyrus-sasl-${CYRUS_SASL_VERSION}.tar.gz
+	wget_retry https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-${CYRUS_SASL_VERSION}/cyrus-sasl-${CYRUS_SASL_VERSION}.tar.gz
 	tar -xvzf cyrus-sasl-${CYRUS_SASL_VERSION}.tar.gz
 	cd cyrus-sasl-${CYRUS_SASL_VERSION}
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH ./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -410,7 +423,7 @@ build_curl(){
 
 	build_status "start" "curl"
 	cd /source
-	wget https://curl.se/download/curl-${CURL_VERSION}.tar.gz
+	wget_retry https://curl.se/download/curl-${CURL_VERSION}.tar.gz
 	tar -xvzf curl-${CURL_VERSION}.tar.gz
 	cd curl-${CURL_VERSION}
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH ./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-ssl=${SSL_INSTALL_PATH} --with-zlib=${DEPENDENCY_LIBS_PATH}
@@ -423,7 +436,7 @@ build_icu(){
 
 	build_status "start" "icu"
 	cd /source
-	wget https://github.com/unicode-org/icu/archive/refs/tags/release-${ICU_VERSION}.tar.gz -O icu-release-${ICU_VERSION}.tar.gz
+	wget_retry https://github.com/unicode-org/icu/archive/refs/tags/release-${ICU_VERSION}.tar.gz -O icu-release-${ICU_VERSION}.tar.gz
 	tar -xvzf icu-release-${ICU_VERSION}.tar.gz 
 	cd icu-release-${ICU_VERSION}/icu4c/source/
 	./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-rpath
@@ -436,7 +449,7 @@ build_libevent(){
 
 	build_status "start" "libevent"
 	cd /source
-        wget https://github.com/libevent/libevent/releases/download/release-${LIBEVENT_VERSION}-stable/libevent-${LIBEVENT_VERSION}-stable.tar.gz
+        wget_retry https://github.com/libevent/libevent/releases/download/release-${LIBEVENT_VERSION}-stable/libevent-${LIBEVENT_VERSION}-stable.tar.gz
         tar -xvzf libevent-${LIBEVENT_VERSION}-stable.tar.gz
         cd libevent-${LIBEVENT_VERSION}-stable
         PKG_CONFIG_PATH=${DEPENDENCY_LIBS_PATH}/lib64/pkgconfig ./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -449,7 +462,7 @@ build_libmemcached(){
 
 	build_status "start" "libmemcached"
         cd /source
-	wget https://launchpad.net/libmemcached/${LIBMEMCACHED_MAJOR_VERSION}/${LIBMEMCACHED_VERSION}/+download/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz
+	wget_retry https://launchpad.net/libmemcached/${LIBMEMCACHED_MAJOR_VERSION}/${LIBMEMCACHED_VERSION}/+download/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz
         tar -xvzf libmemcached-${LIBMEMCACHED_VERSION}.tar.gz
         cd libmemcached-${LIBMEMCACHED_VERSION}
 	sed -i 's|if (opt_servers == false)|if (opt_servers == NULL)|g' clients/memflush.cc
@@ -464,7 +477,7 @@ build_uuid(){
 	build_status "start" "uuid"
 	# uuid_export symbol is part of this package and it is required for PG
         cd /source
-	wget https://src.fedoraproject.org/repo/pkgs/uuid/uuid-${UUID_VERSION}.tar.gz/5db0d43a9022a6ebbbc25337ae28942f/uuid-${UUID_VERSION}.tar.gz
+	wget_retry https://src.fedoraproject.org/repo/pkgs/uuid/uuid-${UUID_VERSION}.tar.gz/5db0d43a9022a6ebbbc25337ae28942f/uuid-${UUID_VERSION}.tar.gz
         tar -xvzf uuid-${UUID_VERSION}.tar.gz
         cd uuid-${UUID_VERSION}
 
@@ -501,7 +514,7 @@ build_libmd(){
 	build_status "start" "libmd"
 	cd /source
 
-	wget https://libbsd.freedesktop.org/releases/libmd-${LIBMD_VERSION}.tar.xz
+	wget_retry https://libbsd.freedesktop.org/releases/libmd-${LIBMD_VERSION}.tar.xz
 	tar -xvf libmd-${LIBMD_VERSION}.tar.xz
 	cd libmd-${LIBMD_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -514,7 +527,7 @@ build_libbsd(){
 
 	build_status "start" "libbsd"
 	cd /source
-	wget https://libbsd.freedesktop.org/releases/libbsd-${LIBBSD_VERSION}.tar.xz
+	wget_retry https://libbsd.freedesktop.org/releases/libbsd-${LIBBSD_VERSION}.tar.xz
 	tar -xf libbsd-${LIBBSD_VERSION}.tar.xz
 	cd libbsd-${LIBBSD_VERSION}
 
@@ -533,7 +546,7 @@ build_minizip(){
 	build_status "start" "minizip"
 	mkdir -p /source
 	cd /source
-	wget https://github.com/nmoinvaz/minizip/archive/refs/tags/${MINIZIP_VERSION}.tar.gz -O minizip-${MINIZIP_VERSION}.tar.gz
+	wget_retry https://github.com/nmoinvaz/minizip/archive/refs/tags/${MINIZIP_VERSION}.tar.gz -O minizip-${MINIZIP_VERSION}.tar.gz
 
 	tar -xvzf minizip-${MINIZIP_VERSION}.tar.gz
 	cd minizip-ng-${MINIZIP_VERSION}
@@ -551,7 +564,7 @@ build_geos(){
 	build_status "start" "geos"
 	mkdir -p /source
         cd /source/
-        wget https://download.osgeo.org/geos/geos-${GEOS_VERSION}.tar.bz2
+        wget_retry https://download.osgeo.org/geos/geos-${GEOS_VERSION}.tar.bz2
         tar -xvf geos-${GEOS_VERSION}.tar.bz2
         cd geos-${GEOS_VERSION}
         mkdir _build
@@ -569,7 +582,7 @@ build_libtiff(){
 	build_status "start" "libtiff"
 	mkdir -p /source
         cd /source
-        wget https://gitlab.com/libtiff/libtiff/-/archive/v${LIBTIFF_VERSION}/libtiff-v${LIBTIFF_VERSION}.tar.gz
+        wget_retry https://gitlab.com/libtiff/libtiff/-/archive/v${LIBTIFF_VERSION}/libtiff-v${LIBTIFF_VERSION}.tar.gz
         tar -xvzf libtiff-v${LIBTIFF_VERSION}.tar.gz
         cd libtiff-v${LIBTIFF_VERSION}
 
@@ -585,7 +598,7 @@ build_proj(){
 	build_status "start" "proj"
 	mkdir -p /source
 	cd /source
-	wget https://download.osgeo.org/proj/proj-${LIBPROJ_VERSION}.tar.gz
+	wget_retry https://download.osgeo.org/proj/proj-${LIBPROJ_VERSION}.tar.gz
 
 	tar -xvzf proj-${LIBPROJ_VERSION}.tar.gz
 	cd proj-${LIBPROJ_VERSION}
@@ -603,7 +616,7 @@ build_libgeotiff(){
 	build_status "start" "libgeotiff"
 	mkdir -p /source
 	cd /source
-	wget https://download.osgeo.org/geotiff/libgeotiff/libgeotiff-${LIBGEOTIFF_VERSION}.tar.gz
+	wget_retry https://download.osgeo.org/geotiff/libgeotiff/libgeotiff-${LIBGEOTIFF_VERSION}.tar.gz
 
 	tar -xvzf libgeotiff-${LIBGEOTIFF_VERSION}.tar.gz
 	cd "libgeotiff-${LIBGEOTIFF_VERSION}"
@@ -621,7 +634,7 @@ build_libpng(){
         build_status "start" "libpng"
         mkdir -p /source
         cd /source
-        wget https://download.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.gz
+        wget_retry https://download.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.gz
 
         tar -xvzf libpng-${LIBPNG_VERSION}.tar.gz
         cd "libpng-${LIBPNG_VERSION}"
@@ -639,7 +652,7 @@ build_libjpeg(){
         build_status "start" "libjpeg"
         mkdir -p /source
         cd /source
-        wget https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/${LIBJPEG_VERSION}.tar.gz -O "libjpeg-turbo-${LIBJPEG_VERSION}.tar.gz"
+        wget_retry https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/${LIBJPEG_VERSION}.tar.gz -O "libjpeg-turbo-${LIBJPEG_VERSION}.tar.gz"
 
         tar -xvzf libjpeg-turbo-${LIBJPEG_VERSION}.tar.gz
         cd "libjpeg-turbo-${LIBJPEG_VERSION}"
@@ -657,7 +670,7 @@ build_libqhull(){
         build_status "start" "libqhull"
         mkdir -p /source
         cd /source
-        wget https://github.com/qhull/qhull/archive/refs/tags/${LIBQHULL_VERSION}.tar.gz -O "qhull-${LIBQHULL_VERSION}.tar.gz"
+        wget_retry https://github.com/qhull/qhull/archive/refs/tags/${LIBQHULL_VERSION}.tar.gz -O "qhull-${LIBQHULL_VERSION}.tar.gz"
 
         tar -xvzf qhull-${LIBQHULL_VERSION}.tar.gz
         cd "qhull-${LIBQHULL_VERSION}"
@@ -675,7 +688,7 @@ build_sqlite(){
 	build_status "start" "sqlite"
 	cd /source
 	rm -rf sqlite-autoconf-${SQLITE_VERSION}*
-	wget https://sqlite.org/2025/sqlite-autoconf-${SQLITE_VERSION}.tar.gz
+	wget_retry https://sqlite.org/2025/sqlite-autoconf-${SQLITE_VERSION}.tar.gz
 	tar -xvzf sqlite-autoconf-${SQLITE_VERSION}.tar.gz
 	cd sqlite-autoconf-${SQLITE_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -689,7 +702,7 @@ build_jsonc(){
         build_status "start" "jsonc"
         mkdir -p /source
         cd /source
-        wget https://s3.amazonaws.com/json-c_releases/releases/json-c-${JSONC_VERSION}.tar.gz
+        wget_retry https://s3.amazonaws.com/json-c_releases/releases/json-c-${JSONC_VERSION}.tar.gz
 
         tar -xvzf json-c-${JSONC_VERSION}.tar.gz
         cd "json-c-${JSONC_VERSION}"
@@ -707,7 +720,7 @@ build_gdal(){
 	build_status "start" "gdal"
 	mkdir -p /source
 	cd /source
-	wget https://github.com/OSGeo/gdal/releases/download/v${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz
+	wget_retry https://github.com/OSGeo/gdal/releases/download/v${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz
 	tar -xvzf gdal-${GDAL_VERSION}.tar.gz
 	cd gdal-${GDAL_VERSION}
 	mkdir build
@@ -728,7 +741,7 @@ build_protobuf(){
 	build_status "start" "protobuf"
 	mkdir -p /source
 	cd /source
-	wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-${PROTOBUF_VERSION}.tar.gz
+	wget_retry https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-${PROTOBUF_VERSION}.tar.gz
 	tar -xvzf protobuf-${PROTOBUF_VERSION}.tar.gz
 	cd protobuf-${PROTOBUF_VERSION}
 	mkdir build
@@ -745,7 +758,7 @@ build_protobuf_c(){
 	build_status "start" "protobuf_c"
 	mkdir -p /source
 	cd /source
-	wget https://github.com/protobuf-c/protobuf-c/releases/download/v${PROTOBUF_C_VERSION}/protobuf-c-${PROTOBUF_C_VERSION}.tar.gz
+	wget_retry https://github.com/protobuf-c/protobuf-c/releases/download/v${PROTOBUF_C_VERSION}/protobuf-c-${PROTOBUF_C_VERSION}.tar.gz
 	tar -xvzf protobuf-c-${PROTOBUF_C_VERSION}.tar.gz
 	cd protobuf-c-${PROTOBUF_C_VERSION}
 	PATH=${DEPENDENCY_LIBS_PATH}/bin:$PATH ./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -760,7 +773,7 @@ build_gmp(){
 	build_status "start" "gmp"
         mkdir -p /source
         cd /source
-        wget https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.xz
+        wget_retry https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.xz
         tar -Jxvf gmp-${GMP_VERSION}.tar.xz
         cd gmp-${GMP_VERSION}
         ./configure --prefix=${DEPENDENCY_LIBS_PATH}
@@ -774,7 +787,7 @@ build_mpfr(){
 	build_status "start" "mpfr"
         mkdir -p /source
         cd /source
-        wget https://ftp.gnu.org/gnu/mpfr/mpfr-${MPFR_VERSION}.tar.xz
+        wget_retry https://ftp.gnu.org/gnu/mpfr/mpfr-${MPFR_VERSION}.tar.xz
         tar -Jxvf mpfr-${MPFR_VERSION}.tar.xz
         cd mpfr-${MPFR_VERSION}
         ./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-gmp=${DEPENDENCY_LIBS_PATH} --enable-shared=yes --enable-static=no
@@ -790,7 +803,7 @@ build_libboost(){
     cd /source
 
     # Download Boost
-    wget https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}.tar.gz
+    wget_retry https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}.tar.gz
     tar -xvzf boost-${BOOST_VERSION}.tar.gz
     cd boost-${BOOST_VERSION}
 
@@ -807,7 +820,7 @@ build_expat(){
         mkdir -p /source
         cd /source
 
-        wget https://github.com/libexpat/libexpat/archive/refs/tags/R_${EXPAT_HYPHEN_VERSION}.tar.gz -O libexpat-R_${EXPAT_HYPHEN_VERSION}.tar.gz
+        wget_retry https://github.com/libexpat/libexpat/archive/refs/tags/R_${EXPAT_HYPHEN_VERSION}.tar.gz -O libexpat-R_${EXPAT_HYPHEN_VERSION}.tar.gz
         tar -xvzf libexpat-R_${EXPAT_HYPHEN_VERSION}.tar.gz
         cd libexpat-R_${EXPAT_HYPHEN_VERSION}/expat
         cmake \
@@ -826,12 +839,12 @@ build_freexl(){
         mkdir -p /source
         cd /source
 
-        wget https://www.gaia-gis.it/gaia-sins/freexl-${FREEXL_VERSION}.tar.gz
+        wget_retry https://www.gaia-gis.it/gaia-sins/freexl-${FREEXL_VERSION}.tar.gz
         tar -xvzf freexl-${FREEXL_VERSION}.tar.gz
         cd freexl-${FREEXL_VERSION}
 	# Commenting server is down but checked building fine without these files.
-	#wget -O config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
-	#wget -O config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+	#wget_retry -O config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+	#wget_retry -O config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
 	#chmod +x config.sub config.guess
 
         ARCH=$(uname -m)
@@ -859,7 +872,7 @@ build_spatialite(){
 	mkdir -p /source
 	cd /source
 
-	wget https://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-${SPATIALITE_VERSION}.tar.gz
+	wget_retry https://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-${SPATIALITE_VERSION}.tar.gz
 	tar -xvzf libspatialite-${SPATIALITE_VERSION}.tar.gz
 
 	cd libspatialite-${SPATIALITE_VERSION}
@@ -891,7 +904,7 @@ build_cgal(){
 	build_status "start" "cgal"
 	mkdir -p /source
 	cd /source
-	wget https://github.com/CGAL/cgal/archive/refs/tags/v${CGAL_VERSION}.tar.gz -O cgal-${CGAL_VERSION}.tar.gz
+	wget_retry https://github.com/CGAL/cgal/archive/refs/tags/v${CGAL_VERSION}.tar.gz -O cgal-${CGAL_VERSION}.tar.gz
 	tar -xvzf cgal-${CGAL_VERSION}.tar.gz
 	cd cgal-${CGAL_VERSION}
 	mkdir build
@@ -909,7 +922,7 @@ build_sfcgal(){
 	build_status "start" "sfcgal"
 	mkdir -p /source
 	cd /source
-	wget https://gitlab.com/SFCGAL/SFCGAL/-/archive/v${SFCGAL_VERSION}/SFCGAL-v${SFCGAL_VERSION}.tar.gz
+	wget_retry https://gitlab.com/SFCGAL/SFCGAL/-/archive/v${SFCGAL_VERSION}/SFCGAL-v${SFCGAL_VERSION}.tar.gz
 	tar -xvzf SFCGAL-v${SFCGAL_VERSION}.tar.gz
 	cd SFCGAL-v${SFCGAL_VERSION}
 	mkdir -p build
@@ -927,7 +940,7 @@ build_lua(){
 	mkdir -p /source
 	cd /source
 
-	wget https://www.lua.org/ftp/lua-${LUA_VERSION}.tar.gz
+	wget_retry https://www.lua.org/ftp/lua-${LUA_VERSION}.tar.gz
 	tar xvzf lua-${LUA_VERSION}.tar.gz
 	cd lua-${LUA_VERSION}
 	sed -i '10s/-O2/-O2 -fPIC/' src/Makefile
@@ -948,7 +961,7 @@ build_pcre(){
 	build_status "start" "pcre"
 	mkdir -p /source
 	cd /source
-	wget https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/pcre2-${PCRE2_VERSION}.tar.bz2
+	wget_retry https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/pcre2-${PCRE2_VERSION}.tar.bz2
 
 	tar -xvf pcre2-${PCRE2_VERSION}.tar.bz2
 	cd pcre2-${PCRE2_VERSION}
@@ -973,7 +986,7 @@ build_libxcrypt(){
 
         mkdir -p /source
         cd /source
-        wget https://github.com/besser82/libxcrypt/releases/download/v${LIBXCRYPT_VERSION}/libxcrypt-${LIBXCRYPT_VERSION}.tar.xz
+        wget_retry https://github.com/besser82/libxcrypt/releases/download/v${LIBXCRYPT_VERSION}/libxcrypt-${LIBXCRYPT_VERSION}.tar.xz
         tar -xf libxcrypt-${LIBXCRYPT_VERSION}.tar.xz
         cd libxcrypt-${LIBXCRYPT_VERSION}
 
@@ -991,7 +1004,7 @@ build_perl(){
 
 	mkdir -p /source
         cd /source/
-	wget https://www.cpan.org/src/${PERL_MAJOR_VERSION}/perl-${PERL_VERSION}.tar.gz
+	wget_retry https://www.cpan.org/src/${PERL_MAJOR_VERSION}/perl-${PERL_VERSION}.tar.gz
 	tar -xvzf perl-${PERL_VERSION}.tar.gz
 	cd perl-${PERL_VERSION}
 	./Configure -des -Duseshrplib -Dprefix=${PERL_PREFIX}
@@ -1017,7 +1030,7 @@ build_libffi() {
 
         mkdir -p /source
         cd /source/
-	wget https://github.com/libffi/libffi/releases/download/v${LIBFFI_VERSION}/libffi-${LIBFFI_VERSION}.tar.gz
+	wget_retry https://github.com/libffi/libffi/releases/download/v${LIBFFI_VERSION}/libffi-${LIBFFI_VERSION}.tar.gz
 	tar -xzf libffi-${LIBFFI_VERSION}.tar.gz
 	cd libffi-${LIBFFI_VERSION}
 
@@ -1043,7 +1056,7 @@ build_python(){
 
         mkdir -p /source
         cd /source/
-	wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
+	wget_retry https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
 	tar xvf Python-${PYTHON_VERSION}.tar.xz
         cd Python-${PYTHON_VERSION}
 	CFLAGS="-fPIC -I${PYTHON_SSL_INCLUDE}" LDFLAGS="-fPIC -L${PYTHON_SSL_PATH}" ./configure --with-openssl=/usr --enable-shared --prefix=${PYTHON_PREFIX}
@@ -1119,7 +1132,7 @@ build_tcl(){
 
         mkdir -p /source
         cd /source/
-		wget https://sourceforge.net/projects/tcl/files/Tcl/${TCL_VERSION}/tcl${TCL_VERSION}-src.tar.gz/download -O tcl${TCL_VERSION}-src.tar.gz
+		wget_retry https://sourceforge.net/projects/tcl/files/Tcl/${TCL_VERSION}/tcl${TCL_VERSION}-src.tar.gz/download -O tcl${TCL_VERSION}-src.tar.gz
         tar xvf tcl${TCL_VERSION}-src.tar.gz
         cd tcl${TCL_VERSION}/unix
         ./configure --prefix=${TCL_PREFIX} --enable-shared=yes
@@ -1168,9 +1181,9 @@ build_postgres_server(){
                 fi
 	fi
 
+        export XML_CATALOG_FILES=/etc/xml/catalog
         if [ "$INCLUDE_LIBURING" = "1" ]; then
 		export PKG_CONFIG_PATH="${DEPENDENCY_LIBS_PATH}/lib/pkgconfig"
-		export XML_CATALOG_FILES=/etc/xml/catalog
 		CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-libnuma --with-liburing --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
         else
 		CFLAGS='-O2 -DMAP_HUGETLB=0x40000' ICU_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -licuuc -licudata -licui18n" ICU_CFLAGS="-I${DEPENDENCY_LIBS_PATH}/include" ./configure --with-icu --enable-debug --with-libs=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64 --with-includes=${DEPENDENCY_LIBS_PATH}/include/libxml2:${DEPENDENCY_LIBS_PATH}/include/readline:${DEPENDENCY_LIBS_PATH}/include:${SSL_INSTALL_PATH}/include/openssl --prefix=${POSTGRESQL_PREFIX} --with-ldap --with-openssl --with-perl --with-python --with-tcl --with-pam --enable-thread-safety --with-libxml --with-ossp-uuid --docdir=${POSTGRESQL_PREFIX}/doc/postgresql --with-libxslt --with-libedit-preferred --with-gssapi LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib:${DEPENDENCY_LIBS_PATH}/lib64:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib
@@ -1347,7 +1360,7 @@ build_pgbouncer(){
 	build_status "start" "pgBouncer"
         mkdir -p /source
         cd /source
-        wget https://www.pgbouncer.org/downloads/files/${PGBOUNCER_VERSION}/pgbouncer-${PGBOUNCER_VERSION}.tar.gz
+        wget_retry https://www.pgbouncer.org/downloads/files/${PGBOUNCER_VERSION}/pgbouncer-${PGBOUNCER_VERSION}.tar.gz
         tar -xvzf pgbouncer-${PGBOUNCER_VERSION}.tar.gz
         cd pgbouncer-${PGBOUNCER_VERSION}
         LIBEVENT_LIBS="-L${DEPENDENCY_LIBS_PATH}/lib -levent" LIBEVENT_CFLAGS=-I${DEPENDENCY_LIBS_PATH}/include/ CFLAGS=-I${DEPENDENCY_LIBS_PATH}/include/ LDFLAGS="-L${DEPENDENCY_LIBS_PATH}/lib64 -L${DEPENDENCY_LIBS_PATH}/lib" ./configure \
@@ -1378,7 +1391,7 @@ build_pgpool(){
 	build_status "start" "pgPool-II"
         mkdir -p /source
         cd /source
-        wget https://www.pgpool.net/mediawiki/download.php?f=pgpool-II-${PGPOOL_VERSION}.tar.gz -O pgpool-II-${PGPOOL_VERSION}.tar.gz
+        wget_retry https://www.pgpool.net/mediawiki/download.php?f=pgpool-II-${PGPOOL_VERSION}.tar.gz -O pgpool-II-${PGPOOL_VERSION}.tar.gz
         tar -xvzf pgpool-II-${PGPOOL_VERSION}.tar.gz
         cd pgpool-II-${PGPOOL_VERSION}
         export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
@@ -1530,8 +1543,8 @@ build_pg_gather(){
         mkdir -p /source
         cd /source
 
-        wget https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/gather.sql
-        wget https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/README.md
+        wget_retry https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/gather.sql
+        wget_retry https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather/README.md
 
         cp gather.sql ${POSTGRESQL_PREFIX}/bin
         chmod 755 ${POSTGRESQL_PREFIX}/bin/gather.sql
@@ -1552,7 +1565,7 @@ build_pgbackrest_ssl1() {
         git checkout "${PGBACKREST_BRANCH}"
     fi
 
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
+    wget_retry https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
 
     export PATH="${POSTGRESQL_PREFIX}/bin:$PATH"
     export PKG_CONFIG_PATH="${POSTGRESQL_PREFIX}/lib/pkgconfig"
@@ -1611,7 +1624,7 @@ build_pgbackrest_ssl3() {
         git checkout "${PGBACKREST_BRANCH}"
     fi
 
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
+    wget_retry https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/pgbackrest/pgbackrest.conf
 
     export PATH="${POSTGRESQL_PREFIX}/bin:$PATH"
     export PKG_CONFIG_PATH="${POSTGRESQL_PREFIX}/lib/pkgconfig:${DEPENDENCY_LIBS_PATH}/lib64/pkgconfig"
@@ -1783,10 +1796,10 @@ build_haproxy(){
 	cd -
 	chmod 755 ${HAPROXY_PREFIX}/lib/*.so*
 
-        wget https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/haproxy.cfg
-        wget https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/haproxy.logrotate
-        wget https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/haproxy.sysconfig
-        wget https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/halog.1
+        wget_retry https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/haproxy.cfg
+        wget_retry https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/haproxy.logrotate
+        wget_retry https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/haproxy.sysconfig
+        wget_retry https://raw.githubusercontent.com/percona/haproxy-packaging/main/rpm/halog.1
 
         mv haproxy.cfg ${HAPROXY_PREFIX}/etc/haproxy
         mv haproxy.logrotate ${HAPROXY_PREFIX}/etc/logrotate.d/
@@ -1830,7 +1843,7 @@ build_etcd(){
 		ARCH="arm64"
 	fi
 
-	wget https://github.com/etcd-io/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-${ARCH}.tar.gz
+	wget_retry https://github.com/etcd-io/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-${ARCH}.tar.gz
 	tar -xvzf etcd-v${ETCD_VERSION}-linux-${ARCH}.tar.gz
 	cp -rp etcd-v${ETCD_VERSION}-linux-${ARCH}/etcd* ${ETCD_PREFIX}/bin
 
@@ -1863,7 +1876,7 @@ build_postgis35(){
 	build_status "start" "postgis35"
 	mkdir -p /source
 	cd /source
-	wget "https://download.osgeo.org/postgis/source/postgis-${POSTGIS35_VERSION}.tar.gz"
+	wget_retry "https://download.osgeo.org/postgis/source/postgis-${POSTGIS35_VERSION}.tar.gz"
 	tar -xvzf postgis-${POSTGIS35_VERSION}.tar.gz
 	cd postgis-${POSTGIS35_VERSION}
         yum install -y gcc-toolset-14 gcc-toolset-14-gcc-c++
@@ -1923,11 +1936,9 @@ set_rpath(){
         # Iterate over each binary in the directory
         for binary in "$directory"/*; do
 
-                # Check if the file is a binary (not a directory)
-                if [ -f "$binary" ] && [ -x "$binary" ]; then
+                # Check if the file is an ELF executable or shared library
+                if [ -f "$binary" ] && file "$binary" | grep -q "ELF"; then
                         echo "Changing RPATH for $binary..."
-
-                        # Use patchelf to set the new RPATH
                         patchelf --set-rpath "$new_rpath" "$binary"
                         echo "------------------------"
                 fi

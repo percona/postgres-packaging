@@ -215,7 +215,7 @@ build_openssl(){
 	build_status "start" "openssl" 
 	cd /source
 	rm -rf openssl-${OPENSSL_VERSION}* || true
-	wget_retry https://www.openssl.org/soure/openssl-${OPENSSL_VERSION}.tar.gz
+	wget_retry https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz
 	tar -xvzf openssl-${OPENSSL_VERSION}.tar.gz
 	cd openssl-${OPENSSL_VERSION}
 	./Configure --prefix=${DEPENDENCY_LIBS_PATH} --openssldir=${DEPENDENCY_LIBS_PATH} '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)'

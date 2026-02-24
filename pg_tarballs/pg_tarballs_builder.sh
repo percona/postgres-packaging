@@ -1939,7 +1939,7 @@ set_rpath(){
                 # Check if the file is an ELF executable or shared library
                 if [ -f "$binary" ] && file "$binary" | grep -q "ELF"; then
                         echo "Changing RPATH for $binary..."
-                        patchelf --set-rpath "$new_rpath" "$binary"
+                        patchelf --set-rpath "$new_rpath" "$binary" || echo "Warning: patchelf failed for $binary, skipping"
                         echo "------------------------"
                 fi
         done

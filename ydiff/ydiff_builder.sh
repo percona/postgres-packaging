@@ -121,7 +121,7 @@ build_srpm(){
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .generic" \
         --define "version ${YDIFF_VERSION}" \
-        --define "release ${YDIFF_RELEASE}" \
+        --define "release ${YDIFF_RPM_RELEASE}" \
         rpmbuild/SPECS/ydiff.spec
 
     mkdir -p ${WORKDIR}/srpm
@@ -171,7 +171,7 @@ build_rpm(){
         --define "_topdir ${WORKDIR}/rb" \
         --define "dist .$OS_NAME" \
         --define "version ${YDIFF_VERSION}" \
-        --define "release ${YDIFF_RELEASE}" \
+        --define "release ${YDIFF_RPM_RELEASE}" \
         --rebuild rb/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -210,7 +210,7 @@ build_source_deb(){
     mv ${TARFILE} ydiff_${YDIFF_VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
-    dch -D unstable --force-distribution -v "${YDIFF_VERSION}-${YDIFF_RELEASE}" "Update to new ydiff version ${YDIFF_VERSION}"
+    dch -D unstable --force-distribution -v "${YDIFF_VERSION}-${YDIFF_DEB_RELEASE}" "Update to new ydiff version ${YDIFF_VERSION}"
     rm -rf .github
     dpkg-buildpackage -S || true
     cd ../
@@ -256,7 +256,7 @@ build_deb(){
     dpkg-source -x ${DSC}
 
     cd ydiff-${YDIFF_VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${YDIFF_VERSION}-${YDIFF_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${YDIFF_VERSION}-${YDIFF_DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

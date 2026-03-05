@@ -362,7 +362,7 @@ case "$1" in
         YDIFF_PRODUCT=python3-ydiff
         YDIFF_PRODUCT_FULL=${YDIFF_PRODUCT}-${YDIFF_VERSION}
         YDIFF_SRC_BRANCH="${YDIFF_VERSION}"
-        YDIFF_RPM_RELEASE='1'
+        YDIFF_RPM_RELEASE='2'
         YDIFF_DEB_RELEASE='1'
         YDIFF_RELEASE='1'
 

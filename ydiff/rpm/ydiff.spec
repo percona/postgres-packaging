@@ -51,6 +51,7 @@ Summary:        %{summary}
 %if 0%{?fedora} >= 40 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1500
 %{?python_provide:%python_provide python3-%{name}}
 %endif
+Provides: python%{python3_pkgversion}-%{name} = %{version}-%{release}
 %description -n python3-%{name}
 Python library that implements API used by ydiff tool.
 

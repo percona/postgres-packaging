@@ -44,8 +44,9 @@ case "$1" in
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
         PG_SRC_BRANCH="REL_${PG_MAJOR}_${PG_MINOR}"
-        PG_RELEASE='1'
-        PG_RPM_RELEASE='1'
+# The release version is bumped only for RHEL-10 due to PG-2236
+        PG_RELEASE='2'
+        PG_RPM_RELEASE='2'
         PG_DEB_RELEASE='1'
 
         # urls

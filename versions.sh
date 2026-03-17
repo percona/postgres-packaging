@@ -88,9 +88,9 @@ case "$1" in
         PATRONI_PRODUCT=percona-patroni
         PATRONI_PRODUCT_FULL=${PATRONI_PRODUCT}-${PATRONI_VERSION}
         PATRONI_SRC_BRANCH="v${PATRONI_VERSION}"
-        PATRONI_RPM_RELEASE='2'
-        PATRONI_DEB_RELEASE='2'
-        PATRONI_RELEASE='2'
+        PATRONI_RPM_RELEASE='3'
+        PATRONI_DEB_RELEASE='3'
+        PATRONI_RELEASE='3'
 
         # urls
         PATRONI_SRC_REPO="https://github.com/zalando/patroni.git"

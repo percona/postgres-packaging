@@ -76,7 +76,7 @@ check_workdir(){
 add_percona_yum_repo(){
     yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
+    percona-release enable ppg-${PG_VERSION} release
     return
 }
 
@@ -482,15 +482,15 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="2.16.1"
+BRANCH="2.26.0"
 REPO="https://github.com/timescale/timescaledb.git"
 PRODUCT=percona-timescaledb
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.16.1'
+VERSION='2.26.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=16.10
+PG_VERSION=16.13
 PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 
 check_workdir

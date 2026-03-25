@@ -1,5 +1,5 @@
 %global sname	timescaledb
-%global pgmajorversion 17
+%global pgmajorversion 18
 
 Summary:	PostgreSQL based time-series database
 Name:		percona-%{sname}_%{pgmajorversion}

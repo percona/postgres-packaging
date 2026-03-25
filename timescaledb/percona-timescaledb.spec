@@ -3,7 +3,7 @@
 
 Summary:	PostgreSQL based time-series database
 Name:		percona-%{sname}_%{pgmajorversion}
-Version:	2.16.1
+Version:	2.26.0
 Release:	1%{?dist}
 License:	Apache
 Source0:	percona-%{sname}-%{version}.tar.gz	
@@ -15,13 +15,15 @@ Patch1:		%{sname}-cmake3-rhel7.patch
 %endif
 URL:		https://github.com/timescale/timescaledb
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
-BuildRequires:	openssl-devel
 %if 0%{?rhel} && 0%{?rhel} == 7
 BuildRequires:	cmake3
 %else
 BuildRequires:	cmake >= 3.4
 %endif
-
+%if 0%{?fedora} >= 42 || 0%{?rhel} >= 8
+Requires:	openssl-libs >= 1.1.1k
+BuildRequires:	openssl-devel
+%endif
 Requires:	percona-postgresql%{pgmajorversion}-server
 
 %description
@@ -54,11 +56,11 @@ export PATH=%{pginstdir}/bin:$PATH
 	export CXXFLAGS
 %endif
 
-cd build; %{__make}
+cd build; %{__make} %{?_smp_mflags}
 
 %install
 export PATH=%{pginstdir}/bin:$PATH
-cd build; %{__make} DESTDIR=%{buildroot} install
+cd build; %{__make} %{?_smp_mflags} DESTDIR=%{buildroot} install
 %{__rm} -f %{buildroot}/%{pginstdir}/lib/pgxs/src/test/perl/*pm
 
 %files

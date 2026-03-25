@@ -29,7 +29,7 @@ YDIFF_VERSION=1.4.2
 
 # Github Packaging Repo
 PKG_GIT_REPO="https://github.com/percona/postgres-packaging.git"
-PKG_GIT_BRANCH=${PG_VERSION}
+PKG_GIT_BRANCH=${PG_VERSION}-extras
 PGRPMS_GIT_REPO="https://git.postgresql.org/git/pgrpms.git"
 
 # Raw files URLs

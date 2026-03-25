@@ -45,13 +45,12 @@ case "$1" in
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
         PG_RELEASE='1'
-        PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}.${PG_RELEASE}"
-        PG_SRC_BRANCH_NIGHTLY="TDE_REL_${PG_MAJOR}_STABLE"
+        PG_SRC_BRANCH="REL_${PG_MAJOR}_${PG_MINOR}"
         PG_RPM_RELEASE='1'
         PG_DEB_RELEASE='1'
 
         # urls
-        PG_SRC_REPO="https://github.com/Percona-Lab/postgres.git"
+        PG_SRC_REPO="https://git.postgresql.org/git/postgresql.git"
         PG_SRC_REPO_DEB="https://salsa.debian.org/postgresql/postgresql.git"
         PG_DOC="https://www.postgresql.org/files/documentation/pdf/${PG_MAJOR}/postgresql-${PG_MAJOR}-A4.pdf"
     ;;

@@ -137,17 +137,17 @@ get_sources(){
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/rules
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}-extras/timescaledb/control
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}-extras/timescaledb/control.in
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}-extras/timescaledb/rules
     echo ${PG_MAJOR_VERSION} > pgversions
     echo 10 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/percona-timescaledb.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/timescaledb-cmake3-rhel7.patch
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}-extras/timescaledb/percona-timescaledb.spec
+    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}-extras/timescaledb/timescaledb-cmake3-rhel7.patch
     cd ${WORKDIR}
     #
     source timescaledb.properties

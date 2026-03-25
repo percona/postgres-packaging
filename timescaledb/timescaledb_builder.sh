@@ -79,7 +79,7 @@ add_percona_yum_repo(){
     mv percona-release.sh /usr/bin/percona-release
     chmod 777 /usr/bin/percona-release
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
+    percona-release enable ppg-18-extras testing
     return
 }
 
@@ -479,15 +479,15 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
-BRANCH="2.17.1"
+BRANCH="2.26.0"
 REPO="https://github.com/timescale/timescaledb.git"
 PRODUCT=percona-timescaledb
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.17.1'
+VERSION='2.26.0'
 RELEASE='1'
 PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=17.6
+PG_VERSION=18.3
 PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 
 check_workdir

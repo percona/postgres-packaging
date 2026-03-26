@@ -1,7 +1,9 @@
---- configure.ac	2018-08-23 13:51:56.736635610 +0100
-+++ configure.ac	2018-08-23 13:52:42.308885080 +0100
-@@ -17587,7 +17587,7 @@
- 				LIBGDAL_CFLAGS=`$GDAL_CONFIG --cflags`
+diff --git a/configure.ac b/configure.ac
+index 855ea1d54..f099b8d61 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1515,7 +1515,7 @@ if test "x$with_raster" != "xno"; then
+ 		LIBGDAL_CFLAGS=`$GDAL_CONFIG --cflags`
  
  		CPPFLAGS_SAVE="$CPPFLAGS"
 -		CPPFLAGS="$LIBGDAL_CFLAGS"

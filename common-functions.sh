@@ -82,7 +82,7 @@ switch_to_vault_repo() {
 add_percona_yum_repo(){
     yum -y install ${YUM_REPO}
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} ${REPO_COMP}
+    percona-release enable ppg-${PG_MAJOR}-extras ${REPO_COMP}
     return
 }
 
@@ -91,7 +91,7 @@ add_percona_apt_repo(){
     dpkg -i percona-release_latest.generic_all.deb
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
-    percona-release enable ppg-${PG_VERSION} ${REPO_COMP}
+    percona-release enable ppg-${PG_MAJOR}-extras ${REPO_COMP}
     return
 }
 

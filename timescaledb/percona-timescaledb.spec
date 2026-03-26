@@ -1,10 +1,10 @@
 %global sname	timescaledb
-%global pgmajorversion 18
+%global pgmajorversion %{pgmajor}
 
 Summary:	PostgreSQL based time-series database
 Name:		percona-%{sname}_%{pgmajorversion}
-Version:	2.26.0
-Release:	1%{?dist}
+Version:	%{version}
+Release:	%{release}%{?dist}
 License:	Apache
 Source0:	percona-%{sname}-%{version}.tar.gz	
 Packager:       Percona Development Team <https://jira.percona.com>

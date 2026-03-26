@@ -1,93 +1,10 @@
+
 #!/usr/bin/env bash
-
-shell_quote_string() {
-  echo "$1" | sed -e 's,\([^a-zA-Z0-9/_.=-]\),\\\1,g'
-}
-
-usage () {
-    cat <<EOF
-Usage: $0 [OPTIONS]
-    The following options may be given :
-        --builddir=DIR      Absolute path to the dir where all actions will be performed
-        --get_sources       Source will be downloaded from github
-        --build_src_rpm     If it is set - src rpm will be built
-        --build_src_deb  If it is set - source deb package will be built
-        --build_rpm         If it is set - rpm will be built
-        --build_deb         If it is set - deb will be built
-        --install_deps      Install build dependencies(root privilages are required)
-        --branch            Branch for build
-        --repo              Repo for build
-        --help) usage ;;
-Example $0 --builddir=/tmp/BUILD --get_sources=1 --build_src_rpm=1 --build_rpm=1
-EOF
-        exit 1
-}
-
-append_arg_to_args () {
-  args="$args "$(shell_quote_string "$1")
-}
-
-parse_arguments() {
-    pick_args=
-    if test "$1" = PICK-ARGS-FROM-ARGV
-    then
-        pick_args=1
-        shift
-    fi
-
-    for arg do
-        val=$(echo "$arg" | sed -e 's;^--[^=]*=;;')
-        case "$arg" in
-            --builddir=*) WORKDIR="$val" ;;
-            --build_src_rpm=*) SRPM="$val" ;;
-            --build_src_deb=*) SDEB="$val" ;;
-            --build_rpm=*) RPM="$val" ;;
-            --build_deb=*) DEB="$val" ;;
-            --get_sources=*) SOURCE="$val" ;;
-            --branch=*) BRANCH="$val" ;;
-            --repo=*) REPO="$val" ;;
-            --install_deps=*) INSTALL="$val" ;;
-            --help) usage ;;
-            *)
-              if test -n "$pick_args"
-              then
-                  append_arg_to_args "$arg"
-              fi
-              ;;
-        esac
-    done
-}
-
-check_workdir(){
-    if [ "x$WORKDIR" = "x$CURDIR" ]
-    then
-        echo >&2 "Current directory cannot be used for building!"
-        exit 1
-    else
-        if ! test -d "$WORKDIR"
-        then
-            echo >&2 "$WORKDIR is not a directory."
-            exit 1
-        fi
-    fi
-    return
-}
-
-add_percona_yum_repo(){
-    yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} release
-    return
-}
-
-add_percona_apt_repo(){
-    wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-    dpkg -i percona-release_latest.generic_all.deb
-    rm -f percona-release_latest.generic_all.deb
-    percona-release disable all
-    percona-release enable ppg-${PG_VERSION} testing
-    return
-}
+set -x
+# Versions and other variables
+source versions.sh "postgresql"
+# Common functions
+source common-functions.sh
 
 get_sources(){
     cd "${WORKDIR}"
@@ -96,178 +13,68 @@ get_sources(){
         echo "Sources will not be downloaded"
         return 0
     fi
-    PRODUCT=percona-timescaledb
-    echo "PRODUCT=${PRODUCT}" > timescaledb.properties
 
-    PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> timescaledb.properties
-    echo "VERSION=${PSM_VER}" >> timescaledb.properties
+    echo "PRODUCT=${TIMESCALEDB_PRODUCT}" > timescaledb.properties
+    echo "PRODUCT_FULL=${TIMESCALEDB_PRODUCT_FULL}" >> timescaledb.properties
+    echo "VERSION=${TIMESCALEDB_PRODUCT_FULL}" >> timescaledb.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> timescaledb.properties
     echo "BUILD_ID=${BUILD_ID}" >> timescaledb.properties
-    git clone "$REPO" ${PRODUCT_FULL}
+    git clone "$TIMESCALEDB_SRC_REPO" ${TIMESCALEDB_PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
-    cd ${PRODUCT_FULL}
-    if [ ! -z "$BRANCH" ]
+    cd ${TIMESCALEDB_PRODUCT_FULL}
+    if [ ! -z "$TIMESCALEDB_SRC_BRANCH" ]
     then
         git reset --hard
         git clean -xdf
-        git checkout "$BRANCH"
+        git checkout "$TIMESCALEDB_SRC_BRANCH"
         git submodule update --init
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/timescaledb.properties
     rm -fr debian rpm
 
-    git clone https://salsa.debian.org/postgresql/timescaledb.git deb_packaging
+    git clone "$TIMESCALEDB_SRC_REPO_DEB" deb_packaging
     mv deb_packaging/debian ./
     cd debian/
     for file in $(ls | grep ^timescaledb | grep -v timescaledb.conf); do
         mv $file "percona-$file"
     done
     rm -rf changelog
-    echo "percona-timescaledb (${VERSION}-${RELEASE}) unstable; urgency=low" >> changelog
+    echo "$TIMESCALEDB_PRODUCT (${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     rm -f control rules
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/control
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/control.in
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/rules
-    echo ${PG_MAJOR_VERSION} > pgversions
+    wget ${PKG_RAW_URL}/timescaledb/control
+    wget ${PKG_RAW_URL}/timescaledb/control.in
+    wget ${PKG_RAW_URL}/timescaledb/rules
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in
+    echo ${PG_MAJOR} > pgversions
     echo 10 > compat
     cd ../
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/percona-timescaledb.spec
-    wget https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}/timescaledb/timescaledb-cmake3-rhel7.patch
+    wget ${PKG_RAW_URL}/timescaledb/percona-timescaledb.spec
+    wget ${PKG_RAW_URL}/timescaledb/timescaledb-cmake3-rhel7.patch
     cd ${WORKDIR}
     #
     source timescaledb.properties
     #
 
-    tar --owner=0 --group=0 -czf ${PRODUCT_FULL}.tar.gz ${PRODUCT_FULL}
+    tar --owner=0 --group=0 -czf ${TIMESCALEDB_PRODUCT_FULL}.tar.gz ${TIMESCALEDB_PRODUCT_FULL}
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT}/${PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> timescaledb.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${TIMESCALEDB_PRODUCT}/${TIMESCALEDB_PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> timescaledb.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
-    cp ${PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
+    cp ${TIMESCALEDB_PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
+    cp ${TIMESCALEDB_PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
     rm -rf percona-timescaledb*
-    return
-}
-
-get_system(){
-    if [ -f /etc/redhat-release ]; then
-        RHEL=$(rpm --eval %rhel)
-        ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-        OS_NAME="el$RHEL"
-        OS="rpm"
-    else
-        ARCH=$(uname -m)
-        OS_NAME="$(lsb_release -sc)"
-        OS="deb"
-    fi
-    return
-}
-switch_to_vault_repo() {
-    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
-}
-
-install_deps() {
-    if [ $INSTALL = 0 ]
-    then
-        echo "Dependencies will not be installed"
-        return;
-    fi
-    if [ $( id -u ) -ne 0 ]
-    then
-        echo "It is not possible to instal dependencies. Please run as root"
-        exit 1
-    fi
-    CURPLACE=$(pwd)
-
-    if [ "x$OS" = "xrpm" ]; then
-      RHEL=$(rpm --eval %rhel)
-      if [ x"$RHEL" = x8 ]; then
-          switch_to_vault_repo
-      fi
-      yum -y install wget
-      add_percona_yum_repo
-      yum clean all
-      if [[ "${RHEL}" -eq 10 ]]; then
-        yum install oracle-epel-release-el10
-      else
-        yum -y install epel-release
-      fi
-      if [ ${RHEL} -gt 7 ]; then
-          dnf -y module disable postgresql
-          dnf config-manager --set-enabled ol${RHEL}_codeready_builder
-          dnf clean all
-          rm -r /var/cache/dnf
-          dnf -y upgrade
-	  switch_to_vault_repo
-
-          yum -y install clang-devel clang llvm-devel cmake
-      else
-        until yum -y install centos-release-scl; do
-            echo "waiting"
-            sleep 1
-        done
-        yum -y install llvm-toolset-7-clang llvm5.0-devtoolset cmake3
-        source /opt/rh/devtoolset-7/enable
-        source /opt/rh/llvm-toolset-7/enable
-      fi
-      INSTALL_LIST="percona-postgresql${PG_MAJOR_VERSION}-devel openssl-devel git rpmdevtools wget gcc make autoconf"
-      yum -y install ${INSTALL_LIST}
-
-    else
-      export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-      apt-get update || true
-      apt-get -y install lsb-release wget gnupg2 curl
-      export DEBIAN=$(lsb_release -sc)
-      add_percona_apt_repo
-      apt-get update || true
-      INSTALL_LIST="build-essential pkg-config debconf debhelper debhelper-compat devscripts dh-exec git wget cmake libssl-dev percona-postgresql-${PG_MAJOR_VERSION} percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-all"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
-    fi
-
-    if [ "x${DEBIAN}" = "xbuster" ]; then
-       cd /tmp
-       wget https://github.com/Kitware/CMake/releases/download/v3.29.6/cmake-3.29.6-linux-${ARCH}.tar.gz
-       tar -xvzf cmake-3.29.6-linux-${ARCH}.tar.gz
-       cp -rp cmake-3.29.6-linux-${ARCH}/bin/* /usr/bin/
-       cp -rp cmake-3.29.6-linux-${ARCH}/share/cmake-3.29 /usr/share
-       cd -
-    fi
-    return;
-}
-
-get_tar(){
-    TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-timescaledb*.tar.gz' | sort | tail -n1))
-    if [ -z $TARFILE ]
-    then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-timescaledb*.tar.gz' | sort | tail -n1))
-        if [ -z $TARFILE ]
-        then
-            echo "There is no $TARBALL for build"
-            exit 1
-        else
-            cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-        fi
-    else
-        cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    fi
     return
 }
 
@@ -303,21 +110,28 @@ build_srpm(){
         exit 1
     fi
     cd $WORKDIR
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-timescaledb"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
     TARFILE=$(find . -name 'percona-timescaledb*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
-    #
+    
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
-    #
+    
     cp -av rpm/* rpmbuild/SOURCES
     cp -av rpm/percona-timescaledb.spec rpmbuild/SPECS
-    #
+    
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-${PG_MAJOR_VERSION}" --define "dist .generic" \
-        --define "version ${VERSION}" rpmbuild/SPECS/percona-timescaledb.spec
+    rpmbuild -bs \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-${PG_MAJOR}" \
+        --define "dist .generic" \
+        --define "pgmajor ${PG_MAJOR}" \
+        --define "version ${TIMESCALEDB_VERSION}" \
+        --define "release ${TIMESCALEDB_RELEASE}" \
+        rpmbuild/SPECS/percona-timescaledb.spec
+
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -365,12 +179,16 @@ build_rpm(){
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/llvm-toolset-7/enable
     fi
-    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR_VERSION}/
-    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR_VERSION}/lib/:/usr/pgsql-${PG_MAJOR_VERSION}/include/
-    if [[ "${RHEL}" -eq 10 ]]; then
-        export QA_RPATHS=0x0002
-    fi
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "pginstdir /usr/pgsql-${PG_MAJOR_VERSION}" --define "dist .$OS_NAME" --define "version ${VERSION}" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR}/
+    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR}/lib/:/usr/pgsql-${PG_MAJOR}/include/
+    rpmbuild \
+        --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-${PG_MAJOR}" \
+        --define "dist .$OS_NAME" \
+        --define "pgmajor ${PG_MAJOR}" \
+        --define "version ${TIMESCALEDB_VERSION}" \
+        --define "release ${TIMESCALEDB_RELEASE}" \
+        --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -394,7 +212,7 @@ build_source_deb(){
         exit 1
     fi
     rm -rf percona-timescaledb*
-    get_tar "source_tarball"
+    get_tar "source_tarball" "percona-timescaledb"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
     TARFILE=$(basename $(find . -name 'percona-*timescaledb*.tar.gz' | sort | tail -n1))
@@ -407,7 +225,7 @@ build_source_deb(){
     mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
     cd ${BUILDDIR}
   
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}" "Update to new timescaledb version ${VERSION}"
+    dch -D unstable --force-distribution -v "${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}" "Update to new timescaledb version ${TIMESCALEDB_VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -451,8 +269,8 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${PRODUCT}-${VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${VERSION}-${RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${TIMESCALEDB_PRODUCT_DEB}
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb
@@ -475,27 +293,21 @@ SDEB=0
 RPM=0
 DEB=0
 SOURCE=0
-OS_NAME=
-ARCH=
-OS=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
 REVISION=0
-BRANCH="2.26.0"
-REPO="https://github.com/timescale/timescaledb.git"
-PRODUCT=percona-timescaledb
 DEBUG=0
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
-VERSION='2.26.0'
-RELEASE='1'
-PRODUCT_FULL=${PRODUCT}-${VERSION}-${RELEASE}
-PG_VERSION=16.13
-PG_MAJOR_VERSION=$(echo ${PG_VERSION} | cut -f1 -d'.')
 
 check_workdir
 get_system
-install_deps
+
+#install_deps
+if [ $INSTALL = 0 ]; then
+    echo "Dependencies will not be installed"
+else
+    source install-deps.sh "timescaledb"
+fi
+
 get_sources
 build_srpm
 build_source_deb

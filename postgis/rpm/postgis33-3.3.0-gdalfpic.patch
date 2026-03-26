@@ -1,7 +1,7 @@
 diff --git a/configure.ac b/configure.ac
 index 855ea1d54..f099b8d61 100644
---- a/configure.ac
-+++ b/configure.ac
+--- configure.ac
++++ configure.ac
 @@ -1515,7 +1515,7 @@ if test "x$with_raster" != "xno"; then
  		LIBGDAL_CFLAGS=`$GDAL_CONFIG --cflags`
  

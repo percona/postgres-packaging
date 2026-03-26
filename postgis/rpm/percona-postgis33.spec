@@ -266,8 +266,7 @@ This packages provides JIT support for postgis33
 %setup -q -n percona-postgis-%{version}
 %{__cp} -p %{SOURCE2} .
 # Copy .pdf file to top directory before installing.
-/usr/bin/patch --no-backup-if-mismatch -p0 --ignore-whitespace  --fuzz=0  < %{PATCH0}
-#%patch0 -p0
+%patch -P 0 -p0
 
 %build
 LDFLAGS="-Wl,-rpath,%{geosinstdir}/lib64 ${LDFLAGS}" ; export LDFLAGS

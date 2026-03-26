@@ -53,7 +53,7 @@ case "$1" in
         # urls
     #    PG_CRON_SRC_REPO="https://github.com/citusdata/pg_cron.git"
     #    PG_CRON_SRC_REPO_DEB="https://salsa.debian.org/postgresql/pg-cron.git"
-    ;;
+    #;;
 
 
     timescaledb)

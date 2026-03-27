@@ -548,6 +548,7 @@ export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
         --libdir=%{pgbaseinstdir}/lib \
         --with-lz4 \
         --with-zstd \
+        --with-extra-version=" - Percona Distribution" \
 %if %beta
         --enable-debug \
         --enable-cassert \

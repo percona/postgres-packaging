@@ -1,0 +1,12 @@
+--- CMakeLists.txt.old	2023-11-05 19:49:33.478335865 +0000
++++ CMakeLists.txt	2023-11-05 19:49:40.351360794 +0000
+@@ -59,9 +59,6 @@
+   include(CTest)
+ endif()
+ 
+-# Include core library
+-add_subdirectory(cmake/h3)
+-
+ # Include extensions and their shared code
+ add_subdirectory(include)
+ add_subdirectory(h3)

@@ -258,6 +258,39 @@ EOF
     ;;
 
 
+  
+  h3-pg)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel h3-devel"
+      yum -y install ${INSTALL_LIST}
+    else
+      deb_deps
+      INSTALL_LIST="build-essential pkg-config debconf debhelper debhelper-compat devscripts dh-exec git wget cmake libh3-dev percona-postgresql-server-dev-all percona-postgresql-all"
+      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
+        sleep 1
+        echo "waiting"
+      done
+    fi
+    ;;
+
+
+  pgrouting)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel boost-devel gcc-c++ gmp-devel perl-version"
+      yum -y install ${INSTALL_LIST}
+    else
+      deb_deps
+      INSTALL_LIST="build-essential pkg-config debconf debhelper debhelper-compat devscripts dh-exec git wget cmake percona-postgresql-server-dev-all percona-postgresql-all"
+      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
+        sleep 1
+        echo "waiting"
+      done
+    fi
+    ;;
+
+
   *)
     echo "No special dependencies defined for $COMPONENT"
     ;;

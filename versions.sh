@@ -8,6 +8,9 @@ PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 #PG_CRON_VERSION=1.6.2
 TIMESCALEDB_VERSION=2.26.0
+H3_PG_VERSION=4.2.3
+PGROUTING_MAJOR=4.0
+PGROUTING_MINOR=1
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -17,7 +20,7 @@ PKG_GIT_BRANCH=${PG_VERSION}-extras
 PGRPMS_GIT_REPO="https://git.postgresql.org/git/pgrpms.git"
 
 # Raw files URLs
-PKG_RAW_URL="https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}-extras"
+PKG_RAW_URL="https://raw.githubusercontent.com/percona/postgres-packaging/${PKG_GIT_BRANCH}"
 
 # Percona Repos
 YUM_REPO="https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
@@ -60,7 +63,7 @@ case "$1" in
         # versions
         TIMESCALEDB_PRODUCT=percona-timescaledb_${PG_MAJOR}
         TIMESCALEDB_PRODUCT_DEB=percona-timescaledb-${PG_MAJOR}
-        TIMESCALEDB_PRODUCT_FULL=${TIMESCALEDB_PRODUCT}_${TIMESCALEDB_VERSION}
+        TIMESCALEDB_PRODUCT_FULL=${TIMESCALEDB_PRODUCT}-${TIMESCALEDB_VERSION}
         TIMESCALEDB_RELEASE='1'
         TIMESCALEDB_SRC_BRANCH="${TIMESCALEDB_VERSION}"
         TIMESCALEDB_RPM_RELEASE='1'
@@ -69,5 +72,36 @@ case "$1" in
         # urls
         TIMESCALEDB_SRC_REPO="https://github.com/timescale/timescaledb.git"
         TIMESCALEDB_SRC_REPO_DEB="https://salsa.debian.org/postgresql/timescaledb.git"
+    ;;
+
+    h3-pg)
+        # versions
+        H3_PG_PRODUCT=percona-h3-pg_${PG_MAJOR}
+        H3_PG_PRODUCT_DEB=percona-h3-pg-${PG_MAJOR}
+        H3_PG_PRODUCT_FULL=${H3_PG_PRODUCT}-${H3_PG_VERSION}
+        H3_PG_RELEASE='1'
+        H3_PG_SRC_BRANCH="v${H3_PG_VERSION}"
+        H3_PG_RPM_RELEASE='1'
+        H3_PG_DEB_RELEASE='1'
+
+        # urls
+        H3_PG_SRC_REPO="https://github.com/postgis/h3-pg.git"
+        H3_PG_SRC_REPO_DEB="https://salsa.debian.org/postgresql/h3-pg.git"
+    ;;
+
+    pgrouting)
+        # versions
+        PGROUTING_PRODUCT=percona-pgrouting_${PG_MAJOR}
+        PGROUTING_PRODUCT_DEB=percona-pgrouting-${PG_MAJOR}
+        PGROUTING_VERSION=${PGROUTING_MAJOR}.${PGROUTING_MINOR}
+        PGROUTING_PRODUCT_FULL=${PGROUTING_PRODUCT}-${PGROUTING_VERSION}
+        PGROUTING_RELEASE='1'
+        PGROUTING_SRC_BRANCH="v${PGROUTING_VERSION}"
+        PGROUTING_RPM_RELEASE='1'
+        PGROUTING_DEB_RELEASE='1'
+
+        # urls
+        PGROUTING_SRC_REPO="https://github.com/pgRouting/pgrouting.git"
+        PGROUTING_SRC_REPO_DEB="https://salsa.debian.org/debian-gis-team/pgrouting.git"
     ;;
 esac

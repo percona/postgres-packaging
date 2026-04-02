@@ -13,6 +13,9 @@ Release:	%{release}%{dist}
 License:	GPLv2+
 Source0:	%{sname}-%{version}.tar.gz
 URL:		https://pgrouting.org/
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
+
 BuildRequires:	cmake >= 3.12 boost-devel >= 1.56
 BuildRequires:	gcc-c++ gmp-devel
 %if 0%{?fedora} >= 42 || 0%{?rhel} >= 8 || 0%{?suse_version} <= 1500

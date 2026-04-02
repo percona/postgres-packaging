@@ -9,8 +9,11 @@ Version:	%{version}
 Release:	%{release}%{dist}
 License:	Apache
 URL:		https://github.com/postgis/%{pname}
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 Source0:	%{sname}-%{version}.tar.gz
 Patch0:		%{pname}-useosh3.patch
+
 BuildRequires:	cmake >= 3.20 h3-devel >= 4.2.0-3
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
 

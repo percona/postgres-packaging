@@ -11,6 +11,7 @@ TIMESCALEDB_VERSION=2.26.0
 H3_PG_VERSION=4.2.3
 PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
+PGVECTORSCALE_VERSION=0.9.0
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -103,5 +104,20 @@ case "$1" in
         # urls
         PGROUTING_SRC_REPO="https://github.com/pgRouting/pgrouting.git"
         PGROUTING_SRC_REPO_DEB="https://salsa.debian.org/debian-gis-team/pgrouting.git"
+    ;;
+
+    pgvectorscale)
+        # versions
+        PGVECTORSCALE_PRODUCT=percona-pgvectorscale_${PG_MAJOR}
+        PGVECTORSCALE_PRODUCT_DEB=percona-pgvectorscale-${PG_MAJOR}
+        PGVECTORSCALE_PRODUCT_FULL=${PGVECTORSCALE_PRODUCT}-${PGVECTORSCALE_VERSION}
+        PGVECTORSCALE_RELEASE='1'
+        PGVECTORSCALE_SRC_BRANCH="${PGVECTORSCALE_VERSION}"
+        PGVECTORSCALE_RPM_RELEASE='1'
+        PGVECTORSCALE_DEB_RELEASE='1'
+
+        # urls
+        PGVECTORSCALE_SRC_REPO="https://github.com/timescale/pgvectorscale.git"
+        PGVECTORSCALE_SRC_REPO_DEB=""
     ;;
 esac

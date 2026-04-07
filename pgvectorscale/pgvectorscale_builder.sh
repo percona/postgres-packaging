@@ -1,7 +1,8 @@
+
 #!/usr/bin/env bash
-set -ex
+set -x
 # Versions and other variables
-source versions.sh "pgrouting"
+source versions.sh "pgvectorscale"
 # Common functions
 source common-functions.sh
 
@@ -13,72 +14,77 @@ get_sources(){
         return 0
     fi
 
-    echo "PRODUCT=${PGROUTING_PRODUCT}" > percona-pgrouting.properties
-    echo "PRODUCT_FULL=${PGROUTING_PRODUCT_FULL}" >> percona-pgrouting.properties
-    echo "VERSION=${PGROUTING_VERSION}" >> percona-pgrouting.properties
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-pgrouting.properties
-    echo "BUILD_ID=${BUILD_ID}" >> percona-pgrouting.properties
+    echo "PRODUCT=${PGVECTORSCALE_PRODUCT}" > pgvectorscale.properties
+    echo "PRODUCT_FULL=${PGVECTORSCALE_PRODUCT_FULL}" >> pgvectorscale.properties
+    echo "VERSION=${PGVECTORSCALE_PRODUCT_FULL}" >> pgvectorscale.properties
+    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> pgvectorscale.properties
+    echo "BUILD_ID=${BUILD_ID}" >> pgvectorscale.properties
 
-    git clone "$PGROUTING_SRC_REPO"
+    git clone "$PGVECTORSCALE_SRC_REPO" ${PGVECTORSCALE_PRODUCT_FULL}
     retval=$?
     if [ $retval != 0 ]
     then
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
-    mv pgrouting ${PGROUTING_PRODUCT_FULL}
-    cd ${PGROUTING_PRODUCT_FULL}
-    if [ ! -z "$PGROUTING_SRC_BRANCH" ]
+    cd ${PGVECTORSCALE_PRODUCT_FULL}
+    if [ ! -z "$PGVECTORSCALE_SRC_BRANCH" ]
     then
         git reset --hard
         git clean -xdf
-        git checkout "$PGROUTING_SRC_BRANCH"
+        git checkout "$PGVECTORSCALE_SRC_BRANCH"
+        git submodule update --init
     fi
     REVISION=$(git rev-parse --short HEAD)
-    echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-pgrouting.properties
+    echo "REVISION=${REVISION}" >> ${WORKDIR}/pgvectorscale.properties
     rm -fr debian rpm
 
-    #git clone ${PGROUTING_SRC_REPO_DEB} deb_packaging
+    #git clone "$PGVECTORSCALE_SRC_REPO_DEB" deb_packaging
     #mv deb_packaging/debian ./
-    #rm -rf deb_packaging
-    #cd debian
-    #    for file in $(ls | grep pgrouting); do
-    #        mv $file "percona-$file"
-    #    done
-    #    wget ${PKG_RAW_URL}/pgrouting/debian/rules
-    #    wget ${PKG_RAW_URL}/pgrouting/debian/control
-    #    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control
-	#cp control control.in
+    #cd debian/
+    #for file in $(ls | grep ^pgvectorscale | grep -v pgvectorscale.conf); do
+    #    mv $file "percona-$file"
+    #done
+    #rm -rf changelog
+    #echo "$PGVECTORSCALE_PRODUCT (${PGVECTORSCALE_VERSION}-${PGVECTORSCALE_RELEASE}) unstable; urgency=low" >> changelog
+    #echo "  * Initial Release." >> changelog
+    #echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    #rm -f control rules
+    #wget ${PKG_RAW_URL}/pgvectorscale/control
+    #wget ${PKG_RAW_URL}/pgvectorscale/control.in
+    #wget ${PKG_RAW_URL}/pgvectorscale/rules
+    #sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in
+    #echo ${PG_MAJOR} > pgversions
+    #echo 10 > compat
     #cd ../
-
+    #rm -rf deb_packaging
     mkdir rpm
     cd rpm
-    wget ${PKG_RAW_URL}/pgrouting/rpm/percona-pgrouting.spec
-    cd ../
+    wget ${PKG_RAW_URL}/pgvectorscale/rpm/percona-pgvectorscale.spec
     cd ${WORKDIR}
     #
-    source percona-pgrouting.properties
+    source pgvectorscale.properties
     #
 
-    tar --owner=0 --group=0 --exclude=.* -czf ${PGROUTING_PRODUCT_FULL}.tar.gz ${PGROUTING_PRODUCT_FULL}
+    tar --owner=0 --group=0 -czf ${PGVECTORSCALE_PRODUCT_FULL}.tar.gz ${PGVECTORSCALE_PRODUCT_FULL}
     DATE_TIMESTAMP=$(date +%F_%H-%M-%S)
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PGROUTING_PRODUCT}/${PGROUTING_PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> percona-pgrouting.properties
+    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PGVECTORSCALE_PRODUCT}/${PGVECTORSCALE_PRODUCT_FULL}/${PSM_BRANCH}/${REVISION}/${DATE_TIMESTAMP}/${BUILD_ID}" >> pgvectorscale.properties
     mkdir $WORKDIR/source_tarball
     mkdir $CURDIR/source_tarball
-    cp ${PGROUTING_PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
-    cp ${PGROUTING_PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
+    cp ${PGVECTORSCALE_PRODUCT_FULL}.tar.gz $WORKDIR/source_tarball
+    cp ${PGVECTORSCALE_PRODUCT_FULL}.tar.gz $CURDIR/source_tarball
     cd $CURDIR
-    rm -rf percona-pgrouting*
+    rm -rf percona-pgvectorscale*
     return
 }
 
 #get_deb_sources(){
 #    param=$1
 #    echo $param
-#    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-pgrouting*.$param" | sort | tail -n1))
+#    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-*pgvectorscale*.$param" | sort | tail -n1))
 #    if [ -z $FILE ]
-#   then
-#        FILE=$(basename $(find $CURDIR/source_deb -name "percona-pgrouting*.$param" | sort | tail -n1))
+#    then
+#        FILE=$(basename $(find $CURDIR/source_deb -name "percona-*pgvectorscale*.$param" | sort | tail -n1))
 #        if [ -z $FILE ]
 #        then
 #            echo "There is no sources for build"
@@ -104,29 +110,28 @@ build_srpm(){
         exit 1
     fi
     cd $WORKDIR
-    get_tar "source_tarball" "percona-pgrouting"
+    get_tar "source_tarball" "percona-pgvectorscale"
     rm -fr rpmbuild
     ls | grep -v tar.gz | xargs rm -rf
-    TARFILE=$(find . -name 'percona-pgrouting*.tar.gz' | sort | tail -n1)
+    TARFILE=$(find . -name 'percona-pgvectorscale*.tar.gz' | sort | tail -n1)
     SRC_DIR=${TARFILE%.tar.gz}
-    #
+    
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
-    #
+    
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpmbuild/SOURCES/percona-pgrouting.spec rpmbuild/SPECS
-    #
+    cp -av rpm/percona-pgvectorscale.spec rpmbuild/SPECS
+    
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
-
     rpmbuild -bs \
         --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-${PG_MAJOR}" \
         --define "dist .generic" \
         --define "pgmajor ${PG_MAJOR}" \
-        --define "pgroutingmajor ${PGROUTING_MAJOR}" \
-        --define "version ${PGROUTING_VERSION}" \
-	    --define "release ${PGROUTING_RELEASE}" \
-        --define "pginstdir /usr/pgsql-$PG_MAJOR" \
-        rpmbuild/SPECS/percona-pgrouting.spec
+        --define "version ${PGVECTORSCALE_VERSION}" \
+        --define "release ${PGVECTORSCALE_RELEASE}" \
+        rpmbuild/SPECS/percona-pgvectorscale.spec
+
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
@@ -145,10 +150,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-pgrouting*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-pgvectorscale*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-pgrouting*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-pgvectorscale*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -171,14 +176,15 @@ build_rpm(){
     RHEL=$(rpm --eval %rhel)
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
 
+    export LIBPQ_DIR=/usr/pgsql-${PG_MAJOR}/
+    export LIBRARY_PATH=/usr/pgsql-${PG_MAJOR}/lib/:/usr/pgsql-${PG_MAJOR}/include/
     rpmbuild \
         --define "_topdir ${WORKDIR}/rpmbuild" \
+        --define "pginstdir /usr/pgsql-${PG_MAJOR}" \
         --define "dist .$OS_NAME" \
         --define "pgmajor ${PG_MAJOR}" \
-        --define "pgroutingmajor ${PGROUTING_MAJOR}" \
-        --define "version ${PGROUTING_VERSION}" \
-	    --define "release ${PGROUTING_RELEASE}" \
-        --define "pginstdir /usr/pgsql-$PG_MAJOR" \
+        --define "version ${PGVECTORSCALE_VERSION}" \
+        --define "release ${PGVECTORSCALE_RELEASE}" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
@@ -202,29 +208,21 @@ build_rpm(){
 #        echo "It is not possible to build source deb here"
 #        exit 1
 #    fi
-#    rm -rf percona-pgrouting*
-#    get_tar "source_tarball" "percona-pgrouting"
+#    rm -rf percona-pgvectorscale*
+#    get_tar "source_tarball" "percona-pgvectorscale"
 #    rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
 #    #
-#    TARFILE=$(basename $(find . -name 'percona-pgrouting*.tar.gz' | sort | tail -n1))
+#    TARFILE=$(basename $(find . -name 'percona-*pgvectorscale*.tar.gz' | sort | tail -n1))
 #    DEBIAN=$(lsb_release -sc)
 #    ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
 #    tar zxf ${TARFILE}
 #    BUILDDIR=${TARFILE%.tar.gz}
-    #
+#    #
     
-#    mv ${TARFILE} ${PGROUTING_PRODUCT}_${PGROUTING_VERSION}.orig.tar.gz
+#    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
 #    cd ${BUILDDIR}
-
-#    cd debian
-#    rm -rf changelog
-#    echo "percona-pgrouting (${PGROUTING_VERSION}) unstable; urgency=low" >> changelog
-#    echo "  * Initial Release." >> changelog
-#    echo " -- SurabhiBhat <surabhi.bhat@percona.com> $(date -R)" >> changelog
- 
-#    cd ../
-    
-#    dch -D unstable --force-distribution -v "${PGROUTING_VERSION}-${PGROUTING_DEB_RELEASE}" "Update to new Percona Platform for PostgreSQL version ${PGROUTING_VERSION}-${PGROUTING_DEB_RELEASE}"
+  
+#    dch -D unstable --force-distribution -v "${PGVECTORSCALE_VERSION}-${PGVECTORSCALE_RELEASE}" "Update to new pgvectorscale version ${PGVECTORSCALE_VERSION}"
 #    dpkg-buildpackage -S
 #    cd ../
 #    mkdir -p $WORKDIR/source_deb
@@ -250,7 +248,6 @@ build_rpm(){
 #        echo "It is not possible to build source deb here"
 #        exit 1
 #    fi
-#    rm -rf percona-pgrouting*
 #    for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
 #    do
 #        get_deb_sources $file
@@ -261,18 +258,17 @@ build_rpm(){
 #    export DEBIAN=$(lsb_release -sc)
 #    export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
 #    #
-#    echo "DEBIAN=${DEBIAN}" >> percona-pgrouting.properties
-#    echo "ARCH=${ARCH}" >> percona-pgrouting.properties
+#    echo "DEBIAN=${DEBIAN}" >> pgvectorscale.properties
+#    echo "ARCH=${ARCH}" >> pgvectorscale.properties
 
     #
 #    DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
-    #
+#    #
 #    dpkg-source -x ${DSC}
-    #
-#    cd ${PGROUTING_PRODUCT_FULL}
-#    dch -m -D "${DEBIAN}" --force-distribution -v "2:${PGROUTING_VERSION}-${PGROUTING_DEB_RELEASE}.${DEBIAN}" 'Update distribution'
+#    #
+#    cd ${PGVECTORSCALE_PRODUCT_DEB}
+#    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PGVECTORSCALE_VERSION}-${PGVECTORSCALE_RELEASE}.${DEBIAN}" 'Update distribution'
 #    unset $(locale|cut -d= -f1)
-
 #    dpkg-buildpackage -rfakeroot -us -uc -b
 #    mkdir -p $CURDIR/deb
 #    mkdir -p $WORKDIR/deb
@@ -285,9 +281,9 @@ build_rpm(){
 #}
 
 #main
-export GIT_SSL_NO_VERIFY=1
+
 CURDIR=$(pwd)
-VERSION_FILE=$CURDIR/percona-pgrouting.properties
+VERSION_FILE=$CURDIR/pgvectorscale.properties
 args=
 WORKDIR=
 SRPM=0
@@ -302,12 +298,14 @@ parse_arguments PICK-ARGS-FROM-ARGV "$@"
 
 check_workdir
 get_system
+
 #install_deps
 if [ $INSTALL = 0 ]; then
     echo "Dependencies will not be installed"
 else
-    source install-deps.sh "pgrouting"
+    source install-deps.sh "pgvectorscale"
 fi
+
 get_sources
 build_srpm
 #build_source_deb

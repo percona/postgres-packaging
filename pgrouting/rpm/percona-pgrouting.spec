@@ -20,8 +20,8 @@ BuildRequires:	gcc-c++ gmp-devel
 %if 0%{?fedora} >= 42 || 0%{?rhel} >= 8 || 0%{?suse_version} <= 1500
 BuildRequires:	perl-version
 %endif
-BuildRequires:	postgresql%{pgmajorversion}-devel
-Requires:	postgresql%{pgmajorversion} postgis
+BuildRequires:	percona-postgresql%{pgmajorversion}-devel
+Requires:	percona-postgresql%{pgmajorversion} percona-postgis
 
 %description
 pgRouting extends the PostGIS / PostgreSQL geospatial database to

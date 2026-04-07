@@ -234,12 +234,32 @@ case "$COMPONENT" in
     fi
     ;;
 
+  pg_cron)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel libxml2-devel openssl-devel openldap-devel"
+      yum -y install ${INSTALL_LIST}
+    fi
+    ;;
 
   hll)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel libxml2-devel"
       yum -y install ${INSTALL_LIST}
+    fi
+    ;;
+
+
+  anon)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config"
+      yum -y install ${INSTALL_LIST}
+      if ! command -v rustc &>/dev/null; then
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+        source $HOME/.cargo/env
+      fi
     fi
     ;;
 

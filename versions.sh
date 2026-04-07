@@ -12,6 +12,7 @@ PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
 PG_CRON_VERSION=1.6.7
 HLL_VERSION=2.19
+ANON_VERSION=3.0.13
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -116,6 +117,18 @@ case "$1" in
 
         # urls
         HLL_SRC_REPO="https://github.com/citusdata/postgresql-hll.git"
+    ;;
+
+    anon)
+        # versions
+        ANON_PRODUCT=percona-postgresql_anonymizer_${PG_MAJOR}
+        ANON_PRODUCT_FULL=${ANON_PRODUCT}-${ANON_VERSION}
+        ANON_RELEASE='1'
+        ANON_SRC_BRANCH="${ANON_VERSION}"
+        ANON_RPM_RELEASE='1'
+
+        # urls
+        ANON_SRC_REPO="https://gitlab.com/dalibo/postgresql_anonymizer.git"
     ;;
 
 esac

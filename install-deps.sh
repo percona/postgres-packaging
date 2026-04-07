@@ -304,6 +304,15 @@ EOF
     ;;
 
 
+  hll)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel libxml2-devel"
+      yum -y install ${INSTALL_LIST}
+    fi
+    ;;
+
+
   *)
     echo "No special dependencies defined for $COMPONENT"
     ;;

@@ -10,6 +10,8 @@ POSTGIS33_MINOR=9
 H3_PG_VERSION=4.2.3
 PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
+PG_CRON_VERSION=1.6.7
+HLL_VERSION=2.19
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -56,20 +58,20 @@ case "$1" in
         POSTGIS_SRC_REPO_DEB="https://salsa.debian.org/debian-gis-team/postgis.git"
     ;;
 
-    #pg_cron)
+    pg_cron)
         # versions
-    #    PG_CRON_PRODUCT=percona-pg_cron_${PG_MAJOR}
-    #    PG_CRON_PRODUCT_DEB=percona-pg-cron_${PG_MAJOR}
-    #    PG_CRON_PRODUCT_FULL=${PG_CRON_PRODUCT}-${PG_CRON_VERSION}
-    #    PG_CRON_SRC_BRANCH="v${PG_CRON_VERSION}"
-    #    PG_CRON_RPM_RELEASE='3'
-    #    PG_CRON_DEB_RELEASE='3'
-    #    PG_CRON_RELEASE='3'
+        PG_CRON_PRODUCT=percona-pg_cron_${PG_MAJOR}
+        PG_CRON_PRODUCT_DEB=percona-pg-cron_${PG_MAJOR}
+        PG_CRON_PRODUCT_FULL=${PG_CRON_PRODUCT}-${PG_CRON_VERSION}
+        PG_CRON_SRC_BRANCH="v${PG_CRON_VERSION}"
+        PG_CRON_RPM_RELEASE='1'
+        PG_CRON_DEB_RELEASE='1'
+        PG_CRON_RELEASE='1'
 
         # urls
-    #    PG_CRON_SRC_REPO="https://github.com/citusdata/pg_cron.git"
-    #    PG_CRON_SRC_REPO_DEB="https://salsa.debian.org/postgresql/pg-cron.git"
-    #;;
+        PG_CRON_SRC_REPO="https://github.com/citusdata/pg_cron.git"
+        PG_CRON_SRC_REPO_DEB="https://salsa.debian.org/postgresql/pg-cron.git"
+    ;;
 
 
     h3-pg)
@@ -102,6 +104,18 @@ case "$1" in
         # urls
         PGROUTING_SRC_REPO="https://github.com/pgRouting/pgrouting.git"
         PGROUTING_SRC_REPO_DEB="https://salsa.debian.org/debian-gis-team/pgrouting.git"
+    ;;
+
+    hll)
+        # versions
+        HLL_PRODUCT=percona-hll_${PG_MAJOR}
+        HLL_PRODUCT_FULL=${HLL_PRODUCT}-${HLL_VERSION}
+        HLL_RELEASE='1'
+        HLL_SRC_BRANCH="v${HLL_VERSION}"
+        HLL_RPM_RELEASE='1'
+
+        # urls
+        HLL_SRC_REPO="https://github.com/citusdata/postgresql-hll.git"
     ;;
 
 esac

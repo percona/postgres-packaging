@@ -260,6 +260,15 @@ case "$COMPONENT" in
     ;;
 
 
+  pg_partman)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel clang-devel llvm-devel python3-psycopg2"
+      yum -y install ${INSTALL_LIST}
+    fi
+    ;;
+
+
   *)
     echo "No special dependencies defined for $COMPONENT"
     ;;

@@ -13,16 +13,17 @@ PGROUTING_MINOR=1
 PG_CRON_VERSION=1.6.7
 HLL_VERSION=2.19
 ANON_VERSION=3.0.13
+PG_PARTMAN_VERSION=5.4.3
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
 # Github Packaging Repo
-PKG_GIT_REPO="https://github.com/surbhat1595/postgres-packaging.git"
+PKG_GIT_REPO="https://github.com/percona/postgres-packaging.git"
 PKG_GIT_BRANCH=${PG_VERSION}-extras
 PGRPMS_GIT_REPO="https://git.postgresql.org/git/pgrpms.git"
 
 # Raw files URLs
-PKG_RAW_URL="https://raw.githubusercontent.com/surbhat1595/postgres-packaging/${PKG_GIT_BRANCH}"
+PKG_RAW_URL="https://raw.githubusercontent.com/percona/postgres-packaging/${PKG_GIT_BRANCH}"
 
 # Percona Repos
 YUM_REPO="https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
@@ -131,4 +132,15 @@ case "$1" in
         ANON_SRC_REPO="https://gitlab.com/dalibo/postgresql_anonymizer.git"
     ;;
 
+    pg_partman)
+        # versions
+        PG_PARTMAN_PRODUCT=percona-pg_partman_${PG_MAJOR}
+        PG_PARTMAN_PRODUCT_FULL=${PG_PARTMAN_PRODUCT}-${PG_PARTMAN_VERSION}
+        PG_PARTMAN_RELEASE='1'
+        PG_PARTMAN_SRC_BRANCH="v${PG_PARTMAN_VERSION}"
+        PG_PARTMAN_RPM_RELEASE='1'
+
+        # urls
+        PG_PARTMAN_SRC_REPO="https://github.com/pgpartman/pg_partman.git"
+    ;;
 esac

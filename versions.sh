@@ -12,6 +12,8 @@ H3_PG_VERSION=4.2.3
 PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
 HLL_VERSION=2.19
+ANON_VERSION=3.0.13
+PG_PARTMAN_VERSION=5.4.3
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -133,5 +135,29 @@ case "$1" in
 
         # urls
         HLL_SRC_REPO="https://github.com/citusdata/postgresql-hll.git"
+    ;;
+
+    anon)
+        # versions
+        ANON_PRODUCT=percona-postgresql_anonymizer_${PG_MAJOR}
+        ANON_PRODUCT_FULL=${ANON_PRODUCT}-${ANON_VERSION}
+        ANON_RELEASE='1'
+        ANON_SRC_BRANCH="${ANON_VERSION}"
+        ANON_RPM_RELEASE='1'
+
+        # urls
+        ANON_SRC_REPO="https://gitlab.com/dalibo/postgresql_anonymizer.git"
+    ;;
+
+    pg_partman)
+        # versions
+        PG_PARTMAN_PRODUCT=percona-pg_partman_${PG_MAJOR}
+        PG_PARTMAN_PRODUCT_FULL=${PG_PARTMAN_PRODUCT}-${PG_PARTMAN_VERSION}
+        PG_PARTMAN_RELEASE='1'
+        PG_PARTMAN_SRC_BRANCH="v${PG_PARTMAN_VERSION}"
+        PG_PARTMAN_RPM_RELEASE='1'
+
+        # urls
+        PG_PARTMAN_SRC_REPO="https://github.com/pgpartman/pg_partman.git"
     ;;
 esac

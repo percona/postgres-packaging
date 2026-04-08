@@ -231,14 +231,6 @@ EOF
       if [ ! -f  /usr/bin/llvm-config ]; then
         ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
       fi
-    else
-      deb_deps
-      DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
-      ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-      dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="bison build-essential debconf pkgconf debhelper devscripts dh-exec dpkg-dev flex gcc cmake vim dctrl-tools docbook docbook-xsl libcunit1-dev libgdal-dev libgeos-dev libjson-c-dev libpcre2-dev libproj-dev libprotobuf-c-dev libsfcgal-dev libxml2-dev po-debconf percona-postgresql-all percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-${PG_MAJOR} protobuf-c-compiler rdfind xsltproc"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-      apt-get install -y dblatex || true
     fi
     ;;
 
@@ -261,13 +253,6 @@ EOF
       rpm_deps
       INSTALL_LIST="wget gcc make autoconf clang-devel clang llvm-devel cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel"
       yum -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      INSTALL_LIST="build-essential pkg-config debconf debhelper debhelper-compat devscripts dh-exec git wget cmake libssl-dev percona-postgresql-${PG_MAJOR} percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-all"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
     fi
     ;;
 
@@ -277,13 +262,6 @@ EOF
       rpm_deps
       INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel h3-devel"
       yum -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      INSTALL_LIST="build-essential pkg-config debconf debhelper debhelper-compat devscripts dh-exec git wget cmake libh3-dev percona-postgresql-server-dev-all percona-postgresql-all"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
     fi
     ;;
 
@@ -293,13 +271,6 @@ EOF
       rpm_deps
       INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel boost-devel gcc-c++ gmp-devel perl-version"
       yum -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      INSTALL_LIST="build-essential pkg-config debconf debhelper debhelper-compat devscripts dh-exec git wget cmake percona-postgresql-server-dev-all percona-postgresql-all"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
     fi
     ;;
 
@@ -307,15 +278,8 @@ EOF
   pgvectorscale)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf cmake git jq rpmdevtools percona-postgresql${PG_MAJOR}-devel clang openssl-devel rust-toolset rustfmt llvm-devel"
+      INSTALL_LIST="wget gcc make autoconf git jq rpmdevtools percona-postgresql${PG_MAJOR}-devel clang openssl-devel rust-toolset rustfmt llvm-devel"
       yum -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      INSTALL_LIST="build-essential pkg-config debconf debhelper debhelper-compat devscripts dh-exec git wget cmake percona-postgresql-server-dev-all percona-postgresql-all"
-      until DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}; do
-        sleep 1
-        echo "waiting"
-      done
     fi
     ;;
      
@@ -324,6 +288,15 @@ EOF
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel libxml2-devel"
+      yum -y install ${INSTALL_LIST}
+    fi
+    ;;
+
+
+  pg_similarity)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel clang-devel"
       yum -y install ${INSTALL_LIST}
     fi
     ;;

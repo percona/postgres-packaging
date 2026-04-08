@@ -13,6 +13,7 @@ PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
 PGVECTORSCALE_VERSION=0.9.0
 HLL_VERSION=2.19
+PG_SIMILARITY_VERSION=1.0
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -64,62 +65,50 @@ case "$1" in
     timescaledb)
         # versions
         TIMESCALEDB_PRODUCT=percona-timescaledb_${PG_MAJOR}
-        TIMESCALEDB_PRODUCT_DEB=percona-timescaledb-${PG_MAJOR}
         TIMESCALEDB_PRODUCT_FULL=${TIMESCALEDB_PRODUCT}-${TIMESCALEDB_VERSION}
         TIMESCALEDB_RELEASE='1'
         TIMESCALEDB_SRC_BRANCH="${TIMESCALEDB_VERSION}"
         TIMESCALEDB_RPM_RELEASE='1'
-        TIMESCALEDB_DEB_RELEASE='1'
 
         # urls
         TIMESCALEDB_SRC_REPO="https://github.com/timescale/timescaledb.git"
-        TIMESCALEDB_SRC_REPO_DEB="https://salsa.debian.org/postgresql/timescaledb.git"
     ;;
 
     h3-pg)
         # versions
         H3_PG_PRODUCT=percona-h3-pg_${PG_MAJOR}
-        H3_PG_PRODUCT_DEB=percona-h3-pg-${PG_MAJOR}
         H3_PG_PRODUCT_FULL=${H3_PG_PRODUCT}-${H3_PG_VERSION}
         H3_PG_RELEASE='1'
         H3_PG_SRC_BRANCH="v${H3_PG_VERSION}"
         H3_PG_RPM_RELEASE='1'
-        H3_PG_DEB_RELEASE='1'
 
         # urls
         H3_PG_SRC_REPO="https://github.com/postgis/h3-pg.git"
-        H3_PG_SRC_REPO_DEB="https://salsa.debian.org/postgresql/h3-pg.git"
     ;;
 
     pgrouting)
         # versions
         PGROUTING_PRODUCT=percona-pgrouting_${PG_MAJOR}
-        PGROUTING_PRODUCT_DEB=percona-pgrouting-${PG_MAJOR}
         PGROUTING_VERSION=${PGROUTING_MAJOR}.${PGROUTING_MINOR}
         PGROUTING_PRODUCT_FULL=${PGROUTING_PRODUCT}-${PGROUTING_VERSION}
         PGROUTING_RELEASE='1'
         PGROUTING_SRC_BRANCH="v${PGROUTING_VERSION}"
         PGROUTING_RPM_RELEASE='1'
-        PGROUTING_DEB_RELEASE='1'
 
         # urls
         PGROUTING_SRC_REPO="https://github.com/pgRouting/pgrouting.git"
-        PGROUTING_SRC_REPO_DEB="https://salsa.debian.org/debian-gis-team/pgrouting.git"
     ;;
 
     pgvectorscale)
         # versions
         PGVECTORSCALE_PRODUCT=percona-pgvectorscale_${PG_MAJOR}
-        PGVECTORSCALE_PRODUCT_DEB=percona-pgvectorscale-${PG_MAJOR}
         PGVECTORSCALE_PRODUCT_FULL=${PGVECTORSCALE_PRODUCT}-${PGVECTORSCALE_VERSION}
         PGVECTORSCALE_RELEASE='1'
         PGVECTORSCALE_SRC_BRANCH="${PGVECTORSCALE_VERSION}"
         PGVECTORSCALE_RPM_RELEASE='1'
-        PGVECTORSCALE_DEB_RELEASE='1'
 
         # urls
         PGVECTORSCALE_SRC_REPO="https://github.com/timescale/pgvectorscale.git"
-        PGVECTORSCALE_SRC_REPO_DEB=""
     ;;
         
     hll)
@@ -132,5 +121,17 @@ case "$1" in
 
         # urls
         HLL_SRC_REPO="https://github.com/citusdata/postgresql-hll.git"
+    ;;
+
+    pg_similarity)
+        # versions
+        PG_SIMILARITY_PRODUCT=percona-pg_similarity_${PG_MAJOR}
+        PG_SIMILARITY_PRODUCT_FULL=${PG_SIMILARITY_PRODUCT}-${PG_SIMILARITY_VERSION}
+        PG_SIMILARITY_RELEASE='1'
+        PG_SIMILARITY_SRC_BRANCH="pg_similarity_${PG_SIMILARITY_VERSION//./_}"
+        PG_SIMILARITY_RPM_RELEASE='1'
+
+        # urls
+        PG_SIMILARITY_SRC_REPO="https://github.com/eulerto/pg_similarity.git"
     ;;
 esac

@@ -1,6 +1,7 @@
 %global sname	postgresql_anonymizer
 %global extname	anon
 %global pgmajorversion %{pgmajor}
+%global debug_package %{nil}
 
 # pgrx version required by this release
 %global pgrx_version 0.16.1
@@ -15,7 +16,7 @@ Packager:	Percona Development Team <https://jira.percona.com>
 Vendor:		Percona, LLC
 URL:		https://gitlab.com/dalibo/postgresql_anonymizer
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
-BuildRequires:	gcc clang-devel openssl-devel pkg-config
+BuildRequires:	gcc clang-devel openssl-devel pkg-config rust-toolset rustfmt
 Requires:	percona-postgresql%{pgmajorversion}-server
 
 %description
@@ -29,12 +30,7 @@ PostgreSQL Data Definition Language (DDL).
 %setup -q -n percona-%{sname}_%{pgmajorversion}-%{version}
 
 %build
-export PATH=%{pginstdir}/bin:$HOME/.cargo/bin:$PATH
-
-if ! command -v rustc &>/dev/null; then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
-    source $HOME/.cargo/env
-fi
+export PATH=%{pginstdir}/bin:$PATH
 
 cargo install cargo-pgrx --version %{pgrx_version} --locked
 cargo pgrx init --pg%{pgmajorversion}=%{pginstdir}/bin/pg_config

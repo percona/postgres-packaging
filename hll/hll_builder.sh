@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -x
 # Versions and other variables
 source versions.sh "hll"
 # Common functions

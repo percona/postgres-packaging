@@ -1,6 +1,7 @@
 %global sname	postgresql_anonymizer
 %global extname	anon
 %global pgmajorversion %{pgmajor}
+%global debug_package %{nil}
 
 # pgrx version required by this release
 %global pgrx_version 0.16.1
@@ -15,7 +16,7 @@ Packager:	Percona Development Team <https://jira.percona.com>
 Vendor:		Percona, LLC
 URL:		https://gitlab.com/dalibo/postgresql_anonymizer
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
-BuildRequires:	gcc clang-devel openssl-devel pkg-config rust cargo
+BuildRequires:	gcc clang-devel openssl-devel pkg-config rust-toolset rustfmt
 Requires:	percona-postgresql%{pgmajorversion}-server
 
 %description

@@ -303,7 +303,7 @@ EOF
   anon)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config rust cargo"
+      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config rust-toolset rustfmt"
       yum -y install ${INSTALL_LIST}
     fi
     ;;

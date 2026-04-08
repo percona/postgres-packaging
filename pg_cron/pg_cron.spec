@@ -3,6 +3,8 @@
 %global sname percona-pg_cron_%{pgmajorversion}
 
 %{!?llvm:%global llvm 1}
+
+Summary:	Run periodic jobs in PostgreSQL
 Name:		%{sname}
 Version:	%{version}
 Release:	%{release}%{dist}

@@ -24,6 +24,8 @@ BuildRequires:	libopenssl-3-devel openldap2-devel
 Requires:	openssl-libs >= 1.1.1k
 BuildRequires:	openssl-devel openldap-devel
 %endif
+
+%description
 pg_cron is a simple cron-based job scheduler for PostgreSQL
 (9.5 or higher) that runs inside the database as an extension.
 It uses the same syntax as regular cron, but it allows you to

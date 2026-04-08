@@ -254,12 +254,8 @@ case "$COMPONENT" in
   anon)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config"
+      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config rust-toolset rustfmt"
       yum -y install ${INSTALL_LIST}
-      if ! command -v rustc &>/dev/null; then
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
-        source $HOME/.cargo/env
-      fi
     fi
     ;;
 

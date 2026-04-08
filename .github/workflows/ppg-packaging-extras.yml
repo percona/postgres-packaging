@@ -1,0 +1,13 @@
+name: Build PPG Extras
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dummy-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print basic info
+        run: |
+          echo "Dummy workflow"

@@ -14,6 +14,7 @@ PGROUTING_MINOR=1
 PGVECTORSCALE_VERSION=0.9.0
 HLL_VERSION=2.19
 PG_SIMILARITY_VERSION=1.0
+RUM_VERSION=1.3.15
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -133,5 +134,17 @@ case "$1" in
 
         # urls
         PG_SIMILARITY_SRC_REPO="https://github.com/eulerto/pg_similarity.git"
+    ;;
+
+    rum)
+        # versions
+        RUM_PRODUCT=percona-rum_${PG_MAJOR}
+        RUM_PRODUCT_FULL=${RUM_PRODUCT}-${RUM_VERSION}
+        RUM_RELEASE='1'
+        RUM_SRC_BRANCH="${RUM_VERSION}"
+        RUM_RPM_RELEASE='1'
+
+        # urls
+        RUM_SRC_REPO="https://github.com/postgrespro/rum.git"
     ;;
 esac

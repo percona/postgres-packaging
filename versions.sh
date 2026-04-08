@@ -15,6 +15,7 @@ PGVECTORSCALE_VERSION=0.9.0
 HLL_VERSION=2.19
 PG_SIMILARITY_VERSION=1.0
 RUM_VERSION=1.3.15
+POSTGRESQL_UNIT_VERSION=7.10
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -146,5 +147,17 @@ case "$1" in
 
         # urls
         RUM_SRC_REPO="https://github.com/postgrespro/rum.git"
+    ;;
+
+    postgresql-unit)
+        # versions
+        POSTGRESQL_UNIT_PRODUCT=percona-postgresql-unit_${PG_MAJOR}
+        POSTGRESQL_UNIT_PRODUCT_FULL=${POSTGRESQL_UNIT_PRODUCT}-${POSTGRESQL_UNIT_VERSION}
+        POSTGRESQL_UNIT_RELEASE='1'
+        POSTGRESQL_UNIT_SRC_BRANCH="${POSTGRESQL_UNIT_VERSION}"
+        POSTGRESQL_UNIT_RPM_RELEASE='1'
+
+        # urls
+        POSTGRESQL_UNIT_SRC_REPO="https://github.com/df7cb/postgresql-unit.git"
     ;;
 esac

@@ -311,6 +311,15 @@ EOF
     ;;
 
 
+  postgresql-unit)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel flex llvm-devel clang-devel"
+      yum -y install ${INSTALL_LIST}
+    fi
+    ;;
+
+
   *)
     echo "No special dependencies defined for $COMPONENT"
     ;;

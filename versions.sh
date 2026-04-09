@@ -10,10 +10,15 @@ POSTGIS33_MINOR=9
 H3_PG_VERSION=4.2.3
 PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
+PGVECTORSCALE_VERSION=0.9.0
 PG_CRON_VERSION=1.6.7
 HLL_VERSION=2.19
+PG_SIMILARITY_VERSION=1.0
+RUM_VERSION=1.3.15
+POSTGRESQL_UNIT_VERSION=7.10
 ANON_VERSION=3.0.13
 PG_PARTMAN_VERSION=5.4.3
+IP4R_VERSION=2.4.2
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -108,6 +113,18 @@ case "$1" in
         PGROUTING_SRC_REPO_DEB="https://salsa.debian.org/debian-gis-team/pgrouting.git"
     ;;
 
+    pgvectorscale)
+        # versions
+        PGVECTORSCALE_PRODUCT=percona-pgvectorscale_${PG_MAJOR}
+        PGVECTORSCALE_PRODUCT_FULL=${PGVECTORSCALE_PRODUCT}-${PGVECTORSCALE_VERSION}
+        PGVECTORSCALE_RELEASE='1'
+        PGVECTORSCALE_SRC_BRANCH="${PGVECTORSCALE_VERSION}"
+        PGVECTORSCALE_RPM_RELEASE='1'
+
+        # urls
+        PGVECTORSCALE_SRC_REPO="https://github.com/timescale/pgvectorscale.git"
+    ;;
+
     hll)
         # versions
         HLL_PRODUCT=percona-hll_${PG_MAJOR}
@@ -118,6 +135,42 @@ case "$1" in
 
         # urls
         HLL_SRC_REPO="https://github.com/citusdata/postgresql-hll.git"
+    ;;
+
+    pg_similarity)
+        # versions
+        PG_SIMILARITY_PRODUCT=percona-pg_similarity_${PG_MAJOR}
+        PG_SIMILARITY_PRODUCT_FULL=${PG_SIMILARITY_PRODUCT}-${PG_SIMILARITY_VERSION}
+        PG_SIMILARITY_RELEASE='1'
+        PG_SIMILARITY_SRC_BRANCH="pg_similarity_${PG_SIMILARITY_VERSION//./_}"
+        PG_SIMILARITY_RPM_RELEASE='1'
+
+        # urls
+        PG_SIMILARITY_SRC_REPO="https://github.com/eulerto/pg_similarity.git"
+    ;;
+
+    rum)
+        # versions
+        RUM_PRODUCT=percona-rum_${PG_MAJOR}
+        RUM_PRODUCT_FULL=${RUM_PRODUCT}-${RUM_VERSION}
+        RUM_RELEASE='1'
+        RUM_SRC_BRANCH="${RUM_VERSION}"
+        RUM_RPM_RELEASE='1'
+
+        # urls
+        RUM_SRC_REPO="https://github.com/postgrespro/rum.git"
+    ;;
+
+    postgresql-unit)
+        # versions
+        POSTGRESQL_UNIT_PRODUCT=percona-postgresql-unit_${PG_MAJOR}
+        POSTGRESQL_UNIT_PRODUCT_FULL=${POSTGRESQL_UNIT_PRODUCT}-${POSTGRESQL_UNIT_VERSION}
+        POSTGRESQL_UNIT_RELEASE='1'
+        POSTGRESQL_UNIT_SRC_BRANCH="${POSTGRESQL_UNIT_VERSION}"
+        POSTGRESQL_UNIT_RPM_RELEASE='1'
+
+        # urls
+        POSTGRESQL_UNIT_SRC_REPO="https://github.com/df7cb/postgresql-unit.git"
     ;;
 
     anon)
@@ -142,5 +195,17 @@ case "$1" in
 
         # urls
         PG_PARTMAN_SRC_REPO="https://github.com/pgpartman/pg_partman.git"
+    ;;
+
+    ip4r)
+        # versions
+        IP4R_PRODUCT=percona-ip4r_${PG_MAJOR}
+        IP4R_PRODUCT_FULL=${IP4R_PRODUCT}-${IP4R_VERSION}
+        IP4R_RELEASE='1'
+        IP4R_SRC_BRANCH="${IP4R_VERSION}"
+        IP4R_RPM_RELEASE='1'
+
+        # urls
+        IP4R_SRC_REPO="https://github.com/RhodiumToad/ip4r.git"
     ;;
 esac

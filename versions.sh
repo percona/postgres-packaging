@@ -18,6 +18,7 @@ RUM_VERSION=1.3.15
 POSTGRESQL_UNIT_VERSION=7.10
 ANON_VERSION=3.0.13
 PG_PARTMAN_VERSION=5.4.3
+IP4R_VERSION=2.4.2
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -185,5 +186,17 @@ case "$1" in
 
         # urls
         PG_PARTMAN_SRC_REPO="https://github.com/pgpartman/pg_partman.git"
+    ;;
+
+    ip4r)
+        # versions
+        IP4R_PRODUCT=percona-ip4r_${PG_MAJOR}
+        IP4R_PRODUCT_FULL=${IP4R_PRODUCT}-${IP4R_VERSION}
+        IP4R_RELEASE='1'
+        IP4R_SRC_BRANCH="${IP4R_VERSION}"
+        IP4R_RPM_RELEASE='1'
+
+        # urls
+        IP4R_SRC_REPO="https://github.com/RhodiumToad/ip4r.git"
     ;;
 esac

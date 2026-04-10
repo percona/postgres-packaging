@@ -29,14 +29,14 @@ pgvectorscale enhances pgvector with scalable indexing and storage.
 cd pgvectorscale
 PGRX_VERSION=$(cargo metadata --format-version 1 | jq -r '.packages[] | select(.name == "pgrx") | .version')
 cargo install --locked cargo-pgrx --version ${PGRX_VERSION}
-cargo pgrx init --pg%{pgmajorversion} %{pginstdir}/bin/pg_config
-cargo build --release
+cargo pgrx init --pg%{pgmajorversion}=%{pginstdir}/bin/pg_config
+cargo build --release --no-default-features --features pg%{pgmajorversion}
 
 %install
 rm -rf %{buildroot}
 install -d %{buildroot}
 cd pgvectorscale
-cargo pgrx package --pg-config %{pginstdir}/bin/pg_config
+cargo pgrx package --no-default-features --features pg%{pgmajorversion} --pg-config %{pginstdir}/bin/pg_config
 cp -r ../target/release/vectorscale-pg%{pgmajorversion}/* %{buildroot}/
 
 %files

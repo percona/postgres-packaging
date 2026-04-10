@@ -10,6 +10,8 @@ Version:	%{version}
 Release:	%{release}%{dist}
 License:	AGPLv3
 Source0:	%{sname}-%{version}.tar.gz
+Packager:       Percona Development Team <https://jira.percona.com>
+Vendor:         Percona, LLC
 URL:		https://github.com/citusdata/pg_cron
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel libxml2-devel
 Requires:	postgresql%{pgmajorversion}-server

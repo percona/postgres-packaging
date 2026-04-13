@@ -421,7 +421,7 @@ EOF
       rpm_deps
       git clone https://github.com/ianlancetaylor/libbacktrace.git
       cd libbacktrace/
-        ./configure --prefix=/usr/local
+        ./configure CFLAGS="-fPIC" --prefix=/usr
         make
         make install
       cd ../

@@ -6,7 +6,7 @@ on:
       packages:
         description: Server-Independent packages to build (comma separated)
         required: true
-        default: "etcd,pgbadger,pgbouncer,pysyncobj,ydiff,h3"
+        default: "etcd,pgbadger,pgbouncer,pysyncobj,ydiff"
 
       packaging-repo:
         description: packaging repo to be used
@@ -55,6 +55,7 @@ jobs:
       BUILD_ID: ${{ steps.set-buildID.outputs.build_id }}
       PKG_MATRIX: ${{ steps.set-pkg-matrix.outputs.pkg_matrix }}
       SOURCE_MATRIX: ${{ steps.set-source-matrix.outputs.source_matrix }}
+      SOURCE_PLATFORM: ${{ steps.set-source-matrix.outputs.source_platforms }}
       BUILD_MATRIX: ${{ steps.set-build-matrix.outputs.build_matrix }}
 
    steps:
@@ -87,6 +88,7 @@ jobs:
               --argjson platform "$PLATFORM" \
               '{pkgs:$pkgs, platform:$platform}')
           echo "source_matrix=$SOURCE_MATRIX" >> $GITHUB_OUTPUT
+          echo "source_platforms=$PLATFORM" >> $GITHUB_OUTPUT
 
      - name: Set rpm/deb build matrix
        id: set-build-matrix
@@ -120,11 +122,24 @@ jobs:
         with:
           fetch-depth: 0
           repository: ${{ inputs.packaging-repo }}
-          ref: main
+          ref: ${{ inputs.packaging-branch }}
           path: main-src
 
       - name: Create build files directory
         run: mkdir pkg
+
+      - name: Set PG_VERSION
+        run: |
+          case "${{ inputs.pg-major }}" in
+              18) PG_VERSION="18.3" ;;
+              17) PG_VERSION="17.9" ;;
+              16) PG_VERSION="16.13" ;;
+              15) PG_VERSION="15.17" ;;
+              14) PG_VERSION="14.22" ;;
+              *) echo "Unsupported PG_MAJOR: ${{ inputs.pg-major }}"
+                 exit 1 ;;
+          esac
+          echo "PG_VERSION=$PG_VERSION" >> "$GITHUB_ENV"
 
       - name: Collect common files
         run: |
@@ -132,6 +147,7 @@ jobs:
           cp main-src/common/install-deps.sh pkg/
           cp main-src/common/versions.sh pkg/
           cp main-src/common/${{ matrix.pkgs }}/*builder.sh pkg/pkg-builder.sh
+          sed -i "s/@@PGVERSION@@/${{ env.PG_VERSION }}/g" pkg/versions.sh
         shell: bash
 
       - name: Upload build files as artifact
@@ -175,15 +191,12 @@ jobs:
     if: ${{ contains(inputs.packages, 'etcd') }}
     runs-on: ubuntu-24.04-arm
     needs: [prepare-matrix, pull-build-files]
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PKG_MATRIX) }}
 
     steps:
       - name: Get build-files from artifact
         uses: actions/download-artifact@v5
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files-etcd
           path: ./
 
       - name: Update permissions of the build scripts
@@ -210,7 +223,8 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.SOURCE_MATRIX) }}
+      matrix: 
+        platform: ${{ fromJson(needs.prepare-matrix.outputs.SOURCE_PLATFORM) }}
 
     container:
       image: ${{ matrix.platform }}
@@ -232,7 +246,7 @@ jobs:
       - name: Get build files from artifact
         uses: actions/download-artifact@v5
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files-etcd
           path: ./
 
       - name: Update permissions of the build scripts
@@ -346,7 +360,7 @@ jobs:
 
   build-rpm-deb:
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
-    needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb]
+    needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb, build-etcd-arm-srpm-sdeb]
 
     strategy:
       fail-fast: false
@@ -380,12 +394,6 @@ jobs:
           chmod 755 *.sh
         shell: bash
 
-      - name: Get source tarball from artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: ${{ matrix.pkgs }}-source_tarball
-          path: test/source_tarball/
-
       - name: Get source rpm from artifact
         if: ${{ contains(matrix.platform, 'linux') }}
         uses: actions/download-artifact@v5
@@ -400,21 +408,14 @@ jobs:
           name: ${{ matrix.pkgs }}-source_deb
           path: test/source_deb/
 
-      - name: Get source tarball from artifact
-        if: ${{ matrix.arch == 'arm64' && matrix.pkgs == 'etcd' }}
-        uses: actions/download-artifact@v5
-        with:
-          name: etcd-arm-source_tarball
-          path: test/source_tarball/
-
-      - name: Get source rpm from artifact
+      - name: Get etcd-arm srpm from artifact
         if: ${{ contains(matrix.platform, 'linux') && matrix.arch == 'arm64' && matrix.pkgs == 'etcd' }}
         uses: actions/download-artifact@v5
         with:
           name: etcd-arm-srpm
           path: test/srpm/
 
-      - name: Get source deb from artifact
+      - name: Get etcd-arm source_deb from artifact
         if: ${{ !contains(matrix.platform, 'linux') && matrix.arch == 'arm64' && matrix.pkgs == 'etcd' }}
         uses: actions/download-artifact@v5
         with:

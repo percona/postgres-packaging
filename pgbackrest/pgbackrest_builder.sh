@@ -131,7 +131,7 @@ build_srpm(){
         --define "pginstdir /usr/pgsql-$PG_MAJOR" \
         --define "dist .generic" \
         --define "pgmajor ${PG_MAJOR}" \
-        --define "version ${PG_BCKREST_VERSION}" \
+        --define "version ${PGBACKREST_VERSION}" \
         --define "release ${PG_BCKREST_RELEASE}" \
         rpmbuild/SPECS/pgbackrest.spec
     mkdir -p ${WORKDIR}/srpm
@@ -188,7 +188,7 @@ build_rpm(){
         --define "pginstdir /usr/pgsql-$PG_MAJOR" \
         --define "dist .$OS_NAME" \
         --define "pgmajor ${PG_MAJOR}" \
-        --define "version ${PG_BCKREST_VERSION}" \
+        --define "version ${PGBACKREST_VERSION}" \
         --define "release ${PG_BCKREST_RELEASE}" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
 
@@ -224,12 +224,12 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
     
-    mv ${TARFILE} ${PG_BCKREST_PRODUCT}_${PG_BCKREST_VERSION}.orig.tar.gz
+    mv ${TARFILE} ${PG_BCKREST_PRODUCT}_${PGBACKREST_VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
     cd debian
     rm -rf changelog
-    echo "percona-pgbackrest (${PG_BCKREST_VERSION}-${PG_BCKREST_RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-pgbackrest (${PGBACKREST_VERSION}-${PG_BCKREST_RELEASE}) unstable; urgency=low" >> changelog
     echo >> changelog
     echo "  * Initial Release." >> changelog
     echo >> changelog
@@ -237,7 +237,7 @@ build_source_deb(){
 
     cd ../
     
-    dch -D unstable --force-distribution -v "${PG_BCKREST_VERSION}-${PG_BCKREST_RELEASE}" "Update to new pgbackrest version ${PG_BCKREST_VERSION}"
+    dch -D unstable --force-distribution -v "${PGBACKREST_VERSION}-${PG_BCKREST_RELEASE}" "Update to new pgbackrest version ${PGBACKREST_VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -282,7 +282,7 @@ build_deb(){
     dpkg-source -x ${DSC}
     #
     cd ${PG_BCKREST_PRODUCT_FULL}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PG_BCKREST_VERSION}-${PG_BCKREST_RELEASE}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PGBACKREST_VERSION}-${PG_BCKREST_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

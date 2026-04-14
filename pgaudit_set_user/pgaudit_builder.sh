@@ -41,7 +41,7 @@ get_sources(){
     echo "3.0 (quilt)" > source/format
     echo $PG_MAJOR > pgversions
     echo 9 > compat
-    echo "percona-pgaudit$PG_MAJOR-set-user (${SET_USER_VERSION}-${SET_USER_RELEASE}) unstable; urgency=low" >> changelog
+    echo "percona-pgaudit$PG_MAJOR-set-user (${PGAUDIT_SET_USER_VERSION}-${SET_USER_RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
     
@@ -121,7 +121,7 @@ build_srpm(){
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .generic" \
         --define "pgmajorversion ${PG_MAJOR}" \
-        --define "version ${SET_USER_VERSION}" \
+        --define "version ${PGAUDIT_SET_USER_VERSION}" \
         --define "release ${SET_USER_RELEASE}" \
         rpmbuild/SPECS/percona-pgaudit${PG_MAJOR}_set_user.spec
     mkdir -p ${WORKDIR}/srpm
@@ -178,7 +178,7 @@ build_rpm(){
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "pgmajorversion $PG_MAJOR" \
         --define "dist .$OS_NAME" \
-        --define "version ${SET_USER_VERSION}" \
+        --define "version ${PGAUDIT_SET_USER_VERSION}" \
         --define "release ${SET_USER_RELEASE}" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
 
@@ -214,10 +214,10 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
     #
 
-    mv ${TARFILE} ${SET_USER_PRODUCT_DEB}_${SET_USER_VERSION}.orig.tar.gz
+    mv ${TARFILE} ${SET_USER_PRODUCT_DEB}_${PGAUDIT_SET_USER_VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
-    dch -D unstable --force-distribution -v "${SET_USER_VERSION}-${SET_USER_RELEASE}" "Update to new pgaudit version ${SET_USER_VERSION}"
+    dch -D unstable --force-distribution -v "${PGAUDIT_SET_USER_VERSION}-${SET_USER_RELEASE}" "Update to new pgaudit version ${PGAUDIT_SET_USER_VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -261,8 +261,8 @@ build_deb(){
     #
     dpkg-source -x ${DSC}
     #
-    cd ${SET_USER_PRODUCT_DEB}-${SET_USER_VERSION}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${SET_USER_VERSION}-${SET_USER_RELEASE}.${DEBIAN}" 'Update distribution'
+    cd ${SET_USER_PRODUCT_DEB}-${PGAUDIT_SET_USER_VERSION}
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PGAUDIT_SET_USER_VERSION}-${SET_USER_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     dpkg-buildpackage -rfakeroot -us -uc -b
     mkdir -p $CURDIR/deb

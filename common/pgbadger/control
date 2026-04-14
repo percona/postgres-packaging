@@ -1,0 +1,20 @@
+Source: percona-pgbadger
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+Build-Depends: debhelper, libjson-xs-perl, libtext-csv-xs-perl
+
+Package: percona-pgbadger
+Architecture: any
+Depends: libjson-xs-perl, libtext-csv-xs-perl, ${misc:Depends}, ${perl:Depends}
+Provides: pgbadger
+Description: Fast PostgreSQL log analysis report
+ pgBadger is a PostgreSQL log analyzer built for speed with fully detailed
+ reports from your PostgreSQL log file. It's a single and small Perl script
+ that outperforms any other PostgreSQL log analyzer. It is written in pure Perl
+ and uses a JavaScript library to draw graphs that are zoomable and can be
+ saved as PNG images.
+ .
+ pgBadger is able to autodetect the log file format (syslog, stderr or csvlog).
+ It is designed to parse huge log files as well as compressed files.
+

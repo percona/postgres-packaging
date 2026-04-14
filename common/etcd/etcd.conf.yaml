@@ -1,0 +1,9 @@
+#name: 'pg1'
+#initial-cluster-token: pgcluster
+#initial-cluster-state: new
+#initial-cluster: pg1=http://192.168.0.5:2380,pg2=http://192.168.0.6:2380,pg3=http://192.168.0.7:2380
+#data-dir: /var/lib/etcd
+#initial-advertise-peer-urls: http://192.168.0.5:2380
+#listen-peer-urls: http://192.168.0.5:2380
+#advertise-client-urls: http://192.168.0.5:2379
+#listen-client-urls: http://192.168.0.5:2379

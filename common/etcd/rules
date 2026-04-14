@@ -1,0 +1,29 @@
+#!/usr/bin/make -f
+
+export DH_GOLANG_GO_GENERATE := 1
+export DH_GOLANG_INSTALL_EXTRA := $(shell find . -name fixtures-expired) \
+                                  $(shell find . -name fixtures)
+
+# The ignored pkgs are aligned with upstream ./test file,
+# see variables IGNORE_PKGS and INTEGRATION_PKGS in ./test
+export TEST_EXCLUDES := cmd/ etcdserverpb rafttest gopath.proto v3lockpb v3electionpb \
+                        integration e2e contrib functional
+
+TMP=$(CURDIR)/debian/tmp/
+
+%:
+	dh $@
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
+override_dh_auto_build:
+	mkdir -p usr/bin
+
+override_dh_installman:
+
+# Handle package name (etcd-server) != service name (etcd)
+override_dh_installinit:
+	dh_installinit -p etcd-server --name=etcd
+override_dh_installsystemd:
+	dh_installsystemd -p etcd-server --name=etcd

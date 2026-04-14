@@ -1,4 +1,4 @@
-name: Build PPG Packages
+name: Build Common Packages
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       packages:
         description: Server-Independent packages to build (comma separated)
         required: true
-        default: "patroni,pg_gather,pg_repack,pgaudit,pgaudit_set_user,pgbackrest,pgpool2,pgvector,postgis,postgres-common,ppg-server,ppg-server-ha,wal2json,pg_tde,pg_oidc"
+        default: "etcd,pgbadger,pgbouncer,pysyncobj,ydiff"
 
       packaging-repo:
         description: packaging repo to be used
@@ -14,16 +14,21 @@ on:
         required: true
 
       packaging-branch:
-        description: packaging branch (use pg major.minor version in the dev branch name.)
+        description: packaging branch to be used
+        default: main
         required: true
-        default: 18.3
-        #type: choice
-        #options:
-        #  - "18.3"
-        #  - "17.9"
-        #  - "16.13"
-        #  - "15.17"
-        #  - "14.22"
+
+      pg-major:
+        description: Postgres major version for which package will be built
+        required: true
+        default: "16"
+        type: choice
+        options:
+          - "18"
+          - "17"
+          - "16"
+          - "15"
+          - "14"
 
       distro:
         description: RPM/Deb
@@ -34,15 +39,6 @@ on:
           - "rpm-and-deb"
           - "rpm"
           - "deb"
-
-      ppg-repo-type:
-        description: ppg repo type
-        required: true
-        default: experimental
-        type: choice
-        options:
-          - experimental
-          - testing
 
       debugging:
         description: tmate session required
@@ -57,9 +53,9 @@ jobs:
    runs-on: ubuntu-latest
    outputs:
       BUILD_ID: ${{ steps.set-buildID.outputs.build_id }}
-      PG_MAJOR: ${{ steps.set-pgMajor.outputs.pg_major }}
       PKG_MATRIX: ${{ steps.set-pkg-matrix.outputs.pkg_matrix }}
       SOURCE_MATRIX: ${{ steps.set-source-matrix.outputs.source_matrix }}
+      SOURCE_PLATFORM: ${{ steps.set-source-matrix.outputs.source_platforms }}
       BUILD_MATRIX: ${{ steps.set-build-matrix.outputs.build_matrix }}
 
    steps:
@@ -70,24 +66,10 @@ jobs:
        id: set-buildID
        run: echo "build_id=${{ env.TIMESTAMP }}/${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
-     - name: Set PG_MAJOR
-       id: set-pgMajor
-       run: |
-          pg_major=$(echo "${{ inputs.packaging-branch }}" | grep -oE '[0-9]+\.' | head -1 | tr -d '.')
-          echo "PG_MAJOR=$pg_major" >> "$GITHUB_ENV"
-          echo "pg_major=$pg_major" >> "$GITHUB_OUTPUT"
-
      - name: Set Package Matrix
        id: set-pkg-matrix
        run: |
-          PKGS=$(echo "${{ inputs.packages }}" | tr -d ' ' | tr ',' '\n')
-          if [ "${{ env.PG_MAJOR }}" -lt 18 ]; then
-            PKGS=$(echo "$PKGS" | grep -v '^pg_oidc$')
-          fi
-          if [ "${{ env.PG_MAJOR }}" -lt 17 ]; then
-            PKGS=$(echo "$PKGS" | grep -v '^pg_tde$')
-          fi
-          PKG_MATRIX=$(echo "$PKGS" | jq -R -s -c 'split("\n")[:-1] | {pkgs: .}')
+          PKG_MATRIX=$(echo "${{ inputs.packages }}" | tr -d ' ' | jq -c -R 'split(",") | {pkgs: .}')
           echo "pkg_matrix=$PKG_MATRIX" >> $GITHUB_OUTPUT
 
      - name: Set source rpm/deb matrix
@@ -106,6 +88,7 @@ jobs:
               --argjson platform "$PLATFORM" \
               '{pkgs:$pkgs, platform:$platform}')
           echo "source_matrix=$SOURCE_MATRIX" >> $GITHUB_OUTPUT
+          echo "source_platforms=$PLATFORM" >> $GITHUB_OUTPUT
 
      - name: Set rpm/deb build matrix
        id: set-build-matrix
@@ -140,21 +123,35 @@ jobs:
           fetch-depth: 0
           repository: ${{ inputs.packaging-repo }}
           ref: ${{ inputs.packaging-branch }}
-          path: src
+          path: main-src
 
       - name: Create build files directory
         run: mkdir pkg
 
+      - name: Set PG_VERSION
+        run: |
+          case "${{ inputs.pg-major }}" in
+              18) PG_VERSION="18.3" ;;
+              17) PG_VERSION="17.9" ;;
+              16) PG_VERSION="16.13" ;;
+              15) PG_VERSION="15.17" ;;
+              14) PG_VERSION="14.22" ;;
+              *) echo "Unsupported PG_MAJOR: ${{ inputs.pg-major }}"
+                 exit 1 ;;
+          esac
+          echo "PG_VERSION=$PG_VERSION" >> "$GITHUB_ENV"
+
       - name: Collect common files
         run: |
-          cp src/common-functions.sh pkg/
-          cp src/install-deps.sh pkg/
-          cp src/versions.sh pkg/
-          cp src/${{ matrix.pkgs }}/*builder.sh pkg/pkg-builder.sh
+          cp main-src/common/common-functions.sh pkg/
+          cp main-src/common/install-deps.sh pkg/
+          cp main-src/common/versions.sh pkg/
+          cp main-src/common/${{ matrix.pkgs }}/*builder.sh pkg/pkg-builder.sh
+          sed -i "s/@@PGVERSION@@/${{ env.PG_VERSION }}/g" pkg/versions.sh
         shell: bash
 
       - name: Upload build files as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: build-files-${{ matrix.pkgs }}
           path: pkg/
@@ -181,14 +178,115 @@ jobs:
       - name: Build Sources
         run: |
           mkdir test
-          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
+          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ inputs.pg-major }}
         shell: bash
 
       - name: Upload source tarballs as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.pkgs }}-source_tarball
           path: source_tarball
+
+  build-etcd-arm-source-tarball:
+    if: ${{ contains(inputs.packages, 'etcd') }}
+    runs-on: ubuntu-24.04-arm
+    needs: [prepare-matrix, pull-build-files]
+
+    steps:
+      - name: Get build-files from artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: build-files-etcd
+          path: ./
+
+      - name: Update permissions of the build scripts
+        run: |
+          chmod 755 *.sh
+        shell: bash
+
+      - name: Build Sources
+        run: |
+          mkdir test
+          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ inputs.pg-major }}
+        shell: bash
+
+      - name: Upload source tarballs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: etcd-arm-source_tarball
+          path: source_tarball
+
+  build-etcd-arm-srpm-sdeb:
+    if: ${{ contains(inputs.packages, 'etcd') }}
+    runs-on: ubuntu-24.04-arm
+    needs: [prepare-matrix, pull-build-files, build-etcd-arm-source-tarball]
+
+    strategy:
+      fail-fast: false
+      matrix: 
+        platform: ${{ fromJson(needs.prepare-matrix.outputs.SOURCE_PLATFORM) }}
+
+    container:
+      image: ${{ matrix.platform }}
+
+    steps:
+      - name: Check OS
+        run: cat /etc/os-release
+
+      - name: Install build tools
+        run: |
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
+            yum install -y gcc make tar rpm-build rpmdevtools git sudo
+          else
+            apt-get update
+            apt-get install -y wget curl gcc tar git build-essential devscripts debhelper fakeroot lintian sudo
+          fi
+          echo "Ready to build!"
+
+      - name: Get build files from artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: build-files-etcd
+          path: ./
+
+      - name: Update permissions of the build scripts
+        run: |
+          chmod 755 *.sh
+        shell: bash
+
+      - name: Get source tarball from artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: etcd-arm-source_tarball
+          path: test/source_tarball/
+
+      - name: Install dependencies
+        run: |
+          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }}
+        shell: bash
+
+      - name: Build Source RPM/DEB
+        run: |
+          if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ inputs.pg-major }}
+          else
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_deb=1 --pg_major=${{ inputs.pg-major }}
+          fi
+        shell: bash
+
+      - name: Upload source rpm as artifact
+        if: ${{ contains(matrix.platform, 'linux') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: etcd-arm-srpm
+          path: srpm
+
+      - name: Upload source deb as artifact
+        if: ${{ !contains(matrix.platform, 'linux') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: etcd-arm-source_deb
+          path: source_deb
 
   build-srpm-sdeb:
     runs-on: ubuntu-latest
@@ -234,39 +332,38 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }}
         shell: bash
 
       - name: Build Source RPM/DEB
         run: |
           if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ inputs.pg-major }}
           else
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_deb=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_deb=1 --pg_major=${{ inputs.pg-major }}
           fi
         shell: bash
 
       - name: Upload source rpm as artifact
         if: ${{ contains(matrix.platform, 'linux') }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.pkgs }}-srpm
           path: srpm
 
       - name: Upload source deb as artifact
         if: ${{ !contains(matrix.platform, 'linux') }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.pkgs }}-source_deb
           path: source_deb
 
   build-rpm-deb:
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
-    needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb]
+    needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb, build-etcd-arm-srpm-sdeb]
 
     strategy:
       fail-fast: false
-      max-parallel: 16
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.BUILD_MATRIX) }}
 
     container:
@@ -311,18 +408,32 @@ jobs:
           name: ${{ matrix.pkgs }}-source_deb
           path: test/source_deb/
 
+      - name: Get etcd-arm srpm from artifact
+        if: ${{ contains(matrix.platform, 'linux') && matrix.arch == 'arm64' && matrix.pkgs == 'etcd' }}
+        uses: actions/download-artifact@v5
+        with:
+          name: etcd-arm-srpm
+          path: test/srpm/
+
+      - name: Get etcd-arm source_deb from artifact
+        if: ${{ !contains(matrix.platform, 'linux') && matrix.arch == 'arm64' && matrix.pkgs == 'etcd' }}
+        uses: actions/download-artifact@v5
+        with:
+          name: etcd-arm-source_deb
+          path: test/source_deb/
+
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }}
         shell: bash
 
       - name: Build RPM/DEB
         continue-on-error: true
         run: |
           if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_rpm=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_rpm=1 --pg_major=${{ inputs.pg-major }}
           else
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_deb=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_deb=1 --pg_major=${{ inputs.pg-major }}
           fi
         shell: bash
 
@@ -338,14 +449,14 @@ jobs:
 
       - name: Upload rpms as artifact
         if: ${{ contains(matrix.platform, 'linux') }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.pkgs }}-${{ env.PLATFORM_LABEL }}-${{ matrix.arch }}
           path: rpm
 
       - name: Upload debs as artifact
         if: ${{ !contains(matrix.platform, 'linux') }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.pkgs }}-${{ env.PLATFORM_LABEL }}-${{ matrix.arch }}
           path: deb
@@ -372,11 +483,11 @@ jobs:
 
      - name: Get package full name and upload path
        run: |
-          PKG_UPPER=$(echo "${{ matrix.pkgs }}" | tr '[:lower:]' '[:upper:]')
-          comp_version=$(grep "^${PKG_UPPER}[0-9]*_VERSION=" versions.sh | cut -d '=' -f2)
+          PKG_UPPER=$(echo "${{ matrix.pkgs }}" | tr '[:lower:]-' '[:upper:]_')
+          comp_version=$(grep "^${PKG_UPPER}_VERSION=" versions.sh | cut -d '=' -f2)
           pkg_name="${{ matrix.pkgs }}-$comp_version"
           echo "pkg_name=$pkg_name" >> "$GITHUB_ENV"
-          echo "UPLOAD_PATH=${{ matrix.pkgs }}/$pkg_name/${{ needs.prepare-matrix.outputs.BUILD_ID }}" >> "$GITHUB_ENV"
+          echo "UPLOAD_PATH=common-pkg/${{ matrix.pkgs }}/$pkg_name/${{ needs.prepare-matrix.outputs.BUILD_ID }}" >> "$GITHUB_ENV"
 
      - name: Create final artifact structure
        run: |
@@ -405,14 +516,14 @@ jobs:
           fi
 
      - name: Archive final artifact
-       run: tar -czf ${{ env.pkg_name }}.tar.gz ${{ matrix.pkgs }}
+       run: tar -czf ${{ env.pkg_name }}.tar.gz common-pkg
 
      - name: Upload final artifact as release artifact
        uses: softprops/action-gh-release@v2
        with:
         draft: true
-        tag_name: build_id-${{ github.run_number }} ${{ env.pkg_name }}-${{ inputs.distro }}
-        name: build_id-${{ github.run_number }} ${{ env.pkg_name }}-${{ inputs.distro }}-PG${{ needs.prepare-matrix.outputs.PG_MAJOR }}
+        tag_name: ${{ env.pkg_name }}-${{ inputs.distro }} build_id-${{ github.run_number }}
+        name: ${{ env.pkg_name }}-${{ inputs.distro }} build_id-${{ github.run_number }}
         files: ${{ env.pkg_name }}.tar.gz
 
      - name: enable tmate debugging

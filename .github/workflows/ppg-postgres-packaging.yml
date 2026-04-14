@@ -1,29 +1,17 @@
-name: Build PPG Packages
+name: Build PostgreSQL (14~18)
 
 on:
   workflow_dispatch:
     inputs:
-      packages:
-        description: Server-Independent packages to build (comma separated)
+      pg_versions:
+        description: PostgreSQL versions to build (comma separated)
         required: true
-        default: "patroni,pg_gather,pg_repack,pgaudit,pgaudit_set_user,pgbackrest,pgpool2,pgvector,postgis,postgres-common,ppg-server,ppg-server-ha,wal2json,pg_tde,pg_oidc"
+        default: "14.22,15.17,16.13,17.9,18.3"
 
       packaging-repo:
         description: packaging repo to be used
         default: percona/postgres-packaging
         required: true
-
-      packaging-branch:
-        description: packaging branch (use pg major.minor version in the dev branch name.)
-        required: true
-        default: 18.3
-        #type: choice
-        #options:
-        #  - "18.3"
-        #  - "17.9"
-        #  - "16.13"
-        #  - "15.17"
-        #  - "14.22"
 
       distro:
         description: RPM/Deb
@@ -54,46 +42,31 @@ env:
         
 jobs:
   prepare-matrix:
-   runs-on: ubuntu-latest
-   outputs:
+    runs-on: ubuntu-latest
+    outputs:
       BUILD_ID: ${{ steps.set-buildID.outputs.build_id }}
-      PG_MAJOR: ${{ steps.set-pgMajor.outputs.pg_major }}
-      PKG_MATRIX: ${{ steps.set-pkg-matrix.outputs.pkg_matrix }}
+      PG_MATRIX: ${{ steps.set-pg-matrix.outputs.pg_matrix }}
       SOURCE_MATRIX: ${{ steps.set-source-matrix.outputs.source_matrix }}
       BUILD_MATRIX: ${{ steps.set-build-matrix.outputs.build_matrix }}
 
-   steps:
-     - name: Set timestamp
-       run: echo "TIMESTAMP=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+    steps:
+      - name: Set timestamp
+        run: echo "TIMESTAMP=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
 
-     - name: Set Build ID
-       id: set-buildID
-       run: echo "build_id=${{ env.TIMESTAMP }}/${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+      - name: Set Build ID
+        id: set-buildID
+        run: echo "build_id=${{ env.TIMESTAMP }}/${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
-     - name: Set PG_MAJOR
-       id: set-pgMajor
-       run: |
-          pg_major=$(echo "${{ inputs.packaging-branch }}" | grep -oE '[0-9]+\.' | head -1 | tr -d '.')
-          echo "PG_MAJOR=$pg_major" >> "$GITHUB_ENV"
-          echo "pg_major=$pg_major" >> "$GITHUB_OUTPUT"
+      - name: Set PG Matrix
+        id: set-pg-matrix
+        run: |
+          PG_MATRIX=$(echo "${{ inputs.pg_versions }}" | tr -d ' ' | jq -c -R 'split(",") | {pg_version: .}')
+          echo "pg_matrix=$PG_MATRIX" >> $GITHUB_OUTPUT
 
-     - name: Set Package Matrix
-       id: set-pkg-matrix
-       run: |
-          PKGS=$(echo "${{ inputs.packages }}" | tr -d ' ' | tr ',' '\n')
-          if [ "${{ env.PG_MAJOR }}" -lt 18 ]; then
-            PKGS=$(echo "$PKGS" | grep -v '^pg_oidc$')
-          fi
-          if [ "${{ env.PG_MAJOR }}" -lt 17 ]; then
-            PKGS=$(echo "$PKGS" | grep -v '^pg_tde$')
-          fi
-          PKG_MATRIX=$(echo "$PKGS" | jq -R -s -c 'split("\n")[:-1] | {pkgs: .}')
-          echo "pkg_matrix=$PKG_MATRIX" >> $GITHUB_OUTPUT
-
-     - name: Set source rpm/deb matrix
-       id: set-source-matrix
-       run: |
-          PKG=$(echo "${{ inputs.packages }}" | tr -d ' ' | jq -c -R 'split(",")')
+      - name: Set source rpm/deb matrix
+        id: set-source-matrix
+        run: |
+          PG_VERSION=$(echo "${{ inputs.pg_versions }}" | tr -d ' ' | jq -c -R 'split(",")')
           if [ "${{ inputs.distro }}" = "rpm" ]; then
             PLATFORM='["oraclelinux:8"]'
           elif [ "${{ inputs.distro }}" = "deb" ]; then
@@ -102,16 +75,16 @@ jobs:
             PLATFORM='["oraclelinux:8","ubuntu:jammy"]'
           fi
           SOURCE_MATRIX=$(jq -c -n \
-              --argjson pkgs "$PKG" \
+              --argjson pg_version "$PG_VERSION" \
               --argjson platform "$PLATFORM" \
-              '{pkgs:$pkgs, platform:$platform}')
+              '{pg_version:$pg_version, platform:$platform}')
           echo "source_matrix=$SOURCE_MATRIX" >> $GITHUB_OUTPUT
 
-     - name: Set rpm/deb build matrix
-       id: set-build-matrix
-       run: |
+      - name: Set rpm/deb build matrix
+        id: set-build-matrix
+        run: |
           ARCH='["amd64","arm64"]'
-          PKG=$(echo "${{ inputs.packages }}" | tr -d ' ' | jq -c -R 'split(",")')
+          PG_VERSION=$(echo "${{ inputs.pg_versions }}" | tr -d ' ' | jq -c -R 'split(",")')
           if [ "${{ inputs.distro }}" = "rpm" ]; then
             PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10"]'
           elif [ "${{ inputs.distro }}" = "deb" ]; then
@@ -120,10 +93,10 @@ jobs:
             PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10","ubuntu:noble","ubuntu:jammy","debian:bookworm","debian:bullseye","debian:trixie"]'
           fi
           BUILD_MATRIX=$(jq -c -n \
-            --argjson pkgs "$PKG" \
+            --argjson pg_version "$PG_VERSION" \
             --argjson platform "$PLATFORM" \
             --argjson arch "$ARCH" \
-            '{pkgs:$pkgs, platform:$platform, arch:$arch}')
+            '{pg_version:$pg_version, platform:$platform, arch:$arch}')
           echo "build_matrix=$BUILD_MATRIX" >> $GITHUB_OUTPUT
 
   pull-build-files:
@@ -131,7 +104,7 @@ jobs:
     needs: [prepare-matrix]
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PKG_MATRIX) }}
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PG_MATRIX) }}
 
     steps:
       - name: Checkout packaging repo
@@ -139,38 +112,50 @@ jobs:
         with:
           fetch-depth: 0
           repository: ${{ inputs.packaging-repo }}
-          ref: ${{ inputs.packaging-branch }}
-          path: src
+          ref: main
+          path: main-src
+
+      - name: Checkout PG branch
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          repository: ${{ inputs.packaging-repo }}
+          ref: ${{ matrix.pg_version }}
+          path: pg-src
 
       - name: Create build files directory
         run: mkdir pkg
+        
+      - name: Collect PG packaging files
+        run: |
+          cp -r pg-src/postgres/ppg_builder.sh pkg/
+          cp pg-src/versions.sh pkg/
+        shell: bash
 
       - name: Collect common files
         run: |
-          cp src/common-functions.sh pkg/
-          cp src/install-deps.sh pkg/
-          cp src/versions.sh pkg/
-          cp src/${{ matrix.pkgs }}/*builder.sh pkg/pkg-builder.sh
+          cp main-src/common-functions.sh pkg/
+          cp main-src/install-deps.sh pkg/
         shell: bash
 
       - name: Upload build files as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files-${{ matrix.pg_version }}
           path: pkg/
-          
+
   build-source-tarball:
     runs-on: ubuntu-latest
     needs: [prepare-matrix, pull-build-files]
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PKG_MATRIX) }}
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PG_MATRIX) }}
 
     steps:
-      - name: Get build-files from artifact
+      - name: Get build script artifact
         uses: actions/download-artifact@v5
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files-${{ matrix.pg_version }}
           path: ./
 
       - name: Update permissions of the build scripts
@@ -181,13 +166,13 @@ jobs:
       - name: Build Sources
         run: |
           mkdir test
-          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
+          sudo -E ./ppg_builder.sh --builddir=$(pwd)/test --get_sources=1 --repo_component=${{ inputs.ppg-repo-type }}
         shell: bash
 
       - name: Upload source tarballs as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.pkgs }}-source_tarball
+          name: PG${{ matrix.pg_version }}-source_tarball
           path: source_tarball
 
   build-srpm-sdeb:
@@ -218,7 +203,7 @@ jobs:
       - name: Get build files from artifact
         uses: actions/download-artifact@v5
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files-${{ matrix.pg_version }}
           path: ./
 
       - name: Update permissions of the build scripts
@@ -229,35 +214,35 @@ jobs:
       - name: Get source tarball from artifact
         uses: actions/download-artifact@v5
         with:
-          name: ${{ matrix.pkgs }}-source_tarball
+          name: PG${{ matrix.pg_version }}-source_tarball
           path: test/source_tarball/
 
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+          sudo ./ppg_builder.sh --builddir=$(pwd)/test --install_deps=1 --repo_component=${{ inputs.ppg-repo-type }}
         shell: bash
 
       - name: Build Source RPM/DEB
         run: |
           if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+            sudo ./ppg_builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --repo_component=${{ inputs.ppg-repo-type }}
           else
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_deb=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+            sudo ./ppg_builder.sh --builddir=$(pwd)/test --build_src_deb=1 --repo_component=${{ inputs.ppg-repo-type }}
           fi
         shell: bash
 
       - name: Upload source rpm as artifact
         if: ${{ contains(matrix.platform, 'linux') }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.pkgs }}-srpm
+          name: PG${{ matrix.pg_version }}-srpm
           path: srpm
 
       - name: Upload source deb as artifact
         if: ${{ !contains(matrix.platform, 'linux') }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.pkgs }}-source_deb
+          name: PG${{ matrix.pg_version }}-source_deb
           path: source_deb
 
   build-rpm-deb:
@@ -286,10 +271,10 @@ jobs:
           fi
           echo "Ready to build!"
 
-      - name: Get build-files from artifact
+      - name: Get build files artifact
         uses: actions/download-artifact@v5
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files-${{ matrix.pg_version }}
           path: ./
 
       - name: Update permissions of the build scripts
@@ -297,32 +282,38 @@ jobs:
           chmod 755 *.sh
         shell: bash
 
+      - name: Get source tarball from artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: PG${{ matrix.pg_version }}-source_tarball
+          path: test/source_tarball/
+
       - name: Get source rpm from artifact
         if: ${{ contains(matrix.platform, 'linux') }}
         uses: actions/download-artifact@v5
         with:
-          name: ${{ matrix.pkgs }}-srpm
+          name: PG${{ matrix.pg_version }}-srpm
           path: test/srpm/
 
       - name: Get source deb from artifact
         if: ${{ !contains(matrix.platform, 'linux') }}
         uses: actions/download-artifact@v5
         with:
-          name: ${{ matrix.pkgs }}-source_deb
+          name: PG${{ matrix.pg_version }}-source_deb
           path: test/source_deb/
 
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+          set -xe
+          sudo ./ppg_builder.sh --builddir=$(pwd)/test --install_deps=1 --repo_component=${{ inputs.ppg-repo-type }}
         shell: bash
 
       - name: Build RPM/DEB
-        continue-on-error: true
         run: |
           if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_rpm=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+            sudo ./ppg_builder.sh --builddir=$(pwd)/test --build_rpm=1
           else
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_deb=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }} --repo_component=${{ inputs.ppg-repo-type }}
+            sudo ./ppg_builder.sh --builddir=$(pwd)/test --build_deb=1
           fi
         shell: bash
 
@@ -338,16 +329,16 @@ jobs:
 
       - name: Upload rpms as artifact
         if: ${{ contains(matrix.platform, 'linux') }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.pkgs }}-${{ env.PLATFORM_LABEL }}-${{ matrix.arch }}
+          name: PG${{ matrix.pg_version }}-${{ env.PLATFORM_LABEL }}-${{ matrix.arch }}
           path: rpm
 
       - name: Upload debs as artifact
         if: ${{ !contains(matrix.platform, 'linux') }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.pkgs }}-${{ env.PLATFORM_LABEL }}-${{ matrix.arch }}
+          name: PG${{ matrix.pg_version }}-${{ env.PLATFORM_LABEL }}-${{ matrix.arch }}
           path: deb
 
   upload-draft-release:
@@ -355,28 +346,14 @@ jobs:
     needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb, build-rpm-deb]
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PKG_MATRIX) }}
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PG_MATRIX) }}
 
     steps:
-     - name: Get build-files from artifact
-       uses: actions/download-artifact@v5
-       with:
-        pattern: build-files-${{ matrix.pkgs }}
-        path: ./
-
-     - name: Get all the artifacts
-       uses: actions/download-artifact@v5
-       with:
-        pattern: ${{ matrix.pkgs }}-*
-        path: artifacts
-
      - name: Get package full name and upload path
        run: |
-          PKG_UPPER=$(echo "${{ matrix.pkgs }}" | tr '[:lower:]' '[:upper:]')
-          comp_version=$(grep "^${PKG_UPPER}[0-9]*_VERSION=" versions.sh | cut -d '=' -f2)
-          pkg_name="${{ matrix.pkgs }}-$comp_version"
+          pkg_name="PG${{ matrix.pg_version }}"
           echo "pkg_name=$pkg_name" >> "$GITHUB_ENV"
-          echo "UPLOAD_PATH=${{ matrix.pkgs }}/$pkg_name/${{ needs.prepare-matrix.outputs.BUILD_ID }}" >> "$GITHUB_ENV"
+          echo "UPLOAD_PATH="postgresql/$pkg_name/${{ needs.prepare-matrix.outputs.BUILD_ID }}"" >> "$GITHUB_ENV"
 
      - name: Create final artifact structure
        run: |
@@ -386,33 +363,39 @@ jobs:
         mkdir -p ${{ env.UPLOAD_PATH }}/rpm
         mkdir -p ${{ env.UPLOAD_PATH }}/deb
 
+     - name: Get all the artifacts
+       uses: actions/download-artifact@v5
+       with:
+        pattern: PG${{ matrix.pg_version }}-*
+        path: artifacts
+
      - name: Copy all the artifacts to required location
        run: |
-          cp artifacts/${{ matrix.pkgs }}-source_tarball/* "${{ env.UPLOAD_PATH }}/source_tarball/"
+          cp artifacts/PG*-source_tarball/* "${{ env.UPLOAD_PATH }}/source_tarball/"
           if [ "${{ inputs.distro }}" = "rpm" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
-            cp -n artifacts/${{ matrix.pkgs }}-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
-            cp -n artifacts/${{ matrix.pkgs }}-ol8-*/* "${{ env.UPLOAD_PATH }}/rpm/"
-            cp -n artifacts/${{ matrix.pkgs }}-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
-            cp -n artifacts/${{ matrix.pkgs }}-ol10-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp artifacts/PG*-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
+            cp artifacts/PG*-ol8-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp artifacts/PG*-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp artifacts/PG*-ol10-*/* "${{ env.UPLOAD_PATH }}/rpm/"
           fi
           if [ "${{ inputs.distro }}" = "deb" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
-            cp -n artifacts/${{ matrix.pkgs }}-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-bookworm-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-bullseye-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-jammy-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-noble-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-trixie-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp artifacts/PG*-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"
+            cp artifacts/PG*-bookworm-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp artifacts/PG*-bullseye-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp artifacts/PG*-jammy-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp artifacts/PG*-noble-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp artifacts/PG*-trixie-*/* "${{ env.UPLOAD_PATH }}/deb/"
           fi
 
      - name: Archive final artifact
-       run: tar -czf ${{ env.pkg_name }}.tar.gz ${{ matrix.pkgs }}
+       run: tar -czf ${{ env.pkg_name }}.tar.gz postgresql
 
      - name: Upload final artifact as release artifact
        uses: softprops/action-gh-release@v2
        with:
         draft: true
-        tag_name: build_id-${{ github.run_number }} ${{ env.pkg_name }}-${{ inputs.distro }}
-        name: build_id-${{ github.run_number }} ${{ env.pkg_name }}-${{ inputs.distro }}-PG${{ needs.prepare-matrix.outputs.PG_MAJOR }}
+        tag_name: postgresql-${{ matrix.pg_version }}-${{ inputs.distro }} build_id-${{ github.run_number }}
+        name: postgresql-${{ matrix.pg_version }}-${{ inputs.distro }} build_id-${{ github.run_number }}
         files: ${{ env.pkg_name }}.tar.gz
 
      - name: enable tmate debugging

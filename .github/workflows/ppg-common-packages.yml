@@ -18,17 +18,17 @@ on:
         default: main
         required: true
 
-      pg-major:
-        description: Postgres major version for which package will be built
+      ppg-repo:
+        description: ppg-repo to pull ppg-common from
         required: true
-        default: "16"
+        default: "16.13"
         type: choice
         options:
-          - "18"
-          - "17"
-          - "16"
-          - "15"
-          - "14"
+          - "18.3"
+          - "17.9"
+          - "16.13"
+          - "15.17"
+          - "14.22"
 
       distro:
         description: RPM/Deb
@@ -53,6 +53,7 @@ jobs:
    runs-on: ubuntu-latest
    outputs:
       BUILD_ID: ${{ steps.set-buildID.outputs.build_id }}
+      PG_MAJOR: ${{ steps.set-pgMajor.outputs.pg_major }}
       PKG_MATRIX: ${{ steps.set-pkg-matrix.outputs.pkg_matrix }}
       SOURCE_MATRIX: ${{ steps.set-source-matrix.outputs.source_matrix }}
       SOURCE_PLATFORM: ${{ steps.set-source-matrix.outputs.source_platforms }}
@@ -65,6 +66,13 @@ jobs:
      - name: Set Build ID
        id: set-buildID
        run: echo "build_id=${{ env.TIMESTAMP }}/${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
+     - name: Set PG_MAJOR
+       id: set-pgMajor
+       run: |
+          pg_major=$(echo "${{ inputs.ppg-repo }}" | cut -d '.' -f1)
+          echo "PG_MAJOR=$pg_major" >> "$GITHUB_ENV"
+          echo "pg_major=$pg_major" >> "$GITHUB_OUTPUT"
 
      - name: Set Package Matrix
        id: set-pkg-matrix
@@ -123,31 +131,18 @@ jobs:
           fetch-depth: 0
           repository: ${{ inputs.packaging-repo }}
           ref: ${{ inputs.packaging-branch }}
-          path: main-src
+          path: src
 
       - name: Create build files directory
         run: mkdir pkg
 
-      - name: Set PG_VERSION
-        run: |
-          case "${{ inputs.pg-major }}" in
-              18) PG_VERSION="18.3" ;;
-              17) PG_VERSION="17.9" ;;
-              16) PG_VERSION="16.13" ;;
-              15) PG_VERSION="15.17" ;;
-              14) PG_VERSION="14.22" ;;
-              *) echo "Unsupported PG_MAJOR: ${{ inputs.pg-major }}"
-                 exit 1 ;;
-          esac
-          echo "PG_VERSION=$PG_VERSION" >> "$GITHUB_ENV"
-
       - name: Collect common files
         run: |
-          cp main-src/common/common-functions.sh pkg/
-          cp main-src/common/install-deps.sh pkg/
-          cp main-src/common/versions.sh pkg/
-          cp main-src/common/${{ matrix.pkgs }}/*builder.sh pkg/pkg-builder.sh
-          sed -i "s/@@PGVERSION@@/${{ env.PG_VERSION }}/g" pkg/versions.sh
+          cp src/common/common-functions.sh pkg/
+          cp src/common/install-deps.sh pkg/
+          cp src/common/versions.sh pkg/
+          cp src/common/${{ matrix.pkgs }}/*builder.sh pkg/pkg-builder.sh
+          sed -i "s/@@PGVERSION@@/${{ inputs.ppg-repo }}/g" pkg/versions.sh
         shell: bash
 
       - name: Upload build files as artifact
@@ -178,7 +173,7 @@ jobs:
       - name: Build Sources
         run: |
           mkdir test
-          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ inputs.pg-major }}
+          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
         shell: bash
 
       - name: Upload source tarballs as artifact
@@ -207,7 +202,7 @@ jobs:
       - name: Build Sources
         run: |
           mkdir test
-          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ inputs.pg-major }}
+          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
         shell: bash
 
       - name: Upload source tarballs as artifact
@@ -262,15 +257,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }}
+          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
         shell: bash
 
       - name: Build Source RPM/DEB
         run: |
           if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ inputs.pg-major }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
           else
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_deb=1 --pg_major=${{ inputs.pg-major }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_deb=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
           fi
         shell: bash
 
@@ -332,15 +327,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }}
+          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
         shell: bash
 
       - name: Build Source RPM/DEB
         run: |
           if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ inputs.pg-major }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
           else
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_deb=1 --pg_major=${{ inputs.pg-major }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_deb=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
           fi
         shell: bash
 
@@ -424,16 +419,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }}
+          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
         shell: bash
 
       - name: Build RPM/DEB
         continue-on-error: true
         run: |
           if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_rpm=1 --pg_major=${{ inputs.pg-major }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_rpm=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
           else
-            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_deb=1 --pg_major=${{ inputs.pg-major }}
+            sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_deb=1 --pg_major=${{ needs.prepare-matrix.outputs.PG_MAJOR }}
           fi
         shell: bash
 

@@ -1,8 +1,0 @@
-# pgbouncer defaults
-#
-
-# Path to the init file
-BOUNCERCONF=/etc/pgbouncer/pgbouncer.ini
-
-# Path to the log file
-BOUNCERLOG=/var/log/pgbouncer/pgbouncer.log

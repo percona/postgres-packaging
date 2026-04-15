@@ -222,35 +222,6 @@ EOF
     ;;
 
 
-  pg_tde)
-    if [ "x$OS" = "xrpm" ]; then
-      rpm_deps
-      INSTALL_LIST+="wget git vim chrpath clang-devel clang llvm-devel json-c-devel libcurl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server rpmdevtools binutils make gcc gcc-c++"
-      dnf -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
-      ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-      dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="build-essential debhelper clang git libjson-c-dev pkg-config libcurl4-openssl-dev liblz4-dev libssl-dev zlib1g-dev libzstd-dev libxml2-dev libxml2-utils libxslt-dev libxslt1-dev libselinux1-dev libpam0g-dev krb5-multidev libkrb5-dev libreadline-dev shtool devscripts percona-postgresql-common percona-postgresql-server-dev-all libnuma-dev"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-    fi
-    ;;
-
-
-  ydiff)
-    if [ "x$OS" = "xrpm" ]; then
-      rpm_deps
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools"
-      dnf -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      INSTALL_LIST+="build-essential debconf debhelper dh-exec fakeroot devscripts python3-psycopg2 python3-setuptools libyaml-dev python3-dev dh-virtualenv python3-virtualenv ruby ruby-dev rubygems golang dh-python libjs-mathjax pyflakes3 python3-dateutil python3-dnspython python3-etcd python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-all"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-    fi
-    ;;
-
-
   wal2json)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
@@ -262,19 +233,6 @@ EOF
       INSTALL_LIST+="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-${PG_MAJOR} percona-postgresql-common percona-postgresql-server-dev-all percona-postgresql-all libbz2-dev libzstd-dev libevent-dev libc-ares-dev pandoc"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
-    fi
-    ;;
-
-
-  pysyncobj)
-    if [ "x$OS" = "xrpm" ]; then
-      rpm_deps
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools python3-devel python3-setuptools rpmlint"
-      dnf -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      INSTALL_LIST+="build-essential debconf debhelper devscripts dh-exec fakeroot python3-psycopg2 python3-setuptools libyaml-dev python3-virtualenv ruby ruby-dev rubygems golang dh-python libjs-mathjax pyflakes3 python3-dateutil python3-dnspython python3-etcd python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-all"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;
 
@@ -352,36 +310,6 @@ EOF
       deb_deps
       INSTALL_LIST+="percona-postgresql-${PG_MAJOR} percona-postgresql-common percona-postgresql-server-dev-all debconf devscripts dh-exec libkrb5-dev libssl-dev build-essential libxml-checker-perl chrpath docbook docbook-dsssl docbook-xml docbook-xsl flex libmemcached-dev libxml2-utils openjade opensp xsltproc bison libldap-dev libpam0g-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-    fi
-    ;;
-
-
-  pgbouncer)
-    if [ "x$OS" = "xrpm" ]; then
-      rpm_deps
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools lz4-libs c-ares-devel pandoc libtool openldap-devel libevent-devel python3 python3-psycopg2 openssl-devel pam-devel systemd systemd-devel libxml2-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed"
-      dnf -y install ${INSTALL_LIST}
-      dnf -y install lz4 || true
-    else
-      deb_deps
-      INSTALL_LIST+="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec libldap-dev ldap-utils libsystemd-dev libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-common libbz2-dev libzstd-dev libevent-dev libc-ares-dev pandoc"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
-    fi
-    ;;
-
-
-  pgbadger)
-    if [ "x$OS" = "xrpm" ]; then
-      rpm_deps
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools lz4-libs c-ares-devel pandoc libtool libevent-devel python3-psycopg2 openssl-devel pam-devel systemd systemd-devel libxml2-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed which perl-Pod-Markdown"
-      dnf -y install ${INSTALL_LIST}
-      dnf -y install lz4 || true
-    else
-      deb_deps
-      INSTALL_LIST+="build-essential pkg-config liblz4-dev debconf debhelper devscripts dh-exec libxml-libxml-perl libtext-csv-xs-perl libcontextual-return-perl libxml-checker-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-common libbz2-dev libzstd-dev libevent-dev libc-ares-dev pandoc libjson-xs-perl libpod-markdown-perl"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam0g-dev || DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install libpam-dev
     fi
     ;;
 
@@ -483,19 +411,6 @@ EOF
     else
       deb_deps
       INSTALL_LIST+="build-essential debconf debhelper clang devscripts dh-exec fakeroot dh-virtualenv python3-psycopg2 libyaml-dev python3-virtualenv ruby ruby-dev rubygems golang libjs-mathjax pyflakes3 python3-dateutil python3-dnspython python3-etcd python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-dev python3-pip python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python python3-pysyncobj python3-sphinxcontrib.apidoc python3-ydiff"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-    fi
-    ;;
-
-
-  etcd)
-    if [ "x$OS" = "xrpm" ]; then
-      rpm_deps
-      INSTALL_LIST+="wget git vim go-toolset rpmdevtools python3-devel"
-      dnf -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      INSTALL_LIST+="vim rpm dpkg-dev build-essential ccache cron debconf debhelper devscripts dh-exec dh-golang fakeroot golang-go"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;

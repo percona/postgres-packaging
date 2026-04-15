@@ -4,25 +4,20 @@ PG_MAJOR=16
 PG_MINOR=13
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
-PPG_COMMON_MAJOR=289
-PPG_COMMON_MINOR=1
-ETCD_VERSION=3.5.26
+POSTGRES_COMMON_VERSION=289
+POSTGRES_COMMON_MINOR=1
 PATRONI_VERSION=4.1.0
 PG_CRON_VERSION=1.6.2
 PG_GATHER_VERSION=32
 PG_REPACK_VERSION=1.5.3
 PGAUDIT_VERSION=16.1
-SET_USER_VERSION=4.2.0
-PG_BCKREST_VERSION=2.58.0
-PGBADGER_VERSION=13.2
-PGBOUNCER_VERSION=1.25.1
+PGAUDIT_SET_USER_VERSION=4.2.0
+PGBACKREST_VERSION=2.58.0
 PGPOOL2_VERSION=4.7.0
 PGVECTOR_VERSION=0.8.2
 POSTGIS35_VERSION=3.5
 POSTGIS35_MINOR=5
-PYSYNCOBJ_VERSION=0.3.10
 WAL2JSON_VERSION=2.6
-YDIFF_VERSION=1.4.2
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -59,28 +54,14 @@ case "$1" in
     postgresql-common)
         # versions
         PPG_COMMON_PRODUCT=percona-postgresql-common
-        PPG_COMMON_PRODUCT_FULL=${PPG_COMMON_PRODUCT}-${PPG_COMMON_MAJOR}
+        PPG_COMMON_PRODUCT_FULL=${PPG_COMMON_PRODUCT}-${POSTGRES_COMMON_VERSION}
         PPG_COMMON_RELEASE='1'
-        PPG_COMMON_SRC_BRANCH="debian/${PPG_COMMON_MAJOR}"
+        PPG_COMMON_SRC_BRANCH="debian/${POSTGRES_COMMON_VERSION}"
         PPG_COMMON_RPM_RELEASE='1'
         PPG_COMMON_DEB_RELEASE='1'
 
         # urls
         PPG_COMMON_SRC_REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
-    ;;
-
-
-    etcd)
-        # versions
-        ETCD_PRODUCT=etcd
-        ETCD_PRODUCT_FULL=${ETCD_PRODUCT}-${ETCD_VERSION}
-        ETCD_RPM_RELEASE='1'
-        ETCD_DEB_RELEASE='1'
-        ETCD_RELEASE='1'
-
-        # urls
-        ETCD_SRC_REPO="https://github.com/etcd-io/etcd/releases/download/v${ETCD_VERSION}"
-        ETCD_SRC_REPO_DEB="https://github.com/EvgeniyPatlan/etcd-packaging.git"
     ;;
 
 
@@ -164,8 +145,8 @@ case "$1" in
         # versions
         SET_USER_PRODUCT="percona-pgaudit${PG_MAJOR}_set_user"
         SET_USER_PRODUCT_DEB="percona-pgaudit${PG_MAJOR}-set-user"
-        SET_USER_PRODUCT_FULL=${SET_USER_PRODUCT}-${SET_USER_VERSION}
-        SET_USER_SRC_BRANCH="REL${SET_USER_VERSION//./_}"
+        SET_USER_PRODUCT_FULL=${SET_USER_PRODUCT}-${PGAUDIT_SET_USER_VERSION}
+        SET_USER_SRC_BRANCH="REL${PGAUDIT_SET_USER_VERSION//./_}"
         SET_USER_RPM_RELEASE='2'
         SET_USER_DEB_RELEASE='2'
         SET_USER_RELEASE='2'
@@ -178,9 +159,9 @@ case "$1" in
     pgbackrest)
         # versions
         PG_BCKREST_PRODUCT=percona-pgbackrest
-        PG_BCKREST_PRODUCT_FULL=${PG_BCKREST_PRODUCT}-${PG_BCKREST_VERSION}
-        PG_BCKREST_SRC_BRANCH="release/${PG_BCKREST_VERSION}"
-        PG_BCKREST_DEB_TAG="debian/${PG_BCKREST_VERSION}-1"
+        PG_BCKREST_PRODUCT_FULL=${PG_BCKREST_PRODUCT}-${PGBACKREST_VERSION}
+        PG_BCKREST_SRC_BRANCH="release/${PGBACKREST_VERSION}"
+        PG_BCKREST_DEB_TAG="debian/${PGBACKREST_VERSION}-1"
         PG_BCKREST_RPM_RELEASE='1'
         PG_BCKREST_DEB_RELEASE='1'
         PG_BCKREST_RELEASE='1'
@@ -191,40 +172,12 @@ case "$1" in
     ;;
 
 
-    pgbadger)
-        # versions
-        PGBADGER_PRODUCT=percona-pgbadger
-        PGBADGER_PRODUCT_FULL=${PGBADGER_PRODUCT}-${PGBADGER_VERSION}
-        PGBADGER_SRC_BRANCH="v${PGBADGER_VERSION}"
-        PGBADGER_RPM_RELEASE='1'
-        PGBADGER_DEB_RELEASE='1'
-        PGBADGER_RELEASE='1'
-
-        # urls
-        PGBADGER_SRC_REPO="https://github.com/darold/pgbadger.git"
-    ;;
-
-
-    pgbouncer)
-        # versions
-        PGBOUNCER_PRODUCT=percona-pgbouncer
-        PGBOUNCER_PRODUCT_FULL=${PGBOUNCER_PRODUCT}-${PGBOUNCER_VERSION}
-        PGBOUNCER_SRC_BRANCH="pgbouncer_${PGBOUNCER_VERSION//./_}"
-        PGBOUNCER_RPM_RELEASE='1'
-        PGBOUNCER_DEB_RELEASE='1'
-        PGBOUNCER_RELEASE='1'
-
-        # urls
-        PGBOUNCER_SRC_REPO="https://github.com/pgbouncer/pgbouncer.git"
-        PGBOUNCER_SRC_REPO_DEB="https://salsa.debian.org/postgresql/pgbouncer.git"
-    ;;
-
-
     pgpool2)
         # versions
         PGPOOL2_PRODUCT=percona-pgpool-II-pg${PG_VERSION}
         PGPOOL2_PRODUCT_FULL=${PGPOOL2_PRODUCT}-${PGPOOL2_VERSION}
         PGPOOL2_SRC_BRANCH="V${PGPOOL2_VERSION//./_}"
+        PGPOOL2_DEB_BRANCH=debian/${PGPOOL2_VERSION}-1
         PGPOOL2_BUILD_BRANCH=${PG_VERSION}
         PGPOOL2_RPM_RELEASE='1'
         PGPOOL2_DEB_RELEASE='1'
@@ -296,21 +249,6 @@ case "$1" in
     ;;
 
 
-    pysyncobj)
-        # versions
-        PYSYNCOBJ_PRODUCT=python3-pysyncobj
-        PYSYNCOBJ_PRODUCT_FULL=${PYSYNCOBJ_PRODUCT}-${PYSYNCOBJ_VERSION}
-        PYSYNCOBJ_SRC_BRANCH="${PYSYNCOBJ_VERSION}"
-        PYSYNCOBJ_RPM_RELEASE='2'
-        PYSYNCOBJ_DEB_RELEASE='2'
-        PYSYNCOBJ_RELEASE='3'
-
-        # urls
-        PYSYNCOBJ_SRC_REPO="https://github.com/bakwc/PySyncObj.git"
-        PYSYNCOBJ_PERCONA_REPO="https://github.com/Percona-Lab/python3-pysyncobj.git"
-    ;;
-
-
     wal2json)
         # versions
         WAL2JSON_PRODUCT=percona-wal2json
@@ -323,19 +261,5 @@ case "$1" in
         # urls
         WAL2JSON_SRC_REPO="https://github.com/eulerto/wal2json.git"
         WAL2JSON_SRC_REPO_DEB="https://salsa.debian.org/postgresql/wal2json.git"
-    ;;
-
-
-    ydiff)
-        # versions
-        YDIFF_PRODUCT=python3-ydiff
-        YDIFF_PRODUCT_FULL=${YDIFF_PRODUCT}-${YDIFF_VERSION}
-        YDIFF_SRC_BRANCH="${YDIFF_VERSION}"
-        YDIFF_RPM_RELEASE='2'
-        YDIFF_DEB_RELEASE='1'
-        YDIFF_RELEASE='1'
-
-        # urls
-        YDIFF_SRC_REPO="https://github.com/ymattw/ydiff.git"
     ;;
 esac

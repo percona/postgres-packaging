@@ -74,6 +74,9 @@ get_sources(){
 
     # get files for deb
     GIT_SSL_NO_VERIFY=true git clone ${PGPOOL2_SRC_REPO_DEB} ../pgpool2
+    pushd ../pgpool2
+    git checkout ${PGPOOL2_DEB_BRANCH}
+    popd
     mv ../pgpool2/debian/ .
     wget $(echo ${PKG_GIT_REPO} | sed -re 's|github.com|raw.githubusercontent.com|; s|\.git$||')/${PGPOOL2_BUILD_BRANCH}/pgpool2/pgpool2-debian-config.patch -O debian/patches/pgpool2-debian-config.patch
 

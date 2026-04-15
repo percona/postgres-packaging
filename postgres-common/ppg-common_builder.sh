@@ -16,7 +16,7 @@ get_sources(){
 
     echo "PRODUCT=${PPG_COMMON_PRODUCT}" > percona-postgresql.properties
     echo "PRODUCT_FULL=${PPG_COMMON_PRODUCT_FULL}" >> percona-postgresql.properties
-    echo "VERSION=${PPG_COMMON_MAJOR}" >> percona-postgresql.properties
+    echo "VERSION=${POSTGRES_COMMON_VERSION}" >> percona-postgresql.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> percona-postgresql.properties
     echo "BUILD_ID=${BUILD_ID}" >> percona-postgresql.properties
     git clone "$PPG_COMMON_SRC_REPO"
@@ -64,7 +64,7 @@ get_sources(){
         patch -p0 < percona-postgresql-common.templates.patch
         rm -rf maintscripts-functions.patch percona-postgresql-common.templates.patch
         rm -rf changelog
-        echo "percona-postgresql-common (${PPG_COMMON_MAJOR}) unstable; urgency=low" >> changelog
+        echo "percona-postgresql-common (${POSTGRES_COMMON_VERSION}) unstable; urgency=low" >> changelog
         echo "  * Initial Release." >> changelog
         echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
         sed -i 's:percona-postgresql-plpython-$v,::' rules
@@ -160,7 +160,7 @@ build_srpm(){
     rpmbuild -bs \
         --define "_topdir ${WORKDIR}/rpmbuild" \
         --define "dist .generic" \
-        --define "version ${PPG_COMMON_MAJOR}" \
+        --define "version ${POSTGRES_COMMON_VERSION}" \
         --define "ppg_cmn_release ${PPG_COMMON_RELEASE}" \
         rpmbuild/SPECS/percona-postgresql-common.spec
     mkdir -p ${WORKDIR}/srpm
@@ -208,7 +208,7 @@ build_rpm(){
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     rpmbuild \
         --define "_topdir ${WORKDIR}/rpmbuild" \
-        --define "version ${PPG_COMMON_MAJOR}" \
+        --define "version ${POSTGRES_COMMON_VERSION}" \
         --define "ppg_cmn_release ${PPG_COMMON_RELEASE}" \
         --define "dist .$OS_NAME" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
@@ -245,10 +245,10 @@ build_source_deb(){
     BUILDDIR=${TARFILE%.tar.gz}
 
     
-    mv ${TARFILE} ${PPG_COMMON_PRODUCT}_${PPG_COMMON_MAJOR}.orig.tar.gz
+    mv ${TARFILE} ${PPG_COMMON_PRODUCT}_${POSTGRES_COMMON_VERSION}.orig.tar.gz
     cd ${BUILDDIR}
 
-    dch -D unstable --force-distribution -v "${PPG_COMMON_MAJOR}" "Update to new Percona Platform for PostgreSQL version ${PPG_COMMON_MAJOR}"
+    dch -D unstable --force-distribution -v "${POSTGRES_COMMON_VERSION}" "Update to new Percona Platform for PostgreSQL version ${POSTGRES_COMMON_VERSION}"
     dpkg-buildpackage -S
     cd ../
     mkdir -p $WORKDIR/source_deb
@@ -296,7 +296,7 @@ build_deb(){
     if [ ${DEBIAN} = "stretch" ]; then
         sed -i 's:12:11:' debian/compat
     fi
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${PPG_COMMON_MAJOR}-${PPG_COMMON_MINOR}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${POSTGRES_COMMON_VERSION}-${POSTGRES_COMMON_MINOR}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     sed -i '38,55d' Makefile
     dpkg-buildpackage -rfakeroot -us -uc -b

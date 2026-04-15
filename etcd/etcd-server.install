@@ -1,3 +1,0 @@
-etcd usr/bin/
-etcdutl usr/bin/
-etcd.conf.yaml etc/etcd/

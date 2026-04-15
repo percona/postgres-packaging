@@ -112,30 +112,18 @@ jobs:
         with:
           fetch-depth: 0
           repository: ${{ inputs.packaging-repo }}
-          ref: main
-          path: main-src
-
-      - name: Checkout PG branch
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          repository: ${{ inputs.packaging-repo }}
           ref: ${{ matrix.pg_version }}
-          path: pg-src
+          path: src
 
       - name: Create build files directory
         run: mkdir pkg
         
       - name: Collect PG packaging files
         run: |
-          cp -r pg-src/postgres/ppg_builder.sh pkg/
-          cp pg-src/versions.sh pkg/
-        shell: bash
-
-      - name: Collect common files
-        run: |
-          cp main-src/common-functions.sh pkg/
-          cp main-src/install-deps.sh pkg/
+          cp src/common-functions.sh pkg/
+          cp src/install-deps.sh pkg/
+          cp src/versions.sh pkg/
+          cp src/postgres/ppg_builder.sh pkg/
         shell: bash
 
       - name: Upload build files as artifact

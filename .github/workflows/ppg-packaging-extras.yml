@@ -10,4 +10,4 @@ jobs:
     steps:
       - name: Print basic info
         run: |
-          echo "Dummy workflow"
+          echo "Run this WF from respective <pg_version>-extras branch."

@@ -284,7 +284,7 @@ build_ncurses(){
 	build_status "start" "ncurses"
 	cd /source
 	rm -rf ncurses-${NCURSES_VERSION}*
-	wget_retry https://fossies.org/linux/misc/ncurses-${NCURSES_VERSION}.tar.gz
+	wget_retry https://ftp.gnu.org/pub/gnu/ncurses/ncurses-${NCURSES_VERSION}.tar.gz
 	tar -xvzf ncurses-${NCURSES_VERSION}.tar.gz
 	cd ncurses-${NCURSES_VERSION}
 	./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-shared --disable-static

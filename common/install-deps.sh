@@ -11,51 +11,12 @@ rpm_deps() {
 
   if [[ "${RHEL}" -eq 8 ]]; then
     dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
-    if [[ "$COMPONENT" == "pgrepack" || "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
-      INSTALL_LIST+="python3-devel "
-    fi
-    if [[ "$COMPONENT" == "ppg-server-ha" ]]; then
-      INSTALL_LIST+="perl lz4-libs c-ares-devel "
-    fi
-    if [[ "$COMPONENT" == "postgis" ]]; then
-      INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel "
-    fi
-    if [[ "$COMPONENT" == "pg_oidc" ]]; then
-      INSTALL_LIST+="gcc-toolset-14 "
-    fi
-    if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
-      INSTALL_LIST+="python3-setuptools "
-    fi
-     if [[ "$COMPONENT" == "patroni" ]]; then
-      INSTALL_LIST+="python3-psycopg2 "
+    if [[ "$COMPONENT" == "ydiff" ]]; then
+      INSTALL_LIST+="python3-devel python3-setuptools "
     fi
   else
-    if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
+    if [[ "$COMPONENT" == "ydiff" ]]; then
       INSTALL_LIST+="python3.12-setuptools python3.12-devel "
-    fi
-     if [[ "$COMPONENT" == "patroni" ]]; then
-      INSTALL_LIST+="python3.12-psycopg2 "
-    fi
-  fi
-
-  if [[ "${RHEL}" -eq 9 ]]; then
-    if [[ "$COMPONENT" == "postgresql" || "$COMPONENT" == "pg_repack" || "$COMPONENT" == "pg_oidc" ]]; then
-      INSTALL_LIST+="gcc-toolset-14 "
-    fi
-    if [[ "$COMPONENT" == "pgpool2" ]]; then
-      sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/oracle-linux-ol9.repo
-    fi
-    if [[ "$COMPONENT" == "postgis" ]]; then
-      INSTALL_LIST+="gdal311-devel proj95-devel geos311-devel "
-    fi
-  fi
-
-  if [[ "${RHEL}" -eq 10 ]]; then
-    if [[ "$COMPONENT" == "postgis" ]]; then
-      INSTALL_LIST+="gdal311-devel proj96-devel geos313-devel "
-    fi
-    if [[ "$COMPONENT" == "pg_oidc" ]]; then
-      INSTALL_LIST+="libstdc++-static "
     fi
   fi
   
@@ -76,21 +37,8 @@ rpm_deps() {
     add_percona_yum_repo
   fi
 
-  if [[ "$COMPONENT" == "pgaudit_set_user" || "$COMPONENT" == "pgaudit" ]]; then
-    percona-release enable telemetry testing
-  fi
-
   if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "ydiff" || "$COMPONENT" == "pgpool2" ]]; then
     dnf config-manager --set-enabled PowerTools || dnf config-manager --set-enabled powertools || true
-  fi
-
-  if [[ "$COMPONENT" == "postgis" ]]; then
-    yum -y install wget
-    yum config-manager --enable PowerTools AppStream BaseOS *epel || true
-    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
-    wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
-    yum -y install pgdg-redhat-repo-latest.noarch.rpm
-    yum -y install pgdg-srpm-macros
   fi
 
   return;
@@ -107,42 +55,10 @@ deb_deps() {
   add_percona_apt_repo
 
   if [[ "$COMPONENT" == "ydiff" || "$COMPONENT" == "pysyncobj" ]]; then
-    if [ "x${DEBIAN}" = "xtrixie" ]; then
+    if [ "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
       INSTALL_LIST+="python3-boto3 "  
     else
       INSTALL_LIST+="python3-boto "
-    fi
-  fi
-
-  if [[ "$COMPONENT" == "postgis" ]]; then
-    DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
-    if [ "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" ]; then
-      pushd /etc/ImageMagick-* > /dev/null
-      sed -i 's/rights="none"/rights="read|write"/' policy.xml
-      popd > /dev/null
-    fi
-  fi
-
-  if [[ "$COMPONENT" == "pgpool2" ]]; then
-    #wget http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7_7.0.1-12_amd64.deb http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/libllvm7_7.0.1-12_amd64.deb http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-runtime_7.0.1-12_amd64.deb 
-    #apt -y install ./libllvm7_7.0.1-12_amd64.deb ./llvm-7_7.0.1-12_amd64.deb ./llvm-7-runtime_7.0.1-12_amd64.deb
-    DEBIAN_FRONTEND=noninteractive apt-get -y install debhelper
-    if grep -q "${DEBIAN}-backports" /etc/apt/sources.list; then
-      apt-get -y install -t ${DEBIAN}-backports debhelper
-    else
-      echo "Backports repo NOT found"
-    fi
-    apt list --all-versions debhelper
-    get_openjade_devel
-  fi
-
-  if [[ "$COMPONENT" == "patroni" ]]; then
-    DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip python3-consul python3-kubernetes python3-cdiff python3-boto3 || true
-    if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" ]; then
-        apt-get install -y python3-sphinxcontrib.apidoc python3-pysyncobj python3-boto3
-    elif [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbuster" -o "x${DEBIAN}" = "xbullseye" ]; then
-        pip3 install --upgrade sphinx sphinx-rtd-theme
-        pip3 install sphinxcontrib.apidoc pysyncobj boto3
     fi
   fi
 
@@ -156,14 +72,6 @@ deb_deps() {
     fi
   fi
 
-  if [[ "$COMPONENT" == "pg_oidc" ]]; then
-    DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
-    wget https://apt.llvm.org/llvm.sh
-    chmod +x llvm.sh
-    ./llvm.sh 21 all
-    apt-get install libc++-21-dev libc++abi-21-dev clang-21 clang++-21
-  fi
-  
   return;  
 }
 

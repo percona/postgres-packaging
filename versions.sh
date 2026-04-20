@@ -35,6 +35,21 @@ YUM_REPO="https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
 APT_REPO="https://repo.percona.com/apt/percona-release_latest.generic_all.deb"
 
 case "$1" in
+    postgresql)
+        # versions
+        PPG_PRODUCT=percona-postgresql
+        PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
+        PG_SRC_BRANCH="REL_${PG_MAJOR}_${PG_MINOR}"
+        PG_RELEASE='1'
+        PG_RPM_RELEASE='2'
+        PG_DEB_RELEASE='1'
+
+        # urls
+        PG_SRC_REPO="https://git.postgresql.org/git/postgresql.git"
+        PG_SRC_REPO_DEB="https://salsa.debian.org/postgresql/postgresql.git"
+        PG_DOC="https://www.postgresql.org/files/documentation/pdf/${PG_MAJOR}/postgresql-${PG_MAJOR}-A4.pdf"
+    ;;
+
     timescaledb)
         # versions
         TIMESCALEDB_PRODUCT=percona-timescaledb_${PG_MAJOR}

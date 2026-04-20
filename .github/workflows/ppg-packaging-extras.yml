@@ -264,6 +264,9 @@ jobs:
        run: |
           PKG_UPPER=$(echo "${{ matrix.pkgs }}" | tr '[:lower:]' '[:upper:]')
           comp_version=$(grep "^${PKG_UPPER}_VERSION=" versions.sh | cut -d '=' -f2)
+          if [ "${{ matrix.pkgs }}" = "postgres" ] ]; then
+            comp_version=$(grep "^PG_VERSION=" versions.sh | cut -d '=' -f2)
+          fi
           pkg_name="${{ matrix.pkgs }}-$comp_version"
           echo "pkg_name=$pkg_name" >> "$GITHUB_ENV"
           echo "UPLOAD_PATH=${{ matrix.pkgs }}/$pkg_name/${{ needs.prepare-matrix.outputs.BUILD_ID }}" >> "$GITHUB_ENV"

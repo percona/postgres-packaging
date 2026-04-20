@@ -269,7 +269,6 @@ Requires:       %{name}-libs >= %{version}-%{release}
 Requires(pre):  /usr/sbin/useradd /usr/sbin/groupadd
 %endif
 Requires:        util-linux
-Requires:       percona-pg-telemetry%{pgmajorversion}
 # for /sbin/ldconfig
 Requires(post):         glibc
 Requires(postun):       glibc

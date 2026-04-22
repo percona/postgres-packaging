@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 PG_MAJOR=16
-PG_MINOR=13
+PG_MINOR=14
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 POSTGRES_COMMON_VERSION=289
@@ -31,7 +31,7 @@ PKG_RAW_URL="https://raw.githubusercontent.com/percona/postgres-packaging/${PG_V
 
 # Percona Repos
 YUM_REPO="https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
-APT_REPO="https://repo.percona.com/apt/percona-release_latest.generic_all.deb"
+APT_REPO="https://repo.percona.com/prel/apt/pool/testing/p/percona-release/percona-release_1.0-33.generic_all.deb"
 
 case "$1" in
     postgresql)

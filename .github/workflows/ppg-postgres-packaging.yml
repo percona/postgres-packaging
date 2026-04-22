@@ -70,9 +70,9 @@ jobs:
           if [ "${{ inputs.distro }}" = "rpm" ]; then
             PLATFORM='["oraclelinux:8"]'
           elif [ "${{ inputs.distro }}" = "deb" ]; then
-            PLATFORM='["ubuntu:jammy"]'
+            PLATFORM='["ubuntu:noble"]'
           else
-            PLATFORM='["oraclelinux:8","ubuntu:jammy"]'
+            PLATFORM='["oraclelinux:8","ubuntu:noble"]'
           fi
           SOURCE_MATRIX=$(jq -c -n \
               --argjson pg_version "$PG_VERSION" \
@@ -88,9 +88,9 @@ jobs:
           if [ "${{ inputs.distro }}" = "rpm" ]; then
             PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10"]'
           elif [ "${{ inputs.distro }}" = "deb" ]; then
-            PLATFORM='["ubuntu:noble","ubuntu:jammy","debian:bookworm","debian:bullseye","debian:trixie"]'
+            PLATFORM='["ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:bullseye","debian:trixie"]'
           else
-            PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10","ubuntu:noble","ubuntu:jammy","debian:bookworm","debian:bullseye","debian:trixie"]'
+            PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10","ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:bullseye","debian:trixie"]'
           fi
           BUILD_MATRIX=$(jq -c -n \
             --argjson pg_version "$PG_VERSION" \
@@ -270,12 +270,6 @@ jobs:
           chmod 755 *.sh
         shell: bash
 
-      - name: Get source tarball from artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: PG${{ matrix.pg_version }}-source_tarball
-          path: test/source_tarball/
-
       - name: Get source rpm from artifact
         if: ${{ contains(matrix.platform, 'linux') }}
         uses: actions/download-artifact@v5
@@ -359,20 +353,21 @@ jobs:
 
      - name: Copy all the artifacts to required location
        run: |
-          cp artifacts/PG*-source_tarball/* "${{ env.UPLOAD_PATH }}/source_tarball/"
+          cp -n artifacts/PG*-source_tarball/* "${{ env.UPLOAD_PATH }}/source_tarball/"
           if [ "${{ inputs.distro }}" = "rpm" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
-            cp artifacts/PG*-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
-            cp artifacts/PG*-ol8-*/* "${{ env.UPLOAD_PATH }}/rpm/"
-            cp artifacts/PG*-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
-            cp artifacts/PG*-ol10-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp -n artifacts/PG*-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
+            cp -n artifacts/PG*-ol8-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp -n artifacts/PG*-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp -n artifacts/PG*-ol10-*/* "${{ env.UPLOAD_PATH }}/rpm/"
           fi
           if [ "${{ inputs.distro }}" = "deb" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
-            cp artifacts/PG*-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"
-            cp artifacts/PG*-bookworm-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp artifacts/PG*-bullseye-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp artifacts/PG*-jammy-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp artifacts/PG*-noble-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp artifacts/PG*-trixie-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/PG*-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"
+            cp -n artifacts/PG*-bookworm-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/PG*-bullseye-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/PG*-jammy-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/PG*-noble-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/PG*-trixie-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/PG*-resolute-*/* "${{ env.UPLOAD_PATH }}/deb/"
           fi
 
      - name: Archive final artifact

@@ -11,7 +11,7 @@ rpm_deps() {
 
   if [[ "${RHEL}" -eq 8 ]]; then
     dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
-    if [[ "$COMPONENT" == "pgrepack" || "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
+    if [[ "$COMPONENT" == "pgrepack" || "$COMPONENT" == "patroni" ]]; then
       INSTALL_LIST+="python3-devel "
     fi
     if [[ "$COMPONENT" == "ppg-server-ha" ]]; then
@@ -20,18 +20,12 @@ rpm_deps() {
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel "
     fi
-    if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
-      INSTALL_LIST+="python3-setuptools "
-    fi
-     if [[ "$COMPONENT" == "patroni" ]]; then
-      INSTALL_LIST+="python3-psycopg2 "
+    if [[ "$COMPONENT" == "patroni" ]]; then
+      INSTALL_LIST+="python3-setuptools python3-psycopg2 "
     fi
   else
-    if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
-      INSTALL_LIST+="python3.12-setuptools python3.12-devel "
-    fi
-     if [[ "$COMPONENT" == "patroni" ]]; then
-      INSTALL_LIST+="python3.12-psycopg2 "
+    if [[ "$COMPONENT" == "patroni" ]]; then
+      INSTALL_LIST+="python3.12-setuptools python3.12-devel python3.12-psycopg2 "
     fi
   fi
 
@@ -62,7 +56,7 @@ rpm_deps() {
     dnf -y install epel-release || dnf -y install oracle-epel-release-el10
   fi
 
-  if [[ "$COMPONENT" == "ydiff" || "$COMPONENT" == "wal2json" || "$COMPONENT" == "pysyncobj" || "$COMPONENT" == "pgbouncer" || "$COMPONENT" == "pgbadger" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "patroni" ]]; then
+  if [[ "$COMPONENT" == "wal2json" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "patroni" ]]; then
     switch_to_vault_repo || true
   fi
   
@@ -74,7 +68,7 @@ rpm_deps() {
     percona-release enable telemetry testing
   fi
 
-  if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "ydiff" || "$COMPONENT" == "pgpool2" ]]; then
+  if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "pgpool2" ]]; then
     dnf config-manager --set-enabled PowerTools || dnf config-manager --set-enabled powertools || true
   fi
 
@@ -99,14 +93,6 @@ deb_deps() {
   export DEBIAN=$(lsb_release -sc)
   export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
   add_percona_apt_repo
-
-  if [[ "$COMPONENT" == "ydiff" || "$COMPONENT" == "pysyncobj" ]]; then
-    if [ "x${DEBIAN}" = "xtrixie" ]; then
-      INSTALL_LIST+="python3-boto3 "  
-    else
-      INSTALL_LIST+="python3-boto "
-    fi
-  fi
 
   if [[ "$COMPONENT" == "postgis" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
@@ -134,7 +120,7 @@ deb_deps() {
     DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip python3-consul python3-kubernetes python3-cdiff python3-boto3 || true
     if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
         apt-get install -y python3-sphinxcontrib.apidoc python3-pysyncobj python3-boto3
-    elif [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbuster" -o "x${DEBIAN}" = "xbullseye" ]; then
+    elif [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbullseye" ]; then
         pip3 install --upgrade sphinx sphinx-rtd-theme
         pip3 install sphinxcontrib.apidoc pysyncobj boto3
     fi

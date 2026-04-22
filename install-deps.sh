@@ -110,7 +110,7 @@ deb_deps() {
 
   if [[ "$COMPONENT" == "postgis" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
-    if [ "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" ]; then
+    if [ "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
       pushd /etc/ImageMagick-* > /dev/null
       sed -i 's/rights="none"/rights="read|write"/' policy.xml
       popd > /dev/null
@@ -124,12 +124,15 @@ deb_deps() {
     cat /etc/apt/sources.list | grep ${DEBIAN}-backports
     apt list --all-versions debhelper
     apt-get -y install -t ${DEBIAN}-backports debhelper
+    if [ "x${DEBIAN}" = "xresolute" ]; then
+      apt-get -y install libcrypt-dev
+    fi
     get_openjade_devel
   fi
 
   if [[ "$COMPONENT" == "patroni" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip python3-consul python3-kubernetes python3-cdiff python3-boto3 || true
-    if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" ]; then
+    if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
         apt-get install -y python3-sphinxcontrib.apidoc python3-pysyncobj python3-boto3
     elif [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbuster" -o "x${DEBIAN}" = "xbullseye" ]; then
         pip3 install --upgrade sphinx sphinx-rtd-theme

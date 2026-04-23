@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       packages:
-        description: Server-Independent packages to build (comma separated)
+        description: Server-Dependent packages to build (comma separated)
         required: true
         default: "patroni,pg_gather,pg_repack,pgaudit,pgaudit_set_user,pgbackrest,pgpool2,pgvector,postgis,postgres-common,ppg-server,ppg-server-ha,wal2json,pg_tde,pg_oidc"
 
@@ -374,21 +374,21 @@ jobs:
 
      - name: Copy all the artifacts to required location
        run: |
-          cp -n artifacts/${{ matrix.pkgs }}-source_tarball/* "${{ env.UPLOAD_PATH }}/source_tarball/"
+          cp -n artifacts/*-source_tarball/* "${{ env.UPLOAD_PATH }}/source_tarball/"
           if [ "${{ inputs.distro }}" = "rpm" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
-            cp -n artifacts/${{ matrix.pkgs }}-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
-            cp -n artifacts/${{ matrix.pkgs }}-ol8-*/* "${{ env.UPLOAD_PATH }}/rpm/"
-            cp -n artifacts/${{ matrix.pkgs }}-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
-            cp -n artifacts/${{ matrix.pkgs }}-ol10-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp -n artifacts/*-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
+            cp -n artifacts/*-ol8-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp -n artifacts/*-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+            cp -n artifacts/*-ol10-*/* "${{ env.UPLOAD_PATH }}/rpm/"
           fi
           if [ "${{ inputs.distro }}" = "deb" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
-            cp -n artifacts/${{ matrix.pkgs }}-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-bookworm-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-bullseye-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-jammy-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-noble-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-trixie-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/${{ matrix.pkgs }}-resolute-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"
+            cp -n artifacts/*-bookworm-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-bullseye-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-jammy-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-noble-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-trixie-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-resolute-*/* "${{ env.UPLOAD_PATH }}/deb/"
           fi
 
      - name: Archive final artifact

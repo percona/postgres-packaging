@@ -5,6 +5,7 @@ Maintainer: Percona Development Team <info@percona.com>
 Build-Depends:
  debhelper (>= 9),
  debhelper (>= 10.1) | dh-systemd (>= 1.19),
+ debhelper-compat (= 13),
  libreadline-dev,
 
 Package: percona-postgresql-common

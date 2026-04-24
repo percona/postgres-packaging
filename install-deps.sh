@@ -104,7 +104,7 @@ deb_deps() {
   fi
 
   if [[ "$COMPONENT" == "pgpool2" ]]; then
-    wget http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7_7.0.1-12_amd64.deb http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/libllvm7_7.0.1-12_amd64.deb http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-runtime_7.0.1-12_amd64.deb 
+    wget http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7_7.0.1-12_amd64.deb http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/libllvm7_7.0.1-12_amd64.deb http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-runtime_7.0.1-12_amd64.deb
     apt install ./libllvm7_7.0.1-12_amd64.deb ./llvm-7_7.0.1-12_amd64.deb ./llvm-7-runtime_7.0.1-12_amd64.deb
     DEBIAN_FRONTEND=noninteractive apt-get -y install debhelper
     cat /etc/apt/sources.list | grep ${DEBIAN}-backports
@@ -130,7 +130,7 @@ deb_deps() {
     DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
     wget https://apt.llvm.org/llvm.sh
     chmod +x llvm.sh
-    ./llvm.sh 13 bullseye
+    ./llvm.sh 14 bullseye
     if [[ "$COMPONENT" == "pgbackrest" ]]; then
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install dh_systemd
     fi
@@ -206,6 +206,22 @@ EOF
     else
       deb_deps
       INSTALL_LIST+="debhelper libreadline-dev rename devscripts sudo"
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
+    fi
+    ;;
+
+
+  pg_tde)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST+="sudo wget git vim chrpath clang-devel clang llvm-devel json-c-devel libcurl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel rpmdevtools binutils make gcc gcc-c++"
+      dnf -y install ${INSTALL_LIST}
+    else
+      deb_deps
+      DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
+      ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+      dpkg-reconfigure --frontend noninteractive tzdata
+      INSTALL_LIST+="sudo build-essential debhelper clang git libjson-c-dev pkg-config libcurl4-openssl-dev liblz4-dev libssl-dev zlib1g-dev libzstd-dev libxml2-dev libxml2-utils libxslt-dev libxslt1-dev libselinux1-dev libpam0g-dev krb5-multidev libkrb5-dev libreadline-dev shtool devscripts percona-postgresql-common percona-postgresql-server-dev-all libnuma-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;

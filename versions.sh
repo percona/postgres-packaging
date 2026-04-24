@@ -3,10 +3,10 @@
 #-------------------------------------- VERSIONS OF ALL COMPONENTS --------------------------------------
 
 PG_MAJOR=18
-PG_MINOR=3
+PG_MINOR=4
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
-POSTGRES_COMMON_VERSION=289
+POSTGRES_COMMON_VERSION=290
 POSTGRES_COMMON_MINOR=1
 PG_TDE_VERSION=2.1.2
 PATRONI_VERSION=4.1.2
@@ -31,11 +31,11 @@ PKG_GIT_BRANCH=${PG_VERSION}
 PGRPMS_GIT_REPO="https://git.postgresql.org/git/pgrpms.git"
 
 # Raw files URLs
-PKG_RAW_URL="https://raw.githubusercontent.com/percona/postgres-packaging/${PG_VERSION}"
+PKG_RAW_URL="https://raw.githubusercontent.com/percona/postgres-packaging/${PKG_GIT_BRANCH}"
 
 # Percona Repos
 YUM_REPO="https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
-APT_REPO="https://repo.percona.com/apt/percona-release_latest.generic_all.deb"
+APT_REPO="https://repo.percona.com/prel/apt/pool/testing/p/percona-release/percona-release_1.0-33.generic_all.deb"
 
 case "$1" in
     postgresql)

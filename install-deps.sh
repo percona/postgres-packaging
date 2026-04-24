@@ -11,7 +11,7 @@ rpm_deps() {
 
   if [[ "${RHEL}" -eq 8 ]]; then
     dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
-    if [[ "$COMPONENT" == "pgrepack" || "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
+    if [[ "$COMPONENT" == "pgrepack" || "$COMPONENT" == "patroni" ]]; then
       INSTALL_LIST+="python3-devel "
     fi
     if [[ "$COMPONENT" == "ppg-server-ha" ]]; then
@@ -20,26 +20,17 @@ rpm_deps() {
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel "
     fi
-    if [[ "$COMPONENT" == "pg_oidc" ]]; then
-      INSTALL_LIST+="gcc-toolset-14 "
-    fi
-    if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
-      INSTALL_LIST+="python3-setuptools "
-    fi
-     if [[ "$COMPONENT" == "patroni" ]]; then
-      INSTALL_LIST+="python3-psycopg2 "
+    if [[ "$COMPONENT" == "patroni" ]]; then
+      INSTALL_LIST+="python3-setuptools python3-psycopg2 "
     fi
   else
-    if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "ydiff" ]]; then
-      INSTALL_LIST+="python3.12-setuptools python3.12-devel "
-    fi
-     if [[ "$COMPONENT" == "patroni" ]]; then
-      INSTALL_LIST+="python3.12-psycopg2 "
+    if [[ "$COMPONENT" == "patroni" ]]; then
+      INSTALL_LIST+="python3.12-setuptools python3.12-devel python3.12-psycopg2 "
     fi
   fi
 
   if [[ "${RHEL}" -eq 9 ]]; then
-    if [[ "$COMPONENT" == "postgresql" || "$COMPONENT" == "pg_repack" || "$COMPONENT" == "pg_oidc" ]]; then
+    if [[ "$COMPONENT" == "postgresql" || "$COMPONENT" == "pg_repack" ]]; then
       INSTALL_LIST+="gcc-toolset-14 "
     fi
     if [[ "$COMPONENT" == "pgpool2" ]]; then
@@ -54,9 +45,6 @@ rpm_deps() {
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal311-devel proj96-devel geos313-devel "
     fi
-    if [[ "$COMPONENT" == "pg_oidc" ]]; then
-      INSTALL_LIST+="libstdc++-static "
-    fi
   fi
   
   dnf -y module disable postgresql || true
@@ -68,7 +56,7 @@ rpm_deps() {
     dnf -y install epel-release || dnf -y install oracle-epel-release-el10
   fi
 
-  if [[ "$COMPONENT" == "ydiff" || "$COMPONENT" == "wal2json" || "$COMPONENT" == "pysyncobj" || "$COMPONENT" == "pgbouncer" || "$COMPONENT" == "pgbadger" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "patroni" ]]; then
+  if [[ "$COMPONENT" == "wal2json" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "patroni" ]]; then
     switch_to_vault_repo || true
   fi
   
@@ -80,7 +68,7 @@ rpm_deps() {
     percona-release enable telemetry testing
   fi
 
-  if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "ydiff" || "$COMPONENT" == "pgpool2" ]]; then
+  if [[ "$COMPONENT" == "patroni" || "$COMPONENT" == "pgbackrest" || "$COMPONENT" == "pgpool2" ]]; then
     dnf config-manager --set-enabled PowerTools || dnf config-manager --set-enabled powertools || true
   fi
 
@@ -106,17 +94,9 @@ deb_deps() {
   export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
   add_percona_apt_repo
 
-  if [[ "$COMPONENT" == "ydiff" || "$COMPONENT" == "pysyncobj" ]]; then
-    if [ "x${DEBIAN}" = "xtrixie" ]; then
-      INSTALL_LIST+="python3-boto3 "  
-    else
-      INSTALL_LIST+="python3-boto "
-    fi
-  fi
-
   if [[ "$COMPONENT" == "postgis" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
-    if [ "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" ]; then
+    if [ "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
       pushd /etc/ImageMagick-* > /dev/null
       sed -i 's/rights="none"/rights="read|write"/' policy.xml
       popd > /dev/null
@@ -124,20 +104,23 @@ deb_deps() {
   fi
 
   if [[ "$COMPONENT" == "pgpool2" ]]; then
-    wget http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7_7.0.1-12_amd64.deb http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/libllvm7_7.0.1-12_amd64.deb http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-runtime_7.0.1-12_amd64.deb
+    wget http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7_7.0.1-12_amd64.deb http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/libllvm7_7.0.1-12_amd64.deb http://mirrors.edge.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-runtime_7.0.1-12_amd64.deb 
     apt install ./libllvm7_7.0.1-12_amd64.deb ./llvm-7_7.0.1-12_amd64.deb ./llvm-7-runtime_7.0.1-12_amd64.deb
     DEBIAN_FRONTEND=noninteractive apt-get -y install debhelper
     cat /etc/apt/sources.list | grep ${DEBIAN}-backports
     apt list --all-versions debhelper
     apt-get -y install -t ${DEBIAN}-backports debhelper
+    if [ "x${DEBIAN}" = "xresolute" ]; then
+      apt-get -y install libcrypt-dev
+    fi
     get_openjade_devel
   fi
 
   if [[ "$COMPONENT" == "patroni" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip python3-consul python3-kubernetes python3-cdiff python3-boto3 || true
-    if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" ]; then
+    if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
         apt-get install -y python3-sphinxcontrib.apidoc python3-pysyncobj python3-boto3
-    elif [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbuster" -o "x${DEBIAN}" = "xbullseye" ]; then
+    elif [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbullseye" ]; then
         pip3 install --upgrade sphinx sphinx-rtd-theme
         pip3 install sphinxcontrib.apidoc pysyncobj boto3
     fi
@@ -147,18 +130,10 @@ deb_deps() {
     DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
     wget https://apt.llvm.org/llvm.sh
     chmod +x llvm.sh
-    ./llvm.sh 14 bullseye
+    ./llvm.sh 13 bullseye
     if [[ "$COMPONENT" == "pgbackrest" ]]; then
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install dh_systemd
     fi
-  fi
-
-  if [[ "$COMPONENT" == "pg_oidc" ]]; then
-    DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
-    wget https://apt.llvm.org/llvm.sh
-    chmod +x llvm.sh
-    ./llvm.sh 21 all
-    apt-get install libc++-21-dev libc++abi-21-dev clang-21 clang++-21
   fi
   
   return;  
@@ -184,7 +159,7 @@ case "$COMPONENT" in
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST+="wget git vim rpm-build chrpath rpmdevtools clang perl-generators bison flex gettext patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed selinux-policy systemd systemd-devel systemtap-sdt-devel perl-IPC-Run perl-Test-Simple binutils gcc gcc-c++ cmake cyrus-sasl-devel make docbook-xsl "
-      INSTALL_LIST+="clang-devel python3-devel llvm-devel glibc-devel e2fsprogs-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel readline-devel tcl-devel zlib-devel lz4-devel libzstd-devel bzip2-devel libcurl-devel numactl-devel liburing-devel"
+      INSTALL_LIST+="clang-devel python3-devel llvm-devel glibc-devel e2fsprogs-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel readline-devel tcl-devel zlib-devel lz4-devel libzstd-devel bzip2-devel libcurl-devel"
       dnf -y install ${INSTALL_LIST}
       if [ ! -f  /usr/bin/llvm-config ]; then
         ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
@@ -194,7 +169,7 @@ case "$COMPONENT" in
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="bison pkgconf build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb liblz4-dev libcurl4-openssl-dev libzstd-dev libnuma-dev liburing-dev percona-postgresql-common-dev"
+      INSTALL_LIST+="bison pkgconf build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb liblz4-dev libcurl4-openssl-dev libzstd-dev libnuma-dev percona-postgresql-common-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
       # generate a temporary numa.pc file if libnuma-dev does not provide it
       if ! pkg-config --exists numa 2>/dev/null; then
@@ -231,38 +206,6 @@ EOF
     else
       deb_deps
       INSTALL_LIST+="debhelper libreadline-dev rename devscripts sudo"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-    fi
-    ;;
-
-
-  pg_tde)
-    if [ "x$OS" = "xrpm" ]; then
-      rpm_deps
-      INSTALL_LIST+="sudo wget git vim chrpath clang-devel clang llvm-devel json-c-devel libcurl-devel numactl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server rpmdevtools binutils make gcc gcc-c++"
-      dnf -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
-      ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-      dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="sudo build-essential debhelper clang git libjson-c-dev pkg-config libcurl4-openssl-dev liblz4-dev libssl-dev zlib1g-dev libzstd-dev libxml2-dev libxml2-utils libxslt-dev libxslt1-dev libselinux1-dev libpam0g-dev krb5-multidev libkrb5-dev libreadline-dev shtool devscripts percona-postgresql-common percona-postgresql-server-dev-all libnuma-dev"
-      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
-    fi
-    ;;
-
-
-  pg_oidc)
-    if [ "x$OS" = "xrpm" ]; then
-      rpm_deps
-      INSTALL_LIST+="sudo wget git vim rpm-build libcurl-devel krb5-devel openssl-devel percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server rpmdevtools binutils make gcc gcc-c++"
-      dnf -y install ${INSTALL_LIST}
-    else
-      deb_deps
-      DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
-      ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-      dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="sudo build-essential debhelper devscripts clang git libjwt-dev libcurl4-openssl-dev libssl-dev libreadline-dev libkrb5-dev zlib1g-dev libxml2-dev libxslt1-dev uuid-dev flex bison pkg-config percona-postgresql-${PG_MAJOR} percona-postgresql-server-dev-all"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;
@@ -316,7 +259,7 @@ EOF
   postgis)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget git vim which binutils gcc gcc-c++ rpm-build rpmdevtools SFCGAL SFCGAL-devel xerces-c-devel clang-devel clang llvm-devel autoconf libtool flex rpmlint percona-postgresql${PG_MAJOR}-devel make geos geos-devel libgeotiff-devel gmp-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config docbook-xsl libxslt-devel numactl-devel pcre2-devel"
+      INSTALL_LIST+="wget git vim which binutils gcc gcc-c++ rpm-build rpmdevtools SFCGAL SFCGAL-devel pcre2-devel xerces-c-devel clang-devel clang llvm-devel autoconf libtool flex rpmlint percona-postgresql${PG_MAJOR}-devel make geos geos-devel libgeotiff-devel gmp-devel gmp-devel gtk2-devel json-c-devel libgeotiff17-devel protobuf-c-devel pkg-config docbook-xsl libxslt-devel"
       dnf -y install ${INSTALL_LIST}
       if [ ! -f  /usr/bin/llvm-config ]; then
         ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
@@ -337,7 +280,7 @@ EOF
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST+="wget git vim binutils gcc gcc-c++ rpm-build rpmdevtools clang-devel clang perl-generators bison flex patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed readline-devel percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server selinux-policy systemd systemd-devel systemtap-sdt-devel "
-      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel tcl-devel zlib-devel numactl-devel"
+      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel tcl-devel zlib-devel"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -350,7 +293,7 @@ EOF
   pgpool2)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget git vim binutils gcc gcc-c++ make autoconf libtool bison flex byacc chrpath clang-devel clang rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel libxslt numactl-devel"
+      INSTALL_LIST+="wget git vim binutils gcc gcc-c++ make autoconf libtool bison flex byacc chrpath clang-devel clang rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel jade pam-devel openssl-devel docbook-dtds docbook-style-xsl openldap-devel docbook-style-dsssl libmemcached-devel libxslt"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -369,7 +312,7 @@ EOF
         make
         make install
       cd ../
-      INSTALL_LIST+="wget libcurl-devel git vim rpm-build rpmdevtools libssh2-devel lz4-devel lz4-libs libyaml-devel percona-postgresql${PG_MAJOR}-devel systemd systemd-devel bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libssh-devel libzstd-devel lz4-devel meson libtool cmake"
+      INSTALL_LIST+="wget git vim rpm-build rpmdevtools libssh2-devel libcurl-devel lz4-devel lz4-libs libyaml-devel percona-postgresql${PG_MAJOR}-devel systemd systemd-devel bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libssh-devel libzstd-devel lz4-devel meson libtool cmake"
       dnf -y install ${INSTALL_LIST}
       dnf -y install lz4 || true
       dnf -y install perl-libxml-perl || true
@@ -412,7 +355,7 @@ EOF
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST+="wget git vim binutils gcc gcc-c++ rpm-build rpmdevtools clang-devel clang percona-postgresql${PG_MAJOR} perl-generators bison flex patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server selinux-policy systemd systemd-devel systemtap-sdt-devel "
-      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel openssl-libs pam-devel readline-devel tcl-devel zlib-devel libzstd-devel lz4-devel libcurl-devel numactl-devel"
+      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel openssl-libs pam-devel readline-devel tcl-devel zlib-devel libzstd-devel lz4-devel libcurl-devel"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps

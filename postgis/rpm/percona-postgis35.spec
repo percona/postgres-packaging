@@ -83,7 +83,7 @@
 %{!?raster:%global     raster 1}
 %endif
 
-%if 0%{?fedora} >= 41 || 0%{?rhel} >= 7 || 0%{?suse_version} >= 1500
+%if 0%{?fedora} >= 42 || 0%{?rhel} >= 7 || 0%{?suse_version} >= 1500
 %ifnarch ppc64 ppc64le
 # TODO
 %{!?sfcgal:%global     sfcgal 1}
@@ -107,8 +107,8 @@ URL:		https://www.postgis.net/
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel geos%{geosmajorversion}-devel >= %{geosfullversion}
 BuildRequires:	libgeotiff%{libgeotiffmajorversion}-devel libxml2 libxslt autoconf
-BuildRequires:	pgdg-srpm-macros >= 1.0.52 gmp-devel pcre2-devel
-%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
+BuildRequires:	pgdg-srpm-macros >= 1.0.53 gmp-devel pcre2-devel
+%if 0%{?fedora} >= 42 || 0%{?rhel} >= 8
 Requires:       pcre2
 %else
 Requires:       libpcre2-8-0
@@ -130,7 +130,7 @@ BuildRequires:	libxml2-devel
 BuildRequires:	gtk2-devel > 2.8.0
 %endif
 %if %{sfcgal}
-%if 0%{?fedora} >= 41 || 0%{?rhel} >= 9
+%if 0%{?fedora} >= 42 || 0%{?rhel} >= 9
 BuildRequires:	SFCGAL SFCGAL-devel >= 2.1.0
 %endif
 %if 0%{?rhel} == 8 || 0%{?suse_version} >= 1500
@@ -158,7 +158,7 @@ Requires:	libgeotiff%{libgeotiffmajorversion}
 Requires:	hdf5
 Requires: gdal%{gdalmajorversion}-libs >= %{gdalfullversion}
 
-%if 0%{?suse_version} >= 1500
+%if 0%{?suse_version} == 1500
 Requires:	libjson-c5
 Requires:	libxerces-c-3_2
 BuildRequires:        libxerces-c-devel
@@ -168,7 +168,7 @@ Requires:        libjson-c5
 Requires:        libxerces-c-3_3
 BuildRequires:        libxerces-c-devel
 %endif
-%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
+%if 0%{?fedora} >= 42 || 0%{?rhel} >= 8
 Requires:	json-c xerces-c
 BuildRequires:  xerces-c-devel
 %endif
@@ -263,7 +263,7 @@ This packages provides JIT support for postgis35
 
 %prep
 %setup -q -n percona-postgis-%{version}
-%{__cp} -p %{SOURCE2} .
+%{__cp} -p %{SOURCE2} %{sname}-%{version}.pdf
 # Copy .pdf file to top directory before installing.
 
 %build
@@ -297,7 +297,7 @@ autoconf
 %if %{shp2pgsqlgui}
 	--with-gui \
 %endif
-%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8  || 0%{?suse_version} >= 1500
+%if 0%{?fedora} >= 42 || 0%{?rhel} >= 8  || 0%{?suse_version} >= 1500
 	--with-protobuf \
 %else
 	--without-protobuf \
@@ -305,6 +305,11 @@ autoconf
 	--enable-rpath --libdir=%{pginstdir}/lib \
 	--with-geosconfig=%{geosinstdir}/bin/geos-config \
 	--with-gdalconfig=%{gdalinstdir}/bin/gdal-config
+
+%if 0%{?rhel} && 0%{?rhel} == 8
+# Strip -flto from generated Makefiles (breaks RHEL 8 static archive linking)
+find . -name "Makefile" | xargs sed -i 's/-flto\b//g'
+%endif
 
 SHLIB_LINK="$SHLIB_LINK" %{__make} LPATH=`%{pginstdir}/bin/pg_config --pkglibdir` shlib="%{sname}-%{postgissomajorversion}.so"
 
@@ -385,6 +390,7 @@ fi
 %{pginstdir}/lib/postgis_raster-%{postgissomajorversion}.so
 %{pginstdir}/share/extension/%{sname}_raster.control
 %endif
+%{_mandir}/%{name}/man1/*
 
 %files client
 %defattr(644,root,root)
@@ -395,20 +401,16 @@ fi
 %attr(755,root,root) %{pginstdir}/bin/shp2pgsql
 %attr(755,root,root) %{pginstdir}/bin/pgtopo_export
 %attr(755,root,root) %{pginstdir}/bin/pgtopo_import
+%{_mandir}/%{name}/man1/pgsql2shp*
+%{_mandir}/%{name}/man1/pgtopo_*
+%{_mandir}/%{name}/man1/shp2pgsql*
 
 %files devel
 %defattr(644,root,root)
-%{pginstdir}/lib/bitcode/postgis_sfcgal-3/postgis_sfcgal_legacy.bc
 
 %files docs
 %defattr(-,root,root)
 %doc %{sname}-%{version}.pdf
-%{_mandir}/%{name}/man1/pgsql2shp.1.*
-%{_mandir}/%{name}/man1/pgtopo_export.1.*
-%{_mandir}/%{name}/man1/pgtopo_import.1.*
-%{_mandir}/%{name}/man1/postgis.1.*
-%{_mandir}/%{name}/man1/postgis_restore.1.*
-%{_mandir}/%{name}/man1/shp2pgsql.1.*
 
 %if %shp2pgsqlgui
 %files gui
@@ -433,6 +435,7 @@ fi
    %if %{sfcgal}
    %{pginstdir}/lib/bitcode/postgis_sfcgal-%{postgissomajorversion}.index.bc
    %{pginstdir}/lib/bitcode/postgis_sfcgal-%{postgissomajorversion}/lwgeom_sfcgal.bc
+   %{pginstdir}/lib/bitcode/postgis_sfcgal-3/postgis_sfcgal_legacy.bc
    %endif
 %endif
 

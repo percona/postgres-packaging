@@ -87,6 +87,7 @@ add_percona_yum_repo(){
 }
 
 add_percona_apt_repo(){
+    wget ${APT_REPO}
     dpkg -i percona-release_1.0-33.generic_all.deb
     rm -f percona-release_1.0-33.generic_all.deb
     percona-release disable all

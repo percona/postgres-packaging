@@ -90,7 +90,7 @@ jobs:
           if [ "${{ inputs.distro }}" = "rpm" ]; then
             PLATFORM='["oraclelinux:8"]'
           elif [ "${{ inputs.distro }}" = "deb" ]; then
-            PLATFORM='["ubuntu:resolute"]'
+            PLATFORM='["ubuntu:noble"]'
           else
             PLATFORM='["oraclelinux:8","ubuntu:noble"]'
           fi
@@ -108,7 +108,7 @@ jobs:
           if [ "${{ inputs.distro }}" = "rpm" ]; then
             PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10"]'
           elif [ "${{ inputs.distro }}" = "deb" ]; then
-            PLATFORM='["ubuntu:resolute"]'
+            PLATFORM='["ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:bullseye","debian:trixie"]'
           else
             PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10","ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:bullseye","debian:trixie"]'
           fi
@@ -383,6 +383,11 @@ jobs:
           fi
           if [ "${{ inputs.distro }}" = "deb" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
             cp -n artifacts/*-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"
+            cp -n artifacts/*-bookworm-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-bullseye-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-jammy-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-noble-*/* "${{ env.UPLOAD_PATH }}/deb/"
+            cp -n artifacts/*-trixie-*/* "${{ env.UPLOAD_PATH }}/deb/"
             cp -n artifacts/*-resolute-*/* "${{ env.UPLOAD_PATH }}/deb/"
           fi
 

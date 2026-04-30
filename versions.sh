@@ -7,7 +7,7 @@ PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 POSTGRES_COMMON_VERSION=290
 POSTGRES_COMMON_MINOR=1
 PATRONI_VERSION=4.1.2
-PG_CRON_VERSION=1.6.2
+PG_CRON_VERSION=1.6.7
 PG_GATHER_VERSION=33
 PG_REPACK_VERSION=1.5.3
 PGAUDIT_VERSION=16.1
@@ -83,12 +83,12 @@ case "$1" in
     pg_cron)
         # versions
         PG_CRON_PRODUCT=percona-pg_cron_${PG_MAJOR}
-        PG_CRON_PRODUCT_DEB=percona-pg-cron_${PG_MAJOR}
+        PG_CRON_PRODUCT_DEB=percona-pg-cron
         PG_CRON_PRODUCT_FULL=${PG_CRON_PRODUCT}-${PG_CRON_VERSION}
         PG_CRON_SRC_BRANCH="v${PG_CRON_VERSION}"
-        PG_CRON_RPM_RELEASE='3'
-        PG_CRON_DEB_RELEASE='3'
-        PG_CRON_RELEASE='3'
+        PG_CRON_RPM_RELEASE='1'
+        PG_CRON_DEB_RELEASE='1'
+        PG_CRON_RELEASE='1'
 
         # urls
         PG_CRON_SRC_REPO="https://github.com/citusdata/pg_cron.git"

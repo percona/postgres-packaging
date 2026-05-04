@@ -189,6 +189,7 @@ HAPROXY_BRANCH="v2.8.18"
 PGVECTOR_BRANCH="v0.8.2"
 PG_TDE_BRANCH="release-2.1.2"
 PG_OIDC_BRANCH="release-1.0"
+PG_CRON_BRANCH="v1.6.7"
 
 create_build_environment(){
 
@@ -1871,6 +1872,27 @@ build_pgvector(){
         build_status "ends" "pgvector"
 }
 
+build_pg_cron(){
+
+        build_status "start" "pg_cron"
+        mkdir -p /source
+        cd /source
+        git clone https://github.com/citusdata/pg_cron.git
+        cd pg_cron
+
+        if [ ! -z "${PG_CRON_BRANCH}" ]
+        then
+          git reset --hard
+          git clean -xdf
+          git checkout "${PG_CRON_BRANCH}"
+        fi
+
+        export PATH=${POSTGRESQL_PREFIX}/bin:$PATH
+        make USE_PGXS=1 -j4
+        make USE_PGXS=1 -j4 install
+        build_status "ends" "pg_cron"
+}
+
 build_postgis35(){
 
 	build_status "start" "postgis35"
@@ -2101,6 +2123,7 @@ build_patroni
 build_haproxy
 build_etcd
 build_pgvector
+build_pg_cron
 build_postgis35
 set_rpath_all_products
 create_tarball

@@ -39,12 +39,13 @@ get_sources(){
 
     git clone ${PG_CRON_SRC_REPO_DEB} deb_packaging
     cd deb_packaging
-    git checkout debian/${PG_CRON_VERSION}-${PG_CRON_RELEASE}
+    git checkout debian/${PG_CRON_VERSION}-2
     cd ../
     mv deb_packaging/debian ./
     wget ${PKG_RAW_URL}/pg_cron/control
     wget ${PKG_RAW_URL}/pg_cron/control.in
     wget ${PKG_RAW_URL}/pg_cron/rules
+    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in
 
     rm -rf debian/control*
     #rm -rf debian/source/format
@@ -56,7 +57,6 @@ get_sources(){
     cd ..
     git apply debian/patches/no-temp-instance
     echo ${PG_MAJOR} > debian/pgversions
-    echo 10 > debian/compat
     rm -rf deb_packaging
     mkdir rpm
     cd rpm
@@ -219,14 +219,10 @@ build_source_deb(){
     ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     tar zxf ${TARFILE}
     BUILDDIR=${TARFILE%.tar.gz}
-    #
-    pwd 
-    echo "TARFILE=$TARFILE"
-    echo "BUILDDIR=$BUILDDIR"
-    cd /build/source_tarball
+
     mv ${TARFILE} ${PG_CRON_PRODUCT_DEB}_${PG_CRON_VERSION}.orig.tar.gz
-    tar -xvzf ${PG_CRON_PRODUCT_DEB}_${PG_CRON_VERSION}.orig.tar.gz
-    cd ${BUILDDIR}
+    mv ${BUILDDIR} ${PG_CRON_PRODUCT_DEB}_${PG_CRON_VERSION}
+    cd ${PG_CRON_PRODUCT_DEB}_${PG_CRON_VERSION}
 
     cd debian
     rm -rf changelog

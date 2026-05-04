@@ -6,7 +6,7 @@ on:
       packages:
         description: Server-Dependent packages to build (comma separated)
         required: true
-        default: "patroni,pg_gather,pg_repack,pgaudit,pgaudit_set_user,pgbackrest,pgpool2,pgvector,postgis,postgres-common,ppg-server,ppg-server-ha,wal2json,pg_tde,pg_oidc"
+        default: "pg_cron,patroni,pg_gather,pg_repack,pgaudit,pgaudit_set_user,pgbackrest,pgpool2,pgvector,postgis,postgres-common,ppg-server,ppg-server-ha,wal2json,pg_tde,pg_oidc"
 
       packaging-repo:
         description: packaging repo to be used

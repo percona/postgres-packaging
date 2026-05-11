@@ -1,5 +1,8 @@
 %global srcname psycopg2
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
 
 Summary:        PostgreSQL database adapter for Python
 Name:           python3-%{srcname}
@@ -12,6 +15,9 @@ Source0:        psycopg2-%{version}.tar.gz
 # https://github.com/psycopg/psycopg2/blob/2_7_5/doc/src/install.rst#prerequisites
 BuildRequires:  postgresql-devel > 9.1
 BuildRequires:  gcc
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
@@ -47,6 +53,9 @@ find -name \*.py | xargs sed -i -e '1 {/^#!/d}'
 
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 export CFLAGS=${RPM_OPT_FLAGS} LDFLAGS=${RPM_LD_FLAGS}
   python3 setup.py build
 

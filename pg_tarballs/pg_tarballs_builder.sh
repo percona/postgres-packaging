@@ -1658,6 +1658,9 @@ build_pgbackrest_ssl3() {
     cp -rp "${POSTGRESQL_PREFIX}/lib/libpq."* "${PGBACKREST_PREFIX}/lib/" || true
     cp -rp "${DEPENDENCY_LIBS_PATH}/lib64/libssl.so.3" "${PGBACKREST_PREFIX}/lib/" || true
     cp -rp "${DEPENDENCY_LIBS_PATH}/lib64/libcrypto.so.3" "${PGBACKREST_PREFIX}/lib/" || true
+    if [ "$USE_SSL35" = "1" ]; then
+        cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxml2.so* "${PGBACKREST_PREFIX}/lib/" || true
+    fi
 
     chmod 755 "${PGBACKREST_PREFIX}/lib/"*.so* || true
 

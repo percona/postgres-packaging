@@ -1,5 +1,9 @@
 %global srcname psycopg2
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 
 Summary:        PostgreSQL database adapter for Python
 Name:           python3-%{srcname}
@@ -17,6 +21,9 @@ Vendor:         Percona, LLC
 
 BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 # rename from python36-psycopg2
 Provides:       python36-%{srcname} = %{version}-%{release}
 Obsoletes:      python36-%{srcname} < 2.9.1-1
@@ -47,6 +54,9 @@ find -name \*.py | xargs sed -i -e '1 {/^#!/d}'
 
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 export CFLAGS=${RPM_OPT_FLAGS} LDFLAGS=${RPM_LD_FLAGS}
   python3 setup.py build
 

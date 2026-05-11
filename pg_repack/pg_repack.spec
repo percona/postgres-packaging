@@ -4,6 +4,10 @@
 %global pgmajorversion %{pgmajor}
 %global pginstdir /usr/pgsql-%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 %{!?llvm:%global llvm 1}
 
 Summary:        Reorganize tables in PostgreSQL databases without any locks
@@ -21,6 +25,9 @@ Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
 BuildRequires:  percona-postgresql%{pgmajorversion}-devel, percona-postgresql%{pgmajorversion}
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 
 BuildRequires:        readline-devel zlib-devel
 # lz4 dependency
@@ -85,6 +92,9 @@ This package provides JIT support for pg_repack
 %patch -P 0 -p0
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 USE_PGXS=1 PATH=%{pginstdir}/bin/:$PATH %{__make} %{?_smp_mflags}
 
 %install

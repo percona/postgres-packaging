@@ -2,6 +2,10 @@
 %global pgmajorversion %{pgmajor}
 %global pginstdir /usr/pgsql-%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 Summary:        Reliable PostgreSQL Backup & Restore
 Name:           percona-pgbackrest
 Version:        %{version}
@@ -16,6 +20,9 @@ Source3:	pgbackrest.logrotate
 Source4:	pgbackrest.service
 BuildRequires:	gcc openssl-devel zlib-devel percona-postgresql%{pgmajorversion}-devel
 BuildRequires:	libzstd-devel libxml2-devel libyaml-devel libssh2-devel meson
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 
 %if 0%{?suse_version} >= 1500
 Requires:	libopenssl3
@@ -64,6 +71,9 @@ are required to perform a backup which increases security.
 %setup -q -n %{name}-%{version}
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 export PG_CONFIG=/usr/pgsql-%{pgmajorversion}/bin/pg_config
 export PKG_CONFIG_LIBDIR=/usr/pgsql-%{pgmajorversion}/lib/pkgconfig:/usr/lib64/pkgconfig
 unset PKG_CONFIG_PATH

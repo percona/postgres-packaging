@@ -3,7 +3,7 @@
 PG_VERSION=@@PGVERSION@@
 ETCD_VERSION=3.5.30
 PGBADGER_VERSION=13.2
-PGBOUNCER_VERSION=1.25.1
+PGBOUNCER_VERSION=1.25.2
 PYSYNCOBJ_VERSION=0.3.15
 YDIFF_VERSION=1.4.2
 H3_VERSION=4.4.1
@@ -42,9 +42,9 @@ case "$1" in
         PGBADGER_PRODUCT=percona-pgbadger
         PGBADGER_PRODUCT_FULL=${PGBADGER_PRODUCT}-${PGBADGER_VERSION}
         PGBADGER_SRC_BRANCH="v${PGBADGER_VERSION}"
-        PGBADGER_RPM_RELEASE='1'
-        PGBADGER_DEB_RELEASE='1'
-        PGBADGER_RELEASE='1'
+        PGBADGER_RPM_RELEASE='2'
+        PGBADGER_DEB_RELEASE='2'
+        PGBADGER_RELEASE='2'
 
         # urls
         PGBADGER_SRC_REPO="https://github.com/darold/pgbadger.git"
@@ -86,9 +86,9 @@ case "$1" in
         YDIFF_PRODUCT=python3-ydiff
         YDIFF_PRODUCT_FULL=${YDIFF_PRODUCT}-${YDIFF_VERSION}
         YDIFF_SRC_BRANCH="${YDIFF_VERSION}"
-        YDIFF_RPM_RELEASE='1'
-        YDIFF_DEB_RELEASE='1'
-        YDIFF_RELEASE='1'
+        YDIFF_RPM_RELEASE='2'
+        YDIFF_DEB_RELEASE='2'
+        YDIFF_RELEASE='2'
 
         # urls
         YDIFF_SRC_REPO="https://github.com/ymattw/ydiff.git"

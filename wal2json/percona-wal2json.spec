@@ -2,6 +2,10 @@
 %global pgmajorversion %{pgmajor}
 %global _default_patch_fuzz 2
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 Summary:	JSON output plugin for changeset extraction
 Name:		percona-%{sname}%{pgmajorversion}
 Version:	%{version}
@@ -12,6 +16,9 @@ Source0:	percona-%{sname}-%{version}.tar.gz
 Patch0:		%{sname}-pg%{pgmajorversion}-makefile-pgxs.patch
 URL:		https://github.com/eulerto/wal2json
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 Provides:	%{name} %{sname}%{pgmajorversion}
 Requires:	percona-postgresql%{pgmajorversion}-server
 Packager:       Percona Development Team <https://jira.percona.com>
@@ -34,6 +41,9 @@ schema-qualified, data types, and transaction ids.
 %patch -P 0 -p0
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 %{__make} %{?_smp_mflags}
 
 %install

@@ -1,5 +1,9 @@
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 Name:           percona-pgaudit%{pgmajorversion}
 Version:        %{version}
 Release:        %{release}%{?dist}
@@ -17,6 +21,9 @@ BuildRequires:  gcc
 BuildRequires:  percona-postgresql%{pgmajorversion}-server
 BuildRequires:  percona-postgresql%{pgmajorversion}-devel
 BuildRequires:  openssl-devel 
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 
 Requires:       postgresql%{pgmajorversion}
 Requires:       postgresql%{pgmajorversion}-libs
@@ -43,6 +50,9 @@ trail or audit log. The term audit log is used in this documentation.
 #%%patch0
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgmajorversion}/bin/pg_config:' Makefile
 %{__make} USE_PGXS=1 %{?_smp_mflags}
 

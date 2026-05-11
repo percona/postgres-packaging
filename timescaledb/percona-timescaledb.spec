@@ -1,6 +1,10 @@
 %global sname	timescaledb
 %global pgmajorversion 17
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 Summary:	PostgreSQL based time-series database
 Name:		percona-%{sname}_%{pgmajorversion}
 Version:	2.17.1
@@ -16,6 +20,9 @@ Patch1:		%{sname}-cmake3-rhel7.patch
 URL:		https://github.com/timescale/timescaledb
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
 BuildRequires:	openssl-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 %if 0%{?rhel} && 0%{?rhel} == 7
 BuildRequires:	cmake3
 %else
@@ -42,6 +49,9 @@ export PATH=%{pginstdir}/bin:$PATH
 	-DPROJECT_INSTALL_METHOD=pgdg -DREGRESS_CHECKS=OFF
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 export PATH=%{pginstdir}/bin:$PATH
 %ifarch ppc64 ppc64le
 %if 0%{?rhel} && 0%{?rhel} == 7

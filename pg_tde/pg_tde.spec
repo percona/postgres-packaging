@@ -3,6 +3,10 @@
 %global pname pg_tde
 %global sname percona-pg_tde_%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 %ifarch ppc64 ppc64le s390 s390x armv7hl
  %if 0%{?rhel} && 0%{?rhel} == 7
   %{!?llvm:%global llvm 0}
@@ -22,6 +26,9 @@ URL:		https://github.com/%{sname}/%{sname}/
 Source0:	%{name}-%{version}.tar.gz
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel json-c-devel libcurl-devel openssl-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 Requires:	postgresql%{pgmajorversion}-server json-c curl openssl
 
 %description
@@ -59,6 +66,9 @@ This packages provides JIT support for pg_tde
 %setup -q -n %{sname}-%{version}
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 #%%configure
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgmajorversion}/bin/pg_config:' Makefile
 USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} #%{?_smp_mflags}

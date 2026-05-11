@@ -76,6 +76,10 @@
 %global _hardened_build 1
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 #Filter out some Perl "dependencies"
 %global __requires_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
 %global __provides_exclude ^perl\\((PostgresVersion|PostgresNode|RecursiveCopy|SimpleTee|TestLib)
@@ -121,6 +125,9 @@ BuildRequires:  gcc-c++
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  readline-devel zlib-devel >= 1.0.4
 BuildRequires:  chrpath
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 
 # lz4 dependency
 %if 0%{?suse_version} >= 1315
@@ -690,6 +697,10 @@ export PYTHON=/usr/bin/python3
 %endif
 %if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} >= 1315
 export CLANG=%{_bindir}/clang LLVM_CONFIG=%{_bindir}/llvm-config
+%endif
+
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
 %endif
 
 # These configure options must match main build

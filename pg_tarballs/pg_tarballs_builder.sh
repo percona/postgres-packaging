@@ -1412,7 +1412,7 @@ build_pgpool(){
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libldap.* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/liblber* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmemcached.* ${PGPOOL_PREFIX}/lib/
-	cp -rp ${PGPOOL_PREFIX}/lib/libpcp.so* ${POSTGRESQL_PREFIX}/lib/
+	cp -rp ${PGPOOL_PREFIX}/lib/libpgpoolpcp.so* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libmemcached.* ${POSTGRESQL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libcrypt.so* ${PGPOOL_PREFIX}/lib/
 	cp -rp ${DEPENDENCY_LIBS_PATH}/lib/libxcrypt.so* ${PGPOOL_PREFIX}/lib/

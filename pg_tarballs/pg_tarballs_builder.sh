@@ -1384,7 +1384,7 @@ build_pgpool(){
 	build_status "start" "pgPool-II"
         mkdir -p /source
         cd /source
-        wget_retry https://www.pgpool.net/mediawiki/download.php?f=pgpool-II-${PGPOOL_VERSION}.tar.gz -O pgpool-II-${PGPOOL_VERSION}.tar.gz
+        wget_retry https://www.pgpool.net/source/pgpool-II-${PGPOOL_VERSION}.tar.gz -O pgpool-II-${PGPOOL_VERSION}.tar.gz
         tar -xvzf pgpool-II-${PGPOOL_VERSION}.tar.gz
         cd pgpool-II-${PGPOOL_VERSION}
         export PATH=${POSTGRESQL_PREFIX}/bin:$PATH

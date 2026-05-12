@@ -223,7 +223,7 @@ build_pgpool(){
 	build_status "start" "pgPool-II"
         mkdir -p /source
         cd /source
-        wget https://www.pgpool.net/mediawiki/download.php?f=pgpool-II-${PGPOOL_VERSION}.tar.gz -O pgpool-II-${PGPOOL_VERSION}.tar.gz
+        wget https://www.pgpool.net/source/pgpool-II-${PGPOOL_VERSION}.tar.gz -O pgpool-II-${PGPOOL_VERSION}.tar.gz
         tar -xvzf pgpool-II-${PGPOOL_VERSION}.tar.gz
 	rm -f pgpool-II-${PGPOOL_VERSION}.tar.gz
 	build_status "ends" "pgPool-II"

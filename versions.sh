@@ -8,7 +8,7 @@ PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 POSTGRES_COMMON_VERSION=290
 POSTGRES_COMMON_MINOR=1
-PG_TDE_VERSION=2.1.2
+PG_TDE_VERSION=2.2.0
 PATRONI_VERSION=4.1.3
 PG_CRON_VERSION=1.6.7
 PG_GATHER_VERSION=33
@@ -75,7 +75,7 @@ case "$1" in
         PG_TDE_PRODUCT_DEB=percona-pg-tde${PG_MAJOR}
         PG_TDE_PRODUCT_FULL=${PG_TDE_PRODUCT}-${PG_TDE_VERSION}
         PG_TDE_RELEASE='1'
-        PG_TDE_SRC_BRANCH="${PG_TDE_VERSION}"
+        PG_TDE_SRC_BRANCH="release-${PG_TDE_VERSION}"
         PG_TDE_RPM_RELEASE='1'
         PG_TDE_DEB_RELEASE='1'
         # urls
@@ -87,10 +87,10 @@ case "$1" in
         PG_OIDC_PRODUCT=percona-pg_oidc_validator${PG_MAJOR}
         PG_OIDC_PRODUCT_DEB=percona-pg-oidc-validator${PG_MAJOR}
         PG_OIDC_PRODUCT_FULL=${PG_OIDC_PRODUCT}-${PG_OIDC_VERSION}
-        PG_OIDC_RELEASE='1'
+        PG_OIDC_RELEASE='2'
         PG_OIDC_SRC_BRANCH="release-${PG_OIDC_VERSION}"
-        PG_OIDC_RPM_RELEASE='1'
-        PG_OIDC_DEB_RELEASE='1'
+        PG_OIDC_RPM_RELEASE='2'
+        PG_OIDC_DEB_RELEASE='2'
         # urls
         PG_OIDC_SRC_REPO="https://github.com/Percona-Lab/pg_oidc_validator.git"
     ;;
@@ -149,7 +149,7 @@ case "$1" in
         PG_REPACK_SRC_BRANCH="ver_${PG_REPACK_VERSION}"
         PG_REPACK_RPM_RELEASE='2'
         PG_REPACK_DEB_RELEASE='2'
-        PG_REPACK_RELEASE='1'
+        PG_REPACK_RELEASE='2'
 
         # urls
         PG_REPACK_SRC_REPO="https://github.com/reorg/pg_repack.git"
@@ -164,7 +164,7 @@ case "$1" in
         PGAUDIT_SRC_BRANCH=${PGAUDIT_VERSION}
         PGAUDIT_RPM_RELEASE='2'
         PGAUDIT_DEB_RELEASE='2'
-        PGAUDIT_RELEASE='1'
+        PGAUDIT_RELEASE='2'
 
         # urls
         PGAUDIT_SRC_REPO="https://github.com/pgaudit/pgaudit.git"
@@ -180,7 +180,7 @@ case "$1" in
         SET_USER_SRC_BRANCH="REL${PGAUDIT_SET_USER_VERSION//./_}"
         SET_USER_RPM_RELEASE='2'
         SET_USER_DEB_RELEASE='2'
-        SET_USER_RELEASE='1'
+        SET_USER_RELEASE='2'
 
         # urls
         SET_USER_SRC_REPO="https://github.com/pgaudit/set_user.git"
@@ -193,9 +193,9 @@ case "$1" in
         PG_BCKREST_PRODUCT_FULL=${PG_BCKREST_PRODUCT}-${PGBACKREST_VERSION}
         PG_BCKREST_SRC_BRANCH="release/${PGBACKREST_VERSION}"
         PG_BCKREST_DEB_TAG="debian/${PGBACKREST_VERSION}-1"
-        PG_BCKREST_RPM_RELEASE='1'
-        PG_BCKREST_DEB_RELEASE='1'
-        PG_BCKREST_RELEASE='1'
+        PG_BCKREST_RPM_RELEASE='2'
+        PG_BCKREST_DEB_RELEASE='2'
+        PG_BCKREST_RELEASE='2'
 
         # urls
         PG_BCKREST_SRC_REPO="https://github.com/pgbackrest/pgbackrest.git"
@@ -225,9 +225,9 @@ case "$1" in
         PGVECTOR_PRODUCT_DEB=percona-pgvector
         PGVECTOR_PRODUCT_FULL=${PGVECTOR_PRODUCT}-${PGVECTOR_VERSION}
         PGVECTOR_SRC_BRANCH="v${PGVECTOR_VERSION}"
-        PGVECTOR_RPM_RELEASE='1'
-        PGVECTOR_DEB_RELEASE='1'
-        PGVECTOR_RELEASE='1'
+        PGVECTOR_RPM_RELEASE='2'
+        PGVECTOR_DEB_RELEASE='2'
+        PGVECTOR_RELEASE='2'
 
         # urls
         PGVECTOR_SRC_REPO="https://github.com/pgvector/pgvector.git"
@@ -258,7 +258,7 @@ case "$1" in
         PPG_SERVER_SRC_BRANCH=${PG_VERSION}
         PPG_SERVER_RPM_RELEASE='2'
         PPG_SERVER_DEB_RELEASE='2'
-        PPG_SERVER_RELEASE='1'
+        PPG_SERVER_RELEASE='2'
 
         # urls
         PPG_SERVER_SRC_REPO=${PKG_GIT_REPO}
@@ -273,7 +273,7 @@ case "$1" in
         PPG_SERVER_HA_SRC_BRANCH=${PG_VERSION}
         PPG_SERVER_HA_RPM_RELEASE='2'
         PPG_SERVER_HA_DEB_RELEASE='2'
-        PPG_SERVER_HA_RELEASE='1'
+        PPG_SERVER_HA_RELEASE='2'
 
         # urls
         PPG_SERVER_HA_SRC_REPO=${PKG_GIT_REPO}
@@ -285,9 +285,9 @@ case "$1" in
         WAL2JSON_PRODUCT=percona-wal2json
         WAL2JSON_PRODUCT_FULL=${WAL2JSON_PRODUCT}-${WAL2JSON_VERSION}
         WAL2JSON_SRC_BRANCH="wal2json_${WAL2JSON_VERSION//./_}"
-        WAL2JSON_RPM_RELEASE='2'
-        WAL2JSON_DEB_RELEASE='2'
-        WAL2JSON_RELEASE='2'
+        WAL2JSON_RPM_RELEASE='3'
+        WAL2JSON_DEB_RELEASE='3'
+        WAL2JSON_RELEASE='3'
 
         # urls
         WAL2JSON_SRC_REPO="https://github.com/eulerto/wal2json.git"

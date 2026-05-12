@@ -1222,9 +1222,7 @@ elif [ -f /lib64/libreadline.so.8 ];
 then
     PLL=$PLL:/lib64/libreadline.so.8
     if [ ! -f  /lib64/libreadline.so.7 ]; then
-		cd \$PG_LIB_PATH
-        ln -sf /lib64/libreadline.so.8 libreadline.so.7
-		cd -
+        ln -sf /lib64/libreadline.so.8 \$PG_LIB_PATH/libreadline.so.7
         PLL=$PLL:\$PG_LIB_PATH/libreadline.so.7
     fi
 elif [ -f /lib/libreadline.so.7 ];

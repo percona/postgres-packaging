@@ -86,7 +86,7 @@ PGBADGER_BRANCH="v13.2"
 PATRONI_BRANCH="v4.1.3"
 HAPROXY_BRANCH="v2.8.23"
 PGVECTOR_BRANCH="v0.8.2"
-PG_TDE_BRANCH="release-2.1.2"
+PG_TDE_BRANCH="release-2.2.0"
 PG_OIDC_BRANCH="release-1.0"
 
 create_build_environment(){

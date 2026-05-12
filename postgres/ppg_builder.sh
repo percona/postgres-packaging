@@ -63,8 +63,10 @@ get_sources(){
     rm -rf pgrpms
     cd rpm
         rm postgresql-$PG_MAJOR.spec
+        rm postgresql-$PG_MAJOR-perl-rpath.patch
         wget ${PKG_RAW_URL}/postgres/percona-postgresql-${PG_MAJOR}.spec
-	wget ${PKG_RAW_URL}/postgres/llvm_static_linking.patch
+	    wget ${PKG_RAW_URL}/postgres/llvm_static_linking.patch
+        wget ${PKG_RAW_URL}/postgres/postgresql-$PG_MAJOR-perl-rpath.patch
     cd ../
     cd ${WORKDIR}
     source percona-postgresql.properties

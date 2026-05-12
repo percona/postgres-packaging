@@ -9,11 +9,11 @@ on:
         default: ppg-15.16
         type: choice
         options:
-          - ppg-18.3
-          - ppg-17.9
-          - ppg-16.13
-          - ppg-15.17
-          - ppg-14.22
+          - ppg-18.4
+          - ppg-17.10
+          - ppg-16.14
+          - ppg-15.18
+          - ppg-14.23
 
       ppg-repo-type:
         description: ppg repo type

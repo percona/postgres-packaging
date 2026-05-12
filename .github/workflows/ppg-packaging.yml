@@ -16,7 +16,7 @@ on:
       packaging-branch:
         description: packaging branch (use pg major.minor version in the dev branch name.)
         required: true
-        default: "18.3"
+        default: "18.4"
 
       distro:
         description: RPM/Deb

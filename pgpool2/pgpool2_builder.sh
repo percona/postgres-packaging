@@ -119,6 +119,9 @@ EOT
     sed -i "s:short_name  percona-pgpool-II:short_name  pgpool-II:g" src/pgpool.spec
     sed -i "s:pgdg::g" src/pgpool.spec
     sed -i "/mv doc.ja/d" src/pgpool.spec
+    sed -i '/^%build$/a %if 0%{?rhel} && 0%{?rhel} == 9\\
+    source /opt/rh/gcc-toolset-14/enable\\
+%endif' src/pgpool.spec
 
     sed -i "s:%patch1 -p0:#%patch1 -p0:g" src/pgpool.spec
     sed -i "s:%configure --with-pgsql=%{pghome}:libtoolize; autoreconf --force --install; %configure --with-pgsql=%{pghome}:g" src/pgpool.spec

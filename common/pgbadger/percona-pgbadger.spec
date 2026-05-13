@@ -33,6 +33,10 @@ compressed file.
 %prep
 %setup -q
 
+%if 0%{?rhel} == 8
+%undefine __brp_mangle_shebangs
+%endif
+
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %{__make} %{?_smp_mflags}

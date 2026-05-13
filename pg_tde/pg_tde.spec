@@ -1,4 +1,4 @@
-
+%global debug_package %{nil}
 %define pgmajorversion %{pgmajor}
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global pname pg_tde
@@ -89,6 +89,7 @@ Development and testing support files for pg_tde, including Perl test modules.
 %{pginstdir}/bin/pg_tde_resetwal
 %{pginstdir}/bin/pg_tde_rewind
 %{pginstdir}/bin/pg_tde_waldump
+%{pginstdir}/bin/pg_tde_upgrade
 %{pginstdir}/lib/bitcode/pg_tde.index.bc
 %{pginstdir}/lib/bitcode/pg_tde/src/access/pg_tde_tdemap.bc
 %{pginstdir}/lib/bitcode/pg_tde/src/access/pg_tde_xlog.bc

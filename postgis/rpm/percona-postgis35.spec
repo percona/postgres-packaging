@@ -274,9 +274,6 @@ This packages provides JIT support for postgis35
 # Copy .pdf file to top directory before installing.
 
 %build
-%if 0%{?gts_version}
-	source /opt/rh/gcc-toolset-14/enable
-%endif
 LDFLAGS="-Wl,-rpath,%{geosinstdir}/lib64 ${LDFLAGS}" ; export LDFLAGS
 LDFLAGS="-Wl,-rpath,%{projinstdir}/lib64 ${LDFLAGS}" ; export LDFLAGS
 LDFLAGS="-Wl,-rpath,%{libspatialiteinstdir}/lib ${LDFLAGS}" ; export LDFLAGS
@@ -291,6 +288,10 @@ export AUTOMAKE=automake
 export AUTOCONF=autoconf
 sh -x autogen.sh
 autoconf
+
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 
 %configure --with-pgconfig=%{pginstdir}/bin/pg_config \
         --bindir=%{pginstdir}/bin/ \
@@ -331,6 +332,9 @@ SHLIB_LINK="$SHLIB_LINK" %{__make} LPATH=`%{pginstdir}/bin/pg_config --pkglibdir
 
 %install
 %{__rm} -rf %{buildroot}
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 SHLIB_LINK="$SHLIB_LINK" %{__make} %{?_smp_mflags} install DESTDIR=%{buildroot}
 
 %if %utils

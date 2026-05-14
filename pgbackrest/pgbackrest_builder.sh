@@ -189,7 +189,7 @@ build_rpm(){
         --define "dist .$OS_NAME" \
         --define "pgmajor ${PG_MAJOR}" \
         --define "version ${PGBACKREST_VERSION}" \
-        --define "release ${PGBACKREST_RELEASE}" \
+        --define "release ${PG_BCKREST_RELEASE}" \
         --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?

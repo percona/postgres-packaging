@@ -15,6 +15,11 @@ on:
           - ppg-15.18
           - ppg-14.23
 
+      major-repo:
+        description: tick for major repo testing
+        default: false
+        type: boolean
+
       ppg-repo-type:
         description: ppg repo type
         required: true
@@ -113,6 +118,7 @@ jobs:
 
       - name: Enable ppg repository
         run: |
+          set -x
           if [[ "${{ matrix.platform }}" == *"linux"* ]]; then
             yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
           else
@@ -121,7 +127,11 @@ jobs:
             rm -f percona-release_latest.generic_all.deb
           fi
           percona-release disable all
-          percona-release enable ${{ inputs.ppg-repo }} ${{ inputs.ppg-repo-type }}
+          if [[ "${{ inputs.major-repo }}" == "true" ]]; then
+            percona-release enable ppg-${{ env.PG_MAJOR }} release
+          else
+            percona-release enable ${{ inputs.ppg-repo }} ${{ inputs.ppg-repo-type }}
+          fi
         shell: bash
 
       - name: Set RPM install list

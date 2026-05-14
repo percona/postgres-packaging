@@ -85,6 +85,7 @@ jobs:
             percona-pgbackrest
             percona-pgvector_${{ env.PG_MAJOR }}
             percona-wal2json${{ env.PG_MAJOR }}
+            percona-pg_cron_${{ env.PG_MAJOR }}
           )
 
           echo "Checking required packages..."

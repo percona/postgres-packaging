@@ -160,7 +160,7 @@ jobs:
           HAPROXY="percona-haproxy"
           INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY $PG_CRON"
           if [[ ${{ env.PG_MAJOR }} -ge 17 ]]; then
-            PG_TDE="percona-pg_tde${{ env.PG_MAJOR }} "
+            PG_TDE="percona-pg_tde${{ env.PG_MAJOR }} percona-pg_tde${{ env.PG_MAJOR }}-devel percona-pg_tde${{ env.PG_MAJOR }}-debuginfo percona-pg_tde${{ env.PG_MAJOR }}-debugsource"
             INSTALL_LIST+=" $PG_TDE"
           fi
           if [[ ${{ env.PG_MAJOR }} -ge 18 ]]; then
@@ -192,7 +192,7 @@ jobs:
           HAPROXY="percona-haproxy"
           INSTALL_LIST="$PG $PG_COMMON $PPG_SERVER $AUDIT $PGBACKREST $REPACK $PATRONI $PGSM $PGBADGER $PGBOUNCER $PGPOOL $POSTGIS $WAL2JSON $PGGATHER $PGVECTOR $ETCD $HAPROXY $PG_CRON"
           if [[ ${{ env.PG_MAJOR }} -ge 17 ]]; then
-            PG_TDE="percona-pg-tde${{ env.PG_MAJOR }}"
+            PG_TDE="percona-pg-tde${{ env.PG_MAJOR }} percona-pg-tde${{ env.PG_MAJOR }}-client percona-pg-tde${{ env.PG_MAJOR }}-dbgsym"
             INSTALL_LIST+=" $PG_TDE"
           fi
           if [[ ${{ env.PG_MAJOR }} -ge 18 ]]; then

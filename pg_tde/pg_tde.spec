@@ -1,4 +1,3 @@
-%global debug_package %{nil}
 %define pgmajorversion %{pgmajor}
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global pname pg_tde

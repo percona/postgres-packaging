@@ -3,11 +3,11 @@
 #-------------------------------------- VERSIONS OF ALL COMPONENTS --------------------------------------
 
 PG_MAJOR=18
-PG_MINOR=3
+PG_MINOR=4
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 PG_CRON_VERSION=1.6.7
-TIMESCALEDB_VERSION=2.26.0
+TIMESCALEDB_VERSION=2.26.4
 H3_PG_VERSION=4.2.3
 PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
@@ -57,9 +57,9 @@ case "$1" in
         PG_CRON_PRODUCT_DEB=percona-pg-cron_${PG_MAJOR}
         PG_CRON_PRODUCT_FULL=${PG_CRON_PRODUCT}-${PG_CRON_VERSION}
         PG_CRON_SRC_BRANCH="v${PG_CRON_VERSION}"
-        PG_CRON_RPM_RELEASE='1'
+        PG_CRON_RPM_RELEASE='2'
         PG_CRON_DEB_RELEASE='1'
-        PG_CRON_RELEASE='1'
+        PG_CRON_RELEASE='2'
 
         # urls
         PG_CRON_SRC_REPO="https://github.com/citusdata/pg_cron.git"
@@ -83,9 +83,9 @@ case "$1" in
         # versions
         H3_PG_PRODUCT=percona-h3-pg_${PG_MAJOR}
         H3_PG_PRODUCT_FULL=${H3_PG_PRODUCT}-${H3_PG_VERSION}
-        H3_PG_RELEASE='1'
+        H3_PG_RELEASE='2'
         H3_PG_SRC_BRANCH="v${H3_PG_VERSION}"
-        H3_PG_RPM_RELEASE='1'
+        H3_PG_RPM_RELEASE='2'
 
         # urls
         H3_PG_SRC_REPO="https://github.com/postgis/h3-pg.git"
@@ -96,9 +96,9 @@ case "$1" in
         PGROUTING_PRODUCT=percona-pgrouting_${PG_MAJOR}
         PGROUTING_VERSION=${PGROUTING_MAJOR}.${PGROUTING_MINOR}
         PGROUTING_PRODUCT_FULL=${PGROUTING_PRODUCT}-${PGROUTING_VERSION}
-        PGROUTING_RELEASE='1'
+        PGROUTING_RELEASE='2'
         PGROUTING_SRC_BRANCH="v${PGROUTING_VERSION}"
-        PGROUTING_RPM_RELEASE='1'
+        PGROUTING_RPM_RELEASE='2'
 
         # urls
         PGROUTING_SRC_REPO="https://github.com/pgRouting/pgrouting.git"
@@ -108,9 +108,9 @@ case "$1" in
         # versions
         PGVECTORSCALE_PRODUCT=percona-pgvectorscale_${PG_MAJOR}
         PGVECTORSCALE_PRODUCT_FULL=${PGVECTORSCALE_PRODUCT}-${PGVECTORSCALE_VERSION}
-        PGVECTORSCALE_RELEASE='1'
+        PGVECTORSCALE_RELEASE='2'
         PGVECTORSCALE_SRC_BRANCH="${PGVECTORSCALE_VERSION}"
-        PGVECTORSCALE_RPM_RELEASE='1'
+        PGVECTORSCALE_RPM_RELEASE='2'
 
         # urls
         PGVECTORSCALE_SRC_REPO="https://github.com/timescale/pgvectorscale.git"
@@ -120,9 +120,9 @@ case "$1" in
         # versions
         HLL_PRODUCT=percona-hll_${PG_MAJOR}
         HLL_PRODUCT_FULL=${HLL_PRODUCT}-${HLL_VERSION}
-        HLL_RELEASE='1'
+        HLL_RELEASE='2'
         HLL_SRC_BRANCH="v${HLL_VERSION}"
-        HLL_RPM_RELEASE='1'
+        HLL_RPM_RELEASE='2'
 
         # urls
         HLL_SRC_REPO="https://github.com/citusdata/postgresql-hll.git"
@@ -132,9 +132,9 @@ case "$1" in
         # versions
         PG_SIMILARITY_PRODUCT=percona-pg_similarity_${PG_MAJOR}
         PG_SIMILARITY_PRODUCT_FULL=${PG_SIMILARITY_PRODUCT}-${PG_SIMILARITY_VERSION}
-        PG_SIMILARITY_RELEASE='1'
+        PG_SIMILARITY_RELEASE='2'
         PG_SIMILARITY_SRC_BRANCH="pg_similarity_${PG_SIMILARITY_VERSION//./_}"
-        PG_SIMILARITY_RPM_RELEASE='1'
+        PG_SIMILARITY_RPM_RELEASE='2'
 
         # urls
         PG_SIMILARITY_SRC_REPO="https://github.com/eulerto/pg_similarity.git"
@@ -144,9 +144,9 @@ case "$1" in
         # versions
         RUM_PRODUCT=percona-rum_${PG_MAJOR}
         RUM_PRODUCT_FULL=${RUM_PRODUCT}-${RUM_VERSION}
-        RUM_RELEASE='1'
+        RUM_RELEASE='2'
         RUM_SRC_BRANCH="${RUM_VERSION}"
-        RUM_RPM_RELEASE='1'
+        RUM_RPM_RELEASE='2'
 
         # urls
         RUM_SRC_REPO="https://github.com/postgrespro/rum.git"
@@ -156,9 +156,9 @@ case "$1" in
         # versions
         POSTGRESQL_UNIT_PRODUCT=percona-postgresql-unit_${PG_MAJOR}
         POSTGRESQL_UNIT_PRODUCT_FULL=${POSTGRESQL_UNIT_PRODUCT}-${POSTGRESQL_UNIT_VERSION}
-        POSTGRESQL_UNIT_RELEASE='1'
+        POSTGRESQL_UNIT_RELEASE='2'
         POSTGRESQL_UNIT_SRC_BRANCH="${POSTGRESQL_UNIT_VERSION}"
-        POSTGRESQL_UNIT_RPM_RELEASE='1'
+        POSTGRESQL_UNIT_RPM_RELEASE='2'
 
         # urls
         POSTGRESQL_UNIT_SRC_REPO="https://github.com/df7cb/postgresql-unit.git"
@@ -168,9 +168,9 @@ case "$1" in
         # versions
         ANON_PRODUCT=percona-postgresql_anonymizer_${PG_MAJOR}
         ANON_PRODUCT_FULL=${ANON_PRODUCT}-${ANON_VERSION}
-        ANON_RELEASE='1'
+        ANON_RELEASE='2'
         ANON_SRC_BRANCH="${ANON_VERSION}"
-        ANON_RPM_RELEASE='1'
+        ANON_RPM_RELEASE='2'
 
         # urls
         ANON_SRC_REPO="https://gitlab.com/dalibo/postgresql_anonymizer.git"
@@ -180,9 +180,9 @@ case "$1" in
         # versions
         PG_PARTMAN_PRODUCT=percona-pg_partman_${PG_MAJOR}
         PG_PARTMAN_PRODUCT_FULL=${PG_PARTMAN_PRODUCT}-${PG_PARTMAN_VERSION}
-        PG_PARTMAN_RELEASE='1'
+        PG_PARTMAN_RELEASE='2'
         PG_PARTMAN_SRC_BRANCH="v${PG_PARTMAN_VERSION}"
-        PG_PARTMAN_RPM_RELEASE='1'
+        PG_PARTMAN_RPM_RELEASE='2'
 
         # urls
         PG_PARTMAN_SRC_REPO="https://github.com/pgpartman/pg_partman.git"
@@ -192,9 +192,9 @@ case "$1" in
         # versions
         IP4R_PRODUCT=percona-ip4r_${PG_MAJOR}
         IP4R_PRODUCT_FULL=${IP4R_PRODUCT}-${IP4R_VERSION}
-        IP4R_RELEASE='1'
+        IP4R_RELEASE='2'
         IP4R_SRC_BRANCH="${IP4R_VERSION}"
-        IP4R_RPM_RELEASE='1'
+        IP4R_RPM_RELEASE='2'
 
         # urls
         IP4R_SRC_REPO="https://github.com/RhodiumToad/ip4r.git"

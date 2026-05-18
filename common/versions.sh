@@ -99,9 +99,9 @@ case "$1" in
         H3_PRODUCT=h3
         H3_PRODUCT_FULL=${H3_PRODUCT}-${H3_VERSION}
         H3_SRC_BRANCH="v${H3_VERSION}"
-        H3_RPM_RELEASE='1'
+        H3_RPM_RELEASE='2'
         H3_DEB_RELEASE='1'
-        H3_RELEASE='1'
+        H3_RELEASE='2'
 
         # urls
         H3_SRC_REPO="https://github.com/uber/h3.git"

@@ -38,25 +38,25 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ${WORKDIR}/timescaledb.properties
     rm -fr debian rpm
 
-    git clone "$TIMESCALEDB_SRC_REPO_DEB" deb_packaging
-    mv deb_packaging/debian ./
-    cd debian/
-    for file in $(ls | grep ^timescaledb | grep -v timescaledb.conf); do
-        mv $file "percona-$file"
-    done
-    rm -rf changelog
-    echo "$TIMESCALEDB_PRODUCT (${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}) unstable; urgency=low" >> changelog
-    echo "  * Initial Release." >> changelog
-    echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
-    rm -f control rules
-    wget ${PKG_RAW_URL}/timescaledb/control
-    wget ${PKG_RAW_URL}/timescaledb/control.in
-    wget ${PKG_RAW_URL}/timescaledb/rules
-    sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in
-    echo ${PG_MAJOR} > pgversions
-    echo 10 > compat
-    cd ../
-    rm -rf deb_packaging
+    #git clone "$TIMESCALEDB_SRC_REPO_DEB" deb_packaging
+    #mv deb_packaging/debian ./
+    #cd debian/
+    #for file in $(ls | grep ^timescaledb | grep -v timescaledb.conf); do
+    #    mv $file "percona-$file"
+    #done
+    #rm -rf changelog
+    #echo "$TIMESCALEDB_PRODUCT (${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}) unstable; urgency=low" >> changelog
+    #echo "  * Initial Release." >> changelog
+    #echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+    #rm -f control rules
+    #wget ${PKG_RAW_URL}/timescaledb/control
+    #wget ${PKG_RAW_URL}/timescaledb/control.in
+    #wget ${PKG_RAW_URL}/timescaledb/rules
+    #sed -i "s/@@PGMAJOR@@/${PG_MAJOR}/g" control control.in
+    #echo ${PG_MAJOR} > pgversions
+    #echo 10 > compat
+    #cd ../
+    #rm -rf deb_packaging
     mkdir rpm
     cd rpm
     wget ${PKG_RAW_URL}/timescaledb/percona-timescaledb.spec
@@ -78,25 +78,25 @@ get_sources(){
     return
 }
 
-get_deb_sources(){
-    param=$1
-    echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-*timescaledb*.$param" | sort | tail -n1))
-    if [ -z $FILE ]
-    then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-*timescaledb*.$param" | sort | tail -n1))
-        if [ -z $FILE ]
-        then
-            echo "There is no sources for build"
-            exit 1
-        else
-            cp $CURDIR/source_deb/$FILE $WORKDIR/
-        fi
-    else
-        cp $WORKDIR/source_deb/$FILE $WORKDIR/
-    fi
-    return
-}
+#get_deb_sources(){
+#    param=$1
+#    echo $param
+#    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-*timescaledb*.$param" | sort | tail -n1))
+#    if [ -z $FILE ]
+#    then
+#        FILE=$(basename $(find $CURDIR/source_deb -name "percona-*timescaledb*.$param" | sort | tail -n1))
+#        if [ -z $FILE ]
+#        then
+#            echo "There is no sources for build"
+#            exit 1
+#        else
+#            cp $CURDIR/source_deb/$FILE $WORKDIR/
+#        fi
+#    else
+#        cp $WORKDIR/source_deb/$FILE $WORKDIR/
+#    fi
+#    return
+#}
 
 build_srpm(){
     if [ $SRPM = 0 ]
@@ -200,88 +200,88 @@ build_rpm(){
     cp rpmbuild/RPMS/*/*.rpm ${CURDIR}/rpm
 }
 
-build_source_deb(){
-    if [ $SDEB = 0 ]
-    then
-        echo "source deb package will not be created"
-        return;
-    fi
-    if [ "x$OS" = "xrpm" ]
-    then
-        echo "It is not possible to build source deb here"
-        exit 1
-    fi
-    rm -rf percona-timescaledb*
-    get_tar "source_tarball" "percona-timescaledb"
-    rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
-    #
-    TARFILE=$(basename $(find . -name 'percona-*timescaledb*.tar.gz' | sort | tail -n1))
-    DEBIAN=$(lsb_release -sc)
-    ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    tar zxf ${TARFILE}
-    BUILDDIR=${TARFILE%.tar.gz}
-    #
+#build_source_deb(){
+#    if [ $SDEB = 0 ]
+#    then
+#        echo "source deb package will not be created"
+#        return;
+#    fi
+#    if [ "x$OS" = "xrpm" ]
+#    then
+#        echo "It is not possible to build source deb here"
+#        exit 1
+#    fi
+#    rm -rf percona-timescaledb*
+#    get_tar "source_tarball" "percona-timescaledb"
+#    rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
+#    #
+#    TARFILE=$(basename $(find . -name 'percona-*timescaledb*.tar.gz' | sort | tail -n1))
+#    DEBIAN=$(lsb_release -sc)
+#    ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
+#    tar zxf ${TARFILE}
+#    BUILDDIR=${TARFILE%.tar.gz}
+#    #
     
-    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
-    cd ${BUILDDIR}
+#    mv ${TARFILE} ${PRODUCT}_${VERSION}.orig.tar.gz
+#    cd ${BUILDDIR}
   
-    dch -D unstable --force-distribution -v "${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}" "Update to new timescaledb version ${TIMESCALEDB_VERSION}"
-    dpkg-buildpackage -S
-    cd ../
-    mkdir -p $WORKDIR/source_deb
-    mkdir -p $CURDIR/source_deb
-    cp *.debian.tar.* $WORKDIR/source_deb
-    cp *_source.changes $WORKDIR/source_deb
-    cp *.dsc $WORKDIR/source_deb
-    cp *.orig.tar.gz $WORKDIR/source_deb
-    cp *.debian.tar.* $CURDIR/source_deb
-    cp *_source.changes $CURDIR/source_deb
-    cp *.dsc $CURDIR/source_deb
-    cp *.orig.tar.gz $CURDIR/source_deb
-}
+#    dch -D unstable --force-distribution -v "${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}" "Update to new timescaledb version ${TIMESCALEDB_VERSION}"
+#    dpkg-buildpackage -S
+#   cd ../
+#    mkdir -p $WORKDIR/source_deb
+#    mkdir -p $CURDIR/source_deb
+#    cp *.debian.tar.* $WORKDIR/source_deb
+#    cp *_source.changes $WORKDIR/source_deb
+#   cp *.dsc $WORKDIR/source_deb
+#    cp *.orig.tar.gz $WORKDIR/source_deb
+#    cp *.debian.tar.* $CURDIR/source_deb
+#    cp *_source.changes $CURDIR/source_deb
+#    cp *.dsc $CURDIR/source_deb
+#    cp *.orig.tar.gz $CURDIR/source_deb
+#}
 
-build_deb(){
-    if [ $DEB = 0 ]
-    then
-        echo "source deb package will not be created"
-        return;
-    fi
-    if [ "x$OS" = "xrmp" ]
-    then
-        echo "It is not possible to build source deb here"
-        exit 1
-    fi
-    for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
-    do
-        get_deb_sources $file
-    done
-    cd $WORKDIR
-    rm -fv *.deb
+#build_deb(){
+#    if [ $DEB = 0 ]
+#    then
+#        echo "source deb package will not be created"
+#        return;
+#    fi
+#    if [ "x$OS" = "xrmp" ]
+#    then
+#        echo "It is not possible to build source deb here"
+#        exit 1
+#    fi
+#    for file in 'dsc' 'orig.tar.gz' 'changes' 'debian.tar*'
+#    do
+#        get_deb_sources $file
+#    done
+#    cd $WORKDIR
+#    rm -fv *.deb
+#    #
+#    export DEBIAN=$(lsb_release -sc)
+#    export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
     #
-    export DEBIAN=$(lsb_release -sc)
-    export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    #
-    echo "DEBIAN=${DEBIAN}" >> timescaledb.properties
-    echo "ARCH=${ARCH}" >> timescaledb.properties
+#    echo "DEBIAN=${DEBIAN}" >> timescaledb.properties
+#    echo "ARCH=${ARCH}" >> timescaledb.properties
 
     #
-    DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
+#    DSC=$(basename $(find . -name '*.dsc' | sort | tail -n1))
     #
-    dpkg-source -x ${DSC}
+#    dpkg-source -x ${DSC}
     #
-    cd ${TIMESCALEDB_PRODUCT_DEB}
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}.${DEBIAN}" 'Update distribution'
-    unset $(locale|cut -d= -f1)
-    dpkg-buildpackage -rfakeroot -us -uc -b
-    mkdir -p $CURDIR/deb
-    mkdir -p $WORKDIR/deb
-    cd $WORKDIR/
-    for file in $(ls | grep ddeb); do
-        mv "$file" "${file%.ddeb}.deb";
-    done
-    cp $WORKDIR/*.*deb $WORKDIR/deb
-    cp $WORKDIR/*.*deb $CURDIR/deb
-}
+#    cd ${TIMESCALEDB_PRODUCT_DEB}
+#    dch -m -D "${DEBIAN}" --force-distribution -v "1:${TIMESCALEDB_VERSION}-${TIMESCALEDB_RELEASE}.${DEBIAN}" 'Update distribution'
+#    unset $(locale|cut -d= -f1)
+#    dpkg-buildpackage -rfakeroot -us -uc -b
+#    mkdir -p $CURDIR/deb
+#    mkdir -p $WORKDIR/deb
+#    cd $WORKDIR/
+#    for file in $(ls | grep ddeb); do
+#        mv "$file" "${file%.ddeb}.deb";
+#    done
+#    cp $WORKDIR/*.*deb $WORKDIR/deb
+#    cp $WORKDIR/*.*deb $CURDIR/deb
+#}
 #main
 
 CURDIR=$(pwd)
@@ -310,6 +310,6 @@ fi
 
 get_sources
 build_srpm
-build_source_deb
+#build_source_deb
 build_rpm
-build_deb
+#build_deb

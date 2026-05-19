@@ -6,7 +6,7 @@ on:
       packages:
         description: extra packages to build for custom images (comma separated)
         required: true
-        default: "postgres,h3-pg,hll,ip4r,pg_cron,pg_similarity,pgrouting,pgvectorscale,postgres-unit,rum,timescaledb"
+        default: "postgres,h3-pg,hll,ip4r,pg_cron,pg_similarity,pgrouting,pgvectorscale,postgresql-unit,rum,timescaledb"
 
       packaging-repo:
         description: packaging repo to be used

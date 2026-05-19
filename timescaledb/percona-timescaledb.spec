@@ -6,7 +6,7 @@ Name:		percona-%{sname}_%{pgmajorversion}
 Version:	%{version}
 Release:	%{release}%{?dist}
 License:	Apache
-Source0:	percona-%{sname}-%{version}.tar.gz	
+Source0:	%{name}-%{version}.tar.gz	
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
@@ -33,7 +33,7 @@ partitioning across time and space (partitioning key), as well as full SQL
 support.
 
 %prep
-%setup -q -n percona-%{sname}-%{version}
+%setup -q -n %{name}-%{version}
 %if 0%{?rhel} && 0%{?rhel} == 7
 %patch -P 1 -p0
 %endif

@@ -212,7 +212,7 @@ EOF
   pg_tde)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="sudo wget git vim chrpath clang-devel-20.1.8 clang-20.1.8 llvm-devel-20.1.8 json-c-devel libcurl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel rpmdevtools binutils make gcc gcc-c++"
+      INSTALL_LIST+="sudo wget git vim chrpath clang-devel clang llvm-devel json-c-devel libcurl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel rpmdevtools binutils make gcc gcc-c++"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps

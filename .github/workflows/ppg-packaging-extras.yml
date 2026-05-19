@@ -262,14 +262,7 @@ jobs:
 
      - name: Get package full name and upload path
        run: |
-          PKG_UPPER=$(echo "${{ matrix.pkgs }}" | tr '[:lower:]' '[:upper:]')
-          comp_version=$(grep "^${PKG_UPPER}_VERSION=" versions.sh | cut -d '=' -f2)
-          if [ "${{ matrix.pkgs }}" = "postgres" ] ]; then
-            comp_version=$(grep "^PG_VERSION=" versions.sh | cut -d '=' -f2)
-          fi
-          pkg_name="${{ matrix.pkgs }}-$comp_version"
-          echo "pkg_name=$pkg_name" >> "$GITHUB_ENV"
-          echo "UPLOAD_PATH=${{ matrix.pkgs }}/$pkg_name/${{ needs.prepare-matrix.outputs.BUILD_ID }}" >> "$GITHUB_ENV"
+          echo "UPLOAD_PATH=PG${{ inputs.pg-major }}-extras/${{ needs.prepare-matrix.outputs.BUILD_ID }}/${{ matrix.pkgs }}" >> "$GITHUB_ENV"
 
      - name: Create final artifact structure
        run: |
@@ -284,15 +277,15 @@ jobs:
           cp artifacts/${{ matrix.pkgs }}-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
           
      - name: Archive final artifact
-       run: tar -czf ${{ env.pkg_name }}.tar.gz ${{ matrix.pkgs }}
+       run: tar -czf PG${{ inputs.pg-major }}-extras.tar.gz PG${{ inputs.pg-major }}-extras
 
      - name: Upload final artifact as release artifact
        uses: softprops/action-gh-release@v2
        with:
         draft: true
-        tag_name: ${{ env.pkg_name }}-rpm build_id-${{ github.run_number }}
-        name: ${{ env.pkg_name }}-rpm-PG${{ inputs.pg-major }}-extras build_id-${{ github.run_number }}
-        files: ${{ env.pkg_name }}.tar.gz
+        tag_name: PG${{ inputs.pg-major }}-extras build_id-${{ github.run_number }}
+        name: PG${{ inputs.pg-major }}-extras-${{ matrix.pkgs }} build_id-${{ github.run_number }}
+        files: PG${{ inputs.pg-major }}-extras.tar.gz
 
      - name: enable tmate debugging
        if: inputs.debugging && failure()

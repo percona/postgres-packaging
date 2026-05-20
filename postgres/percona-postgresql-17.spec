@@ -74,6 +74,7 @@ Patch1:         %{sname}-%{pgmajorversion}-rpm-pgsql.patch
 Patch3:         %{sname}-%{pgmajorversion}-conf.patch
 Patch5:         %{sname}-%{pgmajorversion}-var-run-socket.patch
 Patch6:         %{sname}-%{pgmajorversion}-perl-rpath.patch
+Patch7:         llvm_static_linking.patch
 
 BuildRequires:  perl glibc-devel bison >= 2.3 flex >= 2.5.35
 BuildRequires:  gcc-c++
@@ -507,6 +508,7 @@ benchmarks.
 %patch -P 3 -p0
 %patch -P 5 -p0
 %patch -P 6 -p0
+%patch -P 7 -p1
 
 %{__cp} -p %{SOURCE12} .
 

@@ -39,9 +39,9 @@ case "$1" in
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
         PG_SRC_BRANCH="REL_${PG_MAJOR}_STABLE" #"REL_${PG_MAJOR}_${PG_MINOR}"
-        PG_RELEASE='1'
-        PG_RPM_RELEASE='1'
-        PG_DEB_RELEASE='1'
+        PG_RELEASE='2'
+        PG_RPM_RELEASE='2'
+        PG_DEB_RELEASE='2'
 
         # urls
         PG_SRC_REPO="https://git.postgresql.org/git/postgresql.git"
@@ -54,10 +54,10 @@ case "$1" in
         # versions
         PPG_COMMON_PRODUCT=percona-postgresql-common
         PPG_COMMON_PRODUCT_FULL=${PPG_COMMON_PRODUCT}-${POSTGRES_COMMON_VERSION}
-        PPG_COMMON_RELEASE='1'
+        PPG_COMMON_RELEASE='2'
         PPG_COMMON_SRC_BRANCH="debian/${POSTGRES_COMMON_VERSION}"
-        PPG_COMMON_RPM_RELEASE='1'
-        PPG_COMMON_DEB_RELEASE='1'
+        PPG_COMMON_RPM_RELEASE='2'
+        PPG_COMMON_DEB_RELEASE='2'
 
         # urls
         PPG_COMMON_SRC_REPO="https://salsa.debian.org/postgresql/postgresql-common.git"

@@ -6,7 +6,7 @@ on:
       packages:
         description: extra packages to build for custom images (comma separated)
         required: true
-        default: "postgres,h3-pg,hll,ip4r,pg_cron,pg_similarity,pgrouting,pgvectorscale,postgresql-unit,rum,timescaledb"
+        default: "postgres,h3-pg,hll,ip4r,pg_cron,pg_similarity,pgrouting,pgvectorscale,postgresql-unit,rum,timescaledb,postgis,pg_partman,postgresql_anonymizer"
 
       packaging-repo:
         description: packaging repo to be used
@@ -63,9 +63,6 @@ jobs:
   pull-build-files:
     runs-on: ubuntu-latest
     needs: [prepare-matrix]
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PKG_MATRIX) }}
 
     steps:
       - name: Checkout packaging repo
@@ -84,13 +81,16 @@ jobs:
           cp src/common-functions.sh pkg/
           cp src/install-deps.sh pkg/
           cp src/versions.sh pkg/
-          cp src/${{ matrix.pkgs }}/*builder.sh pkg/pkg-builder.sh
+          for pkg in $(echo '${{ needs.prepare-matrix.outputs.PKG_MATRIX }}' | jq -r '.pkgs[]'); do
+            echo "Processing $pkg"
+            cp src/${pkg}/*builder.sh pkg/${pkg}-builder.sh
+          done
         shell: bash
 
       - name: Upload build files as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files
           path: pkg/
           
   build-source-tarball:
@@ -104,7 +104,7 @@ jobs:
       - name: Get build-files from artifact
         uses: actions/download-artifact@v5
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files
           path: ./
 
       - name: Update permissions of the build scripts
@@ -115,7 +115,7 @@ jobs:
       - name: Build Sources
         run: |
           mkdir test
-          sudo -E bash ./pkg-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ inputs.pg-major }}
+          sudo -E bash ./${{ matrix.pkgs }}-builder.sh --builddir=$(pwd)/test --get_sources=1 --pg_major=${{ inputs.pg-major }}
         shell: bash
 
       - name: Upload source tarballs as artifact
@@ -147,7 +147,7 @@ jobs:
       - name: Get build files from artifact
         uses: actions/download-artifact@v5
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files
           path: ./
 
       - name: Update permissions of the build scripts
@@ -163,12 +163,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }} --repo_component=${{ inputs.ppg-repo-type }}
+          sudo bash ./${{ matrix.pkgs }}-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }} --repo_component=${{ inputs.ppg-repo-type }}
         shell: bash
 
       - name: Build Source RPM
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ inputs.pg-major }} --repo_component=${{ inputs.ppg-repo-type }}
+          sudo bash ./${{ matrix.pkgs }}-builder.sh --builddir=$(pwd)/test --build_src_rpm=1 --pg_major=${{ inputs.pg-major }} --repo_component=${{ inputs.ppg-repo-type }}
         shell: bash
 
       - name: Upload source rpm as artifact
@@ -203,7 +203,7 @@ jobs:
       - name: Get build-files from artifact
         uses: actions/download-artifact@v5
         with:
-          name: build-files-${{ matrix.pkgs }}
+          name: build-files
           path: ./
 
       - name: Update permissions of the build scripts
@@ -225,13 +225,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }} --repo_component=${{ inputs.ppg-repo-type }}
+          sudo bash ./${{ matrix.pkgs }}-builder.sh --builddir=$(pwd)/test --install_deps=1 --pg_major=${{ inputs.pg-major }} --repo_component=${{ inputs.ppg-repo-type }}
         shell: bash
 
       - name: Build RPM
         continue-on-error: true
         run: |
-          sudo bash ./pkg-builder.sh --builddir=$(pwd)/test --build_rpm=1 --pg_major=${{ inputs.pg-major }} --repo_component=${{ inputs.ppg-repo-type }}
+          sudo bash ./${{ matrix.pkgs }}-builder.sh --builddir=$(pwd)/test --build_rpm=1 --pg_major=${{ inputs.pg-major }} --repo_component=${{ inputs.ppg-repo-type }}
         shell: bash
 
       - name: Upload rpms as artifact
@@ -243,26 +243,19 @@ jobs:
   upload-draft-release:
     runs-on: ubuntu-latest
     needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm, build-rpm]
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.PKG_MATRIX) }}
 
     steps:
-     - name: Get build-files from artifact
-       uses: actions/download-artifact@v5
-       with:
-        pattern: build-files-${{ matrix.pkgs }}
-        path: ./
-
      - name: Get all the artifacts
        uses: actions/download-artifact@v5
        with:
-        pattern: ${{ matrix.pkgs }}-*
         path: artifacts
 
-     - name: Get package full name and upload path
+     - name: Remove build-files artifacts
+       run: rm -rf artifacts/build-files*
+
+     - name: Set upload path
        run: |
-          echo "UPLOAD_PATH=PG${{ inputs.pg-major }}-extras/${{ needs.prepare-matrix.outputs.BUILD_ID }}/${{ matrix.pkgs }}" >> "$GITHUB_ENV"
+          echo "UPLOAD_PATH=PG${{ inputs.pg-major }}-extras/${{ needs.prepare-matrix.outputs.BUILD_ID }}" >> "$GITHUB_ENV"
 
      - name: Create final artifact structure
        run: |
@@ -272,9 +265,9 @@ jobs:
 
      - name: Copy all the artifacts to required location
        run: |
-          cp artifacts/${{ matrix.pkgs }}-source_tarball/* "${{ env.UPLOAD_PATH }}/source_tarball/"
-          cp artifacts/${{ matrix.pkgs }}-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
-          cp artifacts/${{ matrix.pkgs }}-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
+          cp artifacts/*-source_tarball/* "${{ env.UPLOAD_PATH }}/source_tarball/"
+          cp artifacts/*-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
+          cp artifacts/*-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
           
      - name: Archive final artifact
        run: tar -czf PG${{ inputs.pg-major }}-extras.tar.gz PG${{ inputs.pg-major }}-extras
@@ -284,7 +277,7 @@ jobs:
        with:
         draft: true
         tag_name: PG${{ inputs.pg-major }}-extras build_id-${{ github.run_number }}
-        name: PG${{ inputs.pg-major }}-extras-${{ matrix.pkgs }} build_id-${{ github.run_number }}
+        name: PG${{ inputs.pg-major }}-extras-build_id-${{ github.run_number }} (${{ inputs.packages }})
         files: PG${{ inputs.pg-major }}-extras.tar.gz
 
      - name: enable tmate debugging

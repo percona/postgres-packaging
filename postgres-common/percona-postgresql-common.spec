@@ -12,6 +12,10 @@ URL:            https://packages.debian.org/sid/%{name}
 Source0:        %{name}/%{name}-%{version}.tar.gz
 Requires:       percona-postgresql-client-common
 Requires:       perl-JSON
+%if 0%{?rhel} == 10
+Conflicts:      postgresql18-server
+Obsoletes:      postgresql18-server
+%endif
 Epoch:		1
 
 %description

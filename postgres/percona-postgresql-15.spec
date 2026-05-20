@@ -324,6 +324,8 @@ Provides:       %{vname}-libs = %{epoch}:%{version}-%{release}
 %if 0%{?rhel} == 10
 Conflicts:      %{sname}-private-libs
 Obsoletes:      %{sname}-private-libs
+Conflicts:      postgresql18-private-libs
+Obsoletes:      postgresql18-private-libs
 %endif
 Obsoletes:      %{sname}-libs <= %{version}-%{release}
 Obsoletes:      %{vname}-libs <= %{version}-%{release}

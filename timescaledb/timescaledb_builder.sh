@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -x
 # Versions and other variables
-source versions.sh "postgresql"
+source versions.sh "timescaledb"
 # Common functions
 source common-functions.sh
 

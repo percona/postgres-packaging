@@ -29,7 +29,7 @@ BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c+
 BuildRequires:	perl-version
 %endif
 BuildRequires:	postgresql%{pgmajorversion}-devel
-Requires:	postgresql%{pgmajorversion} postgis
+Requires:	percona-postgresql%{pgmajorversion} percona-postgis35_%{pgmajorversion}
 
 %description
 pgRouting extends the PostGIS / PostgreSQL geospatial database to

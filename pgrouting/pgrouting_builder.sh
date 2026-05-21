@@ -54,7 +54,7 @@ get_sources(){
 
     mkdir rpm
     cd rpm
-    wget ${PKG_RAW_URL}/pgrouting/rpm/pgrouting.spec
+    wget ${PKG_RAW_URL}/pgrouting/rpm/percona-pgrouting.spec
     cd ../
     cd ${WORKDIR}
     #
@@ -115,7 +115,7 @@ build_srpm(){
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/rpm' --strip=1
     #
     cp -av rpm/* rpmbuild/SOURCES
-    cp -av rpmbuild/SOURCES/pgrouting.spec rpmbuild/SPECS
+    cp -av rpmbuild/SOURCES/percona-pgrouting.spec rpmbuild/SPECS
     #
     mv -fv ${TARFILE} ${WORKDIR}/rpmbuild/SOURCES
 
@@ -127,7 +127,7 @@ build_srpm(){
         --define "version ${PGROUTING_VERSION}" \
 	    --define "release ${PGROUTING_RELEASE}" \
         --define "pginstdir /usr/pgsql-$PG_MAJOR" \
-        rpmbuild/SPECS/pgrouting.spec
+        rpmbuild/SPECS/percona-pgrouting.spec
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm

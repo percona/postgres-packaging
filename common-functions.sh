@@ -83,7 +83,6 @@ add_percona_yum_repo(){
     yum -y install ${YUM_REPO}
     percona-release disable all
     percona-release enable ppg-${PG_MAJOR}-extras ${REPO_COMP}
-    percona-release enable ppg-${PG_VERSION} ${REPO_COMP}
     return
 }
 
@@ -93,7 +92,6 @@ add_percona_apt_repo(){
     rm -f percona-release_latest.generic_all.deb
     percona-release disable all
     percona-release enable ppg-${PG_MAJOR}-extras ${REPO_COMP}
-    percona-release enable ppg-${PG_VERSION} ${REPO_COMP}
     return
 }
 

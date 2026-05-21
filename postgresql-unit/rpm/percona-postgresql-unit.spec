@@ -3,6 +3,10 @@
 %global pname postgresql-unit
 %global sname percona-postgresql-unit_%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 %{!?llvm:%global llvm 1}
 
 Summary:	SI Units for PostgreSQL
@@ -16,6 +20,9 @@ Packager:   Percona Development Team <https://jira.percona.com>
 Vendor:     Percona, LLC
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel flex
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 Requires:	percona-postgresql%{pgmajorversion}-server
 
 %description
@@ -49,6 +56,9 @@ This package provides JIT support for postgresql-unit
 %setup -q -n %{sname}-%{version}
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 USE_PGXS=1 PATH=%{pginstdir}/bin/:$PATH %{__make} %{?_smp_mflags}
 
 %install

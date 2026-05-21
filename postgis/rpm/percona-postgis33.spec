@@ -6,6 +6,10 @@
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
 %global sname	postgis
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 #%pgdg_set_gis_variables
 
 # Override some variables. PostGIS 3.3 is best served with GeOS 3.11,
@@ -109,6 +113,9 @@ URL:		https://www.postgis.net/
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel geos%{geosmajorversion}-devel >= %{geosfullversion}
 BuildRequires:	libgeotiff%{libgeotiffmajorversion}-devel libxml2 libxslt autoconf
 BuildRequires:	pgdg-srpm-macros >= 1.0.49 gmp-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 %if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
 BuildRequires:  pcre2-devel
 Requires:       pcre2
@@ -284,6 +291,10 @@ export AUTOCONF=autoconf
 sh -x autogen.sh
 autoconf
 
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
+
 %configure --with-pgconfig=%{pginstdir}/bin/pg_config \
         --enable-lto \
         --with-projdir=%{projinstdir} \
@@ -315,6 +326,9 @@ SHLIB_LINK="$SHLIB_LINK" %{__make} LPATH=`%{pginstdir}/bin/pg_config --pkglibdir
 
 %install
 %{__rm} -rf %{buildroot}
+%if 0%{?gts_version}
+        source /opt/rh/gcc-toolset-14/enable
+%endif
 SHLIB_LINK="$SHLIB_LINK" %{__make} %{?_smp_mflags} install DESTDIR=%{buildroot}
 
 %if %utils

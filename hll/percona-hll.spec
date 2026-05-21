@@ -1,6 +1,10 @@
 %global sname	hll
 %global pgmajorversion %{pgmajor}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 %{!?llvm:%global llvm 1}
 
 Summary:	PostgreSQL extension adding HyperLogLog data structures as a native data type
@@ -13,6 +17,9 @@ Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 URL:		https://github.com/citusdata/postgresql-%{sname}
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel libxml2-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 Requires:	percona-postgresql%{pgmajorversion}-server
 
 %description
@@ -47,6 +54,9 @@ This packages provides JIT support for hll
 %setup -q -n percona-%{sname}_%{pgmajorversion}-%{version}
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 PG_CONFIG=%{pginstdir}/bin/pg_config %{__make} %{?_smp_mflags}
 
 %install

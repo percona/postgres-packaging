@@ -2,6 +2,10 @@
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global sname percona-pg_cron_%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 %{!?llvm:%global llvm 1}
 
 Summary:	Run periodic jobs in PostgreSQL
@@ -14,6 +18,9 @@ Vendor:         Percona, LLC
 Source0:	%{sname}-%{version}.tar.gz
 URL:		https://github.com/citusdata/pg_cron
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel libxml2-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 Requires:	postgresql%{pgmajorversion}-server
 Requires(post):	%{_sbindir}/update-alternatives
 Requires(postun):	%{_sbindir}/update-alternatives
@@ -58,6 +65,9 @@ This packages provides JIT support for pg_cron
 %setup -q -n %{sname}-%{version}
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 PATH=%{pginstdir}/bin/:$PATH %{__make} %{?_smp_mflags}
 
 %install

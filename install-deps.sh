@@ -36,7 +36,7 @@ rpm_deps() {
   fi
 
   if [[ "${RHEL}" -eq 9 ]]; then
-    INSTALL_LIST+="gcc-toolset-14 "
+    INSTALL_LIST+="gcc-toolset-14 gcc-toolset-14-annobin-plugin-gcc "
     if [[ "$COMPONENT" == "pgpool2" ]]; then
       sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/oracle-linux-ol9.repo
     fi
@@ -243,7 +243,7 @@ EOF
   timescaledb)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf clang-devel clang llvm-devel cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel"
+      INSTALL_LIST+="wget gcc make autoconf clang-devel clang llvm-devel cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel"
       yum -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -260,7 +260,7 @@ EOF
   h3-pg)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel h3-devel"
+      INSTALL_LIST+="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel h3-devel"
       yum -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -276,7 +276,7 @@ EOF
   pgrouting)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel boost-devel gcc-c++ gmp-devel perl-version"
+      INSTALL_LIST+="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel boost-devel gcc-c++ gmp-devel perl-version"
       yum -y install ${INSTALL_LIST}
     else
       deb_deps
@@ -292,7 +292,7 @@ EOF
   pgvectorscale)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf git jq rpmdevtools percona-postgresql${PG_MAJOR}-devel clang openssl-devel rust-toolset rustfmt llvm-devel"
+      INSTALL_LIST+="wget gcc make autoconf git jq rpmdevtools percona-postgresql${PG_MAJOR}-devel clang openssl-devel rust-toolset rustfmt llvm-devel"
       yum -y install ${INSTALL_LIST}
     fi
     ;;
@@ -301,7 +301,7 @@ EOF
   hll)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel libxml2-devel"
+      INSTALL_LIST+="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel libxml2-devel"
       yum -y install ${INSTALL_LIST}
     fi
     ;;
@@ -310,7 +310,7 @@ EOF
   pg_similarity)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel clang-devel"
+      INSTALL_LIST+="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel clang-devel"
       yum -y install ${INSTALL_LIST}
     fi
     ;;
@@ -319,7 +319,7 @@ EOF
   anon)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config rust-toolset rustfmt"
+      INSTALL_LIST+="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config rust-toolset rustfmt"
       yum -y install ${INSTALL_LIST}
     fi
     ;;
@@ -328,7 +328,7 @@ EOF
   pg_partman)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel clang-devel llvm-devel python3-psycopg2"
+      INSTALL_LIST+="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel clang-devel llvm-devel python3-psycopg2"
       yum -y install ${INSTALL_LIST}
     fi
     ;;
@@ -337,7 +337,7 @@ EOF
   rum)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR} llvm-devel clang-devel"
+      INSTALL_LIST+="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR} llvm-devel clang-devel"
       yum -y install ${INSTALL_LIST}
     fi
     ;;
@@ -346,7 +346,7 @@ EOF
   postgresql-unit)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel flex llvm-devel clang-devel"
+      INSTALL_LIST+="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel flex llvm-devel clang-devel"
       yum -y install ${INSTALL_LIST}
     fi
     ;;
@@ -355,7 +355,7 @@ EOF
   ip4r)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel clang-devel"
+      INSTALL_LIST+="wget gcc make autoconf cmake git rpmdevtools percona-postgresql${PG_MAJOR}-devel llvm-devel clang-devel"
       yum -y install ${INSTALL_LIST}
     fi
     ;;

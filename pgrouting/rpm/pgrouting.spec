@@ -6,6 +6,10 @@
 %global pname pgrouting
 %global sname	percona-pgrouting_%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 Summary:	Routing functionality for PostGIS
 Name:		%{sname}
 Version:	%{version}
@@ -18,6 +22,9 @@ Vendor:         Percona, LLC
 
 BuildRequires:	cmake >= 3.12 boost-devel >= 1.56
 BuildRequires:	gcc-c++ gmp-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 %if 0%{?fedora} >= 42 || 0%{?rhel} >= 8 || 0%{?suse_version} <= 1500
 BuildRequires:	perl-version
 %endif
@@ -42,6 +49,9 @@ value can come from multiple fields or tables.
 %setup -q -n %{sname}-%{version}
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 %{__install} -d build
 pushd build
 %if 0%{?suse_version} >= 1500

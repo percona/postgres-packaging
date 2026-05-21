@@ -3,6 +3,10 @@
 %global pname pg_similarity
 %global sname percona-pg_similarity_%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 %{!?llvm:%global llvm 1}
 
 Summary:	   Set of functions and operators for executing similarity queries for PostgreSQL
@@ -17,6 +21,9 @@ Packager:   Percona Development Team <https://jira.percona.com>
 Vendor:     Percona, LLC
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 Requires:	percona-postgresql%{pgmajorversion}-server
 
 %description
@@ -51,6 +58,9 @@ This package provides JIT support for pg_similarity
 %patch -P 0 -p0
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 PATH=%{pginstdir}/bin:$PATH %{__make} USE_PGXS=1 %{?_smp_mflags}
 
 %install

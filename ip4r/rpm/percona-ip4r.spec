@@ -3,6 +3,10 @@
 %global pname ip4r
 %global sname percona-ip4r_%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 %{!?llvm:%global llvm 1}
 
 Summary:	IPv4/v6 and IPv4/v6 range index type for PostgreSQL
@@ -16,6 +20,9 @@ Packager:   Percona Development Team <https://jira.percona.com>
 Vendor:     Percona, LLC
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 Requires:	percona-postgresql%{pgmajorversion}-server
 
 Provides:	percona-postgresql-ip4r = %{version}-%{release}
@@ -52,6 +59,9 @@ This package provides JIT support for ip4r
 %setup -q -n %{sname}-%{version}
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 USE_PGXS=1 PATH=%{pginstdir}/bin/:$PATH %{__make} %{?_smp_mflags}
 
 %install

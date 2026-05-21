@@ -3,6 +3,10 @@
 %global pname	h3-pg
 %global sname	percona-h3-pg_%{pgmajorversion}
 
+%if 0%{?rhel} && 0%{?rhel} == 9
+%global gts_version 14
+%endif
+
 Summary:	Uber's H3 Hexagonal Hierarchical Geospatial Indexing System in PostgreSQL
 Name:		%{sname}
 Version:	%{version}
@@ -16,6 +20,9 @@ Patch0:		%{pname}-useosh3.patch
 
 BuildRequires:	cmake >= 3.20 h3-devel >= 4.2.0-3
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
+%if 0%{?gts_version}
+BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
+%endif
 
 Requires:	percona-postgresql%{pgmajorversion} h3 >= 4.2.0-3
 
@@ -27,6 +34,9 @@ This library provides PostgreSQL bindings for the H3 Core Library.
 %patch -P 0 -p0
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 export CFLAGS="$CFLAGS -I%{_includedir}/h3"
 
 %cmake \

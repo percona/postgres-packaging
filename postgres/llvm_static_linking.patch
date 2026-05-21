@@ -1,5 +1,5 @@
 diff --git a/config/llvm.m4 b/config/llvm.m4
-index 93fa9e070e8..8768cfee9a2 100644
+index 7a3fff50638..6ee9e55eefe 100644
 --- a/config/llvm.m4
 +++ b/config/llvm.m4
 @@ -47,20 +47,20 @@ AC_DEFUN([PGAC_LLVM_SUPPORT],
@@ -45,10 +45,10 @@ index 93fa9e070e8..8768cfee9a2 100644
        -l*) LLVM_LIBS="$LLVM_LIBS $pgac_option";;
      esac
 diff --git a/configure b/configure
-index 5e6ea15e876..ff738812da9 100755
+index 6a9e36f7832..0bb3278571e 100755
 --- a/configure
 +++ b/configure
-@@ -5199,20 +5199,20 @@ fi
+@@ -5205,20 +5205,20 @@ fi
  
    # Collect compiler flags necessary to build the LLVM dependent
    # shared library.
@@ -72,7 +72,7 @@ index 5e6ea15e876..ff738812da9 100755
      case $pgac_option in
        -fno-rtti*) LLVM_CXXFLAGS="$LLVM_CXXFLAGS $pgac_option";;
        -std=*) LLVM_CXXFLAGS="$LLVM_CXXFLAGS $pgac_option";;
-@@ -5223,7 +5223,7 @@ fi
+@@ -5229,7 +5229,7 @@ fi
    # libs. As some components are optional, we can't just list all of
    # them as it'd raise an error.
    pgac_components='';
@@ -81,7 +81,7 @@ index 5e6ea15e876..ff738812da9 100755
      case $pgac_component in
        engine) pgac_components="$pgac_components $pgac_component";;
        debuginfodwarf) pgac_components="$pgac_components $pgac_component";;
-@@ -5237,7 +5237,7 @@ fi
+@@ -5243,7 +5243,7 @@ fi
    # And then get the libraries that need to be linked in for the
    # selected components.  They're large libraries, we only want to
    # link them into the LLVM using shared library.
@@ -91,15 +91,15 @@ index 5e6ea15e876..ff738812da9 100755
        -l*) LLVM_LIBS="$LLVM_LIBS $pgac_option";;
      esac
 diff --git a/meson.build b/meson.build
-index 77e963bd3b5..ff634d8e040 100644
+index 533af31dd04..4772117f390 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -795,7 +795,7 @@ endif
+@@ -797,7 +797,7 @@ endif
  llvmopt = get_option('llvm')
  llvm = not_found_dep
  if add_languages('cpp', required: llvmopt, native: false)
--  llvm = dependency('llvm', version: '>=3.9', method: 'config-tool', required: llvmopt)
-+  llvm = dependency('llvm', version: '>=3.9', method: 'config-tool', required: llvmopt, static: true)
+-  llvm = dependency('llvm', version: '>=10', method: 'config-tool', required: llvmopt)
++  llvm = dependency('llvm', version: '>=10', method: 'config-tool', required: llvmopt, static: true)
  
    if llvm.found()
  

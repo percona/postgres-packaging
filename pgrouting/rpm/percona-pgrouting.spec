@@ -28,7 +28,7 @@ BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c+
 %if 0%{?fedora} >= 42 || 0%{?rhel} >= 8 || 0%{?suse_version} <= 1500
 BuildRequires:	perl-version
 %endif
-BuildRequires:	postgresql%{pgmajorversion}-devel
+BuildRequires:	percona-postgresql%{pgmajorversion}-devel
 Requires:	percona-postgresql%{pgmajorversion} percona-postgis35_%{pgmajorversion}
 
 %description

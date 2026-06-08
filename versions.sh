@@ -5,20 +5,20 @@ PG_MINOR=10
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 PG_CRON_VERSION=1.6.7
-TIMESCALEDB_VERSION=2.26.4
+TIMESCALEDB_VERSION=2.27.2
 POSTGIS33_VERSION=3.3
 POSTGIS33_MINOR=10
-H3_PG_VERSION=4.2.3
+H3_PG_VERSION=4.5.0
 PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
 PGVECTORSCALE_VERSION=0.9.0
-HLL_VERSION=2.19
+HLL_VERSION=2.21
 PG_SIMILARITY_VERSION=1.0
 RUM_VERSION=1.3.15
 POSTGRESQL_UNIT_VERSION=7.10
-ANON_VERSION=3.0.13
+ANON_VERSION=3.1.0
 PG_PARTMAN_VERSION=5.4.3
-IP4R_VERSION=2.4.2
+IP4R_VERSION=2.4.3
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -103,9 +103,9 @@ case "$1" in
         H3_PG_PRODUCT=percona-h3-pg_${PG_MAJOR}
         H3_PG_PRODUCT_DEB=percona-h3-pg-${PG_MAJOR}
         H3_PG_PRODUCT_FULL=${H3_PG_PRODUCT}-${H3_PG_VERSION}
-        H3_PG_RELEASE='2'
+        H3_PG_RELEASE='1'
         H3_PG_SRC_BRANCH="v${H3_PG_VERSION}"
-        H3_PG_RPM_RELEASE='2'
+        H3_PG_RPM_RELEASE='1'
         H3_PG_DEB_RELEASE='1'
 
         # urls
@@ -146,9 +146,9 @@ case "$1" in
         # versions
         HLL_PRODUCT=percona-hll_${PG_MAJOR}
         HLL_PRODUCT_FULL=${HLL_PRODUCT}-${HLL_VERSION}
-        HLL_RELEASE='2'
+        HLL_RELEASE='1'
         HLL_SRC_BRANCH="v${HLL_VERSION}"
-        HLL_RPM_RELEASE='2'
+        HLL_RPM_RELEASE='1'
 
         # urls
         HLL_SRC_REPO="https://github.com/citusdata/postgresql-hll.git"
@@ -194,9 +194,9 @@ case "$1" in
         # versions
         ANON_PRODUCT=percona-postgresql_anonymizer_${PG_MAJOR}
         ANON_PRODUCT_FULL=${ANON_PRODUCT}-${ANON_VERSION}
-        ANON_RELEASE='2'
+        ANON_RELEASE='1'
         ANON_SRC_BRANCH="${ANON_VERSION}"
-        ANON_RPM_RELEASE='2'
+        ANON_RPM_RELEASE='1'
 
         # urls
         ANON_SRC_REPO="https://gitlab.com/dalibo/postgresql_anonymizer.git"
@@ -218,9 +218,9 @@ case "$1" in
         # versions
         IP4R_PRODUCT=percona-ip4r_${PG_MAJOR}
         IP4R_PRODUCT_FULL=${IP4R_PRODUCT}-${IP4R_VERSION}
-        IP4R_RELEASE='2'
+        IP4R_RELEASE='1'
         IP4R_SRC_BRANCH="${IP4R_VERSION}"
-        IP4R_RPM_RELEASE='2'
+        IP4R_RPM_RELEASE='1'
 
         # urls
         IP4R_SRC_REPO="https://github.com/RhodiumToad/ip4r.git"

@@ -3,9 +3,6 @@
 %global pgmajorversion %{pgmajor}
 %global debug_package %{nil}
 
-# pgrx version required by this release
-%global pgrx_version 0.16.1
-
 Summary:	Anonymization & Data Masking for PostgreSQL
 Name:		percona-%{sname}_%{pgmajorversion}
 Version:	%{version}
@@ -16,7 +13,7 @@ Packager:	Percona Development Team <https://jira.percona.com>
 Vendor:		Percona, LLC
 URL:		https://gitlab.com/dalibo/postgresql_anonymizer
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
-BuildRequires:	gcc clang-devel openssl-devel pkg-config rust-toolset rustfmt
+BuildRequires:	gcc clang-devel openssl-devel pkg-config
 Requires:	percona-postgresql%{pgmajorversion}-server
 
 %description
@@ -30,12 +27,17 @@ PostgreSQL Data Definition Language (DDL).
 %setup -q -n percona-%{sname}_%{pgmajorversion}-%{version}
 
 %build
-export PATH=%{pginstdir}/bin:$PATH
-
-cargo install cargo-pgrx --version %{pgrx_version} --locked
+export HOME=/root
+export CARGO_HOME=/root/.cargo
+export RUSTUP_HOME=/root/.rustup
+export PATH=/root/.cargo/bin:%{pginstdir}/bin:$PATH
+PGRX_VERSION=$(awk -F'"' '/^pgrx[[:space:]]*=/{print $2; exit}' Cargo.toml)
+cargo install cargo-pgrx --version "${PGRX_VERSION}" --locked
 cargo pgrx init --pg%{pgmajorversion}=%{pginstdir}/bin/pg_config
-
-cargo pgrx package --pg-config %{pginstdir}/bin/pg_config --features pg%{pgmajorversion}
+cargo clean
+# Keep the linker from GC'ing .pgrxsc (workaround if still on 0.18.0)
+export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,--no-gc-sections"
+cargo pgrx package --pg-config %{pginstdir}/bin/pg_config --no-default-features --features pg%{pgmajorversion}
 
 PGRX_TARGET=target/release/%{extname}-pg%{pgmajorversion}
 mkdir -p ${PGRX_TARGET}%{pginstdir}/share/extension/%{extname}/

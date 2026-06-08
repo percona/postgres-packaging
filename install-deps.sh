@@ -319,8 +319,23 @@ EOF
   anon)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config rust-toolset rustfmt"
+      INSTALL_LIST+="wget gcc make git rpmdevtools percona-postgresql${PG_MAJOR}-devel openssl-devel clang-devel pkg-config curl"
       yum -y install ${INSTALL_LIST}
+      # pgrx 0.18 needs rustc >= 1.89; OL9 rust-toolset is too old
+      if ! command -v rustup &>/dev/null; then
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.89 --no-modify-path
+      fi
+      export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
+      export RUSTUP_HOME="${RUSTUP_HOME:-$HOME/.rustup}"
+      export PATH="${CARGO_HOME}/bin:${PATH}"
+      rustup install 1.89
+      rustup default 1.89
+      rustup component add rustfmt clippy
+      # Sanity check — fail early if still on old rustc
+      rustc --version | grep -Eq 'rustc 1\.(89|[9-9][0-9]|[1-9][0-9]{2,})' || {
+        echo "ERROR: need rustc >= 1.89, got: $(rustc --version)"
+        exit 1
+      }
     fi
     ;;
 

@@ -164,7 +164,7 @@ case "$COMPONENT" in
   h3)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="gcc gcc-c++ make cmake git rpm-build rpmdevtools"
+      INSTALL_LIST+="gcc gcc-c++ make cmake git rpm-build rpmdevtools libtool"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps

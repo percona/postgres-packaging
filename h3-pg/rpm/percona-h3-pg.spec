@@ -57,6 +57,9 @@ This package provides JIT support for h3-pg
 %patch -P 0 -p0
 
 %build
+%if 0%{?gts_version}
+	source /opt/rh/gcc-toolset-14/enable
+%endif
 %{__install} -d build
 pushd build
 # h3-pg cannot find the header file on Fedora, so export CFLAGS:

@@ -8,7 +8,7 @@ PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 PG_CRON_VERSION=1.6.7
 TIMESCALEDB_VERSION=2.27.2
-H3_PG_VERSION=4.2.3
+H3_PG_VERSION=4.5.0
 PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
 PGVECTORSCALE_VERSION=0.9.0
@@ -83,9 +83,9 @@ case "$1" in
         # versions
         H3_PG_PRODUCT=percona-h3-pg_${PG_MAJOR}
         H3_PG_PRODUCT_FULL=${H3_PG_PRODUCT}-${H3_PG_VERSION}
-        H3_PG_RELEASE='2'
+        H3_PG_RELEASE='1'
         H3_PG_SRC_BRANCH="v${H3_PG_VERSION}"
-        H3_PG_RPM_RELEASE='2'
+        H3_PG_RPM_RELEASE='1'
 
         # urls
         H3_PG_SRC_REPO="https://github.com/postgis/h3-pg.git"

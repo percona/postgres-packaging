@@ -113,7 +113,7 @@ jobs:
           ARCH='["amd64","arm64"]'
           PKG=$(echo "${{ inputs.packages }}" | tr -d ' ' | jq -c -R 'split(",")')
           if [ "${{ inputs.distro }}" = "rpm" ]; then
-            PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10"]'
+            PLATFORM='["oraclelinux:8"]'
           elif [ "${{ inputs.distro }}" = "deb" ]; then
             PLATFORM='["ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:bullseye","debian:trixie"]'
           else
@@ -364,7 +364,7 @@ jobs:
 
   build-rpm-deb:
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
-    needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb, build-etcd-arm-srpm-sdeb]
+    needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb]
 
     strategy:
       fail-fast: false
@@ -498,8 +498,6 @@ jobs:
           if [ "${{ inputs.distro }}" = "rpm" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
             cp -n artifacts/*-srpm/* "${{ env.UPLOAD_PATH }}/srpm/"
             cp -n artifacts/*-ol8-*/* "${{ env.UPLOAD_PATH }}/rpm/"
-            cp -n artifacts/*-ol9-*/* "${{ env.UPLOAD_PATH }}/rpm/"
-            cp -n artifacts/*-ol10-*/* "${{ env.UPLOAD_PATH }}/rpm/"
           fi
           if [ "${{ inputs.distro }}" = "deb" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
             cp -n artifacts/*-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"

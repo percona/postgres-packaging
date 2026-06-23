@@ -14,19 +14,14 @@ Source0:	%{name}-%{version}.tar.gz
 Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
-%if 0%{?rhel} && 0%{?rhel} == 7
-Patch1:		%{sname}-cmake3-rhel7.patch
-%endif
 URL:		https://github.com/timescale/timescaledb
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
 %if 0%{?gts_version}
 BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
 %endif
-%if 0%{?rhel} && 0%{?rhel} == 7
-BuildRequires:	cmake3
-%else
+
 BuildRequires:	cmake >= 3.4
-%endif
+
 %if 0%{?fedora} >= 42 || 0%{?rhel} >= 8
 Requires:	openssl-libs >= 1.1.1k
 BuildRequires:	openssl-devel
@@ -41,9 +36,6 @@ support.
 
 %prep
 %setup -q -n %{name}-%{version}
-%if 0%{?rhel} && 0%{?rhel} == 7
-%patch -P 1 -p0
-%endif
 
 # Build only the portions that have Apache Licence, and disable telemetry:
 export PATH=%{pginstdir}/bin:$PATH
@@ -56,9 +48,6 @@ export PATH=%{pginstdir}/bin:$PATH
 %endif
 export PATH=%{pginstdir}/bin:$PATH
 %ifarch ppc64 ppc64le
-%if 0%{?rhel} && 0%{?rhel} == 7
-	CFLAGS="-O3 -mcpu=$PPC_MCPU -mtune=$PPC_MTUNE"
-%endif
 %else
 	CFLAGS="$RPM_OPT_FLAGS -fPIC -pie"
 	CXXFLAGS="$RPM_OPT_FLAGS -fPIC -pie"

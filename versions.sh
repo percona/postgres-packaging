@@ -225,9 +225,9 @@ case "$1" in
         PGVECTOR_PRODUCT_DEB=percona-pgvector
         PGVECTOR_PRODUCT_FULL=${PGVECTOR_PRODUCT}-${PGVECTOR_VERSION}
         PGVECTOR_SRC_BRANCH="v${PGVECTOR_VERSION}"
-        PGVECTOR_RPM_RELEASE='2'
-        PGVECTOR_DEB_RELEASE='2'
-        PGVECTOR_RELEASE='2'
+        PGVECTOR_RPM_RELEASE='1'
+        PGVECTOR_DEB_RELEASE='1'
+        PGVECTOR_RELEASE='1'
 
         # urls
         PGVECTOR_SRC_REPO="https://github.com/pgvector/pgvector.git"

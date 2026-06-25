@@ -8,7 +8,7 @@ PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 POSTGRES_COMMON_VERSION=290
 POSTGRES_COMMON_MINOR=1
-PG_TDE_VERSION=2.2.0
+PG_TDE_VERSION=2.2.1
 PATRONI_VERSION=4.1.3
 PG_CRON_VERSION=1.6.7
 PG_GATHER_VERSION=33
@@ -42,11 +42,11 @@ case "$1" in
         # versions
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
-        PG_RELEASE='1'
-        PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}.${PG_RELEASE}"
+        PG_RELEASE='2'
+        PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}"
         PG_SRC_BRANCH_NIGHTLY="TDE_REL_${PG_MAJOR}_STABLE"
-        PG_RPM_RELEASE='1'
-        PG_DEB_RELEASE='1'
+        PG_RPM_RELEASE='2'
+        PG_DEB_RELEASE='2'
 
         # urls
         PG_SRC_REPO="https://github.com/Percona-Lab/postgres.git"
@@ -75,7 +75,7 @@ case "$1" in
         PG_TDE_PRODUCT_DEB=percona-pg-tde${PG_MAJOR}
         PG_TDE_PRODUCT_FULL=${PG_TDE_PRODUCT}-${PG_TDE_VERSION}
         PG_TDE_RELEASE='1'
-        PG_TDE_SRC_BRANCH="release-${PG_TDE_VERSION}"
+        PG_TDE_SRC_BRANCH="release-2.2"
         PG_TDE_RPM_RELEASE='1'
         PG_TDE_DEB_RELEASE='1'
         # urls

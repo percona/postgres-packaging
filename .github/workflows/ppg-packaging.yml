@@ -66,9 +66,13 @@ jobs:
      - name: Set PG_MAJOR
        id: set-pgMajor
        run: |
-          pg_major=$(echo "${{ inputs.packaging-branch }}" | grep -oE '[0-9]+\.' | head -1 | tr -d '.')
-          echo "PG_MAJOR=$pg_major" >> "$GITHUB_ENV"
-          echo "pg_major=$pg_major" >> "$GITHUB_OUTPUT"
+          if [[ "${{ inputs.packaging-branch }}" == *TDE* ]]; then
+            pg_major=16
+          else
+            pg_major=$(echo "${{ inputs.packaging-branch }}" | grep -oE '[0-9]+\.' | head -1 | tr -d '.')
+          fi
+            echo "PG_MAJOR=$pg_major" >> "$GITHUB_ENV"
+            echo "pg_major=$pg_major" >> "$GITHUB_OUTPUT"
 
      - name: Set Package Matrix
        id: set-pkg-matrix

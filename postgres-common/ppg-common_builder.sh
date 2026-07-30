@@ -295,7 +295,7 @@ build_deb(){
     if [ ${DEBIAN} = "stretch" ]; then
         sed -i 's:12:11:' debian/compat
     fi
-    dch -m -D "${DEBIAN}" --force-distribution -v "1:${POSTGRES_COMMON_VERSION}-${POSTGRES_COMMON_MINOR}.${DEBIAN}" 'Update distribution'
+    dch -m -D "${DEBIAN}" --force-distribution -v "1:${POSTGRES_COMMON_VERSION}-${PPG_COMMON_DEB_RELEASE}.${DEBIAN}" 'Update distribution'
     unset $(locale|cut -d= -f1)
     sed -i '38,55d' Makefile
     dpkg-buildpackage -rfakeroot -us -uc -b

@@ -362,7 +362,7 @@ EOF
       dnf -y install perl-libxml-perl || true
     else
       deb_deps
-      INSTALL_LIST+="build-essential pkgconf liblz4-dev libssh2-1-dev debconf debhelper devscripts dh-exec libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-${PG_MAJOR} percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev meson python3-setuptools"
+      INSTALL_LIST+="build-essential pkgconf liblz4-dev libssh2-1-dev debconf debhelper devscripts dh-exec libxml-checker-perl libxml-libxml-perl libio-socket-ssl-perl libperl-dev libssl-dev libxml2-dev txt2man zlib1g-dev libpq-dev percona-postgresql-${PG_MAJOR} percona-postgresql-common percona-postgresql-server-dev-all libbz2-dev libzstd-dev libyaml-dev meson python3-setuptools libsystemd-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;

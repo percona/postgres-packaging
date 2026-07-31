@@ -1,12 +1,25 @@
---- rules	2022-05-25 21:42:21.498261494 +0300
-+++ rules	2022-05-25 21:43:02.926278175 +0300
-@@ -11,6 +11,9 @@
+--- rules
++++ rules
+@@ -11,11 +11,22 @@ include /usr/share/dpkg/buildflags.mk
  %:
- 	dh $@
+ 	dh $@ --buildsystem=meson
  
 +override_dh_builddeb:
 +	dh_builddeb -- -Zgzip
 +
  override_dh_auto_configure:
- 	# src contains a seperate configure script.
- 	cd $(CURDIR)/src && ./configure --prefix=/usr --bindir=/usr/bin
+ 	# src contains a separate configure script.
+ 	dh_auto_configure -- --prefix=/usr --bindir=/usr/bin
+ 
+ override_dh_auto_build:
++	# Official release tarballs ship pre-rendered docs under doc/man and doc/html.
++	# Git checkouts do not, so pull them from the matching GitHub release when missing.
++	mkdir -p ${CURDIR}/doc/man
++	if [ ! -f ${MANTEMPLATE} ]; then \
++		VERSION=$$(sed -n "s/^[[:space:]]*version: '\([^']*\)'.*/\1/p" meson.build | head -1); \
++		wget -qO- "https://github.com/pgbackrest/pgbackrest/releases/download/release/$${VERSION}/pgbackrest-$${VERSION}.tar.gz" \
++		| tar -xzf - --strip-components=1 -C ${CURDIR} --wildcards '*/doc/man/*' '*/doc/html/*'; \
++	fi
+ 	txt2man \
+ 	  -v "pgBackRest Command Reference" \
+ 	  -t pgbackrest \

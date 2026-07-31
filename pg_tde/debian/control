@@ -6,6 +6,7 @@ Maintainer: Percona Development Team <info@percona.com>
 Build-Depends:
  debhelper (>= 9),
  meson,
+ cmake,
  ninja-build,
  chrpath,
  percona-postgresql-server-dev-all (>= 153~),

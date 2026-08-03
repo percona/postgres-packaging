@@ -11,7 +11,7 @@ rpm_deps() {
 
   if [[ "${RHEL}" -eq 8 ]]; then
     dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
-    if [[ "$COMPONENT" == "pgrepack" || "$COMPONENT" == "patroni" ]]; then
+    if [[ "$COMPONENT" == "pgrepack" ]]; then
       INSTALL_LIST+="python3-devel "
     fi
     if [[ "$COMPONENT" == "ppg-server-ha" ]]; then
@@ -21,7 +21,7 @@ rpm_deps() {
       INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel "
     fi
     if [[ "$COMPONENT" == "patroni" ]]; then
-      INSTALL_LIST+="python3-setuptools python3-psycopg2 "
+      INSTALL_LIST+="python3.12-setuptools python3.12-devel python3.12-psycopg2 "
     fi
   else
     if [[ "$COMPONENT" == "patroni" ]]; then

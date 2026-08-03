@@ -12,7 +12,7 @@ rpm_deps() {
   if [[ "${RHEL}" -eq 8 ]]; then
     dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
     if [[ "$COMPONENT" == "ydiff" ]]; then
-      INSTALL_LIST+="python3-devel python3-setuptools "
+      INSTALL_LIST+="python3.12-setuptools python3.12-devel "
     fi
   else
     if [[ "$COMPONENT" == "ydiff" ]]; then

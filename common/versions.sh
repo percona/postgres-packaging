@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 PG_VERSION=@@PGVERSION@@
-ETCD_VERSION=3.5.30
+ETCD_VERSION=3.5.33
 PGBADGER_VERSION=13.2
 PGBOUNCER_VERSION=1.25.2
 PYSYNCOBJ_VERSION=0.3.15
@@ -42,9 +42,9 @@ case "$1" in
         PGBADGER_PRODUCT=percona-pgbadger
         PGBADGER_PRODUCT_FULL=${PGBADGER_PRODUCT}-${PGBADGER_VERSION}
         PGBADGER_SRC_BRANCH="v${PGBADGER_VERSION}"
-        PGBADGER_RPM_RELEASE='2'
-        PGBADGER_DEB_RELEASE='2'
-        PGBADGER_RELEASE='2'
+        PGBADGER_RPM_RELEASE='3'
+        PGBADGER_DEB_RELEASE='3'
+        PGBADGER_RELEASE='3'
 
         # urls
         PGBADGER_SRC_REPO="https://github.com/darold/pgbadger.git"
@@ -56,9 +56,9 @@ case "$1" in
         PGBOUNCER_PRODUCT=percona-pgbouncer
         PGBOUNCER_PRODUCT_FULL=${PGBOUNCER_PRODUCT}-${PGBOUNCER_VERSION}
         PGBOUNCER_SRC_BRANCH="pgbouncer_${PGBOUNCER_VERSION//./_}"
-        PGBOUNCER_RPM_RELEASE='1'
-        PGBOUNCER_DEB_RELEASE='1'
-        PGBOUNCER_RELEASE='1'
+        PGBOUNCER_RPM_RELEASE='2'
+        PGBOUNCER_DEB_RELEASE='2'
+        PGBOUNCER_RELEASE='2'
 
         # urls
         PGBOUNCER_SRC_REPO="https://github.com/pgbouncer/pgbouncer.git"
@@ -71,9 +71,9 @@ case "$1" in
         PYSYNCOBJ_PRODUCT=python3-pysyncobj
         PYSYNCOBJ_PRODUCT_FULL=${PYSYNCOBJ_PRODUCT}-${PYSYNCOBJ_VERSION}
         PYSYNCOBJ_SRC_BRANCH="v${PYSYNCOBJ_VERSION}"
-        PYSYNCOBJ_RPM_RELEASE='1'
-        PYSYNCOBJ_DEB_RELEASE='1'
-        PYSYNCOBJ_RELEASE='1'
+        PYSYNCOBJ_RPM_RELEASE='2'
+        PYSYNCOBJ_DEB_RELEASE='2'
+        PYSYNCOBJ_RELEASE='2'
 
         # urls
         PYSYNCOBJ_SRC_REPO="https://github.com/bakwc/PySyncObj.git"
@@ -86,9 +86,9 @@ case "$1" in
         YDIFF_PRODUCT=python3-ydiff
         YDIFF_PRODUCT_FULL=${YDIFF_PRODUCT}-${YDIFF_VERSION}
         YDIFF_SRC_BRANCH="${YDIFF_VERSION}"
-        YDIFF_RPM_RELEASE='2'
-        YDIFF_DEB_RELEASE='2'
-        YDIFF_RELEASE='2'
+        YDIFF_RPM_RELEASE='3'
+        YDIFF_DEB_RELEASE='3'
+        YDIFF_RELEASE='3'
 
         # urls
         YDIFF_SRC_REPO="https://github.com/ymattw/ydiff.git"

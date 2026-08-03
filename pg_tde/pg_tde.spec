@@ -25,6 +25,7 @@ License:	PostgreSQL
 URL:		https://github.com/%{sname}/%{sname}/
 Source0:	%{name}-%{version}.tar.gz
 
+BuildRequires:  cmake
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel chrpath json-c-devel openssl-devel libcurl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel meson
 %if 0%{?gts_version}
 BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
@@ -39,12 +40,7 @@ It seamlessly encrypts and decrypts data in PostgreSQL databases, ensuring secur
 %package llvmjit
 Summary:	Just-in-time compilation support for pg_tde
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-BuildRequires:	llvm6-devel clang6-devel
-%endif
-%if 0%{?suse_version} >= 1500
-BuildRequires:	llvm15-devel clang15-devel
-%endif
+BuildRequires:        llvm-devel clang-devel clang llvm
 
 %description llvmjit
 This packages provides JIT support for pg_tde

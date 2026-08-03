@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 
 PG_MAJOR=14
-PG_MINOR=23
+PG_MINOR=24
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
-POSTGRES_COMMON_VERSION=290
-POSTGRES_COMMON_MINOR=1
-PATRONI_VERSION=4.1.3
+POSTGRES_COMMON_VERSION=293
+PATRONI_VERSION=4.1.4
 PG_CRON_VERSION=1.6.7
 PG_GATHER_VERSION=33
 PG_REPACK_VERSION=1.5.3
 PGAUDIT_VERSION=1.6.3
 PGAUDIT_SET_USER_VERSION=4.2.0
-PGBACKREST_VERSION=2.58.0
+PGBACKREST_VERSION=2.59.0
 PGPOOL2_VERSION=4.7.2
-PGVECTOR_VERSION=0.8.3
+PGVECTOR_VERSION=0.8.6
 POSTGIS35_VERSION=3.5
 POSTGIS35_MINOR=7
 WAL2JSON_VERSION=2.6
@@ -39,9 +38,9 @@ case "$1" in
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
         PG_SRC_BRANCH="REL_${PG_MAJOR}_STABLE" #"REL_${PG_MAJOR}_${PG_MINOR}"
-        PG_RELEASE='2'
-        PG_RPM_RELEASE='2'
-        PG_DEB_RELEASE='2'
+        PG_RELEASE='1'
+        PG_RPM_RELEASE='1'
+        PG_DEB_RELEASE='1'
 
         # urls
         PG_SRC_REPO="https://git.postgresql.org/git/postgresql.git"
@@ -54,10 +53,10 @@ case "$1" in
         # versions
         PPG_COMMON_PRODUCT=percona-postgresql-common
         PPG_COMMON_PRODUCT_FULL=${PPG_COMMON_PRODUCT}-${POSTGRES_COMMON_VERSION}
-        PPG_COMMON_RELEASE='2'
+        PPG_COMMON_RELEASE='1'
         PPG_COMMON_SRC_BRANCH="debian/${POSTGRES_COMMON_VERSION}"
-        PPG_COMMON_RPM_RELEASE='2'
-        PPG_COMMON_DEB_RELEASE='2'
+        PPG_COMMON_RPM_RELEASE='1'
+        PPG_COMMON_DEB_RELEASE='1'
 
         # urls
         PPG_COMMON_SRC_REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -85,9 +84,9 @@ case "$1" in
         PG_CRON_PRODUCT_DEB=percona-pg-cron
         PG_CRON_PRODUCT_FULL=${PG_CRON_PRODUCT}-${PG_CRON_VERSION}
         PG_CRON_SRC_BRANCH="v${PG_CRON_VERSION}"
-        PG_CRON_RPM_RELEASE='1'
-        PG_CRON_DEB_RELEASE='1'
-        PG_CRON_RELEASE='1'
+        PG_CRON_RPM_RELEASE='2'
+        PG_CRON_DEB_RELEASE='2'
+        PG_CRON_RELEASE='2'
 
         # urls
         PG_CRON_SRC_REPO="https://github.com/citusdata/pg_cron.git"
@@ -101,8 +100,8 @@ case "$1" in
         PG_GATHER_PRODUCT_DEB=percona-pg-gather
         PG_GATHER_PRODUCT_FULL=${PG_GATHER_PRODUCT}-${PG_GATHER_VERSION}
         PG_GATHER_SRC_BRANCH=${PG_VERSION}
-        PG_GATHER_RPM_RELEASE='1'
-        PG_GATHER_RELEASE='1'
+        PG_GATHER_RPM_RELEASE='2'
+        PG_GATHER_RELEASE='2'
 
         # urls
         PG_GATHER_SRC_URL="https://raw.githubusercontent.com/percona/support-snippets/master/postgresql/pg_gather"
@@ -115,9 +114,9 @@ case "$1" in
         PG_REPACK_PRODUCT_DEB=percona-pg-repack
         PG_REPACK_PRODUCT_FULL=${PG_REPACK_PRODUCT}-${PG_REPACK_VERSION}
         PG_REPACK_SRC_BRANCH="ver_${PG_REPACK_VERSION}"
-        PG_REPACK_RPM_RELEASE='4'
-        PG_REPACK_DEB_RELEASE='4'
-        PG_REPACK_RELEASE='4'
+        PG_REPACK_RPM_RELEASE='5'
+        PG_REPACK_DEB_RELEASE='5'
+        PG_REPACK_RELEASE='5'
 
         # urls
         PG_REPACK_SRC_REPO="https://github.com/reorg/pg_repack.git"
@@ -130,9 +129,9 @@ case "$1" in
         PGAUDIT_PRODUCT=percona-pgaudit
         PGAUDIT_PRODUCT_FULL=${PGAUDIT_PRODUCT}-${PGAUDIT_VERSION}
         PGAUDIT_SRC_BRANCH=${PGAUDIT_VERSION}
-        PGAUDIT_RPM_RELEASE='3'
-        PGAUDIT_DEB_RELEASE='3'
-        PGAUDIT_RELEASE='3'
+        PGAUDIT_RPM_RELEASE='4'
+        PGAUDIT_DEB_RELEASE='4'
+        PGAUDIT_RELEASE='4'
 
         # urls
         PGAUDIT_SRC_REPO="https://github.com/pgaudit/pgaudit.git"
@@ -146,9 +145,9 @@ case "$1" in
         SET_USER_PRODUCT_DEB="percona-pgaudit${PG_MAJOR}-set-user"
         SET_USER_PRODUCT_FULL=${SET_USER_PRODUCT}-${PGAUDIT_SET_USER_VERSION}
         SET_USER_SRC_BRANCH="REL${PGAUDIT_SET_USER_VERSION//./_}"
-        SET_USER_RPM_RELEASE='3'
-        SET_USER_DEB_RELEASE='3'
-        SET_USER_RELEASE='3'
+        SET_USER_RPM_RELEASE='4'
+        SET_USER_DEB_RELEASE='4'
+        SET_USER_RELEASE='4'
 
         # urls
         SET_USER_SRC_REPO="https://github.com/pgaudit/set_user.git"
@@ -161,9 +160,9 @@ case "$1" in
         PG_BCKREST_PRODUCT_FULL=${PG_BCKREST_PRODUCT}-${PGBACKREST_VERSION}
         PG_BCKREST_SRC_BRANCH="release/${PGBACKREST_VERSION}"
         PG_BCKREST_DEB_TAG="debian/${PGBACKREST_VERSION}-1"
-        PG_BCKREST_RPM_RELEASE='2'
-        PG_BCKREST_DEB_RELEASE='2'
-        PG_BCKREST_RELEASE='2'
+        PG_BCKREST_RPM_RELEASE='1'
+        PG_BCKREST_DEB_RELEASE='1'
+        PG_BCKREST_RELEASE='1'
 
         # urls
         PG_BCKREST_SRC_REPO="https://github.com/pgbackrest/pgbackrest.git"
@@ -178,8 +177,8 @@ case "$1" in
         PGPOOL2_SRC_BRANCH="V${PGPOOL2_VERSION//./_}"
         PGPOOL2_DEB_BRANCH=debian/${PGPOOL2_VERSION}-1
         PGPOOL2_BUILD_BRANCH=${PG_VERSION}
-        PGPOOL2_RPM_RELEASE='1'
-        PGPOOL2_DEB_RELEASE='1'
+        PGPOOL2_RPM_RELEASE='2'
+        PGPOOL2_DEB_RELEASE='2'
 
         # urls
         PGPOOL2_SRC_REPO="https://git.postgresql.org/git/pgpool2.git"
@@ -207,10 +206,10 @@ case "$1" in
         # versions
         POSTGIS_PRODUCT=percona-postgis
         POSTGIS_PRODUCT_FULL=${POSTGIS_PRODUCT}-${POSTGIS35_VERSION}.${POSTGIS35_MINOR}
-        POSTGIS35_RELEASE='1'
+        POSTGIS35_RELEASE='2'
         POSTGIS_SRC_BRANCH="${POSTGIS35_VERSION}.${POSTGIS35_MINOR}"
-        POSTGIS_RPM_RELEASE='1'
-        POSTGIS_DEB_RELEASE='1'
+        POSTGIS_RPM_RELEASE='2'
+        POSTGIS_DEB_RELEASE='2'
 
         # urls
         POSTGIS_SRC_REPO="https://github.com/postgis/postgis.git"
@@ -224,9 +223,9 @@ case "$1" in
         PPG_SERVER_VERSION=${PG_VERSION}
         PPG_SERVER_PRODUCT_FULL=${PPG_SERVER_PRODUCT}-${PPG_SERVER_VERSION}
         PPG_SERVER_SRC_BRANCH=${PG_VERSION}
-        PPG_SERVER_RPM_RELEASE='3'
-        PPG_SERVER_DEB_RELEASE='3'
-        PPG_SERVER_RELEASE='3'
+        PPG_SERVER_RPM_RELEASE='4'
+        PPG_SERVER_DEB_RELEASE='4'
+        PPG_SERVER_RELEASE='4'
 
         # urls
         PPG_SERVER_SRC_REPO=${PKG_GIT_REPO}
@@ -239,9 +238,9 @@ case "$1" in
         PPG_SERVER_HA_VERSION=${PG_VERSION}
         PPG_SERVER_HA_PRODUCT_FULL=${PPG_SERVER_HA_PRODUCT}-${PPG_SERVER_HA_VERSION}
         PPG_SERVER_HA_SRC_BRANCH=${PG_VERSION}
-        PPG_SERVER_HA_RPM_RELEASE='3'
-        PPG_SERVER_HA_DEB_RELEASE='3'
-        PPG_SERVER_HA_RELEASE='3'
+        PPG_SERVER_HA_RPM_RELEASE='4'
+        PPG_SERVER_HA_DEB_RELEASE='4'
+        PPG_SERVER_HA_RELEASE='4'
 
         # urls
         PPG_SERVER_HA_SRC_REPO=${PKG_GIT_REPO}
@@ -253,9 +252,9 @@ case "$1" in
         WAL2JSON_PRODUCT=percona-wal2json
         WAL2JSON_PRODUCT_FULL=${WAL2JSON_PRODUCT}-${WAL2JSON_VERSION}
         WAL2JSON_SRC_BRANCH="wal2json_${WAL2JSON_VERSION//./_}"
-        WAL2JSON_RPM_RELEASE='4'
-        WAL2JSON_DEB_RELEASE='4'
-        WAL2JSON_RELEASE='4'
+        WAL2JSON_RPM_RELEASE='5'
+        WAL2JSON_DEB_RELEASE='5'
+        WAL2JSON_RELEASE='5'
 
         # urls
         WAL2JSON_SRC_REPO="https://github.com/eulerto/wal2json.git"

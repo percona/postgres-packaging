@@ -318,6 +318,7 @@ Requires(preun):	systemd
 Requires(postun):	systemd
 %endif
 Provides:       postgresql-server >= %{version}-%{release}
+Provides:       group(postgres) user(postgres)
 Provides:       %{vname}-server = %{epoch}:%{version}-%{release}
 Provides:       %{sname}-server = %{epoch}:%{version}-%{release}
 Obsoletes:      %{sname}-server <= %{version}-%{release}

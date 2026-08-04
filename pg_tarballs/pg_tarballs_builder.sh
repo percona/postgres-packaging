@@ -1944,7 +1944,7 @@ set_rpath(){
 
         # Check if the directory exists
         if [ ! -d "$directory" ]; then
-                echo "Error: Directory not found."
+                echo "Error: Directory not found: $directory"
                 exit 1
         fi
 
@@ -1954,7 +1954,21 @@ set_rpath(){
                 # Check if the file is an ELF executable or shared library
                 if [ -f "$binary" ] && file "$binary" | grep -q "ELF"; then
                         echo "Changing RPATH for $binary..."
-                        patchelf --set-rpath "$new_rpath" "$binary" || echo "Warning: patchelf failed for $binary, skipping"
+                        if ! patchelf --force-rpath --set-rpath "$new_rpath" "$binary"; then
+                                echo "Error: patchelf failed for $binary"
+                                exit 1
+                        fi
+                        actual_rpath=$(patchelf --print-rpath "$binary")
+                        if [ "$actual_rpath" != "$new_rpath" ]; then
+                                echo "Error: RPATH verification failed for $binary"
+                                echo "Expected: $new_rpath"
+                                echo "Actual:   $actual_rpath"
+                                exit 1
+                        fi
+                        if echo "$actual_rpath" | grep -q '/opt/percona-postgresql'; then
+                                echo "Error: $binary still has build-prefix RPATH: $actual_rpath"
+                                exit 1
+                        fi
                         echo "------------------------"
                 fi
         done

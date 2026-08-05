@@ -1206,6 +1206,13 @@ build_postgres_server(){
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make -C contrib install
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib:${TCL_PREFIX}/lib:$LD_LIBRARY_PATH make -C contrib/uuid-ossp install
 
+	if [ ! -d src/test/perl/PostgreSQL ]; then
+		echo "Error: src/test/perl/PostgreSQL not found in PostgreSQL source tree"
+		exit 1
+	fi
+	mkdir -p ${POSTGRESQL_PREFIX}/lib/pgxs/src/test/perl
+	cp -a src/test/perl/PostgreSQL ${POSTGRESQL_PREFIX}/lib/pgxs/src/test/perl/
+
 	mv ${POSTGRESQL_PREFIX}/bin/psql ${POSTGRESQL_PREFIX}/bin/psql.bin
 cat <<EOT > psql
 #!/bin/bash

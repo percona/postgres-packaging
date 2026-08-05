@@ -587,7 +587,13 @@ build_libtiff(){
         tar -xvzf libtiff-v${LIBTIFF_VERSION}.tar.gz
         cd libtiff-v${LIBTIFF_VERSION}
 
-        ./autogen.sh
+	# Avoid libtiff autogen.sh wget from git.savannah.gnu.org.
+	libtoolize --force --copy
+	aclocal -I ./m4
+	autoheader
+	automake --foreign --add-missing --copy
+	autoconf
+
         ./configure --prefix=${DEPENDENCY_LIBS_PATH} --enable-rpath
         make
         make install
@@ -1944,6 +1950,19 @@ build_postgis35(){
 	build_status "ends" "postgis35"
 }
 
+get_updated_patchelf(){
+	ARCH=$(uname -m)
+	PATCHELF_VERSION=0.17.2
+	rm -rf /tmp/patchelf
+	mkdir -p /tmp/patchelf
+	pushd /tmp/patchelf
+	wget_retry https://github.com/NixOS/patchelf/releases/download/${PATCHELF_VERSION}/patchelf-${PATCHELF_VERSION}-${ARCH}.tar.gz
+	tar -xzf patchelf-${PATCHELF_VERSION}-${ARCH}.tar.gz
+	install -m 755 bin/patchelf /usr/bin/patchelf
+	popd
+	patchelf --version
+}
+
 set_rpath(){
 
         directory="$1"  # Change this to your target directory
@@ -1983,6 +2002,12 @@ set_rpath(){
 
 set_rpath_all_products(){
 
+	# Avoid loading partially/fully rewritten libs via LD_LIBRARY_PATH while
+	# patchelf runs.
+	unset LD_LIBRARY_PATH
+
+	get_updated_patchelf
+
 	ARCH=$(uname -m)
 	# Set rpath of all binaries in tarball
 	set_rpath "${POSTGRESQL_PREFIX}/bin" "\${ORIGIN}/../lib:${PYTHON_PREFIX}/lib:${PERL_PREFIX}/lib/${PERL_VERSION}/${ARCH}-linux/CORE:${TCL_PREFIX}/lib"
@@ -2020,6 +2045,7 @@ build_status(){
 }
 
 create_tarball(){
+	unset LD_LIBRARY_PATH
 
 	mkdir -p ${CWD}/tarballs-${PG_VERSION}
         pushd /opt

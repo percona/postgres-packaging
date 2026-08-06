@@ -3,7 +3,7 @@
 %global pname pg_tde
 %global sname percona-pg_tde%{pgmajorversion}
 
-%if 0%{?rhel} && 0%{?rhel} == 9
+%if 0%{?rhel} >= 8 && 0%{?rhel} <= 9
 %global gts_version 14
 %endif
 

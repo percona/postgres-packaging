@@ -9,11 +9,11 @@ on:
         default: ppg-15.16
         type: choice
         options:
-          - ppg-18.4
-          - ppg-17.10
-          - ppg-16.14
-          - ppg-15.18
-          - ppg-14.23
+          - ppg-18.5
+          - ppg-17.11
+          - ppg-16.15
+          - ppg-15.19
+          - ppg-14.24
 
       major-repo:
         description: tick for major repo testing

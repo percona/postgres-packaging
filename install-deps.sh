@@ -20,7 +20,7 @@ rpm_deps() {
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel "
     fi
-    if [[ "$COMPONENT" == "pg_oidc" ]]; then
+    if [[ "$COMPONENT" == "pg_oidc" || "$COMPONENT" == "pg_tde" ]]; then
       INSTALL_LIST+="gcc-toolset-14 "
     fi
     if [[ "$COMPONENT" == "patroni" ]]; then
@@ -226,15 +226,16 @@ EOF
   pg_tde)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="sudo wget git vim chrpath clang-devel-20.1.8 clang-20.1.8 llvm-devel-20.1.8 json-c-devel libcurl-devel numactl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server rpmdevtools binutils meson gcc gcc-c++"
+      INSTALL_LIST+="sudo wget git vim chrpath clang-devel-20.1.8 clang-20.1.8 llvm-devel-20.1.8 json-c-devel libcurl-devel numactl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server rpmdevtools binutils meson gcc gcc-c++ cmake"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="sudo build-essential debhelper clang git libjson-c-dev pkg-config libcurl4-openssl-dev liblz4-dev libssl-dev zlib1g-dev libzstd-dev libxml2-dev libxml2-utils libxslt-dev libxslt1-dev libselinux1-dev libpam0g-dev krb5-multidev libkrb5-dev libreadline-dev shtool devscripts percona-postgresql-common percona-postgresql-server-dev-all libnuma-dev meson ninja-build chrpath"
+      INSTALL_LIST+="sudo build-essential debhelper clang git libjson-c-dev pkg-config libcurl4-openssl-dev liblz4-dev libssl-dev zlib1g-dev libzstd-dev libxml2-dev libxml2-utils libxslt-dev libxslt1-dev libselinux1-dev libpam0g-dev krb5-multidev libkrb5-dev libreadline-dev shtool devscripts percona-postgresql-common percona-postgresql-server-dev-all libnuma-dev meson ninja-build chrpath cmake python3-pip"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
+      pip3 install --upgrade meson
     fi
     ;;
 

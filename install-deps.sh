@@ -170,7 +170,7 @@ case "$COMPONENT" in
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="bison pkgconf build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb liblz4-dev libcurl4-openssl-dev libzstd-dev libnuma-dev percona-postgresql-common-dev"
+      INSTALL_LIST+="bison pkgconf build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb lz4 liblz4-dev libcurl4-openssl-dev zstd libzstd-dev libnuma-dev percona-postgresql-common-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
       # generate a temporary numa.pc file if libnuma-dev does not provide it
       if ! pkg-config --exists numa 2>/dev/null; then

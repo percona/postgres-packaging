@@ -7,7 +7,7 @@ Rules-Requires-Root: no
 Build-Depends:
  autoconf,
  bison,
- clang [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32]  <!pkg.postgresql.nollvm>,
+ clang [amd64 arm64 mips64el ppc64 ppc64el s390x] <!pkg.postgresql.nollvm>,
  debhelper-compat (= 13),
  dh-exec (>= 0.13~),
  docbook-xml,
@@ -32,7 +32,8 @@ Build-Depends:
  libxml2-utils,
  libxslt1-dev,
  libzstd-dev (>= 1.4.0) <!pkg.postgresql.nozstd>,
- llvm-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
+ llvm-dev [amd64 arm64 mips64el ppc64 ppc64el s390x] <!pkg.postgresql.nollvm>,
+ lz4 | liblz4-tool,
  mawk,
  perl (>= 5.8),
  pkgconf,
@@ -44,6 +45,7 @@ Build-Depends:
  uuid-dev,
  xsltproc,
  zlib1g-dev | libz-dev,
+ zstd (>= 1.4.0) <!pkg.postgresql.nozstd>,
 Homepage: http://www.postgresql.org/
 
 Package: libpq-dev
@@ -147,7 +149,7 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends}
 Provides: percona-postgresql-contrib-@@PGMAJOR@@, postgresql-contrib-@@PGMAJOR@@ (= ${binary:Version}), postgresql-@@PGMAJOR@@ (= ${binary:Version}),
- postgresql-@@PGMAJOR@@-jit-llvm (= ${llvm:Version}) [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32],
+ postgresql-@@PGMAJOR@@-jit-llvm [amd64 arm64 mips64el ppc64 ppc64el s390x] <!pkg.postgresql.nollvm>,
 Recommends: sysstat, percona-pg-telemetry@@PGMAJOR@@
 Description: The World's Most Advanced Open Source Relational Database
  PostgreSQL, also known as Postgres, is a free and open-source relational
@@ -191,9 +193,9 @@ Package: percona-postgresql-server-dev-@@PGMAJOR@@
 Architecture: any
 Section: libdevel
 Depends:
- clang-${llvm:Version} [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
+ clang-${llvm:Version} [amd64 arm64 mips64el ppc64 ppc64el s390x] <!pkg.postgresql.nollvm>,
  libpq-dev (>= @@PGMAJOR@@~~),
- llvm-${llvm:Version}-dev [!alpha !hppa !hurd-amd64 !hurd-i386 !ia64 !kfreebsd-amd64 !kfreebsd-i386 !loong64 !m68k !powerpc !riscv64 !sh4 !sparc64 !x32] <!pkg.postgresql.nollvm>,
+ llvm-${llvm:Version}-dev [amd64 arm64 mips64el ppc64 ppc64el s390x] <!pkg.postgresql.nollvm>,
  percona-postgresql-client-@@PGMAJOR@@, percona-postgresql-common (>= 162~),
  ${misc:Depends},
  ${shlibs:Depends}

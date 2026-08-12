@@ -3,7 +3,7 @@
 #-------------------------------------- VERSIONS OF ALL COMPONENTS --------------------------------------
 
 PG_MAJOR=18
-PG_MINOR=5
+PG_MINOR=6
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 POSTGRES_COMMON_VERSION=293
@@ -42,7 +42,7 @@ case "$1" in
         PPG_PRODUCT=percona-postgresql
         PPG_PRODUCT_FULL=${PPG_PRODUCT}-${PG_VERSION}
         PG_RELEASE='1'
-        PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}"
+        PG_SRC_BRANCH="release-${PG_MAJOR}.${PG_MINOR}.${PG_RELEASE}"
         PG_SRC_BRANCH_NIGHTLY="TDE_REL_${PG_MAJOR}_STABLE"
         PG_RPM_RELEASE='1'
         PG_DEB_RELEASE='1'
@@ -87,7 +87,7 @@ case "$1" in
         PG_OIDC_PRODUCT_DEB=percona-pg-oidc-validator${PG_MAJOR}
         PG_OIDC_PRODUCT_FULL=${PG_OIDC_PRODUCT}-${PG_OIDC_VERSION}
         PG_OIDC_RELEASE='4'
-        PG_OIDC_SRC_BRANCH="release-${PG_OIDC_VERSION}"
+        PG_OIDC_SRC_BRANCH="1.0.0"
         PG_OIDC_RPM_RELEASE='4'
         PG_OIDC_DEB_RELEASE='4'
         # urls

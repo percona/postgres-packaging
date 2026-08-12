@@ -100,11 +100,9 @@ deb_deps() {
 
   if [[ "$COMPONENT" == "postgis" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
-    if [ "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
       pushd /etc/ImageMagick-* > /dev/null
       sed -i 's/rights="none"/rights="read|write"/' policy.xml
       popd > /dev/null
-    fi
   fi
 
   if [[ "$COMPONENT" == "pgpool2" ]]; then

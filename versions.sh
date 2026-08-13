@@ -8,7 +8,7 @@ PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 POSTGRES_COMMON_VERSION=293
 PG_TDE_VERSION=2.2.2
-PATRONI_VERSION=4.1.4
+PATRONI_VERSION=4.1.5
 PG_CRON_VERSION=1.6.7
 PG_GATHER_VERSION=33
 PG_REPACK_VERSION=1.5.3
@@ -20,7 +20,7 @@ PGVECTOR_VERSION=0.8.6
 POSTGIS35_VERSION=3.5
 POSTGIS35_MINOR=7
 WAL2JSON_VERSION=2.6
-PG_OIDC_VERSION=1.0
+PG_OIDC_VERSION=1.1
 
 #-------------------------------------- COMMON URLs --------------------------------------
 
@@ -86,10 +86,10 @@ case "$1" in
         PG_OIDC_PRODUCT=percona-pg_oidc_validator${PG_MAJOR}
         PG_OIDC_PRODUCT_DEB=percona-pg-oidc-validator${PG_MAJOR}
         PG_OIDC_PRODUCT_FULL=${PG_OIDC_PRODUCT}-${PG_OIDC_VERSION}
-        PG_OIDC_RELEASE='4'
-        PG_OIDC_SRC_BRANCH="1.0.0"
-        PG_OIDC_RPM_RELEASE='4'
-        PG_OIDC_DEB_RELEASE='4'
+        PG_OIDC_RELEASE='1'
+        PG_OIDC_SRC_BRANCH="1.1.0"
+        PG_OIDC_RPM_RELEASE='1'
+        PG_OIDC_DEB_RELEASE='1'
         # urls
         PG_OIDC_SRC_REPO="https://github.com/Percona-Lab/pg_oidc_validator.git"
     ;;

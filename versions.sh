@@ -20,7 +20,7 @@ PGVECTOR_VERSION=0.8.6
 POSTGIS35_VERSION=3.5
 POSTGIS35_MINOR=7
 WAL2JSON_VERSION=2.6
-PG_OIDC_VERSION=1.1
+PG_OIDC_VERSION=1.1.0
 
 #-------------------------------------- COMMON URLs --------------------------------------
 

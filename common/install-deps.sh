@@ -52,7 +52,7 @@ deb_deps() {
   DEBIAN_FRONTEND=noninteractive apt-get -y install git gnupg2 curl wget lsb-release quilt
   export DEBIAN=$(lsb_release -sc)
   export ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-  #add_percona_apt_repo
+  add_percona_apt_repo
 
   if [[ "$COMPONENT" == "ydiff" || "$COMPONENT" == "pysyncobj" ]]; then
     if [ "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then

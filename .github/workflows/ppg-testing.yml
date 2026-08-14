@@ -9,7 +9,7 @@ on:
         default: ppg-15.16
         type: choice
         options:
-          - ppg-18.5
+          - ppg-18.6
           - ppg-17.11
           - ppg-16.15
           - ppg-15.19

@@ -3,11 +3,11 @@
 #-------------------------------------- VERSIONS OF ALL COMPONENTS --------------------------------------
 
 PG_MAJOR=18
-PG_MINOR=4
+PG_MINOR=6
 PG_VERSION=${PG_MAJOR}.${PG_MINOR}
 
 PG_CRON_VERSION=1.6.7
-TIMESCALEDB_VERSION=2.28.2
+TIMESCALEDB_VERSION=2.29.2
 H3_PG_VERSION=4.5.0
 PGROUTING_MAJOR=4.0
 PGROUTING_MINOR=1
@@ -17,7 +17,7 @@ PG_SIMILARITY_VERSION=1.0
 RUM_VERSION=1.3.15
 POSTGRESQL_UNIT_VERSION=7.10
 ANON_VERSION=3.1.3
-PG_PARTMAN_VERSION=5.4.3
+PG_PARTMAN_VERSION=5.5.0
 IP4R_VERSION=2.4.3
 
 #-------------------------------------- COMMON URLs --------------------------------------
@@ -180,9 +180,9 @@ case "$1" in
         # versions
         PG_PARTMAN_PRODUCT=percona-pg_partman_${PG_MAJOR}
         PG_PARTMAN_PRODUCT_FULL=${PG_PARTMAN_PRODUCT}-${PG_PARTMAN_VERSION}
-        PG_PARTMAN_RELEASE='2'
+        PG_PARTMAN_RELEASE='1'
         PG_PARTMAN_SRC_BRANCH="v${PG_PARTMAN_VERSION}"
-        PG_PARTMAN_RPM_RELEASE='2'
+        PG_PARTMAN_RPM_RELEASE='1'
 
         # urls
         PG_PARTMAN_SRC_REPO="https://github.com/pgpartman/pg_partman.git"

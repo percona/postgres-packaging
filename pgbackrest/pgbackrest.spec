@@ -25,11 +25,11 @@ BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c+
 %endif
 
 %if 0%{?suse_version} >= 1500
-Requires:	libopenssl3
+Requires:	libopenssl3 libsystemd0
 BuildRequires:	libopenssl-3-devel
 %endif
 %if 0%{?fedora} >= 42 || 0%{?rhel} >= 8
-Requires:	openssl-libs >= 1.1.1k
+Requires:	openssl-libs >= 1.1.1k systemd-libs
 BuildRequires:	openssl-devel
 %endif
 
@@ -38,7 +38,7 @@ Requires:	lz4-libs libzstd libssh2
 BuildRequires:	lz4-devel bzip2-devel ninja-build
 %endif
 %if 0%{?suse_version} && 0%{?suse_version} >= 1500
-Requires:	liblz4-1 libzstd1 libssh2-1
+Requires:	liblz4-1 libzstd1 libssh2-1 libsystemd0
 BuildRequires:	liblz4-devel libbz2-devel ninja
 %endif
 
@@ -148,6 +148,9 @@ fi
 %attr(-,postgres,postgres) /var/spool/pgbackrest
 
 %changelog
+* Thu Aug 20 2026  Manika Singhal <manika.singhal@percona.com> - 2.59.1
+- Update pgBackrest to 2.59.1
+
 * Thu Jan 29 2026  Manika Singhal <manika.singhal@percona.com> - 2.58.0
 - Update pgBackrest to 2.58.0
 

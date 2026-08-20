@@ -11,7 +11,7 @@ rpm_deps() {
 
   if [[ "${RHEL}" -eq 8 ]]; then
     dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
-    if [[ "$COMPONENT" == "pgrepack" || "$COMPONENT" == "patroni" ]]; then
+    if [[ "$COMPONENT" == "pgrepack" ]]; then
       INSTALL_LIST+="python3-devel "
     fi
     if [[ "$COMPONENT" == "ppg-server-ha" ]]; then
@@ -21,7 +21,7 @@ rpm_deps() {
       INSTALL_LIST+="gdal38-devel proj95-devel geos311-devel "
     fi
     if [[ "$COMPONENT" == "patroni" ]]; then
-      INSTALL_LIST+="python3-setuptools python3-psycopg2 "
+      INSTALL_LIST+="python3.12-setuptools python3.12-devel python3.12-psycopg2 "
     fi
     if [[ "$COMPONENT" == "pg_tde" ]]; then
       INSTALL_LIST+="gcc-toolset-14 "
@@ -97,11 +97,9 @@ deb_deps() {
 
   if [[ "$COMPONENT" == "postgis" ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
-    if [ "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
       pushd /etc/ImageMagick-* > /dev/null
       sed -i 's/rights="none"/rights="read|write"/' policy.xml
       popd > /dev/null
-    fi
   fi
 
   if [[ "$COMPONENT" == "pgpool2" ]]; then
@@ -170,7 +168,7 @@ case "$COMPONENT" in
       DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
       ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
       dpkg-reconfigure --frontend noninteractive tzdata
-      INSTALL_LIST+="bison pkgconf build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb liblz4-dev libcurl4-openssl-dev libzstd-dev libnuma-dev percona-postgresql-common-dev"
+      INSTALL_LIST+="bison pkgconf build-essential ccache cron debconf debhelper devscripts dh-exec docbook-xml docbook-xsl dpkg-dev flex gcc gettext krb5-multidev libbsd-resource-perl libedit-dev libicu-dev libipc-run-perl libkrb5-dev libldap-dev libldap2-dev libmemchan-tcl-dev libpam0g-dev libperl-dev libpython3-dev libreadline-dev libselinux1-dev libssl-dev libsystemd-dev libwww-perl libxml2-dev libxml2-utils libxslt-dev libxslt1-dev llvm-dev perl python3 python3-dev systemtap-sdt-dev tcl-dev tcl8.6-dev uuid-dev vim xsltproc zlib1g-dev rename clang gdb lz4 liblz4-dev libcurl4-openssl-dev zstd libzstd-dev libnuma-dev percona-postgresql-common-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
       # generate a temporary numa.pc file if libnuma-dev does not provide it
       if ! pkg-config --exists numa 2>/dev/null; then
@@ -215,7 +213,7 @@ EOF
   pg_tde)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
-      INSTALL_LIST+="sudo wget git vim chrpath clang-devel-20.1.8 clang-20.1.8 llvm-devel-20.1.8 json-c-devel libcurl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel rpmdevtools binutils meson gcc gcc-c++ cmake"
+      INSTALL_LIST+="sudo wget git vim chrpath clang-devel clang llvm-devel json-c-devel libcurl-devel openssl-devel lz4-devel zlib-devel libzstd-devel libxml2-devel libxslt-devel libselinux-devel pam-devel krb5-devel readline-devel gettext percona-postgresql${PG_MAJOR}-devel rpmdevtools binutils meson gcc gcc-c++ cmake"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps

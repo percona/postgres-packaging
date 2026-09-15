@@ -115,9 +115,9 @@ jobs:
           if [ "${{ inputs.distro }}" = "rpm" ]; then
             PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10"]'
           elif [ "${{ inputs.distro }}" = "deb" ]; then
-            PLATFORM='["ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:bullseye","debian:trixie"]'
+            PLATFORM='["ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:trixie"]'
           else
-            PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10","ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:bullseye","debian:trixie"]'
+            PLATFORM='["oraclelinux:8","oraclelinux:9","oraclelinux:10","ubuntu:noble","ubuntu:jammy","ubuntu:resolute","debian:bookworm","debian:trixie"]'
           fi
           BUILD_MATRIX=$(jq -c -n \
             --argjson pkgs "$PKG" \
@@ -504,7 +504,6 @@ jobs:
           if [ "${{ inputs.distro }}" = "deb" ] || [ "${{ inputs.distro }}" = "rpm-and-deb" ]; then
             cp -n artifacts/*-source_deb/* "${{ env.UPLOAD_PATH }}/source_deb/"
             cp -n artifacts/*-bookworm-*/* "${{ env.UPLOAD_PATH }}/deb/"
-            cp -n artifacts/*-bullseye-*/* "${{ env.UPLOAD_PATH }}/deb/"
             cp -n artifacts/*-jammy-*/* "${{ env.UPLOAD_PATH }}/deb/"
             cp -n artifacts/*-noble-*/* "${{ env.UPLOAD_PATH }}/deb/"
             cp -n artifacts/*-trixie-*/* "${{ env.UPLOAD_PATH }}/deb/"

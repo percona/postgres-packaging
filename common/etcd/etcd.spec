@@ -51,7 +51,7 @@ of a distributed system, with a focus on being:
 
 %install
 %{__mkdir} -p %{buildroot}/%{_bindir}
-%{__cp} etcd etcdctl %{buildroot}/%{_bindir}
+%{__cp} etcd etcdctl etcdutl %{buildroot}/%{_bindir}
 
 %{__mkdir} -p %{buildroot}/%{_sysconfdir}/%{name}
 %{__cp} %{SOURCE2} %{buildroot}/%{_sysconfdir}/%{name}/%{name}.conf.yaml
@@ -84,6 +84,7 @@ getent passwd %{name} >/dev/null || useradd -r -g %{name} -d %{_sharedstatedir}/
 %{_unitdir}/%{name}.service
 %attr(755, root, root) %{_bindir}/etcd
 %attr(755, root, root) %{_bindir}/etcdctl
+%attr(755, root, root) %{_bindir}/etcdutl
 
 %changelog
 * Thu Feb 1 2024 Devrim Gündüz <devrim@gunduz.org> - 3.5.12-1PGDG

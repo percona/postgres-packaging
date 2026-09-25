@@ -56,9 +56,9 @@ case "$1" in
         PGBOUNCER_PRODUCT=percona-pgbouncer
         PGBOUNCER_PRODUCT_FULL=${PGBOUNCER_PRODUCT}-${PGBOUNCER_VERSION}
         PGBOUNCER_SRC_BRANCH="pgbouncer_${PGBOUNCER_VERSION//./_}"
-        PGBOUNCER_RPM_RELEASE='2'
-        PGBOUNCER_DEB_RELEASE='2'
-        PGBOUNCER_RELEASE='2'
+        PGBOUNCER_RPM_RELEASE='1'
+        PGBOUNCER_DEB_RELEASE='1'
+        PGBOUNCER_RELEASE='1'
 
         # urls
         PGBOUNCER_SRC_REPO="https://github.com/pgbouncer/pgbouncer.git"

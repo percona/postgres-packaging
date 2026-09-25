@@ -364,7 +364,7 @@ jobs:
 
   build-rpm-deb:
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
-    needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb, build-etcd-arm-srpm-sdeb]
+    needs: [prepare-matrix, pull-build-files, build-source-tarball, build-srpm-sdeb]
 
     strategy:
       fail-fast: false

@@ -427,7 +427,7 @@ build_curl(){
 	wget_retry https://curl.se/download/curl-${CURL_VERSION}.tar.gz
 	tar -xvzf curl-${CURL_VERSION}.tar.gz
 	cd curl-${CURL_VERSION}
-	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH ./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-ssl=${SSL_INSTALL_PATH} --with-zlib=${DEPENDENCY_LIBS_PATH}
+	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH ./configure --prefix=${DEPENDENCY_LIBS_PATH} --with-ssl=${SSL_INSTALL_PATH} --with-zlib=${DEPENDENCY_LIBS_PATH} --without-libpsl
 	LD_LIBRARY_PATH=${DEPENDENCY_LIBS_PATH}/lib64:${DEPENDENCY_LIBS_PATH}/lib:$LD_LIBRARY_PATH make
 	make install
 	build_status "ends" "curl"

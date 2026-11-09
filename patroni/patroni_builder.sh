@@ -67,13 +67,15 @@ get_sources(){
     sed -i 's|patroni.yml.sample|debian/patroni.yml.sample|g' percona-patroni.install
     echo "debian/tmp/usr/lib" >> percona-patroni.install
     echo "debian/tmp/usr/bin" >> percona-patroni.install
-    echo "docs/README.rst" >> percona-patroni-doc.install
+    echo "docs/build/html usr/share/doc/patroni" >> percona-patroni-doc.install
+    echo "docs/README.rst" >> percona-patroni-doc.docs
     cd ../
     mkdir rpm
     mv all_packaging/RPM/* rpm/
     cd rpm
     rm -f patroni.spec
     wget ${PKG_RAW_URL}/patroni/patroni.spec
+    wget ${PKG_RAW_URL}/patroni/disable-sphinx-github-style.patch
     sed -i 's:/opt/app:/opt:g' patroni.2.service
     sed -i 's:/opt/patroni/bin:/usr/bin:' patroni.2.service
     sed -i 's:/opt/patroni/etc/:/etc/patroni/:' patroni.2.service

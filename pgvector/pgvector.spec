@@ -3,9 +3,11 @@
 %global pname vector
 %global sname percona-pgvector_%{pgmajorversion}
 
-%if 0%{?rhel} && 0%{?rhel} == 9
+%if 0%{?rhel} >= 8 && 0%{?rhel} <= 9
 %global gts_version 14
 %endif
+
+%{!?runselftest:%global runselftest 0}
 
 %ifarch ppc64 ppc64le s390 s390x armv7hl
  %if 0%{?rhel} && 0%{?rhel} == 7
@@ -17,23 +19,47 @@
  %{!?llvm:%global llvm 1}
 %endif
 
+# Propagate %%llvm into the actual build: PGXS decides whether to invoke
+# clang/llvm-config based on with_llvm from the installed postgresql*-devel's
+# Makefile.global, not from this spec's %%llvm. Without passing with_llvm=no
+# through to make, setting %%llvm 0 here only drops the llvm BuildRequires/
+# subpackage/files, while the build still tries to run clang regardless.
+%if %llvm
+%global with_llvm_arg %{nil}
+%else
+%global with_llvm_arg with_llvm=no
+%endif
+
 Name:		%{sname}
 Version:	%{version}
 Release:	%{release}%{?dist}
 Summary:	Open-source vector similarity search for Postgres
 License:	PostgreSQL
-URL:		https://github.com/%{sname}/%{sname}/
+URL:		https://github.com/pgvector/pgvector/
 Source0:	%{name}-%{version}.tar.gz
 
 BuildRequires:	percona-postgresql%{pgmajorversion}-devel
+%if %llvm && ( 0%{?rhel} || 0%{?fedora} )
+BuildRequires:	clang llvm
+%endif
 %if 0%{?gts_version}
 BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
 %endif
 Requires:	postgresql%{pgmajorversion}-server
+%if %runselftest
+BuildRequires:	percona-postgresql%{pgmajorversion}-server pgdg-srpm-macros >= 2.0.0
+%endif
 
 %description
-Open-source vector similarity search for Postgres. Supports L2 distance,
-inner product, and cosine distance
+Open-source vector similarity search for Postgres.
+
+Store your vectors with the rest of your data. Supports:
+
+* exact and approximate nearest neighbor search
+* single-precision, half-precision, binary, and sparse vectors
+* L2 distance, inner product, cosine distance, L1 distance, Hamming distance,
+  and Jaccard distance
+* any language with a Postgres client
 
 %if %llvm
 %package llvmjit
@@ -48,13 +74,20 @@ Requires:	llvm17
 BuildRequires:	llvm19-devel clang19-devel
 Requires:	llvm19
 %endif
-%if 0%{?fedora} || 0%{?rhel} >= 8
-BuildRequires:        llvm-devel >= 19.0 clang-devel >= 19.0
-Requires:	llvm => 19.0
+%if 0%{?suse_version} > 1600
+BuildRequires:	llvm-devel clang-devel
+%endif
+%if 0%{?amzn}
+BuildRequires:	llvm-devel >= 15.0 clang-devel >= 15.0
+Requires:	llvm >= 15.0
+%endif
+%if ( 0%{?fedora} || 0%{?rhel} >= 8 ) && !0%{?amzn}
+BuildRequires:	llvm-devel >= 19.0 clang-devel >= 19.0
+Requires:	llvm >= 19.0
 %endif
 
 %description llvmjit
-This packages provides JIT support for pgvector
+This package provides JIT support for pgvector
 %endif
 
 %prep
@@ -65,18 +98,27 @@ This packages provides JIT support for pgvector
 	source /opt/rh/gcc-toolset-14/enable
 %endif
 sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgmajorversion}/bin/pg_config:' Makefile
-USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags}
+USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} %{with_llvm_arg}
 
 %install
 %{__rm} -rf %{buildroot}
-USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR=%{buildroot}
+USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} %{with_llvm_arg} install DESTDIR=%{buildroot}
 
 #Remove header file, we don't need it right now:
 %{__rm} %{buildroot}%{pginstdir}/include/server/extension/%{pname}/%{pname}.h
 
+%if %runselftest
+%check
+%pgdg_check_installcheck %{with_llvm_arg}
+%endif
+
 %files
 %doc README.md
 %license LICENSE
+%dir %{pginstdir}
+%dir %{pginstdir}/lib
+%dir %{pginstdir}/share
+%dir %{pginstdir}/share/extension
 %{pginstdir}/lib/%{pname}.so
 %{pginstdir}/share/extension//%{pname}.control
 %{pginstdir}/share/extension/%{pname}*sql
@@ -85,11 +127,18 @@ USE_PGXS=1 PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR
 
 %if %llvm
 %files llvmjit
+   %dir %{pginstdir}/lib
+   %dir %{pginstdir}/lib/bitcode
+   %dir %{pginstdir}/lib/bitcode/%{pname}
+   %dir %{pginstdir}/lib/bitcode/%{pname}/src
    %{pginstdir}/lib/bitcode/%{pname}*.bc
    %{pginstdir}/lib/bitcode/%{pname}/src/*.bc
 %endif
 
 %changelog
+* Wed Nov 04 2026 Percona Development Team <info@percona.com> - 0.8.6-1
+- Update to upstream version 0.8.6
+
 * Thu Jun 27 2024 Muhammad Aqeel <muhammad.aqeel@percona.com> - 0.7.2-1
 - Initial build 0.7.2
 

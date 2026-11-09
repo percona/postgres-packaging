@@ -3,11 +3,11 @@
 include /usr/share/postgresql-common/pgxs_debian_control.mk
 
 override_dh_pgxs_test:
-	rm -rf /tmp/pg-repack-tablespace
-	mkdir /tmp/pg-repack-tablespace
-	+PATH=$(firstword $(wildcard $(CURDIR)/debian/postgresql-*-repack/usr/lib/postgresql/@@PGMAJOR@@/bin)):$(PATH) \
-		pg_buildext -i'--auth=trust' installcheck . regress postgresql-%v-repack
-	rm -rf /tmp/pg-repack-tablespace
+	rm -rf /tmp/pg-repack-*
+	mkdir /tmp/pg-repack-testts '/tmp/pg-repack-test"ts' '/tmp/pg-repack-test ts' '/tmp/pg-repack-1testts'
+	+PATH=$(firstword $(wildcard $(CURDIR)/debian/percona-postgresql-*-repack/usr/lib/postgresql/@@PGMAJOR@@/bin)):$(PATH) \
+		pg_buildext -i'--auth=trust' installcheck . regress percona-postgresql-%v-repack
+	rm -rf /tmp/pg-repack-*
 
 override_dh_auto_build:
 
@@ -18,7 +18,12 @@ override_dh_installdocs:
 	dh_installdocs --all doc/*
 
 override_dh_auto_install:
+	sed -i 's|\$$(libpq)|-lpgcommon -lpgport \$$(libpq)|g' bin/Makefile
 	+pg_buildext loop percona-postgresql-%v-repack
+	# pg_buildext sets postgresql:Depends to the bare postgresql-NN. control
+	# already lists percona-postgresql-NN | postgresql-NN, so blank it: a bare
+	# postgresql-NN would let apt pick the distribution's own server first.
+	sed -i 's/^postgresql:Depends=.*/postgresql:Depends=/' debian/percona-postgresql-*-repack.substvars
 	# Install an alternative for /usr/bin/pg_repack. We could wrap this
 	# using pg_wrapper, but it doesn't matter which binary gets used (it
 	# figures out the server version by itself), so we just use the one for

@@ -3,6 +3,9 @@
 include /usr/share/dpkg/architecture.mk
 
 export PYBUILD_NAME=psycopg2
+# Debian 11 still has python2.7 in the build root; this package is Python 3-only
+# (setup.py uses kw-only args). Tell pybuild not to probe python2.
+export PYBUILD_DISABLE=python2
 DEFAULT_PYTHON3 = $(shell py3versions -d)
 DEFAULT_BUILDIR = $(shell $(DEFAULT_PYTHON3) -c 'from distutils.command.build import build; from distutils.core import Distribution; b = build(Distribution()); b.finalize_options(); print(b.build_platlib)')
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
@@ -10,7 +13,7 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@ --with python3,sphinxdoc --buildsystem=pybuild
 
-override_dh_buildde:
+override_dh_builddeb:
 	dh_builddeb -- -Zgzip
 
 override_dh_auto_build-indep:
@@ -24,9 +27,6 @@ override_dh_auto_build-indep:
 override_dh_link:
 	rm -rf $(CURDIR)/debian/python3-psycopg2-dbg/usr/share/doc/python3-psycopg2-dbg
 	dh_link
-
-override_dh_strip:
-	dh_strip --no-automatic-dbgsym
 
 override_dh_auto_test-arch:
 #ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))

@@ -1,5 +1,6 @@
+%global debug_package %{nil}
+
 %global sname   percona-pg_gather
-%global version %{version}
 %global pgmajorversion %{pgmajor}
 %global pginstdir /usr/pgsql-%{pgmajorversion}
 
@@ -27,6 +28,9 @@ mkdir -p $RPM_BUILD_ROOT/%{_bindir} $RPM_BUILD_ROOT/%{pginstdir}
 %{__install} -p -D -m 0755 gather.sql %{buildroot}%{pginstdir}/share/contrib/gather.sql
 
 %files
+%dir %{pginstdir}
+%dir %{pginstdir}/share
+%dir %{pginstdir}/share/contrib
 %attr (755,root,root) %{pginstdir}/share/contrib/gather.sql
 
 %clean

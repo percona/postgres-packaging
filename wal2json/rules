@@ -6,6 +6,7 @@ override_dh_pgxs_test:
 	-o wal_level=logical \
 	-o max_replication_slots=5 \
 	-o extra_float_digits=0 \
+	-o output_plugin_libraries=wal2json \
 	installcheck build-%v percona-postgresql-%v-wal2json
 
 %:

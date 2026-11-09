@@ -40,7 +40,6 @@ get_sources(){
     mkdir source
     echo "3.0 (quilt)" > source/format
     echo $PG_MAJOR > pgversions
-    echo 9 > compat
     echo "percona-pgaudit$PG_MAJOR-set-user (${PGAUDIT_SET_USER_VERSION}-${SET_USER_RELEASE}) unstable; urgency=low" >> changelog
     echo "  * Initial Release." >> changelog
     echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog

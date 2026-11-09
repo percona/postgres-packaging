@@ -2,7 +2,8 @@ Source: percona-pg-gather
 Maintainer: Percona Development Team <info@percona.com>
 Section: misc
 Priority: optional
-Standards-Version: @@PGGATHERVERSION@@
+Build-Depends: debhelper (>= 10)
+Standards-Version: 4.5.0
 
 
 Package: percona-pg-gather

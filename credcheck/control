@@ -1,0 +1,31 @@
+Source: percona-credcheck
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ libkrb5-dev,
+ percona-postgresql-server-dev-all (>= 153~),
+Standards-Version: 4.7.4
+Rules-Requires-Root: no
+Vcs-Browser: https://salsa.debian.org/postgresql/credcheck
+Vcs-Git: https://salsa.debian.org/postgresql/credcheck.git
+Homepage: https://github.com/HexaCluster/credcheck
+
+Package: percona-postgresql-@@PGMAJOR@@-credcheck
+Architecture: any
+Depends:
+ percona-postgresql-@@PGMAJOR@@,
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: PostgreSQL username/password checks
+ The credcheck PostgreSQL extension provides few general credential checks,
+ which will be evaluated during the user creation, during the password change
+ and user renaming. By using this extension, we can define a set of rules:
+ .
+  * allow a specific set of credentials
+  * reject a certain type of credentials
+  * deny password that can be easily cracked
+  * enforce use of an expiration date with a minimum of day for a password
+  * define a password reuse policy
+  * define the number of authentication failure allowed before a user is banned

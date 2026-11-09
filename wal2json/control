@@ -2,13 +2,16 @@ Source: percona-wal2json
 Maintainer: Percona Development Team <info@percona.com>
 Section: database
 Priority: optional
-Build-Depends: debhelper, percona-postgresql-all
-Standards-Version: 4.5.0
+Build-Depends: debhelper, mawk, percona-postgresql-server-dev-all (>= 153~)
+Standards-Version: 4.7.4
 Rules-Requires-Root: no
+Homepage: https://github.com/eulerto/wal2json
+Vcs-Git: https://salsa.debian.org/postgresql/wal2json.git
+Vcs-Browser: https://salsa.debian.org/postgresql/wal2json
 
 Package: percona-postgresql-@@PGMAJOR@@-wal2json
 Architecture: any
-Depends: percona-postgresql-@@PGMAJOR@@ | postgresql-@@PGMAJOR@@, ${misc:Depends}, ${shlibs:Depends}
+Depends: percona-postgresql-@@PGMAJOR@@, ${misc:Depends}, ${shlibs:Depends}
 Description: PostgreSQL logical decoding JSON output plugin
  wal2json is an output plugin for PostgreSQL's logical decoding. The plugin has
  access to tuples produced by INSERT and UPDATE. Also, UPDATE/DELETE old row

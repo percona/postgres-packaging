@@ -112,9 +112,9 @@ useradd -M -g postgres -o -r -d /var/lib/pgsql -s /bin/bash \
 
 %post
 if [ $1 -eq 1 ] ; then
-   /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+   /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
    %if 0%{?suse_version} >= 1500
-   %service_add_pre pgbackrest}.service
+   %service_add_pre pgbackrest.service
    %else
    %systemd_post pgbackrest.service
    %endif
@@ -123,16 +123,16 @@ fi
 %preun
 if [ $1 -eq 0 ] ; then
 	# Package removal, not upgrade
-	/bin/systemctl --no-reload disable %{name}.service >/dev/null 2>&1 || :
-	/bin/systemctl stop %{name}.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl --no-reload disable %{name}.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl stop %{name}.service >/dev/null 2>&1 || :
 fi
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 if [ $1 -ge 1 ] ; then
 	# Package upgrade, not uninstall
-	/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
 fi
 
 %files

@@ -13,10 +13,16 @@ Packager:       Percona Development Team <https://jira.percona.com>
 Vendor:         Percona, LLC
 
 Requires:       etcd
+%if 0%{?rhel}
+Requires:       python3.12-etcd
+%else
 Requires:       python3-etcd
+%endif
 Requires:       percona-patroni
 Requires:       percona-haproxy
 Requires:       percona-postgresql%{pgmajorversion}-server
+
+BuildArch:      noarch
 
 %description
 Essential / key PostgreSQL%{pgmajorversion} high availability components
@@ -26,6 +32,8 @@ from the community, tested to work together in demanding enterprise environments
 %files
 
 %changelog
+* Mon Nov 09 2026 Percona Development Team <info@percona.com> 15.20-5
+- Update version for ppg-server-ha meta-package
 * Thu May 08 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 15.13-1
 - Update version for ppg-server-ha meta-package
 * Thu Feb 20 2025 Muhammad Aqeel <muhammad.aqeel@percona.com> 15.12-1

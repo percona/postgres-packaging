@@ -1,6 +1,6 @@
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 
-%if 0%{?rhel} && 0%{?rhel} == 9
+%if 0%{?rhel} >= 8 && 0%{?rhel} <= 9
 %global gts_version 14
 %endif
 
@@ -18,12 +18,13 @@ Source0:        percona-pgaudit-%{version}.tar.gz
 Patch0:		all.patch
 
 BuildRequires:  gcc
-BuildRequires:  percona-postgresql%{pgmajorversion}-server
-BuildRequires:  percona-postgresql%{pgmajorversion}-devel
-BuildRequires:  openssl-devel 
 %if 0%{?gts_version}
 BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
 %endif
+BuildRequires:  percona-postgresql%{pgmajorversion}-devel
+BuildRequires:  openssl-devel
+BuildRequires:  clang llvm
+BuildRequires:  krb5-devel
 
 Requires:       postgresql%{pgmajorversion}
 Requires:       postgresql%{pgmajorversion}-libs
@@ -69,8 +70,14 @@ sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgmajorversion}/bin/pg_
 %files
 %defattr(-,root,root,-)
 %doc %{pginstdir}/doc/extension/README-pgaudit.md
+%dir %{pginstdir}
+%dir %{pginstdir}/lib
+%dir %{pginstdir}/lib/bitcode
+%dir %{pginstdir}/lib/bitcode/pgaudit
+%dir %{pginstdir}/share
+%dir %{pginstdir}/share/extension
 %{pginstdir}/lib/pgaudit.so
-%{pginstdir}/share/extension/pgaudit--1.7*.sql
+%{pginstdir}/share/extension/pgaudit--*.sql
 %{pginstdir}/lib/bitcode/pgaudit*.bc
 %{pginstdir}/lib/bitcode/pgaudit/pgaudit*.bc
 %{pginstdir}/share/extension/pgaudit.control

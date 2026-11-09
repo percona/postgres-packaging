@@ -505,6 +505,21 @@ with a PostgreSQL database management server. It also contains the ecpg
 Embedded C Postgres preprocessor. You need to install this package if you want
 to develop applications which will interact with a PostgreSQL server.
 
+%package static
+Summary:        Statically linked PostgreSQL libraries
+Requires:        %{name}-devel >= %{version}-%{release}
+Provides:        %{name}-static = %{version}-%{release}
+Provides:        %{name}-static >= %{version}-%{release}
+Provides:        %{vname}-static = %{epoch}:%{version}-%{release}
+Provides:        %{sname}-static = %{epoch}:%{version}-%{release}
+Obsoletes:       %{sname}-static <= %{epoch}:%{version}-%{release}
+Obsoletes:       %{vname}-static <= %{epoch}:%{version}-%{release}
+Epoch:          1
+
+%description static
+Statically linked PostgreSQL libraries that do not have dynamically linked
+counterparts.
+
 %if %llvm
 %package llvmjit
 Summary:        Just-in-time compilation support for PostgreSQL
@@ -935,7 +950,7 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 
 %if %sysuserd
 # Install sysusers.d config file to allow rpm to create users/groups automatically.
-%{__install} -m 0644 -D %{SOURCE20} %{buildroot}%{_sysusersdir}/%{sname}%{pgpackageversion}-pgdg.conf
+%{__install} -m 0644 -D %{SOURCE20} %{buildroot}%{_sysusersdir}/%{sname}%{pgpackageversion}.conf
 %endif
 
 %if %test
@@ -973,9 +988,6 @@ sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE3} > %{sname}.init
 %{__mkdir} -p %{buildroot}%{pgbaseinstdir}/share/man/
 %{__mv} doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7 %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/pgsql
-
-# These file(s) should not be packaged:
-%{__rm} %{buildroot}%{pgbaseinstdir}/lib/libpgfeutils.a
 
 # initialize file lists
 %{__cp} /dev/null main.lst
@@ -1036,6 +1048,11 @@ done
 
 cat pg_amcheck-%{pgmajorversion}.lang > pg_contrib.lst
 cat libpq5-%{pgmajorversion}.lang > pg_libpq5.lst
+# find_lang lists only the .mo files; own the locale directory tree, too.
+# -libs is the base of the dependency chain (ecpg's runtime libs live there
+# too, but its own .mo files are shipped in -devel; -devel Requires -libs).
+find %{buildroot}%{pgbaseinstdir}/share/locale -type d | sed "s|^%{buildroot}|%%dir |" > pg_localedirs.lst
+cat pg_localedirs.lst >> pg_libpq5.lst
 cat pg_config-%{pgmajorversion}.lang ecpg-%{pgmajorversion}.lang ecpglib6-%{pgmajorversion}.lang > pg_devel.lst
 cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
 cat postgres-%{pgmajorversion}.lang pg_resetwal-%{pgmajorversion}.lang pg_checksums-%{pgmajorversion}.lang pg_verifybackup-%{pgmajorversion}.lang pg_controldata-%{pgmajorversion}.lang plpgsql-%{pgmajorversion}.lang pg_test_timing-%{pgmajorversion}.lang pg_test_fsync-%{pgmajorversion}.lang pg_archivecleanup-%{pgmajorversion}.lang pg_waldump-%{pgmajorversion}.lang pg_rewind-%{pgmajorversion}.lang pg_upgrade-%{pgmajorversion}.lang > pg_server.lst
@@ -1224,8 +1241,8 @@ fi
 %{pgbaseinstdir}/share/man/man1/psql.*
 %{pgbaseinstdir}/share/man/man1/reindexdb.*
 %{pgbaseinstdir}/share/man/man1/vacuumdb.*
-%{pgbaseinstdir}/share/man/man3/*
-%{pgbaseinstdir}/share/man/man7/*
+%{pgbaseinstdir}/share/man/man3
+%{pgbaseinstdir}/share/man/man7
 
 %files docs
 %defattr(-,root,root)
@@ -1393,7 +1410,7 @@ fi
 %{_bindir}/%{sname}-%{pgmajorversion}-setup
 %{pgbaseinstdir}/bin/%{sname}-%{pgmajorversion}-check-db-dir
 %if %sysuserd
-%{_sysusersdir}/%{sname}%{pgpackageversion}-pgdg.conf
+%{_sysusersdir}/%{sname}%{pgpackageversion}.conf
 %endif
 %{_tmpfilesdir}/%{sname}-%{pgmajorversion}.conf
 %{_unitdir}/%{sname}-%{pgmajorversion}.service
@@ -1515,6 +1532,9 @@ fi
 %{pgbaseinstdir}/lib/plpython3.so
 %{pgbaseinstdir}/share/extension/*_plpython3u*
 %endif
+
+%files static
+%{pgbaseinstdir}/lib/libpgfeutils.a
 
 %if %test
 %files test

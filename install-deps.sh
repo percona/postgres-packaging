@@ -207,6 +207,19 @@ EOF
     ;;
 
 
+  credcheck)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST+="wget git vim binutils gcc gcc-c++ rpm-build rpmdevtools clang clang-devel llvm-devel krb5-devel openssl-devel percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server"
+      dnf -y install ${INSTALL_LIST}
+    else
+      deb_deps
+      INSTALL_LIST+="build-essential dpkg-dev debconf debhelper clang devscripts dh-exec libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
+    fi
+    ;;
+
+
   wal2json)
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps

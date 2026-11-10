@@ -58,6 +58,9 @@ rpm_deps() {
 
   if [[ "${RHEL}" -le 9 ]]; then
     INSTALL_LIST+="gcc-toolset-14 "
+    if [[ "$COMPONENT" == "postgresql" ]]; then
+      INSTALL_LIST+="python3.12-devel "
+    fi
   fi
 
   if [[ "${RHEL}" -eq 9 ]]; then
@@ -66,9 +69,6 @@ rpm_deps() {
     fi
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal311-devel proj95-devel geos311-devel "
-    fi
-    if [[ "$COMPONENT" == "postgresql" ]]; then
-      INSTALL_LIST+="python3.12-devel "
     fi
   fi
 

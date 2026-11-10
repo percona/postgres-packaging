@@ -42,9 +42,9 @@ case "$1" in
         PGBADGER_PRODUCT=percona-pgbadger
         PGBADGER_PRODUCT_FULL=${PGBADGER_PRODUCT}-${PGBADGER_VERSION}
         PGBADGER_SRC_BRANCH="v${PGBADGER_VERSION}"
-        PGBADGER_RPM_RELEASE='3'
-        PGBADGER_DEB_RELEASE='3'
-        PGBADGER_RELEASE='3'
+        PGBADGER_RPM_RELEASE='4'
+        PGBADGER_DEB_RELEASE='4'
+        PGBADGER_RELEASE='4'
 
         # urls
         PGBADGER_SRC_REPO="https://github.com/darold/pgbadger.git"
@@ -86,9 +86,9 @@ case "$1" in
         YDIFF_PRODUCT=python3-ydiff
         YDIFF_PRODUCT_FULL=${YDIFF_PRODUCT}-${YDIFF_VERSION}
         YDIFF_SRC_BRANCH="${YDIFF_VERSION}"
-        YDIFF_RPM_RELEASE='3'
-        YDIFF_DEB_RELEASE='3'
-        YDIFF_RELEASE='3'
+        YDIFF_RPM_RELEASE='4'
+        YDIFF_DEB_RELEASE='4'
+        YDIFF_RELEASE='4'
 
         # urls
         YDIFF_SRC_REPO="https://github.com/ymattw/ydiff.git"

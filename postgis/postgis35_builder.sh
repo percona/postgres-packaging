@@ -36,7 +36,7 @@ get_sources(){
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgis.properties
-    rm -fr debian extras
+    rm -fr debian extras/rpm
 
     git clone ${POSTGIS_SRC_REPO_DEB} deb_packaging
     cd deb_packaging
@@ -75,8 +75,9 @@ get_sources(){
     mv pgrpms/rpm/redhat/main/non-common/postgis35/main/* rpm/
     rm -rf pgrpms
     cd rpm
-        rm -f postgis35.spec
+        rm -f postgis35.spec postgis35-filter-requires-perl-Pg.sh
         wget ${PKG_RAW_URL}/postgis/rpm/percona-postgis35.spec
+        wget ${PKG_RAW_URL}/postgis/rpm/postgis35-filter-requires-perl-Pg.sh
     cd ../
     cd ${WORKDIR}
     #

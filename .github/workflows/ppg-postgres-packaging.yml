@@ -6,7 +6,7 @@ on:
       pg_versions:
         description: PostgreSQL versions to build (comma separated)
         required: true
-        default: "14.24,15.19,16.15,17.11,18.5"
+        default: "14.25,15.20,16.16,17.12,18.7"
 
       packaging-repo:
         description: packaging repo to be used

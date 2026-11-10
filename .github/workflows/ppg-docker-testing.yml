@@ -6,14 +6,14 @@ on:
       pg-version:
         description: pg version for docker image
         required: true
-        default: '15.18'
+        default: '15.20'
         type: choice
         options:
-          - '18.5'
-          - '17.11'
-          - '16.15'
-          - '15.19'
-          - '14.24'
+          - '18.7'
+          - '17.12'
+          - '16.16'
+          - '15.20'
+          - '14.25'
 
       arch:
         description: architecture

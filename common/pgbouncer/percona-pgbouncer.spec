@@ -17,7 +17,7 @@ Source4:	%{sname}.service
 Source5:	%{sname}.service.rhel7
 Patch0:		%{sname}-ini.patch
 
-BuildRequires:	libevent-devel >= 2.0 libtool pandoc
+BuildRequires:	libevent-devel >= 2.0 libtool pandoc systemd-devel
 Requires:	libevent >= 2.0
 Requires:	python3 python3-psycopg2
 BuildRequires:	openssl-devel pam-devel
@@ -31,7 +31,7 @@ Requires:	openssl-libs >= 1.1.1k
 BuildRequires:	openssl-devel
 %endif
 
-%if 0%{?fedora} >= 41 || 0%{?rhel} >= 9
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
 BuildRequires:	c-ares-devel >= 1.13
 Requires:	c-ares >= 1.13
 %endif
@@ -48,7 +48,11 @@ Requires:	libldap-2_4-2
 BuildRequires:	openldap2-devel
 Requires:	libldap-2
 %endif
-%if 0%{?fedora} >= 41 || 0%{?rhel} >= 9
+%if 0%{?suse_version} > 1600
+BuildRequires:	openldap2-devel
+Requires:	libldap-2_5-0
+%endif
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 8
 BuildRequires:	openldap-devel
 Requires:	openldap
 %endif
@@ -56,12 +60,18 @@ Requires:	openldap
 %if %{systemd_enabled}
 BuildRequires:		systemd
 Requires:		systemd
+%if !0%{?suse_version}
 Requires(post):		systemd-sysv
+%endif
 Requires(post):		systemd
 Requires(preun):	systemd
 Requires(postun):	systemd
 %endif
+%if 0%{?suse_version}
+Requires(pre):	shadow
+%else
 Requires:	/usr/sbin/useradd
+%endif
 Provides:   pgbouncer
 Epoch:		1
 
@@ -72,7 +82,7 @@ pgbouncer uses libevent for low-level socket handling.
 
 %prep
 %setup -q
-%patch0 -p0
+%patch -P 0 -p0
 
 
 %build
@@ -84,7 +94,7 @@ sed -i.fedora \
 
 %configure \
         --datadir=%{_datadir} \
-%if 0%{?rhel} >= 9
+%if 0%{?rhel} >= 8
         --with-cares --disable-evdns \
 %else
         --without-cares \

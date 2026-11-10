@@ -13,9 +13,10 @@
 %global        __ospython %{_bindir}/python3.13
 %global        python3_pkgversion 3.13
 %endif
-%if 0%{?rhel} && 0%{?rhel} <= 10
-%global	__ospython %{_bindir}/python3.12
-%global	python3_pkgversion 3.12
+%if 0%{?rhel} && 0%{?rhel} >= 8
+%global __ospython %{_bindir}/python3.12
+%global python3_pkgversion 3.12
+%global __requires_exclude ^python3\\.12dist
 %endif
 %if 0%{?suse_version} == 1500
 %global        __ospython %{_bindir}/python3.11
@@ -25,8 +26,12 @@
 %global        __ospython %{_bindir}/python3.13
 %global        python3_pkgversion 313
 %endif
+%if 0%{?suse_version} > 1600
+%global        __ospython %{_bindir}/python3.13
+%global        python3_pkgversion 313
+%endif
 %{expand: %%global py3ver %(echo `%{__ospython} -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')" `)}
-%global python3_sitelib %(%{__ospython} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+%global python3_sitelib %(%{__ospython} -Esc "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '/usr', 'base': '%{_prefix}'}))")
 
 Name:           ydiff
 Version:        %{version}
@@ -36,10 +41,11 @@ URL:            https://github.com/ymattw/ydiff
 License:        BSD
 Source0:        %{name}-%{version}.tar.gz
 BuildRequires:  python%{python3_pkgversion}-devel
-Requires:        less
+BuildRequires:  python%{python3_pkgversion}-setuptools
+Requires:       less
 Requires:       python%{python3_pkgversion}-%{name}
 
-Provides:        python%{python3_pkgversion}dist(ydiff)
+Provides:       python%{python3_pkgversion}dist(ydiff)
 
 %description
 Term based tool to view colored, incremental diff in a Git/Mercurial/Svn

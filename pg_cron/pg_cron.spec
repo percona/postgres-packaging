@@ -2,11 +2,22 @@
 %define pginstdir /usr/pgsql-%{pgmajorversion}/
 %global sname percona-pg_cron_%{pgmajorversion}
 
-%if 0%{?rhel} && 0%{?rhel} == 9
+%if 0%{?rhel} && 0%{?rhel} <= 9
 %global gts_version 14
 %endif
 
 %{!?llvm:%global llvm 1}
+%{!?runselftest:%global runselftest 0}
+# Propagate %%llvm into the actual build: PGXS decides whether to invoke
+# clang/llvm-config based on with_llvm from the installed postgresql*-devel's
+# Makefile.global, not from this spec's %%llvm. Without passing with_llvm=no
+# through to make, setting %%llvm 0 here only drops the llvm BuildRequires/
+# subpackage/files, while the build still tries to run clang regardless.
+%if %llvm
+%global with_llvm_arg %{nil}
+%else
+%global with_llvm_arg with_llvm=no
+%endif
 
 Summary:	Run periodic jobs in PostgreSQL
 Name:		%{sname}
@@ -22,6 +33,9 @@ BuildRequires:	percona-postgresql%{pgmajorversion}-devel libxml2-devel
 BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
 %endif
 Requires:	postgresql%{pgmajorversion}-server
+%if %runselftest
+BuildRequires:        percona-postgresql%{pgmajorversion}-server pgdg-srpm-macros >= 2.0.0
+%endif
 Requires(post):	%{_sbindir}/update-alternatives
 Requires(postun):	%{_sbindir}/update-alternatives
 
@@ -66,15 +80,23 @@ This packages provides JIT support for pg_cron
 
 %build
 %if 0%{?gts_version}
-	source /opt/rh/gcc-toolset-14/enable
+	source /opt/rh/gcc-toolset-%{gts_version}/enable
 %endif
-PATH=%{pginstdir}/bin/:$PATH %{__make} %{?_smp_mflags}
+PATH=%{pginstdir}/bin/:$PATH %{__make} %{?_smp_mflags} %{with_llvm_arg}
 
 %install
-PATH=%{pginstdir}/bin/:$PATH %make_install
+PATH=%{pginstdir}/bin/:$PATH %make_install %{with_llvm_arg}
 # Install documentation with a better name:
 %{__mkdir} -p %{buildroot}%{pginstdir}/doc/extension
 %{__cp} README.md %{buildroot}%{pginstdir}/doc/extension/README-pg_cron.md
+
+%check
+%if %runselftest
+# pg_cron's installcheck runs the tests in a temporary instance of its own,
+# with pg_cron preloaded, so there is no need to start a server here.
+%pgdg_check_init
+pgdg_installcheck %{with_llvm_arg}
+%endif
 
 %files
 %defattr(-,root,root,-)

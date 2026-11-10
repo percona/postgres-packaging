@@ -1,6 +1,33 @@
 #!/usr/bin/env bash
 set -x
 
+# Resolve EL major.minor (8.10, 9.8, 10.2, ...) and pin it into the PGDG repo file.
+# Override with PGDG_EL_RELEASE=10.2 if needed.
+fix_pgdg_releasever() {
+    local repo=/etc/yum.repos.d/pgdg-redhat-all.repo
+    [ -f "$repo" ] || return 0
+
+    local ver="${PGDG_EL_RELEASE:-}"
+    if [ -z "$ver" ]; then
+        . /etc/os-release
+        ver="$VERSION_ID"                       # e.g. 10.2, 9.8, 8.10 – or just "10" on Stream
+    fi
+
+    # keep only major.minor (works for 1- or 2-digit minors: 8.10, 10.2)
+    ver=$(echo "$ver" | cut -d. -f1,2)
+
+    # bare major (CentOS Stream, minimal images): fall back to a known minor
+    case "$ver" in
+        *.*) ;;
+        8)  ver=8.10 ;;
+        9)  ver=9.8  ;;
+        10) ver=10.2 ;;
+        *)  echo "fix_pgdg_releasever: unsupported EL release '$ver'" >&2; return 1 ;;
+    esac
+
+    echo "Using PGDG EL release $ver"
+    sed -i "s/\$releasever_major\.\$releasever_minor/${ver}/g" "$repo"
+}
 
 # ---------- RPMs dependencies -----------
 rpm_deps() {
@@ -29,13 +56,16 @@ rpm_deps() {
     fi
   fi
 
-  if [[ "${RHEL}" -eq 9 ]]; then
+  if [[ "${RHEL}" -le 9 ]]; then
     INSTALL_LIST+="gcc-toolset-14 "
     if [[ "$COMPONENT" == "pgpool2" ]]; then
       sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/oracle-linux-ol9.repo
     fi
     if [[ "$COMPONENT" == "postgis" ]]; then
       INSTALL_LIST+="gdal311-devel proj95-devel geos311-devel "
+    fi
+    if [[ "$COMPONENT" == "postgresql" ]]; then
+      INSTALL_LIST+="python3.12-devel "
     fi
   fi
 
@@ -70,12 +100,13 @@ rpm_deps() {
     dnf config-manager --set-enabled PowerTools || dnf config-manager --set-enabled powertools || true
   fi
 
-  if [[ "$COMPONENT" == "postgis" ]]; then
+  if [[ "$COMPONENT" == "postgis" || "$COMPONENT" == "credcheck" ]]; then
     yum -y install wget
     yum config-manager --enable PowerTools AppStream BaseOS *epel || true
     yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL}.noarch.rpm
     wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/reporpms/EL-${RHEL}-${ARCH}/pgdg-redhat-repo-latest.noarch.rpm
     yum -y install pgdg-redhat-repo-latest.noarch.rpm
+    fix_pgdg_releasever
     yum -y install pgdg-srpm-macros
   fi
 
@@ -117,8 +148,9 @@ deb_deps() {
     if [ "x${DEBIAN}" = "xbookworm" -o "x${DEBIAN}" = "xnoble" -o "x${DEBIAN}" = "xtrixie" -o "x${DEBIAN}" = "xresolute" ]; then
         apt-get install -y python3-sphinxcontrib.apidoc python3-pysyncobj python3-boto3
     elif [ "x${DEBIAN}" = "xjammy" -o "x${DEBIAN}" = "xbullseye" ]; then
-        pip3 install --upgrade sphinx sphinx-rtd-theme
-        pip3 install sphinxcontrib.apidoc pysyncobj boto3
+        #pip3 install --upgrade sphinx sphinx-rtd-theme
+        #pip3 install sphinxcontrib.apidoc pysyncobj boto3
+        pip3 install pysyncobj boto3
     fi
   fi
 
@@ -155,7 +187,7 @@ case "$COMPONENT" in
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST+="wget git vim rpm-build chrpath rpmdevtools clang perl-generators bison flex gettext patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed selinux-policy systemd systemd-devel systemtap-sdt-devel perl-IPC-Run perl-Test-Simple binutils gcc gcc-c++ cmake cyrus-sasl-devel make docbook-xsl "
-      INSTALL_LIST+="clang-devel python3-devel llvm-devel glibc-devel e2fsprogs-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel readline-devel tcl-devel zlib-devel lz4-devel libzstd-devel bzip2-devel libcurl-devel"
+      INSTALL_LIST+="clang-devel python3-devel llvm-devel glibc-devel e2fsprogs-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel pam-devel readline-devel tcl-devel zlib-devel lz4-devel libzstd-devel bzip2-devel libcurl-devel selinux-policy-devel"
       dnf -y install ${INSTALL_LIST}
       if [ ! -f  /usr/bin/llvm-config ]; then
         ln -s /usr/bin/llvm-config-64 /usr/bin/llvm-config
@@ -308,7 +340,7 @@ EOF
         make
         make install
       cd ../
-      INSTALL_LIST+="wget git vim rpm-build rpmdevtools libssh2-devel libcurl-devel lz4-devel lz4-libs libyaml-devel percona-postgresql${PG_MAJOR}-devel systemd systemd-devel bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libssh-devel libzstd-devel lz4-devel meson libtool cmake"
+      INSTALL_LIST+="wget git vim rpm-build rpmdevtools libssh2-devel libcurl-devel lz4-devel lz4-libs libyaml-devel percona-postgresql${PG_MAJOR}-devel systemd systemd-devel bzip2-devel libxml2-devel openssl-devel perl perl-DBD-Pg perl-Digest-SHA perl-IO-Socket-SSL perl-JSON-PP zlib-devel gcc make autoconf perl-ExtUtils-Embed libssh-devel libzstd-devel lz4-devel meson libtool cmake selinux-policy-devel python3-pyyaml"
       dnf -y install ${INSTALL_LIST}
       dnf -y install lz4 || true
       dnf -y install perl-libxml-perl || true
@@ -351,11 +383,11 @@ EOF
     if [ "x$OS" = "xrpm" ]; then
       rpm_deps
       INSTALL_LIST+="wget git vim binutils gcc gcc-c++ rpm-build rpmdevtools clang-devel clang percona-postgresql${PG_MAJOR} perl-generators bison flex patch perl perl-ExtUtils-MakeMaker perl-ExtUtils-Embed percona-postgresql${PG_MAJOR}-devel percona-postgresql${PG_MAJOR}-server selinux-policy systemd systemd-devel systemtap-sdt-devel "
-      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel openssl-libs pam-devel readline-devel tcl-devel zlib-devel libzstd-devel lz4-devel libcurl-devel"
+      INSTALL_LIST+="llvm-devel python3-devel e2fsprogs-devel gettext glibc-devel krb5-devel libicu-devel libselinux-devel libuuid-devel libxml2-devel libxslt-devel openldap-devel openssl-devel openssl-libs pam-devel readline-devel tcl-devel zlib-devel libzstd-devel lz4-devel libcurl-devel numactl-devel"
       dnf -y install ${INSTALL_LIST}
     else
       deb_deps
-      INSTALL_LIST+="dpkg-dev build-essential percona-postgresql-${PG_MAJOR} debconf debhelper devscripts dh-exec libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all"
+      INSTALL_LIST+="dpkg-dev build-essential percona-postgresql-${PG_MAJOR} debconf debhelper devscripts dh-exec libkrb5-dev libssl-dev percona-postgresql-common percona-postgresql-server-dev-all liblz4-dev libnuma-dev libreadline-dev libzstd-dev zlib1g-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;
@@ -396,6 +428,19 @@ EOF
     else
       deb_deps
       INSTALL_LIST+="build-essential debconf debhelper clang devscripts dh-exec fakeroot dh-virtualenv python3-psycopg2 libyaml-dev python3-virtualenv ruby ruby-dev rubygems golang libjs-mathjax pyflakes3 python3-dateutil python3-dnspython python3-etcd python3-flake8 python3-kazoo python3-mccabe python3-mock python3-prettytable python3-psutil python3-pycodestyle python3-pytest python3-pytest-cov python3-setuptools python3-dev python3-pip python3-sphinx python3-sphinx-rtd-theme python3-tz python3-tzlocal sphinx-common python3-click python3-doc python3-cdiff dh-python python3-pysyncobj python3-sphinxcontrib.apidoc python3-ydiff"
+      DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
+    fi
+    ;;
+
+  
+  credcheck)
+    if [ "x$OS" = "xrpm" ]; then
+      rpm_deps
+      INSTALL_LIST+="wget git vim rpm-build percona-postgresql${PG_MAJOR}-devel krb5-devel gcc gcc-c++ openssl-devel percona-postgresql${PG_MAJOR}-server perl-IPC-Run perl-Test-Harness clang-devel llvm-devel"
+      dnf -y install ${INSTALL_LIST}
+    else
+      deb_deps
+      INSTALL_LIST+="build-essential debconf debhelper clang devscripts dh-exec fakeroot dh-virtualenv percona-postgresql-server-dev-all libkrb5-dev"
       DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated install ${INSTALL_LIST}
     fi
     ;;

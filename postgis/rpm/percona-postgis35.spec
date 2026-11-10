@@ -6,11 +6,11 @@
 %global postgiscurrmajorversion %(echo %{postgismajorversion}|tr -d '.')
 %global sname	postgis
 
-%if 0%{?rhel} && 0%{?rhel} == 9
+%if 0%{?rhel} >= 8 && 0%{?rhel} <= 9
 %global gts_version 14
 %endif
 
-#%pgdg_set_gis_variables
+%pgdg_set_gis_variables
 
 # Override some variables. PostGIS 3.3 is best served with GeOS 3.11,
 # GDAL 3.4 and PROJ 9.0:
@@ -79,6 +79,7 @@
  %{!?llvm:%global llvm 1}
 %endif
 
+%{!?runselftest:%global runselftest 0}
 %{!?utils:%global	utils 1}
 %{!?shp2pgsqlgui:%global	shp2pgsqlgui 1}
 %if 0%{?suse_version} >= 1315
@@ -87,15 +88,11 @@
 %{!?raster:%global     raster 1}
 %endif
 
-%if 0%{?fedora} >= 42 || 0%{?rhel} >= 7 || 0%{?suse_version} >= 1500
-%ifnarch ppc64 ppc64le
-# TODO
-%{!?sfcgal:%global     sfcgal 1}
-%else
-%{!?sfcgal:%global     sfcgal 0}
+%if 0%{?fedora} >= 43 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1500
+%{!?sfcgal:%global	sfcgal 1}
 %endif
-%else
-%{!?sfcgal:%global    sfcgal 0}
+%if 0%{?rhel} == 8
+%{!?sfcgal:%global	sfcgal 1}
 %endif
 
 Summary:	Geographic Information Systems Extensions to PostgreSQL
@@ -115,6 +112,16 @@ BuildRequires:	pgdg-srpm-macros >= 1.0.53 gmp-devel pcre2-devel
 %if 0%{?gts_version}
 BuildRequires:  gcc-toolset-%{gts_version}-gcc gcc-toolset-%{gts_version}-gcc-c++ gcc-toolset-%{gts_version}-annobin-plugin-gcc
 %endif
+
+%if %runselftest
+BuildRequires:        percona-postgresql%{pgmajorversion}-server percona-postgresql%{pgmajorversion}-contrib
+%if 0%{?suse_version} >= 1500
+BuildRequires:        cunit-devel
+%else
+BuildRequires:        CUnit-devel
+%endif
+%endif
+
 %if 0%{?fedora} >= 42 || 0%{?rhel} >= 8
 Requires:       pcre2
 %else
@@ -159,7 +166,7 @@ Requires:	protobuf-c >= 1.1.0
 BuildRequires:	protobuf-c-devel >= 1.1.0
 %endif
 
-Requires:	percona-postgresql%{pgmajorversion} geos%{geosmajorversion} >= %{geosfullversion}
+Requires:	percona-postgresql%{pgmajorversion} geos%{geosmajorversion} >= %{geosfullversion} percona-postgresql%{pgmajorversion}-contrib
 Requires:	percona-postgresql%{pgmajorversion}-contrib proj%{projmajorversion} >= %{projfullversion}
 Requires:	libgeotiff%{libgeotiffmajorversion}
 Requires:	hdf5
@@ -204,6 +211,7 @@ Provides:	%{sname}2_%{pgmajorversion}-client => %{postgismajorversion}.0
 The %{name}-client package contains the client tools and their libraries
 of PostGIS.
 
+%if %{sfcgal}
 %package devel
 Summary:	Development headers and libraries for PostGIS
 Requires:	%{name}%{?_isa} = %{version}-%{release}
@@ -215,6 +223,7 @@ Provides:	%{sname}2_%{pgmajorversion}-devel => %{postgismajorversion}.0
 The %{name}-devel package contains the header files and libraries
 needed to compile C or C++ applications which will directly interact
 with PostGIS.
+%endif
 
 %package docs
 Summary:	Extra documentation for PostGIS
@@ -270,8 +279,9 @@ This packages provides JIT support for postgis35
 
 %prep
 %setup -q -n percona-postgis-%{version}
-%{__cp} -p %{SOURCE2} %{sname}-%{version}.pdf
+%{__cp} -p %{SOURCE2} .
 # Copy .pdf file to top directory before installing.
+%{__cp} -p %{SOURCE2} %{sname}-%{version}.pdf
 
 %build
 LDFLAGS="-Wl,-rpath,%{geosinstdir}/lib64 ${LDFLAGS}" ; export LDFLAGS
@@ -290,7 +300,7 @@ sh -x autogen.sh
 autoconf
 
 %if 0%{?gts_version}
-        source /opt/rh/gcc-toolset-14/enable
+        source /opt/rh/gcc-toolset-%{gts_version}/enable
 %endif
 
 %configure --with-pgconfig=%{pginstdir}/bin/pg_config \
@@ -304,11 +314,13 @@ autoconf
 %endif
 %if %{sfcgal}
 	--with-sfcgal=%{_bindir}/sfcgal-config \
+%else
+  --without-sfcgal \
 %endif
 %if %{shp2pgsqlgui}
 	--with-gui \
 %endif
-%if 0%{?fedora} >= 42 || 0%{?rhel} >= 8  || 0%{?suse_version} >= 1500
+%if 0%{?fedora} >= 42 || 0%{?rhel} >= 8 || 0%{?suse_version} >= 1500
 	--with-protobuf \
 %else
 	--without-protobuf \
@@ -333,13 +345,37 @@ SHLIB_LINK="$SHLIB_LINK" %{__make} LPATH=`%{pginstdir}/bin/pg_config --pkglibdir
 %install
 %{__rm} -rf %{buildroot}
 %if 0%{?gts_version}
-        source /opt/rh/gcc-toolset-14/enable
+        source /opt/rh/gcc-toolset-%{gts_version}/enable
 %endif
 SHLIB_LINK="$SHLIB_LINK" %{__make} %{?_smp_mflags} install DESTDIR=%{buildroot}
 
 %if %utils
 %{__install} -d %{buildroot}%{_datadir}/%{name}
 %{__install} -m 644 utils/*.pl %{buildroot}%{_datadir}/%{name}
+%endif
+
+%if %{raster}
+# PERCONA: assert the raster module resolves GDAL without ld.so.conf.d.
+readelf -d %{buildroot}%{pginstdir}/lib/postgis_raster-%{postgissomajorversion}.so \
+  | grep -qE '\((RUNPATH|RPATH)\).*%{gdalinstdir}/lib' \
+  || { echo "PERCONA: postgis_raster lacks RUNPATH to %{gdalinstdir}/lib"; exit 1; }
+%endif
+%check
+%if %runselftest
+%pgdg_check_init
+pgdg_check_start main
+# The unit tests of liblwgeom, the loader and the raster core. They need CUnit.
+%{__make} check-unit %{with_llvm_arg}
+# PostGIS runs its regression tests with a harness of its own, run_test.pl.
+# installcheck-base makes it load PostGIS with CREATE EXTENSION, from this
+# package's files, and then run the tests once more after upgrading the
+# extensions. Keep the harness' files in the build directory instead of the
+# shared /tmp/pgis_reg, and print the diffs of the failed tests.
+export PGIS_REG_TMPDIR=$PGDG_CHECK_DIR/pgis_reg
+%{__make} installcheck-base %{with_llvm_arg} || {
+        find $PGIS_REG_TMPDIR -name '*_diff' -printf '===== %p\n' -exec cat {} \;
+        exit 1
+}
 %endif
 
 # Create alternatives entries for common binaries
@@ -419,8 +455,11 @@ fi
 %{_mandir}/%{name}/man1/pgtopo_*
 %{_mandir}/%{name}/man1/shp2pgsql*
 
+%if %{sfcgal}
 %files devel
 %defattr(644,root,root)
+%{pginstdir}/lib/bitcode/postgis_sfcgal-3/postgis_sfcgal_legacy.bc
+%endif
 
 %files docs
 %defattr(-,root,root)
@@ -449,7 +488,6 @@ fi
    %if %{sfcgal}
    %{pginstdir}/lib/bitcode/postgis_sfcgal-%{postgissomajorversion}.index.bc
    %{pginstdir}/lib/bitcode/postgis_sfcgal-%{postgissomajorversion}/lwgeom_sfcgal.bc
-   %{pginstdir}/lib/bitcode/postgis_sfcgal-3/postgis_sfcgal_legacy.bc
    %endif
 %endif
 

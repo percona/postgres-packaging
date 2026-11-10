@@ -10,7 +10,7 @@ override_dh_builddeb:
 	dh_builddeb -- -Zgzip
 
 override_dh_pgxs_test:
-	+pg_buildext -o 'shared_preload_libraries=pg_cron' installcheck . . postgresql-%v-cron
+	+pg_buildext -o 'shared_preload_libraries=pg_cron' installcheck . . percona-postgresql-%v-cron
 
 %:
 	dh $@

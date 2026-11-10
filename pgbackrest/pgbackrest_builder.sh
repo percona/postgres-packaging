@@ -64,6 +64,8 @@ get_sources(){
     wget ${PKG_RAW_URL}/pgbackrest/pgbackrest.logrotate
     wget ${PKG_RAW_URL}/pgbackrest/pgbackrest-tmpfiles.d
     wget ${PKG_RAW_URL}/pgbackrest/pgbackrest.conf
+    wget ${PKG_RAW_URL}/pgbackrest/pgbackrest-sysusers.conf
+    wget ${PKG_RAW_URL}/pgbackrest/pgbackrest-sshd-selinux.te
     cd ${WORKDIR}
     #
     source pgbackrest.properties

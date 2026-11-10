@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+
+override_dh_installdocs:
+	dh_installdocs --all README.*
+
+override_dh_pgxs_test:
+	+pg_buildext -o 'shared_preload_libraries=credcheck' installcheck . . percona-postgresql-%v-credcheck
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+	# Ubuntu's dh_builddeb renames auto-dbgsym .deb -> .ddeb (so they would be
+	# routed to ddebs.ubuntu.com) and records the renamed name in debian/files.
+	# OBS's apt-repo publisher only indexes *.deb, so undo both: rename the
+	# files on disk AND rewrite debian/files, otherwise dpkg-genbuildinfo /
+	# dpkg-genchanges fail to fstat the .ddeb names listed there. No-op on
+	# Debian.
+	if ls ../*-dbgsym_*.ddeb >/dev/null 2>&1; then \
+	  for f in ../*-dbgsym_*.ddeb; do \
+	    mv -v "$$f" "$${f%.ddeb}.deb"; \
+	  done; \
+	  sed -i 's/\(-dbgsym_[^ ]*\)\.ddeb/\1.deb/g' debian/files; \
+	fi
+
+%:
+	dh $@

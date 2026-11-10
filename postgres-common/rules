@@ -22,6 +22,15 @@ DEFAULT_VER := @@PGMAJOR@@
 override_dh_builddeb:
 	dh_builddeb -- -Zgzip
 
+# pg_updateaptconfig marks the server packages of every major that has a
+# cluster NeverAutoRemove, but its "^postgresql.*-NN" pattern does not match
+# our percona-postgresql-NN names; add a pattern for them.
+override_dh_install:
+	dh_install
+	sed -i 's|^\(\s*\)echo "    \\"^postgresql\.\*-$$version\\";" >> $$TMPCONF$$|&\n\1echo "    \\"^percona-postgresql.*-$$version\\";" >> $$TMPCONF|' \
+		debian/postgresql-common/usr/share/postgresql-common/pg_updateaptconfig
+	grep -q '"^percona-postgresql' debian/postgresql-common/usr/share/postgresql-common/pg_updateaptconfig
+
 override_dh_auto_configure:
 	@echo "### Building percona-postgresql-common flavor $(FLAVOR)"
 	@echo "### Supported PostgreSQL versions: $(SUPPORTED_VERSIONS) (default version: $(DEFAULT_VER))"

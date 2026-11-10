@@ -36,7 +36,7 @@ get_sources(){
     fi
     REVISION=$(git rev-parse --short HEAD)
     echo "REVISION=${REVISION}" >> ${WORKDIR}/percona-postgis.properties
-    rm -fr debian rpm
+    rm -fr debian extras
 
     git clone ${POSTGIS_SRC_REPO_DEB} deb_packaging
     cd deb_packaging

@@ -58,6 +58,9 @@ rpm_deps() {
 
   if [[ "${RHEL}" -le 9 ]]; then
     INSTALL_LIST+="gcc-toolset-14 "
+  fi
+
+  if [[ "${RHEL}" -eq 9 ]]; then
     if [[ "$COMPONENT" == "pgpool2" ]]; then
       sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/oracle-linux-ol9.repo
     fi

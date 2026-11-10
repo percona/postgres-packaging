@@ -6,14 +6,14 @@ on:
       ppg-repo:
         description: ppg repo to be tested
         required: true
-        default: ppg-15.16
+        default: ppg-15.20
         type: choice
         options:
-          - ppg-18.6
-          - ppg-17.11
-          - ppg-16.15
-          - ppg-15.19
-          - ppg-14.24
+          - ppg-18.7
+          - ppg-17.12
+          - ppg-16.16
+          - ppg-15.20
+          - ppg-14.25
 
       major-repo:
         description: tick for major repo testing

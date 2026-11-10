@@ -60,27 +60,6 @@
  }
  
  remove_doc_version() {
-@@ -267,13 +267,13 @@ postinst_check_catversion()
- 	  pg_dropcluster ${MAJOR_VER} ${cluster}.old
- 	  rm -rf ${VARTMPDIR}
- 	EOF
--        db_fset postgresql-common/catversion-bump seen false
--        db_subst postgresql-common/catversion-bump version $MAJOR_VER
--        db_subst postgresql-common/catversion-bump cluster $cluster
--        db_subst postgresql-common/catversion-bump db_catversion $DB_CATVERSION
--        db_subst postgresql-common/catversion-bump new_catversion $NEW_CATVERSION
--        db_subst postgresql-common/catversion-bump vartmpdir $VARTMPDIR
--        db_input high postgresql-common/catversion-bump || true
-+        db_fset percona-postgresql-common/catversion-bump seen false
-+        db_subst percona-postgresql-common/catversion-bump version $MAJOR_VER
-+        db_subst percona-postgresql-common/catversion-bump cluster $cluster
-+        db_subst percona-postgresql-common/catversion-bump db_catversion $DB_CATVERSION
-+        db_subst percona-postgresql-common/catversion-bump new_catversion $NEW_CATVERSION
-+        db_subst percona-postgresql-common/catversion-bump vartmpdir $VARTMPDIR
-+        db_input high percona-postgresql-common/catversion-bump || true
-         db_go || true
-     done
- }
 @@ -281,7 +281,7 @@ postinst_check_catversion()
  # start debconf if we are in the server's postinst (can't run from a function)
  if [ "${DPKG_MAINTSCRIPT_NAME:-}" = "postinst" ] && [ "$1" = "configure" ]; then

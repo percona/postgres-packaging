@@ -54,10 +54,10 @@ case "$1" in
         # versions
         PPG_COMMON_PRODUCT=percona-postgresql-common
         PPG_COMMON_PRODUCT_FULL=${PPG_COMMON_PRODUCT}-${POSTGRES_COMMON_VERSION}
-        PPG_COMMON_RELEASE='1'
+        PPG_COMMON_RELEASE='2'
         PPG_COMMON_SRC_BRANCH="debian/${POSTGRES_COMMON_VERSION}"
-        PPG_COMMON_RPM_RELEASE='1'
-        PPG_COMMON_DEB_RELEASE='1'
+        PPG_COMMON_RPM_RELEASE='2'
+        PPG_COMMON_DEB_RELEASE='2'
 
         # urls
         PPG_COMMON_SRC_REPO="https://salsa.debian.org/postgresql/postgresql-common.git"
@@ -222,10 +222,10 @@ case "$1" in
         # versions
         POSTGIS_PRODUCT=percona-postgis
         POSTGIS_PRODUCT_FULL=${POSTGIS_PRODUCT}-${POSTGIS35_VERSION}.${POSTGIS35_MINOR}
-        POSTGIS35_RELEASE='2'
+        POSTGIS35_RELEASE='3'
         POSTGIS_SRC_BRANCH="${POSTGIS35_VERSION}.${POSTGIS35_MINOR}"
-        POSTGIS_RPM_RELEASE='2'
-        POSTGIS_DEB_RELEASE='2'
+        POSTGIS_RPM_RELEASE='3'
+        POSTGIS_DEB_RELEASE='3'
 
         # urls
         POSTGIS_SRC_REPO="https://github.com/postgis/postgis.git"

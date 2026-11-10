@@ -21,14 +21,14 @@ on:
       ppg-repo:
         description: ppg-repo to pull ppg-common from
         required: true
-        default: "16.16"
+        default: "16.15"
         type: choice
         options:
-          - "18.7"
-          - "17.12"
-          - "16.16"
-          - "15.20"
-          - "14.25"
+          - "18.6"
+          - "17.11"
+          - "16.15"
+          - "15.19"
+          - "14.24"
 
       ppg-repo-type:
         description: ppg repo type
